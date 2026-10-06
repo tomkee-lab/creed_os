@@ -23,7 +23,7 @@
 
 <Story name="Growth" args={{ variant: 'growth', size: 'sm' }}>
   {#snippet template(args)}
-    <Badge {...args}>Demonstrated Competency</Badge>
+    <Badge {...args}>Level 4 Competency Verified</Badge>
   {/snippet}
 </Story>
 

@@ -15,7 +15,7 @@
     "design:audit": "node --experimental-strip-types design-system.audit.ts",
     "storybook": "pnpm --filter web storybook",
     "build-storybook": "pnpm --filter web build-storybook",
-    "chromatic": "chromatic --project-token=chpt_122ddc086d158ba --storybook-build-dir=apps/web/storybook-static",
+    "chromatic": "pnpm build-storybook && chromatic --project-token=chpt_122ddc086d158ba --storybook-build-dir=apps/web/storybook-static",
     "greptile:review": "greptile review",
     "greptile:status": "greptile review status",
     "greptile:config": "greptile config"

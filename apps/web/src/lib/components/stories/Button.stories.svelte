@@ -25,13 +25,13 @@
 
 <Story name="Primary" args={{ variant: 'primary', size: 'md' }}>
   {#snippet template(args)}
-    <Button {...args}>Explore Pathway &rarr;</Button>
+    <Button {...args}>Start 20-min Mission &rarr;</Button>
   {/snippet}
 </Story>
 
 <Story name="Secondary" args={{ variant: 'secondary', size: 'md' }}>
   {#snippet template(args)}
-    <Button {...args}>Secondary Action</Button>
+    <Button {...args}>Review Evidence Dossier</Button>
   {/snippet}
 </Story>
 

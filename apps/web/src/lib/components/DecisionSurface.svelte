@@ -50,7 +50,7 @@
       >
         {signal}
       </span>
-      <span class="text-[11px] text-(--text-muted) font-medium flex items-center gap-1">
+      <span class="text-[11px] text-(--text-secondary) font-medium flex items-center gap-1">
         <ShieldCheck class="w-3.5 h-3.5 text-(--accent-success)" />
         {evidenceBadge}
       </span>
@@ -72,7 +72,7 @@
       <button
         type="button"
         onclick={() => (showDisclosure = !showDisclosure)}
-        class="text-xs font-medium text-(--text-muted) hover:text-(--text-primary) inline-flex items-center gap-1 transition-colors cursor-pointer self-start sm:self-auto"
+        class="text-xs font-medium text-(--text-secondary) hover:text-(--text-primary) inline-flex items-center gap-1 transition-colors cursor-pointer self-start sm:self-auto"
       >
         <span>{disclosureTitle}</span>
         {#if showDisclosure}
