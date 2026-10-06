@@ -1,0 +1,9 @@
+{
+  "$schema": "https://www.chromatic.com/config-file.schema.json",
+  "storybookBuildDir": "apps/web/storybook-static",
+  "buildScriptName": "build-storybook",
+  "storybookBaseDir": "apps/web",
+  "storybookConfigDir": "apps/web/.storybook",
+  "autoAcceptChanges": "main",
+  "exitOnceUploaded": true
+}
