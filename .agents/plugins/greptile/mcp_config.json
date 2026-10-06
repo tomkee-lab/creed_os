@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "greptile": {
+      "serverUrl": "https://api.greptile.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${GREPTILE_API_KEY}"
+      }
+    }
+  }
+}

@@ -107,6 +107,7 @@ Located at the monorepo root:
 ```toml
 [mcp_servers.greptile]
 url = "https://api.greptile.com/mcp"
+bearer_token_env_var = "GREPTILE_API_KEY"
 ```
 
 #### 5. Antigravity IDE (`.agents/plugins/greptile/`)
