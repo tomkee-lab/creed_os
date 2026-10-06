@@ -59,6 +59,7 @@ Deep technical and product specifications are located in the [`docs/`](./docs) d
 - [WAY Design System Specification](./docs/DESIGN_SYSTEM.md)
 - [Security, Privacy & Child Safety Governance (DPDP Act)](./docs/SECURITY_GOVERNANCE.md)
 - [REST API & Contract Specification](./docs/API_SPEC.md)
+- [Greptile AI Code Review & Model Context Protocol (MCP) Integration](./docs/GREPTILE_INTEGRATION.md)
 
 ---
 

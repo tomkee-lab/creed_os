@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "greptile": {
+      "serverUrl": "https://api.greptile.com/mcp"
+    }
+  }
+}

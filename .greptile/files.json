@@ -1,0 +1,53 @@
+{
+  "$schema": "https://raw.githubusercontent.com/greptileai/greptile/main/schema/files.json",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "description": "CREED OS agent guidelines, architectural principles, package manager rules, and WAY design system governance."
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "description": "Comprehensive monorepo system architecture, layer boundaries, and state flows."
+    },
+    {
+      "path": "docs/PSYCHOMETRICS_CAT.md",
+      "description": "3PL IRT mathematical formulation, EAP Gauss-Hermite numerical integration, and CAT item selection rules."
+    },
+    {
+      "path": "docs/SECURITY_GOVERNANCE.md",
+      "description": "Child safety guidelines, DPDP Act compliance, parental consent state machine, and RLS access policies."
+    },
+    {
+      "path": "docs/DESIGN_SYSTEM.md",
+      "description": "WAY Design System specifications: OKLCH token definitions, typography, 8pt spacing rhythm, and zero-radius rules."
+    },
+    {
+      "path": "docs/PRODUCT_SPEC.md",
+      "description": "Product functional specification across Student, Parent, Teacher, Counselor, and Admin personas."
+    },
+    {
+      "path": "docs/API_SPEC.md",
+      "description": "Public and internal API contracts for assessment sessions, evidence engine, and mentoring endpoints."
+    },
+    {
+      "path": "packages/domain/src/schemas/consent.ts",
+      "description": "Parental consent state machine schema and DPDP compliance types.",
+      "scope": ["packages/domain/**", "apps/web/src/routes/api/**"]
+    },
+    {
+      "path": "packages/assessment/src/irt/cat.ts",
+      "description": "Computerized Adaptive Testing engine and deterministic IRT scoring routines.",
+      "scope": ["packages/assessment/**"]
+    },
+    {
+      "path": "packages/ai/src/mentor/socratic.ts",
+      "description": "Socratic Mentor pedagogical fallback engine and prompt guardrails.",
+      "scope": ["packages/ai/**"]
+    },
+    {
+      "path": "apps/web/src/app.css",
+      "description": "WAY Design System global CSS variables, OKLCH palette, and Tailwind 4 theme tokens.",
+      "scope": ["apps/web/**", "packages/ui/**"]
+    }
+  ]
+}

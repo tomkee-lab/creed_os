@@ -10,7 +10,10 @@
     "test": "turbo run test",
     "check": "turbo run check",
     "lint": "turbo run lint",
-    "clean": "turbo run clean"
+    "clean": "turbo run clean",
+    "greptile:review": "pnpm dlx greptile review",
+    "greptile:status": "pnpm dlx greptile review status",
+    "greptile:config": "pnpm dlx greptile config"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^4.0.0",

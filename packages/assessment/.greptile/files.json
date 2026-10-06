@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/greptileai/greptile/main/schema/files.json",
+  "files": [
+    {
+      "path": "src/index.ts",
+      "description": "Public exports and interface contracts for psychometrics and scoring routines."
+    },
+    {
+      "path": "src/bkt.ts",
+      "description": "Bayesian Knowledge Tracing (BKT) skill mastery probability updater."
+    }
+  ]
+}

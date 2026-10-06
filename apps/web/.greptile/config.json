@@ -1,0 +1,39 @@
+{
+  "$schema": "https://raw.githubusercontent.com/greptileai/greptile/main/schema/config.json",
+  "strictness": 2,
+  "commentTypes": ["syntax", "logic", "style"],
+  "instructions": "This package is the CREED OS web application built with Svelte 5, SvelteKit 2, Tailwind CSS 4, and the WAY Design System. Enforce: 1) Svelte 5 runes ($props, $state, $derived, $effect) exclusively, 2) WAY Design System zero-radius tactile styling (strictly rounded-none, no rounded-md or rounded-lg), 3) Semantic OKLCH tokens only (no ad-hoc hex codes), 4) Strict 8pt spacing rhythm, 5) Full interactive state coverage.",
+  "rules": [
+    {
+      "id": "svelte5-runes-mandatory",
+      "rule": "Every Svelte component must use Svelte 5 runes. Do not use legacy Svelte 4 'export let' or reactive declarations '$:'. Use $props(), $state(), and $derived().",
+      "severity": "high",
+      "enabled": true
+    },
+    {
+      "id": "way-zero-radius",
+      "rule": "Enforce zero rounded corners across all components, containers, cards, dialogs, inputs, and buttons. Never use rounded-sm, rounded-md, rounded-lg, or rounded-full unless specifically rendering circular avatars. Use rounded-none.",
+      "severity": "high",
+      "enabled": true
+    },
+    {
+      "id": "way-semantic-color-tokens",
+      "rule": "Do not hardcode hex color values (e.g. #03080e, #38bdf8). Use semantic CSS variable tokens: var(--surface-canvas), var(--surface-raised), var(--text-primary), var(--accent-cyan), etc.",
+      "severity": "high",
+      "enabled": true
+    },
+    {
+      "id": "no-psychometric-jargon-in-views",
+      "rule": "Never expose raw psychometric parameters (theta, SE, 3PL a/b/c, discrimination, information curves) to students or parents. Display growth-oriented narrative language instead.",
+      "scope": ["src/routes/(app)/**", "src/lib/components/**"],
+      "severity": "high",
+      "enabled": true
+    },
+    {
+      "id": "interactive-state-coverage",
+      "rule": "All interactive elements (buttons, links, inputs) must implement full state coverage: default, hover, active, focus-visible, and disabled states.",
+      "severity": "medium",
+      "enabled": true
+    }
+  ]
+}
