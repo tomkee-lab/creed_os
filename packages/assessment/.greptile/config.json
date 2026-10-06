@@ -1,0 +1,32 @@
+{
+  "strictness": 1,
+  "effort": "apex",
+  "commentTypes": ["logic", "syntax"],
+  "instructions": "This package is the core psychometrics and assessment calculation engine for CREED OS. Mathematical accuracy, deterministic reproducibility, and strict boundary validation are critical. Under no circumstances should unconstrained ML/LLM models compute scores or estimates.",
+  "rules": [
+    {
+      "id": "irt-parameter-bounds",
+      "rule": "Validate 3PL IRT item parameter bounds strictly: Discrimination 'a' in [0.2, 3.0], Difficulty 'b' in [-3.5, 3.5], Pseudo-guessing 'c' in [0.0, 0.35]. Out-of-bounds parameters must be rejected.",
+      "severity": "high",
+      "enabled": true
+    },
+    {
+      "id": "numerical-eap-quadrature",
+      "rule": "Ability estimation (theta) must use Expected A Posteriori (EAP) numerical quadrature with at least 41 integration nodes spanning [-4.0, 4.0] and standard normal prior N(0, 1).",
+      "severity": "high",
+      "enabled": true
+    },
+    {
+      "id": "deterministic-cat-selection",
+      "rule": "CAT next-item selection must be completely deterministic: maximize Fisher Test Information at current theta estimate, subject to exposure control constraints.",
+      "severity": "high",
+      "enabled": true
+    },
+    {
+      "id": "cat-stopping-conditions",
+      "rule": "Adaptive test termination must enforce dual stopping rules: standard error target (SE < 0.33) OR maximum item ceiling (e.g. 30 items). Never allow infinite question loops.",
+      "severity": "high",
+      "enabled": true
+    }
+  ]
+}

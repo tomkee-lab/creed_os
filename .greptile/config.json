@@ -1,0 +1,107 @@
+{
+  "strictness": 2,
+  "commentTypes": ["syntax", "logic", "style"],
+  "autoReview": ["open", "push", "rebase"],
+  "statusCheck": true,
+  "statusCommentsEnabled": true,
+  "fixWithAI": true,
+  "ignorePatterns": "**/*.generated.*\ndist/**\nbuild/**\nnode_modules/**\n.turbo/**\n.svelte-kit/**\napps/web/.svelte-kit/**\npnpm-lock.yaml\n*.log",
+  "summarySection": {
+    "included": true,
+    "collapsible": true,
+    "defaultOpen": true
+  },
+  "issuesTableSection": {
+    "included": true,
+    "collapsible": false,
+    "defaultOpen": true
+  },
+  "confidenceScoreSection": {
+    "included": true,
+    "collapsible": false,
+    "defaultOpen": true
+  },
+  "sequenceDiagramSection": {
+    "included": true,
+    "collapsible": true,
+    "defaultOpen": false
+  },
+  "autoApprove": {
+    "enabled": false,
+    "riskCeiling": "low",
+    "filters": {
+      "excludePaths": [
+        "packages/assessment/**",
+        "packages/domain/**",
+        "supabase/migrations/**",
+        ".github/workflows/**",
+        ".greptile/**"
+      ]
+    }
+  },
+  "instructions": "CREED OS is an AI-Native Learner Intelligence, Assessment, Learning & Pathway Navigation Platform. Strictly enforce: 1) pnpm exclusively (zero npm/yarn), 2) Deterministic psychometrics (3PL IRT / CAT / BKT, never raw LLMs for scoring), 3) Child safety & DPDP Act compliance (parental consent state machine gating), 4) Svelte 5 runes ($props, $state, $derived) in web apps, 5) WAY Design System zero-radius tactile token discipline (no ad-hoc hex values, no neon glows, 8pt spacing rhythm), 6) Effect pipelines for complex domain workflows.",
+  "rules": [
+    {
+      "id": "pnpm-strict-enforcement",
+      "rule": "pnpm is the ONLY permitted package manager in this workspace. Strictly flag and forbid any npm, npx, or yarn commands in shell scripts, GitHub Actions workflows, documentation, or package definitions. Use 'pnpm dlx' instead of 'npx'.",
+      "severity": "high",
+      "enabled": true
+    },
+    {
+      "id": "deterministic-psychometrics-scoring",
+      "rule": "Scoring and psychometric ability estimates (theta, SE, mastery probabilities) MUST be computed by deterministic algorithms (3PL IRT with Gauss-Hermite EAP quadrature, BKT), never by raw unconstrained LLMs. AI may explain developmental feedback, but deterministic algorithms score.",
+      "scope": ["packages/assessment/**", "packages/ai/**", "packages/domain/**"],
+      "severity": "high",
+      "enabled": true
+    },
+    {
+      "id": "dpdp-child-safety-consent",
+      "rule": "Child data protection (DPDP Act) and child safety are paramount. Ensure verified parental consent state machine gating before processing minor data. Enforce relationship-scoped Supabase RLS policies and ephemeral AI processing with zero LLM model retention.",
+      "scope": ["packages/domain/**", "packages/ai/**", "supabase/**", "apps/web/src/routes/api/**"],
+      "severity": "high",
+      "enabled": true
+    },
+    {
+      "id": "svelte5-runes-modern-architecture",
+      "rule": "All Svelte code must use Svelte 5 Runes ($props(), $state(), $derived(), $effect()). Legacy Svelte 4 syntax (export let, $:) is strictly prohibited.",
+      "scope": ["apps/web/src/**"],
+      "severity": "high",
+      "enabled": true
+    },
+    {
+      "id": "way-design-system-tokens",
+      "rule": "Adhere strictly to the WAY Design System: use semantic design tokens (--surface-canvas, --surface-raised, --text-primary, --accent-cyan, etc.) in OKLCH. Never use ad-hoc hex codes (#03080E, #38bdf8). Enforce zero rounded corners (rounded-none), strict 8pt spacing rhythm, and no glowing cyber-neon drop shadows.",
+      "scope": ["apps/web/src/**", "packages/ui/**"],
+      "severity": "medium",
+      "enabled": true
+    },
+    {
+      "id": "role-aware-vocabulary",
+      "rule": "Raw psychometric parameters (theta θ, SE, 3PL a/b/c parameters) must NEVER be exposed in student or parent facing views. Always translate psychometrics into human-first developmental growth language.",
+      "scope": ["apps/web/src/routes/(app)/**", "apps/web/src/lib/components/**"],
+      "severity": "high",
+      "enabled": true
+    },
+    {
+      "id": "effect-domain-pipelines",
+      "rule": "Domain workflows and assessment pipelines must use Effect for error handling, dependency injection, and functional composition. Ensure all async operations are properly typed with TaggedError instances and yieldable Effect generators.",
+      "scope": ["packages/domain/**", "packages/assessment/**"],
+      "severity": "medium",
+      "enabled": true
+    },
+    {
+      "id": "no-unhandled-async-errors",
+      "rule": "All asynchronous operations and API handlers must include explicit, robust error handling with contextual logging. Never swallow errors silently or return raw unformatted 500 stack traces.",
+      "severity": "high",
+      "enabled": true
+    },
+    {
+      "id": "secure-parameterized-queries",
+      "rule": "Never interpolate raw strings or unvalidated user input into database queries. Always use Supabase typed client methods or parameterized queries with Row Level Security (RLS) enforcement.",
+      "scope": ["supabase/**", "apps/web/src/lib/server/**", "packages/domain/**"],
+      "severity": "high",
+      "enabled": true
+    }
+  ],
+  "disabledRules": []
+}

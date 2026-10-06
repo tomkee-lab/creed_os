@@ -1,0 +1,8 @@
+{
+  "files": [
+    {
+      "path": "src/app.css",
+      "description": "Global design tokens, OKLCH palette, and root Tailwind 4 theme."
+    }
+  ]
+}

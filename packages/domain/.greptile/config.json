@@ -1,0 +1,25 @@
+{
+  "strictness": 2,
+  "commentTypes": ["logic", "syntax"],
+  "instructions": "This package contains core domain types, schemas, and Effect workflows for CREED OS. Invariants: 1) Strict Schema & Type safety using Zod and Effect/Schema, 2) Immutable data models, 3) DPDP compliant parental consent state machine transitions.",
+  "rules": [
+    {
+      "id": "consent-state-transitions",
+      "rule": "Parental consent state machine transitions must be strictly enforced. A state may only advance through valid edges: PENDING_PARENTAL_NOTICE -> NOTICE_SENT -> VERIFIED_ACTIVE, with explicit transitions to WITHDRAWN and EXPIRED. Never bypass state validation.",
+      "severity": "high",
+      "enabled": true
+    },
+    {
+      "id": "effect-typed-errors",
+      "rule": "All Effect domain services and workflow pipelines must use Data.TaggedError for failure cases. Never return un-tagged or untyped Error instances.",
+      "severity": "high",
+      "enabled": true
+    },
+    {
+      "id": "zod-input-validation",
+      "rule": "All domain boundary inputs must be validated with Zod schemas before being processed or passed to workflows.",
+      "severity": "high",
+      "enabled": true
+    }
+  ]
+}

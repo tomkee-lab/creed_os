@@ -1,0 +1,12 @@
+{
+  "files": [
+    {
+      "path": "src/index.ts",
+      "description": "Public domain API interface, models, and workflow exports."
+    },
+    {
+      "path": "src/consent.ts",
+      "description": "Consent management functions and state transition validations."
+    }
+  ]
+}
