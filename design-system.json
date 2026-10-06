@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "WAY 2.0 — Calm Intelligence",
+  "version": "2.0.0",
+  "system": "WAY Design System",
+  "product": "CREED OS",
+  "doctrine": "Complexity is hidden until it becomes useful. Calm enough to understand, intelligent enough to adapt, human enough to belong to.",
+  "principles": [
+    "Calm Intelligence (Nordic Lagom)",
+    "Structured Discipline & Density (IBM Carbon 2x)",
+    "Tactile Hierarchy & Easing (Apple HIG)",
+    "Form Utility & Clarity (Untitled UI)",
+    "Editorial Storytelling & Craft (Japandi Editorial)"
+  ],
+  "radius": {
+    "structural": {
+      "value": "0px",
+      "class": "rounded-none",
+      "useCases": ["Data tables", "Assessment question frame", "Item studio", "Technical metadata", "Console grids"]
+    },
+    "control": {
+      "value": "4px",
+      "class": "rounded-sm",
+      "useCases": ["Buttons", "Inputs", "Tiles", "Content cards", "Dialogs", "Navigation items", "Badges"]
+    },
+    "expressive": {
+      "value": "8px",
+      "class": "rounded-md",
+      "useCases": ["Hero media", "Mixed-media illustration frames", "Immersive experience containers"]
+    }
+  },
+  "spacing": {
+    "micro": [4],
+    "core": [8, 16, 24, 32],
+    "major": [40, 48, 64, 80, 96]
+  },
+  "surfaces": {
+    "L0": { "name": "Canvas", "token": "--surface-canvas", "desc": "Warm mineral background (oklch 0.978)" },
+    "L1": { "name": "Content", "token": "--surface-content", "desc": "Soft mineral secondary well (oklch 0.965)" },
+    "L2": { "name": "Raised", "token": "--surface-raised", "desc": "Clean white card surface (oklch 1.0)" },
+    "L3": { "name": "Overlay", "token": "--surface-overlay", "desc": "Elevated menu & popover (oklch 0.985)" },
+    "L4": { "name": "Modal", "token": "--surface-modal", "desc": "Focused dialog & drawer (oklch 1.0)" },
+    "L5": { "name": "Transient", "token": "--surface-transient", "desc": "System toasts and notifications" }
+  },
+  "colorFormula": {
+    "neutralMineral": "70%",
+    "secondarySurfaces": "15%",
+    "brandAccent": "8%",
+    "semanticStates": "5%",
+    "expressiveAccent": "2%"
+  },
+  "motion": {
+    "micro": "140ms",
+    "standard": "200ms",
+    "emphasis": "280ms",
+    "ease": "cubic-bezier(0.16, 1, 0.3, 1)"
+  },
+  "cognitiveJobs": {
+    "studentMap": "Orient me and show what to do next",
+    "assessment": "Let me concentrate in peace",
+    "mentor": "Help me think and explore reason",
+    "pathway": "Help me explore possibilities without labeling",
+    "parent": "Reassure me and show how I can help",
+    "teacher": "Show what needs attention today and offer interventions",
+    "counselor": "Case-manage caseload with evidence",
+    "admin": "Govern with auditable density",
+    "studio": "Calibrate psychometric items with mathematical rigor"
+  },
+  "prohibitedInExperience": [
+    "θ (latent ability)",
+    "SE (standard error)",
+    "3PL item parameters (a, b, c)",
+    "Fisher Information",
+    "Raw test percentages as career readiness",
+    "Evaluator diagnostic telemetry drawer",
+    "Persistent developer switcher chrome"
+  ]
+}

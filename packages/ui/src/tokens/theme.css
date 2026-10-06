@@ -1,16 +1,25 @@
-/* WAY Design System — Nordic Lagom x Carbon x Apple HIG Foundations */
+/* WAY 2.0 Design System — Calm Intelligence (Nordic Lagom x IBM Carbon x Apple HIG) */
 
 :root {
-  /* Surface Tokens (Light Theme: Warm Mineral White / Crisp Arctic) */
-  --surface-canvas: oklch(0.985 0.005 240);    /* #F8F9FA Mineral White */
-  --surface-raised: oklch(1.000 0.000 0);      /* #FFFFFF Pure Card */
-  --surface-overlay: oklch(0.965 0.008 240);   /* Elevated Popover */
-  --surface-sunken: oklch(0.940 0.010 240);    /* Soft Input / Well */
+  /* Architectural Radius System (0px structural, 4px controls, 8px expressive) */
+  --radius-structural: 0px;  /* 0px: Data tables, assessment question frames, item studio, console grids */
+  --radius-control: 4px;     /* 4px: Buttons, inputs, tiles, content cards, dialogs, navigation */
+  --radius-expressive: 8px;  /* 8px: Hero media, illustration frames, immersive experiences */
+  --radius: 4px;             /* Default interactive control radius */
+
+  /* Calibrated Surface Layering (Light Theme: Warm Mineral White & Tonal Hierarchy) */
+  --surface-canvas: oklch(0.978 0.006 240);    /* L0: Warm Mineral Base Canvas (#F5F7FA) */
+  --surface-content: oklch(0.965 0.008 240);   /* L1: Soft Mineral Content Well / Section */
+  --surface-raised: oklch(1.000 0.000 0);      /* L2: Pure White Raised Card / Focus Tile */
+  --surface-overlay: oklch(0.985 0.004 240);   /* L3: Elevated Popover, Dropdown, Menu */
+  --surface-modal: oklch(1.000 0.000 0);       /* L4: Focus Dialog, Drawer */
+  --surface-sunken: oklch(0.950 0.010 240);    /* Input Well / Inset Container */
 
   /* Border Tokens */
-  --border-subtle: oklch(0.910 0.008 240);     /* Hairline #E2E8F0 */
-  --border-strong: oklch(0.820 0.015 240);     /* Interactive Border */
-  --border-focus: oklch(0.550 0.140 215);      /* Primary Focus Ring */
+  --border-subtle: oklch(0.900 0.008 240);     /* Hairline structural boundary (#E2E8F0) */
+  --border-strong: oklch(0.810 0.015 240);     /* Interactive border / Active outline */
+  --border-focus: oklch(0.550 0.140 215);      /* Primary Calm Cyan Focus Ring */
+  --border-hairline: color-mix(in oklch, var(--text-primary) 8%, transparent);
 
   /* Typography Tokens */
   --text-primary: oklch(0.200 0.020 250);      /* Deep Slate #0F172A */
@@ -18,14 +27,14 @@
   --text-muted: oklch(0.580 0.018 250);        /* Caption Grey #64748B */
   --text-inverse: oklch(0.990 0.002 240);      /* White on dark */
 
-  /* Semantic Brand Accents (70% neutral, 20% surface, 8% brand, 2% state) */
+  /* Semantic Brand Accents (70% neutral, 15% surface, 8% brand, 5% state, 2% expressive) */
   --accent-primary: oklch(0.550 0.140 215);    /* Calm Cyan/Teal #0891B2 */
   --accent-primary-subtle: oklch(0.960 0.025 215);
   --accent-indigo: oklch(0.560 0.150 280);     /* Pathway Discovery #4F46E5 */
   --accent-indigo-subtle: oklch(0.960 0.025 280);
   --accent-success: oklch(0.600 0.140 150);    /* Natural Growth Sage #16A34A */
   --accent-success-subtle: oklch(0.950 0.030 150);
-  --accent-warning: oklch(0.680 0.150 75);     /* Earthy Amber #D97706 */
+  --accent-warning: oklch(0.680 0.150 75);     /* Earthy Amber / Attention #D97706 */
   --accent-warning-subtle: oklch(0.960 0.030 75);
   --accent-danger: oklch(0.580 0.180 25);      /* Restrained Crimson #DC2626 */
   --accent-danger-subtle: oklch(0.960 0.035 25);
@@ -37,24 +46,27 @@
   --comp-scientific: oklch(0.600 0.140 150);
   --comp-creative: oklch(0.580 0.160 320);
 
-  /* Carbon 8pt Spacing Rhythm */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
-  --space-16: 64px;
+  /* True 8pt Spacing Rhythm (4px Micro + 8px Core Structural) */
+  --space-1: 4px;   /* Micro spacing (tags, badges, compact paddings) */
+  --space-2: 8px;   /* Core base unit */
+  --space-3: 12px;  /* Compact row gap */
+  --space-4: 16px;  /* Standard container padding */
+  --space-6: 24px;  /* Card section separation */
+  --space-8: 32px;  /* Major section gap */
+  --space-10: 40px; /* Layout gutter */
+  --space-12: 48px; /* Block separation */
+  --space-16: 64px; /* Major page section spacing */
+  --space-20: 80px; /* Hero / landmark section padding */
+  --space-24: 96px; /* Page landmark boundary */
 
-  /* Density Modes */
+  /* Density Modes (Carbon Discipline) */
   --row-height: 48px;
   --input-height: 40px;
   --target-min: 44px;
 
-  /* Typography */
+  /* Typography Stacks */
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'DM Sans', var(--font-sans);
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 
   /* Apple HIG Tactile Shadows (Semantic, non-glowing) */
@@ -62,24 +74,27 @@
   --shadow-raised: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
   --shadow-overlay: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
 
-  /* Motion Curves (Apple HIG / Nordic Lagom) */
+  /* Motion Curves (Apple HIG / Nordic Lagom: strictly 140ms–280ms) */
   --duration-micro: 140ms;
-  --duration-standard: 220ms;
-  --duration-emphasis: 320ms;
+  --duration-standard: 200ms;
+  --duration-emphasis: 280ms;
   --ease-lagom: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .dark {
-  /* Surface Tokens (Dark Theme: Deep Slate / Nordic Night) */
-  --surface-canvas: oklch(0.150 0.018 250);    /* #101622 Deep Slate */
-  --surface-raised: oklch(0.200 0.020 250);    /* #182232 Slate Raised */
-  --surface-overlay: oklch(0.240 0.025 250);   /* #202b3e Elevated */
-  --surface-sunken: oklch(0.120 0.015 250);    /* #0c111a Well */
+  /* Surface Tokens (Dark Theme: Deep Slate Studio / Nordic Night) */
+  --surface-canvas: oklch(0.145 0.018 250);    /* L0: Deep Slate Base (#101622) */
+  --surface-content: oklch(0.180 0.020 250);   /* L1: Soft Slate Well (#141d2c) */
+  --surface-raised: oklch(0.210 0.022 250);    /* L2: Raised Card / Tile (#1a2538) */
+  --surface-overlay: oklch(0.250 0.025 250);   /* L3: Elevated Popover (#212e44) */
+  --surface-modal: oklch(0.220 0.022 250);     /* L4: Focus Dialog / Drawer */
+  --surface-sunken: oklch(0.120 0.015 250);    /* Inset Input Well (#0c111a) */
 
   /* Border Tokens */
   --border-subtle: oklch(0.260 0.020 250);     /* #273448 */
   --border-strong: oklch(0.350 0.030 250);     /* #3b4d66 */
   --border-focus: oklch(0.720 0.150 215);
+  --border-hairline: color-mix(in oklch, var(--text-primary) 12%, transparent);
 
   /* Typography Tokens */
   --text-primary: oklch(0.960 0.005 240);      /* Crisp White #F8FAFC */

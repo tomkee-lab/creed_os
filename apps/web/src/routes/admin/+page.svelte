@@ -70,7 +70,7 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
   <!-- Feedback Banner -->
   {#if feedbackMessage}
-    <div class="p-4 rounded-xl badge-growth text-xs flex items-center justify-between transition-all">
+    <div class="p-4 rounded-sm badge-growth text-xs flex items-center justify-between transition-all">
       <div class="flex items-center gap-2">
         <CheckCircle2 class="w-4 h-4 shrink-0" />
         <span>{feedbackMessage}</span>
@@ -89,7 +89,7 @@
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-(--border-subtle)">
     <div>
       <div class="flex items-center gap-2.5">
-        <div class="p-2 rounded-xl bg-(--surface-sunken) text-(--accent-primary) border border-(--border-subtle)">
+        <div class="p-2 rounded-sm bg-(--surface-sunken) text-(--accent-primary) border border-(--border-subtle)">
           <Building2 class="w-5 h-5" />
         </div>
         <div>

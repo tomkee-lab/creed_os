@@ -11,7 +11,10 @@
     Layers,
     Lock,
     Sparkles,
-    BookOpen
+    BookOpen,
+    HelpCircle,
+    ChevronDown,
+    ChevronUp
   } from 'lucide-svelte';
   import { MasterySunburst, GrowthTrajectoryTimeline, IllustrationFrame } from '$lib/components';
 
@@ -20,11 +23,12 @@
   let evidence = $derived(data.evidence);
 
   let selectedTab = $state<'overview' | 'alignment' | 'evidence'>('overview');
+  let showEvidenceDetails = $state(false);
 </script>
 
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
-  <!-- Parent Portal Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-(--border-subtle)">
+  <!-- 1. PARENT PORTAL HEADER: Reassurance & Ephemeral Consent Gating -->
+  <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-(--border-subtle)">
     <div class="space-y-1">
       <div class="flex items-center gap-2">
         <Shield class="w-6 h-6 text-(--accent-indigo)" />
@@ -33,52 +37,161 @@
         </h1>
       </div>
       <p class="text-xs sm:text-sm text-(--text-secondary)">
-        Transparent evidence, calm growth tracking, and shared pathway navigation for <strong class="text-(--text-primary)">{learner.fullName}</strong>.
+        Calm growth tracking and shared pathway navigation for <strong class="text-(--text-primary)">{learner.fullName}</strong>.
       </p>
     </div>
 
-    <!-- Verified Consent Badge (DPDP Act) -->
-    <div class="flex items-center gap-2 px-3 py-1.5 rounded-none bg-(--accent-success-subtle) text-(--accent-success) text-xs font-medium border border-(--border-subtle)">
+    <!-- Calm Consent Verification Status -->
+    <div class="flex items-center gap-2 px-3 py-1.5 rounded-sm bg-(--accent-success-subtle) text-(--accent-success) text-xs font-medium border border-(--border-subtle)">
       <Lock class="w-3.5 h-3.5" />
-      <span>DPDP Verified Guardian</span>
+      <span>Parental Consent Verified</span>
     </div>
-  </div>
+  </header>
 
-  <!-- Navigation Tabs -->
-  <div class="flex items-center gap-2 border-b border-(--border-subtle) pb-2">
+  <!-- 2. NAVIGATION TABS (4px Radius) -->
+  <nav class="flex items-center gap-2 border-b border-(--border-subtle) pb-2">
     <button
       type="button"
       onclick={() => (selectedTab = 'overview')}
-      class="px-4 py-2 rounded-none text-xs sm:text-sm font-medium transition-colors cursor-pointer {selectedTab === 'overview' ? 'bg-(--surface-sunken) text-(--accent-primary) font-semibold border border-(--border-subtle)' : 'text-(--text-secondary) hover:text-(--text-primary)'}"
+      class="px-4 py-2 rounded-sm text-xs sm:text-sm font-medium transition-colors cursor-pointer {selectedTab === 'overview' ? 'bg-(--surface-sunken) text-(--accent-primary) font-semibold border border-(--border-subtle)' : 'text-(--text-secondary) hover:text-(--text-primary)'}"
     >
       Development Overview
     </button>
     <button
       type="button"
       onclick={() => (selectedTab = 'alignment')}
-      class="px-4 py-2 rounded-none text-xs sm:text-sm font-medium transition-colors cursor-pointer {selectedTab === 'alignment' ? 'bg-(--surface-sunken) text-(--accent-primary) font-semibold border border-(--border-subtle)' : 'text-(--text-secondary) hover:text-(--text-primary)'}"
+      class="px-4 py-2 rounded-sm text-xs sm:text-sm font-medium transition-colors cursor-pointer {selectedTab === 'alignment' ? 'bg-(--surface-sunken) text-(--accent-primary) font-semibold border border-(--border-subtle)' : 'text-(--text-secondary) hover:text-(--text-primary)'}"
     >
       Family Pathway Alignment
     </button>
     <button
       type="button"
       onclick={() => (selectedTab = 'evidence')}
-      class="px-4 py-2 rounded-none text-xs sm:text-sm font-medium transition-colors cursor-pointer {selectedTab === 'evidence' ? 'bg-(--surface-sunken) text-(--accent-primary) font-semibold border border-(--border-subtle)' : 'text-(--text-secondary) hover:text-(--text-primary)'}"
+      class="px-4 py-2 rounded-sm text-xs sm:text-sm font-medium transition-colors cursor-pointer {selectedTab === 'evidence' ? 'bg-(--surface-sunken) text-(--accent-primary) font-semibold border border-(--border-subtle)' : 'text-(--text-secondary) hover:text-(--text-primary)'}"
     >
       Verified Evidence Trail ({evidence.length})
     </button>
-  </div>
+  </nav>
 
   {#if selectedTab === 'overview'}
-    <!-- Developmental Mastery Orbit Map -->
-    <div class="space-y-4">
+    <!-- 3. REASSURANCE BANNER: Answer 5 Questions in Under 20 Seconds -->
+    <section class="surface-card rounded-sm p-6 sm:p-8 border-l-4 border-l-(--accent-success) space-y-4 border border-(--border-subtle)">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold uppercase tracking-wider text-(--accent-success)">
+          At a Glance Summary
+        </span>
+        <span class="text-xs text-(--text-muted)">Updated this week</span>
+      </div>
+      <h2 class="text-xl sm:text-2xl font-bold text-(--text-primary)">
+        Anaya is developing well and building strong technical confidence.
+      </h2>
+      <p class="text-xs sm:text-sm text-(--text-secondary) leading-relaxed max-w-3xl">
+        She consistently demonstrates advanced spatial visualization and computational logic. Her active learning sprint focuses on foundational proportional equations, which unlocks higher readiness for future robotics engineering pathways.
+      </p>
+    </section>
+
+    <!-- 4. WHAT WE SEE, WHAT WE'RE DOING, HOW YOU CAN HELP -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- What We're Seeing -->
+      <div class="surface-card rounded-sm p-6 space-y-4 border border-(--border-subtle) flex flex-col justify-between">
+        <div class="space-y-3">
+          <div class="flex items-center gap-2 text-(--accent-success) font-semibold text-sm">
+            <CheckCircle2 class="w-4 h-4" />
+            <span>What We're Seeing</span>
+          </div>
+
+          <div class="space-y-2.5">
+            <div class="p-3.5 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
+              <span class="text-[10px] uppercase font-semibold text-(--accent-success) block">Strongest Area</span>
+              <p class="font-bold text-xs sm:text-sm text-(--text-primary)">Spatial Visualization & 3D Thinking</p>
+              <p class="text-xs text-(--text-secondary)">Exceptional skill with isometric models and physical linkages.</p>
+            </div>
+
+            <div class="p-3.5 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
+              <span class="text-[10px] uppercase font-semibold text-(--accent-warning) block">Growing Area</span>
+              <p class="font-bold text-xs sm:text-sm text-(--text-primary)">Quantitative Balancing & Rates</p>
+              <p class="text-xs text-(--text-secondary)">Common algebra step; improving steadily through guided practice.</p>
+            </div>
+          </div>
+        </div>
+
+        <button
+          onclick={() => (selectedTab = 'evidence')}
+          class="text-xs text-(--accent-primary) font-medium hover:underline pt-2 flex items-center gap-1 cursor-pointer"
+        >
+          <span>View 4 verified evidence items →</span>
+        </button>
+      </div>
+
+      <!-- What We're Doing -->
+      <div class="surface-card rounded-sm p-6 space-y-4 border border-(--border-subtle) flex flex-col justify-between">
+        <div class="space-y-3">
+          <div class="flex items-center gap-2 text-(--accent-indigo) font-semibold text-sm">
+            <TrendingUp class="w-4 h-4" />
+            <span>What We're Doing</span>
+          </div>
+
+          <div class="space-y-2.5">
+            <div class="p-3.5 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
+              <span class="text-[10px] uppercase font-semibold text-(--accent-indigo) block">Active Support</span>
+              <p class="font-bold text-xs sm:text-sm text-(--text-primary)">4-Week Proportional Sprint</p>
+              <p class="text-xs text-(--text-secondary)">20-minute low-stress micro-challenges 3 days/week with Socratic guidance.</p>
+            </div>
+
+            <div class="p-3.5 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
+              <span class="text-[10px] uppercase font-semibold text-(--text-muted) block">Upcoming Milestone</span>
+              <p class="font-bold text-xs sm:text-sm text-(--text-primary)">Autonomous Rover Mission</p>
+              <p class="text-xs text-(--text-secondary)">Applying proportional gear ratios in a physical robotics simulation.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-[11px] text-(--text-muted) pt-2 border-t border-(--border-subtle)">
+          Next progress update: Nov 15
+        </div>
+      </div>
+
+      <!-- What You Can Do (Actionable Parent Advice) -->
+      <div class="surface-card rounded-sm p-6 space-y-4 border border-(--border-subtle) flex flex-col justify-between">
+        <div class="space-y-3">
+          <div class="flex items-center gap-2 text-(--accent-primary) font-semibold text-sm">
+            <HeartHandshake class="w-4 h-4" />
+            <span>What You Can Do at Home</span>
+          </div>
+
+          <div class="space-y-2.5">
+            <div class="p-3.5 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
+              <span class="text-[10px] uppercase font-semibold text-(--accent-primary) block">Home Challenge</span>
+              <p class="font-bold text-xs sm:text-sm text-(--text-primary)">Build a Kitchen Scale Balance</p>
+              <p class="text-xs text-(--text-secondary)">Explore real-world ratios with lever arms and weights together.</p>
+            </div>
+
+            <div class="p-3.5 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
+              <span class="text-[10px] uppercase font-semibold text-(--text-muted) block">Parenting Strategy</span>
+              <p class="font-bold text-xs sm:text-sm text-(--text-primary)">Praise Problem Decomposition</p>
+              <p class="text-xs text-(--text-secondary)">Notice how she breaks down hard problems rather than speed of answering.</p>
+            </div>
+          </div>
+        </div>
+
+        <button
+          onclick={() => (selectedTab = 'alignment')}
+          class="text-xs text-(--accent-primary) font-medium hover:underline pt-2 flex items-center gap-1 cursor-pointer"
+        >
+          <span>Explore family pathway alignment →</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 5. PROGRESSIVE DISCLOSURE: DETAILED CAPABILITY ORBIT MAP -->
+    <section class="space-y-4">
       <div class="flex items-baseline justify-between border-b border-(--border-subtle) pb-2">
         <div>
           <h2 class="text-base sm:text-lg font-bold text-(--text-primary)">
             Developmental Capability Map
           </h2>
           <p class="text-xs text-(--text-muted)">
-            Non-evaluative holistic snapshot of {learner.fullName}'s cognitive, inquiry, and metacognitive growth.
+            Holistic snapshot of {learner.fullName}'s cognitive, inquiry, and metacognitive growth.
           </p>
         </div>
         <span class="text-xs font-medium text-(--text-secondary)">
@@ -86,92 +199,12 @@
         </span>
       </div>
       <MasterySunburst />
-    </div>
+    </section>
 
-    <!-- Four Essential Questions (Clean, Humane, Non-Stigmatizing) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- 1. What is Anaya excelling in? -->
-      <div class="surface-card rounded-none p-6 space-y-4 border border-(--border-subtle)">
-        <div class="flex items-center gap-2 text-(--accent-success) font-semibold text-sm">
-          <CheckCircle2 class="w-4 h-4" />
-          <span>1. Demonstrated Strengths</span>
-        </div>
-        <div class="space-y-3">
-          <div class="p-4 rounded-none bg-(--surface-sunken) border border-(--border-subtle) space-y-1.5">
-            <div class="flex items-center justify-between text-xs">
-              <strong class="text-(--text-primary) text-sm">Spatial Visualization & 3D Thinking</strong>
-              <span class="font-semibold text-(--accent-success)">Advanced Capability</span>
-            </div>
-            <p class="text-xs text-(--text-secondary) leading-relaxed">
-              Anaya excels at mentally rotating three-dimensional shapes, interpreting isometric projections, and designing structural geometries.
-            </p>
-          </div>
-
-          <div class="p-4 rounded-none bg-(--surface-sunken) border border-(--border-subtle) space-y-1.5">
-            <div class="flex items-center justify-between text-xs">
-              <strong class="text-(--text-primary) text-sm">Computational Problem Decomposition</strong>
-              <span class="font-semibold text-(--accent-success)">Advanced Capability</span>
-            </div>
-            <p class="text-xs text-(--text-secondary) leading-relaxed">
-              She systematically breaks down complex challenges into step-by-step logic loops and patterns without feeling overwhelmed.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2. Where are the current growth areas? -->
-      <div class="surface-card rounded-none p-6 space-y-4 border border-(--border-subtle)">
-        <div class="flex items-center gap-2 text-(--accent-warning) font-semibold text-sm">
-          <AlertCircle class="w-4 h-4" />
-          <span>2. Current Foundation Gaps (Not Blockers!)</span>
-        </div>
-        <div class="p-4 rounded-none bg-(--surface-sunken) border border-(--border-subtle) space-y-2">
-          <div class="flex items-center justify-between text-xs">
-            <strong class="text-(--text-primary) text-sm">Quantitative Balancing & Rates</strong>
-            <span class="font-semibold text-(--accent-warning)">Developing Foundation</span>
-          </div>
-          <p class="text-xs text-(--text-secondary) leading-relaxed">
-            The diagnostic identified that Anaya occasionally transposes positive and negative signs when isolating multi-variable terms on balance scales. This is a common Class 8 algebra concept, completely remediable with structured practice.
-          </p>
-        </div>
-      </div>
-
-      <!-- 3. What concrete evidence was observed? -->
-      <div class="surface-card rounded-none p-6 space-y-4 border border-(--border-subtle)">
-        <div class="flex items-center gap-2 text-(--accent-primary) font-semibold text-sm">
-          <Layers class="w-4 h-4" />
-          <span>3. What Concrete Evidence Was Observed?</span>
-        </div>
-        <p class="text-xs sm:text-sm text-(--text-secondary) leading-relaxed">
-          Over the past 30 days, the platform recorded <strong>4 verified evidence records</strong>:
-          adaptive diagnostic checks, teacher classroom observations by Mr. Sharma, and a completed bridge engineering challenge.
-        </p>
-        <button
-          onclick={() => (selectedTab = 'evidence')}
-          class="text-xs text-(--accent-primary) font-semibold hover:underline flex items-center gap-1 cursor-pointer"
-        >
-          <span>Inspect individual evidence records & provenance →</span>
-        </button>
-      </div>
-
-      <!-- 4. What should we do next? -->
-      <div class="surface-card rounded-none p-6 space-y-4 border border-(--border-subtle)">
-        <div class="flex items-center gap-2 text-(--accent-indigo) font-semibold text-sm">
-          <TrendingUp class="w-4 h-4" />
-          <span>4. Recommended Next Action</span>
-        </div>
-        <p class="text-xs sm:text-sm text-(--text-secondary) leading-relaxed">
-          Enroll Anaya in the <strong>4-Week Proportional Foundations Sprint</strong> (20 minutes, 3 days/week). Have her attempt the Autonomous Rover Sensor Trial after two weeks.
-        </p>
-        <div class="p-3 bg-(--surface-sunken) border border-(--border-subtle) rounded-none text-xs text-(--text-primary)">
-          <strong>Review Milestone:</strong> Revisit pathway readiness after the rover mission is completed on November 15.
-        </div>
-      </div>
-    </div>
   {:else if selectedTab === 'alignment'}
     <!-- Family Pathway Alignment -->
-    <div class="surface-card rounded-none p-6 space-y-6 border border-(--border-subtle)">
-      <!-- Editorial Mixed-Media Fine Art Banner -->
+    <div class="surface-card rounded-sm p-6 sm:p-8 space-y-6 border border-(--border-subtle)">
+      <!-- Editorial Mixed-Media Fine Art Banner (8px expressive radius) -->
       <IllustrationFrame
         src="/images/illustrations/parent_horizon.jpg"
         alt="Asian father and daughter smiling together reviewing pathway portfolio at sunlit home study desk"
@@ -187,7 +220,7 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="p-5 rounded-none surface-card border border-(--border-subtle) space-y-2">
+        <div class="p-5 rounded-sm surface-card border border-(--border-subtle) space-y-2">
           <span class="text-xs font-semibold uppercase text-(--text-muted)">Parent Career Aspiration</span>
           <h3 class="text-base font-bold text-(--text-primary)">Robotics & Mechatronics Engineering</h3>
           <p class="text-xs text-(--text-secondary) leading-relaxed">
@@ -195,7 +228,7 @@
           </p>
         </div>
 
-        <div class="p-5 rounded-none surface-card border border-(--border-subtle) space-y-2">
+        <div class="p-5 rounded-sm surface-card border border-(--border-subtle) space-y-2">
           <span class="text-xs font-semibold uppercase text-(--accent-primary)">Student Demonstrated Passion</span>
           <h3 class="text-base font-bold text-(--text-primary)">Interactive 3D Design & Computational Media</h3>
           <p class="text-xs text-(--text-secondary) leading-relaxed">
@@ -204,8 +237,8 @@
         </div>
       </div>
 
-      <!-- Evidence-Backed Consensus (No conflict, constructive synergy) -->
-      <div class="p-5 rounded-none border border-(--border-subtle) bg-(--surface-sunken) space-y-3">
+      <!-- Evidence-Backed Consensus -->
+      <div class="p-5 rounded-sm border border-(--border-subtle) bg-(--surface-sunken) space-y-3">
         <div class="flex items-center gap-2 text-sm font-bold text-(--text-primary)">
           <Sparkles class="w-4 h-4 text-(--accent-indigo)" />
           <span>Platform Consensus Analysis</span>
@@ -218,34 +251,35 @@
         </div>
       </div>
     </div>
+
   {:else if selectedTab === 'evidence'}
     <!-- Longitudinal Growth Trajectory Timeline -->
     <GrowthTrajectoryTimeline />
 
-    <!-- Verifiable Evidence Stream -->
-    <div class="surface-card rounded-none p-6 space-y-4 border border-(--border-subtle)">
+    <!-- Verifiable Evidence Stream (Qualitative Rigor & Audit Trail) -->
+    <div class="surface-card rounded-sm p-6 space-y-4 border border-(--border-subtle)">
       <div class="flex items-center justify-between border-b border-(--border-subtle) pb-3">
         <div>
           <h2 class="text-lg font-bold text-(--text-primary)">Verifiable Learner Evidence Records</h2>
           <p class="text-xs text-(--text-muted)">Tamper-evident diagnostic and classroom observations.</p>
         </div>
-        <span class="text-xs font-medium text-(--accent-success)">DPDP Protected</span>
+        <span class="text-xs font-medium text-(--accent-success)">Consent Protected</span>
       </div>
 
       <div class="space-y-3">
         {#each evidence as item}
-          <div class="p-4 rounded-none surface-card border border-(--border-subtle) space-y-2 text-xs">
+          <div class="p-4 rounded-sm surface-card border border-(--border-subtle) space-y-2 text-xs">
             <div class="flex items-center justify-between">
               <span class="font-bold text-(--text-primary)">
                 {item.sourceTitle}
               </span>
               <span class="font-semibold text-(--accent-success)">
-                {Math.round(item.confidence * 100)}% Confidence
+                Teacher Verified
               </span>
             </div>
             <p class="text-(--text-secondary) leading-relaxed">{item.summary}</p>
             <div class="text-[11px] text-(--text-muted) pt-1 border-t border-(--border-subtle) flex items-center justify-between">
-              <span>Type: {item.sourceType.replace('_', ' ')}</span>
+              <span>Domain: {item.competency.replace('_', ' ')}</span>
               <span>Observed: {new Date(item.observedAt).toLocaleDateString()}</span>
             </div>
           </div>

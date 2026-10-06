@@ -273,7 +273,7 @@
           </div>
 
           {#if observationLoggedSuccess}
-            <div class="p-3.5 rounded-xl badge-growth text-xs space-y-1">
+            <div class="p-3.5 rounded-sm badge-growth text-xs space-y-1">
               <div class="flex items-center gap-1.5 font-bold">
                 <CheckCircle2 class="w-4 h-4" />
                 <span>Observation Logged to Evidence Stream!</span>
@@ -288,7 +288,7 @@
               <select
                 id="learner-select"
                 bind:value={newObservationStudentId}
-                class="w-full p-2.5 rounded-xl bg-(--surface-sunken) border border-(--border-subtle) text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--accent-primary)"
+                class="w-full px-3 py-2 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--accent-primary)"
               >
                 {#each cohort.students as s}
                   <option value={s.id}>{s.name}</option>
@@ -301,7 +301,7 @@
               <select
                 id="competency-select"
                 bind:value={newObservationCompetency}
-                class="w-full p-2.5 rounded-xl bg-(--surface-sunken) border border-(--border-subtle) text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--accent-primary)"
+                class="w-full px-3 py-2 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--accent-primary)"
               >
                 <option value="spatial_reasoning">Spatial Reasoning</option>
                 <option value="computational_thinking">Computational Thinking</option>
@@ -317,7 +317,7 @@
                 bind:value={newObservationText}
                 rows={3}
                 placeholder="e.g. Observed student independently solving binary search logic..."
-                class="w-full p-2.5 rounded-xl bg-(--surface-sunken) border border-(--border-subtle) text-(--text-primary) placeholder-(--text-muted) focus:outline-none focus:ring-2 focus:ring-(--accent-primary)"
+                class="w-full px-3 py-2 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) text-(--text-primary) placeholder-(--text-muted) focus:outline-none focus:ring-2 focus:ring-(--accent-primary)"
               ></textarea>
             </div>
 

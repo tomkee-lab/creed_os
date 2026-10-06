@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
 
-  type CardVariant = 'raised' | 'elevated' | 'sunken' | 'canvas';
+  type CardVariant = 'raised' | 'elevated' | 'sunken' | 'canvas' | 'content';
   type CardPadding = 'none' | 'sm' | 'md' | 'lg';
 
   interface Props {
@@ -24,7 +24,8 @@
     raised: 'surface-card border border-(--border-subtle)',
     elevated: 'surface-elevated border border-(--border-subtle) shadow-md',
     sunken: 'bg-(--surface-sunken) border border-(--border-subtle)',
-    canvas: 'bg-(--surface-canvas)'
+    canvas: 'bg-(--surface-canvas)',
+    content: 'bg-(--surface-content) border border-(--border-subtle)'
   };
 
   const paddingClasses: Record<CardPadding, string> = {
@@ -41,7 +42,7 @@
   );
 
   const computedClass = $derived(
-    `rounded-none ${variantClasses[variant]} ${paddingClasses[padding]} ${interactiveClass} ${className}`
+    `rounded-sm ${variantClasses[variant]} ${paddingClasses[padding]} ${interactiveClass} ${className}`
   );
 </script>
 

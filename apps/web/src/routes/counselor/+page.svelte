@@ -29,47 +29,53 @@
   const referrals = [
     {
       id: 'ref-001',
+      priorityRank: 2,
       studentName: 'Anaya Verma',
       studentClass: 'Class 8-A',
       referralType: 'Pathway Alignment',
-      urgency: 'Medium Priority',
+      urgency: 'Medium',
       badgeVariant: 'alert' as const,
-      shortSummary: 'Parent aspiration: Engineering • Current quantitative foundation: Developing • Spatial: Advanced',
-      issue: 'Parent aspirations (IIT-JEE Engineering) conflict with current Quantitative Reasoning foundation gap (score 2.8). Student demonstrates exceptional spatial (4.5) and computational (4.1) scores. Needs counselor-guided expectation alignment and bridge sprint.',
-      recommendedAction: 'Schedule 3-way parent-student-counselor dialogue to explore Robotics Mechatronics pathway with a 4-week math bridge sprint.',
+      issue: 'Parent aspiration (IIT-JEE) vs Quantitative Reasoning foundation gap (score 2.8). High Spatial (4.5).',
+      evidenceBase: 'Diagnostic #EVD-3904 + Project',
+      recommendedAction: 'Schedule 3-way parent-student-counselor dialogue to explore Mechatronics bridge sprint.',
+      lastContact: 'Oct 2, 2026',
+      nextReview: 'Oct 15, 2026',
       competenciesInvolved: ['Quantitative Reasoning', 'Spatial Reasoning'],
       raisedBy: 'Pathway Mismatch Engine',
-      raisedAt: 'Oct 2, 2026',
       status: 'Open'
     },
     {
       id: 'ref-002',
+      priorityRank: 1,
       studentName: 'Zoya Khan',
       studentClass: 'Class 8-A',
       referralType: 'Curriculum Acceleration',
-      urgency: 'High Priority',
+      urgency: 'High',
       badgeVariant: 'primary' as const,
-      shortSummary: 'Deduction 4.6 exceeds Class 8 ceiling • Disengagement risk due to low challenge ceiling',
-      issue: 'Logical Deduction score 4.6 exceeds Class 8 ceiling. Student is under-challenged and showing signs of boredom. Ready for advanced discrete logic modules.',
-      recommendedAction: 'Fast-track to Class 9 Logic and Computational Thinking curriculum. Offer Olympiad preparation challenge.',
+      issue: 'Logical Deduction 4.6 exceeds Class 8 ceiling. Under-challenged; disengagement risk.',
+      evidenceBase: 'CAT Session #EVD-3891',
+      recommendedAction: 'Fast-track to Class 9 Logic and Computational Thinking curriculum + Olympiad challenge.',
+      lastContact: 'Sep 30, 2026',
+      nextReview: 'Oct 12, 2026',
       competenciesInvolved: ['Logical Deduction', 'Metacognition'],
       raisedBy: 'Adaptive Diagnostic Engine',
-      raisedAt: 'Sep 30, 2026',
       status: 'Action Required'
     },
     {
       id: 'ref-003',
+      priorityRank: 3,
       studentName: 'Rohan Sharma',
       studentClass: 'Class 8-A',
       referralType: 'Modality Scaffolding',
       urgency: 'Routine',
       badgeVariant: 'growth' as const,
-      shortSummary: 'Spatial visualization flat at 2.6 • Needs physical 3D manipulative labs over screen testing',
-      issue: 'Spatial Reasoning score plateaued over 3 assessments. May benefit from tactile manipulation labs rather than screen-only tests.',
+      issue: 'Spatial Reasoning plateaued over 3 assessments. Needs physical 3D manipulative labs.',
+      evidenceBase: 'Teacher Observation (Ms. Nair)',
       recommendedAction: 'Enroll in weekend hands-on robotics hardware lab. Monitor growth across 4 weeks.',
+      lastContact: 'Oct 1, 2026',
+      nextReview: 'Oct 22, 2026',
       competenciesInvolved: ['Spatial Reasoning'],
-      raisedBy: 'Teacher Copilot (Ms. Priya Nair)',
-      raisedAt: 'Oct 1, 2026',
+      raisedBy: 'Teacher Copilot',
       status: 'Open'
     }
   ];
@@ -108,7 +114,7 @@
 
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
   <!-- Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-(--border-subtle)">
+  <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-(--border-subtle)">
     <div class="space-y-1">
       <div class="flex items-center gap-2">
         <BookOpen class="w-6 h-6 text-(--accent-indigo)" />
@@ -117,7 +123,7 @@
         </h1>
       </div>
       <p class="text-xs sm:text-sm text-(--text-secondary)">
-        Holistic learner guidance, priority triage, and evidence-backed parent alignment dialogues.
+        Structured case management, priority triage, and evidence-backed parent alignment dialogues.
       </p>
     </div>
 
@@ -126,38 +132,38 @@
         <span>Delhi Public International School</span>
       </Badge>
     </div>
-  </div>
+  </header>
 
-  <!-- Top Metrics Bar -->
+  <!-- Top Metrics Bar (4px radius) -->
   <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-    <Card variant="raised" padding="sm" class="space-y-1">
+    <Card variant="raised" padding="sm" class="space-y-1 rounded-sm">
       <span class="text-xs text-(--text-muted) font-medium">Active Caseload</span>
       <p class="text-2xl font-bold text-(--text-primary)">24</p>
       <span class="text-[11px] text-(--text-secondary)">Middle School Cohort</span>
     </Card>
-    <Card variant="raised" padding="sm" class="space-y-1">
+    <Card variant="raised" padding="sm" class="space-y-1 rounded-sm">
       <span class="text-xs text-(--text-muted) font-medium">Open Referrals</span>
       <p class="text-2xl font-bold text-(--accent-warning)">3</p>
       <span class="text-[11px] text-(--text-secondary)">2 need 3-way dialogue</span>
     </Card>
-    <Card variant="raised" padding="sm" class="space-y-1">
+    <Card variant="raised" padding="sm" class="space-y-1 rounded-sm">
       <span class="text-xs text-(--text-muted) font-medium">On Track</span>
       <p class="text-2xl font-bold text-(--accent-success)">17</p>
       <span class="text-[11px] text-(--text-secondary)">Steady longitudinal progress</span>
     </Card>
-    <Card variant="raised" padding="sm" class="space-y-1">
+    <Card variant="raised" padding="sm" class="space-y-1 rounded-sm">
       <span class="text-xs text-(--text-muted) font-medium">Curriculum Acceleration</span>
       <p class="text-2xl font-bold text-(--accent-indigo)">1</p>
       <span class="text-[11px] text-(--text-secondary)">Exceeding Grade ceiling</span>
     </Card>
   </div>
 
-  <!-- Priority Referral Queue (Carbon-disciplined scannable table) -->
-  <Card variant="raised" class="p-6 space-y-4">
+  <!-- Priority Case-Management Table (Carbon Structural Discipline: 0px Frame, 4px Controls) -->
+  <Card variant="raised" class="p-6 space-y-4 rounded-sm border border-(--border-subtle)">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-(--border-subtle) pb-3">
       <div>
         <h2 class="text-lg font-bold text-(--text-primary)">
-          Priority Guidance Queue
+          Priority Guidance Queue & Case Roster
         </h2>
         <p class="text-xs text-(--text-muted)">
           Triage referrals automatically generated by engine diagnostics or educator observations.
@@ -172,43 +178,66 @@
       </div>
     </div>
 
-    <div class="space-y-3">
-      {#each filteredReferrals as ref}
-        <Card variant="sunken" padding="sm" interactive class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div class="space-y-1.5">
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="font-bold text-sm text-(--text-primary)">{ref.studentName}</span>
-              <span class="text-xs text-(--text-muted)">({ref.studentClass})</span>
-              <Badge variant={ref.badgeVariant} size="sm">
-                {ref.urgency}
-              </Badge>
-              <Badge variant="neutral" size="sm">
-                {ref.referralType}
-              </Badge>
-            </div>
-            <p class="text-xs text-(--text-secondary) leading-relaxed">
-              {ref.shortSummary}
-            </p>
-            <div class="text-[11px] text-(--text-muted) pt-0.5">
-              Raised by {ref.raisedBy} • {ref.raisedAt}
-            </div>
-          </div>
-
-          <Button
-            variant="secondary"
-            size="sm"
-            onclick={() => openReferral(ref)}
-            class="shrink-0 self-start md:self-center"
-          >
-            <span>Review Case & Evidence</span>
-            <ChevronRight class="w-3.5 h-3.5" />
-          </Button>
-        </Card>
-      {/each}
+    <!-- Structured List / Case Table -->
+    <div class="overflow-x-auto rounded-none border border-(--border-subtle)">
+      <table class="w-full text-left text-xs border-collapse">
+        <thead class="bg-(--surface-sunken) text-(--text-muted) border-b border-(--border-subtle)">
+          <tr>
+            <th class="py-3 px-3.5 font-semibold">Priority</th>
+            <th class="py-3 px-3.5 font-semibold">Student</th>
+            <th class="py-3 px-3.5 font-semibold">Focus Issue</th>
+            <th class="py-3 px-3.5 font-semibold">Evidence Base</th>
+            <th class="py-3 px-3.5 font-semibold">Recommended Action</th>
+            <th class="py-3 px-3.5 font-semibold">Last Contact</th>
+            <th class="py-3 px-3.5 font-semibold">Next Review</th>
+            <th class="py-3 px-3.5 text-right font-semibold">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-(--border-subtle) bg-(--surface-canvas)">
+          {#each filteredReferrals as ref}
+            <tr class="hover:bg-(--surface-sunken) transition-colors cursor-pointer" onclick={() => openReferral(ref)}>
+              <td class="py-3.5 px-3.5">
+                <Badge variant={ref.badgeVariant} size="sm">
+                  <span>{ref.urgency}</span>
+                </Badge>
+              </td>
+              <td class="py-3.5 px-3.5">
+                <span class="font-bold text-(--text-primary) block">{ref.studentName}</span>
+                <span class="text-[10px] text-(--text-muted)">{ref.studentClass}</span>
+              </td>
+              <td class="py-3.5 px-3.5 max-w-xs text-(--text-secondary) leading-snug">
+                {ref.issue}
+              </td>
+              <td class="py-3.5 px-3.5 text-(--text-secondary) whitespace-nowrap">
+                {ref.evidenceBase}
+              </td>
+              <td class="py-3.5 px-3.5 max-w-xs text-(--text-primary) font-medium leading-snug">
+                {ref.recommendedAction}
+              </td>
+              <td class="py-3.5 px-3.5 text-(--text-muted) whitespace-nowrap">
+                {ref.lastContact}
+              </td>
+              <td class="py-3.5 px-3.5 font-semibold text-(--accent-warning) whitespace-nowrap">
+                {ref.nextReview}
+              </td>
+              <td class="py-3.5 px-3.5 text-right whitespace-nowrap">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onclick={() => openReferral(ref)}
+                >
+                  <span>Review</span>
+                  <ChevronRight class="w-3.5 h-3.5" />
+                </Button>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
     </div>
   </Card>
 
-  <!-- Side Panel / Drawer for Case Details (Progressive Disclosure) -->
+  <!-- Side Drawer for Case Details (Progressive Disclosure) -->
   {#if sidePanelOpen && activeReferral}
     <div class="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-xs">
       <div
@@ -234,7 +263,7 @@
             <button
               type="button"
               onclick={() => (sidePanelOpen = false)}
-              class="w-8 h-8 rounded-none flex items-center justify-center text-(--text-muted) hover:text-(--text-primary) hover:bg-(--surface-sunken) transition-colors cursor-pointer border border-(--border-subtle)"
+              class="w-8 h-8 rounded-sm flex items-center justify-center text-(--text-muted) hover:text-(--text-primary) hover:bg-(--surface-sunken) transition-colors cursor-pointer border border-(--border-subtle)"
               aria-label="Close drawer"
             >
               <X class="w-5 h-5" />
@@ -242,19 +271,19 @@
           </div>
 
           {#if scheduleSuccess}
-            <div class="p-3.5 rounded-none badge-growth text-xs flex items-center gap-2 border border-(--border-subtle)">
+            <div class="p-3.5 rounded-sm badge-growth text-xs flex items-center gap-2 border border-(--border-subtle)">
               <CheckCircle2 class="w-4 h-4 shrink-0" />
               <span>3-Way Dialogue Invitation dispatched to student and guardian!</span>
             </div>
           {/if}
 
           <div class="space-y-4 text-xs">
-            <Card variant="sunken" padding="sm" class="space-y-1">
+            <Card variant="sunken" padding="sm" class="space-y-1 rounded-sm">
               <span class="font-bold text-(--text-primary) block">Referral Context</span>
               <p class="text-(--text-secondary) leading-relaxed">{activeReferral.issue}</p>
             </Card>
 
-            <div class="p-3.5 rounded-none border border-(--accent-indigo)/30 bg-(--accent-indigo-subtle) space-y-1">
+            <div class="p-3.5 rounded-sm border border-(--accent-indigo)/30 bg-(--accent-indigo-subtle) space-y-1">
               <span class="font-bold text-(--text-primary) block">Recommended Counselor Action</span>
               <p class="text-(--text-secondary) leading-relaxed">{activeReferral.recommendedAction}</p>
             </div>
@@ -272,7 +301,7 @@
 
             <div class="pt-2 border-t border-(--border-subtle) flex items-center justify-between text-[11px] text-(--text-muted)">
               <span>Source: {activeReferral.raisedBy}</span>
-              <span>Logged: {activeReferral.raisedAt}</span>
+              <span>Logged: {activeReferral.lastContact}</span>
             </div>
           </div>
         </div>
@@ -300,4 +329,3 @@
     </div>
   {/if}
 </div>
-

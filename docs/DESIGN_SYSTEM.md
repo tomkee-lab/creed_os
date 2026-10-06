@@ -1,106 +1,129 @@
-# Core_OS — WAY Design System Specification
+# CREED OS — WAY 2.0 Design System Specification
 
-**Document Version:** 1.0.0  
-**Design Philosophy:** Nordic Lagom × Sci-Fi Educational Instrument  
-**Audience:** UI/UX Designers, Frontend Engineers, Accessibility Specialists  
-
----
-
-## 1. Visual Philosophy: Nordic Lagom × Sci-Fi
-
-Core_OS is an instrument of intellectual self-discovery, not a gamified consumer casino.
-- **Lagom Ethos ("Just the right amount"):** Clean, uncluttered, focused interfaces. Zero sensory overload. No flashing neon banners, no frantic red countdown timers, and no celebratory confetti bursts during active assessment.
-- **Sci-Fi Instrument Quality:** Sharp, precise visual cues, quiet telemetry datums, hairline borders, monospace statistical readouts, and glowing cyan/aurora accents against slate/mineral backgrounds.
+**Document Version:** 2.0.0  
+**Design Philosophy:** Calm Intelligence (Nordic Lagom × IBM Carbon × Apple HIG)  
+**Core Doctrine:** *"Complexity is hidden until it becomes useful. Calm enough to understand, intelligent enough to adapt, human enough to belong to."*  
+**Audience:** UI/UX Designers, Frontend Engineers, Antigravity AI Agents, Accessibility Specialists  
 
 ---
 
-## 2. OKLCH Semantic Color Tokens
+## 1. Visual & Interaction Philosophy
 
-Tokens are declared using the **OKLCH color space** for perceptual uniformity, superior dark-mode contrast, and clean mathematical transformations.
+CREED OS is an instrument of intellectual self-discovery and longitudinal learner navigation, not a gamified consumer casino or a sterile quantitative analytics dashboard.
 
-```css
-:root {
-  /* Surface Tokens (Light: Mineral White) */
-  --surface-canvas: oklch(0.985 0.005 240);
-  --surface-raised: oklch(1.000 0.000 0);
-  --surface-overlay: oklch(0.960 0.008 240);
-  --surface-sunken: oklch(0.940 0.010 240);
+- **Calmness (Nordic Lagom):** Warm mineral whites, calm ivories, deep slate night modes, quiet tactile surfaces. Zero cyber-neon drop shadows, no red countdown anxiety, no flashing banners.
+- **Structural Discipline (IBM Carbon 2× Grid):** Strict 4px micro / 8px core structural rhythm, tokenized L0–L5 layering, high-density accessible data tables, progressive disclosure.
+- **Tactile Hierarchy (Apple HIG):** Semantic material hierarchy, purposeful motion curves (140ms–280ms), predictable touch targets (min 44px), and clear focus rings.
+- **Form Utility (Untitled UI):** Clean inputs, structured controls, accessible state models.
+- **Editorial Warmth & Craft (Japandi Editorial):** Mixed-media illustrations housed in architectural passe-partout frames providing storytelling context without contaminating data evidence.
 
-  /* Border Tokens */
-  --border-subtle: oklch(0.900 0.008 240);
-  --border-strong: oklch(0.800 0.015 240);
-  --border-hairline: rgba(0, 0, 0, 0.08);
+---
 
-  /* Typography Tokens */
-  --text-primary: oklch(0.180 0.020 250);
-  --text-secondary: oklch(0.420 0.025 250);
-  --text-muted: oklch(0.580 0.020 250);
-  --text-inverse: oklch(0.990 0.002 240);
+## 2. Architectural Radius System
 
-  /* Brand & Accents: Precision Cyan & Aurora */
-  --accent-cyan: oklch(0.680 0.160 215);
-  --accent-cyan-subtle: oklch(0.940 0.040 215);
-  --accent-aurora: oklch(0.650 0.180 290);
-  --accent-emerald: oklch(0.680 0.150 155);
-  --accent-amber: oklch(0.720 0.160 75);
-  --accent-crimson: oklch(0.600 0.190 25);
-}
+WAY 2.0 replaces the former rigid zero-radius ideology with an **Architectural Radius System** that preserves precision while eliminating harshness:
 
-.dark {
-  /* Surface Tokens (Dark: Deep Slate / Deep Space) */
-  --surface-canvas: oklch(0.130 0.018 250);     /* #0c1017 */
-  --surface-raised: oklch(0.180 0.020 250);     /* #141a24 */
-  --surface-overlay: oklch(0.220 0.025 250);    /* #1c2432 */
-  --surface-sunken: oklch(0.100 0.015 250);
+| Tier | Radius Value | Tailwind Class | Designated Use Cases |
+| :--- | :--- | :--- | :--- |
+| **Structural / Technical** | `0px` | `rounded-none` | Data tables, assessment question frames, item studio consoles, technical telemetry grids, code blocks. |
+| **Control / Surface** | `4px` | `rounded-sm` | Buttons, form inputs, tiles, content cards, dialogs, sheet panels, tabs, badges, navigation elements. |
+| **Expressive Media** | `8px` | `rounded-md` | Hero media, mixed-media illustration frames, immersive student experience containers. |
 
-  /* Border Tokens */
-  --border-subtle: oklch(0.240 0.020 250);
-  --border-strong: oklch(0.320 0.030 250);
-  --border-hairline: rgba(255, 255, 255, 0.08);
+> [!CAUTION]
+> **Prohibited Curves:** 12px, 16px, 20px, and 24px bubbly consumer cards (`rounded-lg`, `rounded-xl`, `rounded-2xl`, `rounded-3xl`, pill buttons) are strictly forbidden across CREED OS.
 
-  /* Typography Tokens */
-  --text-primary: oklch(0.960 0.005 240);
-  --text-secondary: oklch(0.750 0.020 240);
-  --text-muted: oklch(0.520 0.020 250);
-  --text-inverse: oklch(0.120 0.015 250);
+---
 
-  /* Brand Accents */
-  --accent-cyan: oklch(0.760 0.160 215);
-  --accent-cyan-subtle: oklch(0.220 0.050 215);
-  --accent-aurora: oklch(0.720 0.180 290);
-}
+## 3. Calibrated Surface Layering (L0 – L5)
+
+To prevent flat "white-out" canvas fatigue, interfaces use a calibrated 5-tier elevation model:
+
+| Layer | Token | Light Mode Value | Dark Mode Value | Function |
+| :--- | :--- | :--- | :--- | :--- |
+| **L0 Canvas** | `--surface-canvas` | `oklch(0.978 0.006 240)` | `oklch(0.145 0.018 250)` | Base application background (Warm mineral white / Deep slate) |
+| **L1 Content** | `--surface-content` | `oklch(0.965 0.008 240)` | `oklch(0.180 0.020 250)` | Secondary wells, section groupings, subtle inset panels |
+| **L2 Raised** | `--surface-raised` | `oklch(1.000 0.000 0)` | `oklch(0.210 0.022 250)` | Interactive cards, focus tiles, active content surfaces |
+| **L3 Overlay** | `--surface-overlay` | `oklch(0.985 0.004 240)` | `oklch(0.250 0.025 250)` | Popovers, dropdown menus, flyout toolbars |
+| **L4 Modal** | `--surface-modal` | `oklch(1.000 0.000 0)` | `oklch(0.220 0.022 250)` | Focus dialogs, drawers, full-screen inspector sheets |
+| **L5 Transient**| `--surface-transient`| `oklch(0.200 0.020 250)` | `oklch(0.960 0.005 240)` | High-contrast toasts, keyboard shortcuts, snackbars |
+
+---
+
+## 4. Spacing Rhythm (4px Micro + 8px Structural)
+
+Spacing adheres to a strict geometric progression:
+
+- **Micro Spacing (`4px`):** `--space-1` (`p-1`, `gap-1`) for tags, badges, tight indicators.
+- **Core Structural Spacing (`8px` base):**
+  - `8px`: `--space-2` (`p-2`, `gap-2`)
+  - `12px`: `--space-3` (`p-3`, `gap-3` - compact rows)
+  - `16px`: `--space-4` (`p-4`, `gap-4` - standard card padding)
+  - `24px`: `--space-6` (`p-6`, `gap-6` - section spacing)
+  - `32px`: `--space-8` (`p-8`, `gap-8` - major container gap)
+- **Major Structural Spacing:**
+  - `40px`: `--space-10` (`p-10`)
+  - `48px`: `--space-12` (`p-12`)
+  - `64px`: `--space-16` (`p-16` - section landmark)
+  - `80px`: `--space-20` (`p-20` - hero padding)
+  - `96px`: `--space-24` (`p-24` - page boundary)
+
+> [!IMPORTANT]
+> Arbitrary spacing (`p-2.5` = 10px, `p-[13px]`, `p-[17px]`, `gap-[19px]`) is strictly rejected by design governance and CI.
+
+---
+
+## 5. Action-First UX & "Next Action" Primacy
+
+Rather than presenting an unprioritized BI dashboard of metric cards, every experience route is built around **Action-First UX**:
+
+```text
+1. Context        → Where am I, and who am I helping?
+2. Current State  → Calm, qualitative developmental summary.
+3. Meaning        → What does this mean in plain language?
+4. NEXT ACTION    → [DOMINANT VISUAL SIGNAL: Start 20-min mission / Assign group activity]
+5. Evidence       → Verified demonstrations backing this recommendation.
+6. Depth (Opt-in) → Progressive disclosure for detailed historical audit.
 ```
 
----
+### Cognitive Job by Persona
 
-## 3. Typography Scale
-
-- **Primary Sans:** Inter / Geist (`ui-sans-serif, system-ui, sans-serif`) for clarity, balanced kerning, and legibility across low-DPI displays.
-- **Data & Telemetry Mono:** JetBrains Mono (`ui-monospace, monospace`) for psychometric ability values ($\theta = +1.42$), question identifiers (`ITEM-STEM-042`), and standard errors.
-
-```css
-.font-sans { font-family: var(--font-sans); }
-.font-mono { font-family: var(--font-mono); }
-```
-
----
-
-## 4. The Lagom Motion Contract
-
-Animation must never distract, induce anxiety, or delay information display:
-- **Duration:** Standard UI transitions operate strictly between **180ms and 300ms**.
-- **Easing:** Cubic-bezier `cubic-bezier(0.16, 1, 0.3, 1)` (out-expo style for crisp, responsive settling).
-- **Test-Taking Silence:** During active assessment questions, animated decorative elements are disabled. Progress bars transition smoothly without flashing or bouncing.
-- **Accessibility:** Mandatory support for `@media (prefers-reduced-motion: reduce)`.
+| Route | Persona | Cognitive Job | Primary Next Action |
+| :--- | :--- | :--- | :--- |
+| `/student` | Student (10–16) | *"Orient me and show what to do next."* | **Start Today's Mission** (20-min practice) |
+| `/student/assessment` | Student | *"Let me concentrate in peace."* | **Select Answer & Continue** |
+| `/student/mentor` | Student | *"Help me think and explore reason."* | **Interactive Socratic Dialogue** |
+| `/student/pathways` | Student | *"Help me explore possibilities without labeling."* | **Try Hands-on Mission** |
+| `/parent` | Parent / Guardian | *"Reassure me and show how I can help."* | **Try At-Home Mini Challenge** |
+| `/teacher` | Teacher | *"Show what needs attention today and offer interventions."* | **Assign Differentiated Small Group** |
+| `/counselor` | Counselor | *"Case-manage my caseload with actionable evidence."* | **Schedule Advising Check-in** |
+| `/admin` | Administrator | *"Govern institution with auditable density."* | **Review Compliance & System Health** |
+| `/author` | Psychometrician | *"Calibrate items with mathematical rigor."* | **Calibrate 3PL Parameters & Bank** |
 
 ---
 
-## 5. Proprietary Education Component Suite
+## 6. Role-Aware Presentation Vocabulary
 
-1. **`AssessmentShell`:** Distraction-free container, displaying clean question numbering, responsive option selectors, and immediate keyboard accessibility (Keys `1`–`4` or `A`–`D`).
-2. **`AdaptiveProgress`:** Quietly indicates test progression without stressful percentage countdowns or ticking clocks.
-3. **`CompetencyRadar`:** Multi-axis visualization plotting a learner's current $\theta$ ability across Quantitative, Spatial, Logic, Scientific, and Computational domains with confidence intervals.
-4. **`EvidenceCard`:** Displays the source, timestamp, confidence badge, and raw observation snippet behind any asserted skill.
-5. **`MismatchAlert`:** A constructive card presenting foundation gaps as opportunities, rendering an 8-week developmental bridge and try-before-you-choose trials.
-6. **`ParentAlignmentPanel`:** Side-by-side comparison of parental expectations and student evidence, highlighting areas of convergence and joint exploration missions.
-7. **`ClassHeatmap`:** Teacher dashboard table grouping learners by conceptual gaps with one-click assignment of differentiated group tasks.
+The underlying psychometric and evidence graph models are identical across all routes, but the presentation vocabulary strictly adapts to the cognitive audience:
+
+| Concept | Student View | Parent View | Educator / Counselor | Admin / Item Studio |
+| :--- | :--- | :--- | :--- | :--- |
+| **Latent Ability $\theta$** | *"Superpower" / "Solid Strength"* | *"Advanced" / "Strong Foundation"* | *"Stage 4 Demonstrations"* | $\theta = +1.42 \pm 0.28$ |
+| **Uncertainty / SE** | *"Getting clearer with every mission"* | *"Moderate Confidence (3 verified checks)"* | *"Standard Error $SE = 0.31$"* | $SE(\theta) = 0.31$ |
+| **Difficulty $b$** | *"Challenge level"* | *"Age-appropriate complexity"* | *"Item Difficulty"* | $b = +0.85$ |
+| **Discrimination $a$** | *[Hidden]* | *[Hidden]* | *"Diagnostic sharpness"* | $a = 1.45$ |
+| **Career Alignment** | *"Fields where your strengths shine"* | *"Strong foundational alignment"* | *"Competency match: 4 / 6 met"* | Alignment coefficient |
+
+> [!WARNING]
+> **No False Precision:** Never display percentage career readiness (e.g. "74% roboticist fit"). Real humans are developmental, not deterministic lottery tickets.
+
+---
+
+## 7. Motion & Accessibility
+
+- **Durations:**
+  - Micro interactions (hover, toggle, focus): `140ms`
+  - Standard component transitions (tabs, accordion, drawers): `200ms`
+  - Emphasis / full layout transitions: `280ms`
+- **Easing:** `cubic-bezier(0.16, 1, 0.3, 1)` (Lagom crisp settling).
+- **Test-Taking Silence:** Decorative animations, glowing indicators, and pulsing loops are disabled during active assessments.
+- **Accessibility:** Mandatory support for `@media (prefers-reduced-motion: reduce)`, WCAG 2.2 AA contrast ratios, and visible 2px focus outlines (`--border-focus`).

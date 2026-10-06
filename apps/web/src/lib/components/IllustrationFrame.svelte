@@ -35,27 +35,27 @@
 
   const containerInteractive = $derived(
     interactive
-      ? 'group cursor-pointer transition-all duration-300 hover:border-(--border-strong)'
+      ? 'group cursor-pointer transition-all duration-200 hover:border-(--border-strong)'
       : ''
   );
 </script>
 
 <figure
-  class="surface-card rounded-none border border-(--border-subtle) p-2 sm:p-2.5 bg-(--surface-sunken) {containerInteractive} {className}"
+  class="surface-card rounded-md border border-(--border-subtle) p-2 sm:p-4 bg-(--surface-content) {containerInteractive} {className}"
 >
-  <!-- Hairline Passe-Partout Matting & Inner Image Frame -->
-  <div class="relative overflow-hidden rounded-none border border-(--border-subtle) bg-(--surface-raised) {aspectClasses[aspectRatio] || 'aspect-video'}">
+  <!-- Hairline Passe-Partout Matting & Inner Image Frame (8px Expressive Radius) -->
+  <div class="relative overflow-hidden rounded-sm border border-(--border-subtle) bg-(--surface-raised) {aspectClasses[aspectRatio] || 'aspect-video'}">
     <img
       {src}
       {alt}
       loading={priority ? 'eager' : 'lazy'}
       decoding="async"
-      class="w-full h-full object-cover rounded-none transition-transform duration-500 {interactive ? 'group-hover:scale-[1.015]' : ''} {imageClass}"
+      class="w-full h-full object-cover rounded-sm transition-transform duration-280 ease-out {interactive ? 'group-hover:scale-[1.015]' : ''} {imageClass}"
     />
 
     {#if badge}
-      <div class="absolute top-2.5 left-2.5 z-10">
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none bg-(--surface-canvas)/90 backdrop-blur-sm border border-(--border-subtle) text-[11px] font-semibold uppercase tracking-wider text-(--text-primary)">
+      <div class="absolute top-2 left-2 z-10">
+        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-sm bg-(--surface-canvas)/90 backdrop-blur-sm border border-(--border-subtle) text-[11px] font-semibold uppercase tracking-wider text-(--text-primary)">
           {badge}
         </span>
       </div>

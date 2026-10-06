@@ -28,13 +28,30 @@
 3. **Deterministic scoring:** Scores and psychometric ability estimates are computed by deterministic algorithms (IRT/CAT/BKT), never by raw unconstrained LLMs. AI explains; deterministic systems score; humans decide.
 4. **Data privacy & child safety:** Strict DPDP Act alignment, verified parental consent state machine, relationship-scoped RLS policies.
 
-## WAY Design System & "No AI Slope" Governance Policy
-1. **No Arbitrary Colors:** Only use semantic design tokens (`--surface-canvas`, `--surface-raised`, `--text-primary`, `--accent-cyan`, etc.). Never inject ad-hoc hex values (`#03080E`, `#38bdf8`, etc.) into component classes.
-2. **No Card Soup:** Only use elevated cards for interactive or primary focal objects. Group content using clean typographic hierarchy and 8pt section spacing. Avoid boxing every single metric in a bordered rectangle.
-3. **No Neon / Glowing Borders:** Experience routes (Student, Parent, Teacher, Counselor) must use quiet, tactile surfaces (Nordic Lagom warm mineral whites in light mode, deep slate in dark mode). Never add glowing drop shadows or cyber-neon outlines.
-4. **Strict 8pt Spacing Rhythm:** Spacing must adhere to the 8pt rhythm (4, 8, 12, 16, 24, 32, 40, 48, 64px). Arbitrary pixel values (e.g., 13px, 19px, 27px) are strictly forbidden.
-5. **Bifurcated Paradigms:**
-   - **WAY Experience:** Student, Parent, Teacher, Counselor (Light by default, comfortable/standard density, warm mineral canvas, human-first vocabulary).
-   - **WAY Console:** Admin, Item Studio, Psychometrics (High-density Carbon discipline, compact/dense modes, persistent filter bars, data tables).
-6. **Role-Aware Vocabulary:** Raw psychometric formulas and parameters (θ, SE, 3PL parameters a/b/c) must NEVER be shown to Students or Parents. Always translate into human-first developmental language.
-7. **State Coverage:** All interactive components must support full state coverage: default, hover, active, focus-visible, disabled, and loading.
+## WAY 2.0 Design System & "Calm Intelligence" Governance Policy
+1. **Architectural Radius System (replaces rigid zero-radius ideology):**
+   - **0px (`rounded-none`):** Structural & technical surfaces (data tables, assessment question frame, item studio, console grids, metadata readouts).
+   - **4px (`rounded-sm`):** Controls & content surfaces (buttons, inputs, tiles, cards, dialogs, navigation items).
+   - **8px (`rounded-md`):** Expressive media & immersive experiences (hero media, mixed-media illustration frames).
+   - **Forbidden:** 12px+ bubbly consumer curves (`rounded-lg`, `rounded-xl`, `rounded-2xl`, `rounded-3xl`, pill buttons).
+2. **True Spacing Rhythm:**
+   - **Micro (4px):** Micro tags, compact indicators (`p-1`, `gap-1`).
+   - **Core (8, 16, 24, 32px):** Content padding, card section separation (`p-2`, `p-4`, `p-6`, `p-8`).
+   - **Major (40, 48, 64, 80, 96px):** Layout gutters, landmarks, section boundaries (`p-10`, `p-12`, `p-16`, `p-20`, `p-24`).
+   - **Forbidden:** Arbitrary spacings (`p-2.5` = 10px, `p-[13px]`, `p-[17px]`, `gap-[19px]`).
+3. **No Arbitrary Colors:** Only use semantic design tokens (`--surface-canvas`, `--surface-content`, `--surface-raised`, `--text-primary`, `--accent-primary`, etc.). Never inject ad-hoc hex values (`#03080E`, `#38bdf8`) into component classes.
+4. **Action-First UX & "Next Action" Primacy:**
+   - The primary visual signal on every screen must be **"What should I do next?"** (e.g. Start today's 20-min mission), not a wall of charts or metric boxes.
+   - Global page grammar: Context → Current state → Meaning → Next action → Evidence → Optional depth.
+   - Replace "card soup" with semantic structure: `<section>`, clean typography, **rows** (for competencies, pathways, evidence), and progressive **disclosures**.
+5. **Calibrated Surface Layering (L0–L5):**
+   - L0 Canvas (warm mineral white) → L1 Content well → L2 Raised focus card → L3 Overlay popover → L4 Modal dialog. Avoid pure flat white saturation.
+6. **Bifurcated Paradigms & Zero Production Leaks:**
+   - **WAY Experience (Student, Parent, Teacher, Counselor):** Warm mineral canvas default, comfortable/standard density, human-first developmental growth vocabulary.
+   - **WAY Console (Admin, Item Studio, Psychometrics):** High-density IBM Carbon discipline, compact/dense modes, persistent filter bars, data tables.
+   - **Strict Leak Prevention:** Raw psychometric symbols ($\theta$, $SE$, 3PL parameters $a/b/c$, Fisher info, evaluator telemetry drawer) and Persona Dock development chrome must NEVER appear in production Student, Parent, Teacher, or Counselor routes.
+7. **No False Precision:**
+   - Never display percentage career readiness (e.g. "74% fit"). Use qualitative developmental bands (*"Strong foundation"*, *"Developing foundation"*, *"4 / 6 foundational competencies demonstrated"*).
+8. **Lagom Motion Contract:**
+   - Motion duration must stay strictly between **140ms and 280ms** (`--duration-micro: 140ms;`, `--duration-standard: 200ms;`, `--duration-emphasis: 280ms;`). Decorative animations are silenced during active assessments.
+9. **State Coverage:** All interactive components must support full 6-state coverage: default, hover, active, focus-visible, disabled, and loading.

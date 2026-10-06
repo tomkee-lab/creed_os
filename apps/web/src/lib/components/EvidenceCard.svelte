@@ -32,6 +32,14 @@
     })
   );
 
+  const strengthLabel = $derived(
+    evidence.evidenceStrength >= 4
+      ? 'High Rigor'
+      : evidence.evidenceStrength >= 2
+        ? 'Verified'
+        : 'Observational'
+  );
+
   const displayScore = $derived(
     evidence.observedValue.scoreFraction !== undefined
       ? (evidence.observedValue.scoreFraction * 5.0).toFixed(1)
@@ -41,11 +49,11 @@
   );
 </script>
 
-<div class="surface-card p-4 space-y-3 transition-all hover:border-(--accent-primary)">
+<div class="surface-card rounded-sm p-4 space-y-3 transition-all duration-140 hover:border-(--border-strong)">
   <div class="flex items-start justify-between gap-3">
     <div class="space-y-1">
       <div class="flex items-center gap-2">
-        <span class="text-xs px-2.5 py-0.5 rounded-none font-medium {currentSource.badgeClass}">
+        <span class="text-xs px-2 py-0.5 rounded-sm font-medium {currentSource.badgeClass}">
           {currentSource.label}
         </span>
         <span class="text-[11px] text-(--text-muted) flex items-center gap-1 font-mono">
@@ -59,10 +67,10 @@
     </div>
     <div class="text-right shrink-0">
       <span class="text-xs font-semibold text-(--text-primary)">
-        Score: {displayScore} / 5.0
+        Demonstrated: {displayScore} / 5.0
       </span>
-      <span class="text-[10px] text-(--text-muted) block font-mono">
-        Evidence Strength: L{evidence.evidenceStrength}
+      <span class="text-[11px] text-(--accent-success) font-medium block">
+        {strengthLabel} Evidence
       </span>
     </div>
   </div>
@@ -74,12 +82,12 @@
   <div class="pt-2 border-t border-(--border-subtle) flex items-center justify-between text-[11px]">
     <div class="flex items-center gap-1.5 text-(--text-muted)">
       <ShieldCheck class="w-3.5 h-3.5 text-(--accent-success)" />
-      <span class="font-mono text-[10px]">ID: {evidence.id.slice(0, 16)}...</span>
+      <span class="text-[11px] text-(--text-secondary)">Verified cryptographic audit record</span>
     </div>
     <div class="flex items-center gap-1.5">
-      <span class="text-(--text-muted)">Confidence:</span>
-      <span class="font-semibold text-(--accent-success)">
-        {Math.round(evidence.confidence * 100)}%
+      <span class="text-(--text-muted)">Provenance:</span>
+      <span class="font-semibold text-(--text-primary)">
+        Level {evidence.evidenceStrength}
       </span>
     </div>
   </div>

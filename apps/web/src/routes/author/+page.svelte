@@ -154,7 +154,7 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
   <!-- Feedback Banner -->
   {#if feedbackMessage}
-    <div class="p-4 rounded-xl badge-growth text-xs flex items-center justify-between transition-all">
+    <div class="p-4 rounded-sm badge-growth text-xs flex items-center justify-between transition-all">
       <div class="flex items-center gap-2">
         <CheckCircle2 class="w-4 h-4 shrink-0" />
         <span>{feedbackMessage}</span>
@@ -173,7 +173,7 @@
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-(--border-subtle)">
     <div>
       <div class="flex items-center gap-2.5">
-        <div class="p-2 rounded-xl bg-(--surface-sunken) text-(--accent-primary) border border-(--border-subtle)">
+        <div class="p-2 rounded-sm bg-(--surface-sunken) text-(--accent-primary) border border-(--border-subtle)">
           <Sliders class="w-5 h-5" />
         </div>
         <div>
@@ -194,7 +194,7 @@
 
     <!-- Active Metrics -->
     <div class="flex items-center gap-3">
-      <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl surface-card text-xs font-mono text-(--text-primary)">
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-sm surface-card text-xs font-mono text-(--text-primary)">
         <Database class="w-4 h-4 text-(--accent-primary)" />
         <span>Bank: {itemBank.length} Items</span>
       </div>
@@ -265,7 +265,7 @@
           id="author-prompt"
           bind:value={promptText}
           rows={3}
-          class="w-full p-3 rounded-xl bg-(--surface-sunken) border border-(--border-subtle) text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--accent-primary) leading-relaxed"
+          class="w-full p-3 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--accent-primary) leading-relaxed"
         ></textarea>
       </div>
 
@@ -329,7 +329,7 @@
             <span>Fisher Information Curve I(θ)</span>
             <span>Max Yield: {infoCurvePoints().maxInfo}</span>
           </div>
-          <div class="w-full h-28 bg-(--surface-canvas) rounded-xl border border-(--border-subtle) p-2 flex items-center justify-center">
+          <div class="w-full h-28 bg-(--surface-canvas) rounded-sm border border-(--border-subtle) p-2 flex items-center justify-center">
             <svg viewBox="0 0 360 140" class="w-full h-full overflow-visible">
               <line x1="20" y1="120" x2="340" y2="120" stroke="var(--border-strong)" stroke-width="1" />
               <polyline
@@ -347,7 +347,7 @@
       <div class="space-y-3 text-xs">
         <span class="font-semibold text-(--text-primary) block">Options & Misconception Mappings</span>
         {#each options as opt, idx}
-          <div class="p-3 rounded-xl border border-(--border-subtle) bg-(--surface-sunken) space-y-2">
+          <div class="p-3 rounded-sm border border-(--border-subtle) bg-(--surface-sunken) space-y-2">
             <div class="flex items-center gap-2">
               <input
                 type="radio"

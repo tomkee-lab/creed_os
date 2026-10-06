@@ -16,7 +16,10 @@
     RotateCcw,
     Radio,
     Compass,
-    HelpCircle
+    HelpCircle,
+    Info,
+    ChevronDown,
+    ChevronUp
   } from 'lucide-svelte';
   import { Button, Badge, Card, Input, IllustrationFrame } from '$lib/components';
 
@@ -24,24 +27,27 @@
     id: string;
     role: 'user' | 'assistant';
     text: string;
+    state?: 'asking' | 'reflecting' | 'summarizing';
     observation?: { competency: string; note: string };
   }
 
-  type AudioState = 'idle' | 'listening' | 'thinking' | 'speaking';
+  type MentorState = 'idle' | 'listening' | 'thinking' | 'asking' | 'reflecting' | 'summarizing' | 'evidence_captured';
 
   let messages = $state<ChatMessage[]>([
     {
       id: 'm1',
       role: 'assistant',
-      text: 'Hello Anaya! I am your Socratic Guide. I will never simply give away direct answers or do your homework for you, but I will help you break down tricky STEM, spatial, and mathematical problems step-by-step. What question or mission are you working through today?'
+      text: 'Hello Anaya! I am your Socratic Guide. I will never simply dump answers or solve homework for you. Instead, we break down tricky STEM, spatial, and mathematical challenges step-by-step. What question or project mission are you exploring today?',
+      state: 'asking'
     }
   ]);
 
   let inputQuery = $state('');
   let isSending = $state(false);
   let voiceMode = $state(false);
-  let audioState = $state<AudioState>('idle');
+  let currentState = $state<MentorState>('idle');
   let isMuted = $state(false);
+  let showPedagogicalNote = $state(false);
 
   const samplePrompts = [
     'How do I balance an equation when variables are on both sides?',
@@ -49,18 +55,18 @@
     'How does gear teeth ratio change rotational speed and torque?'
   ];
 
-  const socraticNudges = [
-    { title: 'Decompose', desc: 'Identify known vs unknown variables first' },
+  const reasoningMoves = [
+    { title: 'Decompose', desc: 'Identify known vs unknown variables' },
     { title: 'Represent', desc: 'Sketch a quick diagram or mental model' },
-    { title: 'Test Extreme', desc: 'What happens if the value is zero or infinity?' }
+    { title: 'Test Extreme', desc: 'What happens at zero or infinity?' }
   ];
 
   function toggleVoiceMode() {
     voiceMode = !voiceMode;
     if (voiceMode) {
-      audioState = 'listening';
+      currentState = 'listening';
     } else {
-      audioState = 'idle';
+      currentState = 'idle';
     }
   }
 
@@ -77,7 +83,7 @@
     messages = [...messages, userMsg];
     inputQuery = '';
     isSending = true;
-    audioState = 'thinking';
+    currentState = 'thinking';
 
     try {
       const res = await fetch('/api/v1/ai/mentor/chat', {
@@ -98,14 +104,16 @@
         id: crypto.randomUUID(),
         role: 'assistant',
         text: data.reply,
+        state: data.observation ? 'summarizing' : 'reflecting',
         observation: data.observation
       };
 
       messages = [...messages, assistantMsg];
-      audioState = 'speaking';
+      currentState = data.observation ? 'evidence_captured' : 'reflecting';
+
       setTimeout(() => {
-        if (voiceMode) audioState = 'listening';
-        else audioState = 'idle';
+        if (voiceMode) currentState = 'listening';
+        else currentState = 'idle';
       }, 4000);
     } catch {
       messages = [
@@ -113,13 +121,14 @@
         {
           id: crypto.randomUUID(),
           role: 'assistant',
-          text: 'Let us pause and look at what you already know: what is the single most critical variable given in your problem?'
+          text: 'Let us pause and examine what we already know: what is the single most critical variable given in this scenario?',
+          state: 'reflecting'
         }
       ];
-      audioState = 'speaking';
+      currentState = 'asking';
       setTimeout(() => {
-        if (voiceMode) audioState = 'listening';
-        else audioState = 'idle';
+        if (voiceMode) currentState = 'listening';
+        else currentState = 'idle';
       }, 3000);
     } finally {
       isSending = false;
@@ -127,98 +136,123 @@
   }
 
   function simulateVoiceInput() {
-    if (audioState === 'listening') {
-      audioState = 'thinking';
+    if (currentState === 'listening') {
+      currentState = 'thinking';
       setTimeout(() => {
         handleSend('If a gear has 12 teeth and drives a 36-tooth gear, does it turn faster or slower?');
       }, 1200);
     } else {
-      audioState = 'listening';
+      currentState = 'listening';
     }
   }
 </script>
 
 <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-  <!-- Header with Role & Safety Indicators -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-(--border-subtle) pb-4">
-    <div class="space-y-0.5">
+  <!-- 1. HEADER: Calm Intelligence & Ephemeral Safety Context -->
+  <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-(--border-subtle)">
+    <div class="space-y-1">
       <div class="flex items-center gap-2">
         <Sparkles class="w-5 h-5 text-(--accent-primary)" />
-        <h1 class="text-xl font-bold text-(--text-primary)">Socratic AI Guide & Voice Mentor</h1>
+        <h1 class="text-xl sm:text-2xl font-bold text-(--text-primary) tracking-tight">
+          Socratic Guide & Inquiry Workspace
+        </h1>
       </div>
       <p class="text-xs text-(--text-secondary)">
-        Thoughtful step-by-step problem decomposition • Child safety & zero answer dumping
+        Step-by-step problem decomposition • Calm scaffolding without answers dumping
       </p>
     </div>
 
     <div class="flex items-center gap-2">
-      <Badge variant="growth" size="sm">
+      <!-- Calm Ephemeral Marker -->
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-[11px] font-medium bg-(--accent-success-subtle) text-(--accent-success) border border-(--border-subtle)">
         <Shield class="w-3.5 h-3.5" />
-        <span>DPDP Verified & Ephemeral</span>
-      </Badge>
-      <Button
-        variant={voiceMode ? 'primary' : 'outline'}
-        size="sm"
+        <span>Parent Consent Active</span>
+      </span>
+
+      <!-- Voice Mentor Toggle -->
+      <button
+        type="button"
         onclick={toggleVoiceMode}
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-medium transition-all border cursor-pointer {voiceMode ? 'bg-(--accent-primary) text-white border-(--accent-primary)' : 'surface-card text-(--text-secondary) hover:text-(--text-primary) border-(--border-subtle)'}"
       >
         {#if voiceMode}
-          <Mic class="w-3.5 h-3.5" />
-          <span>Live Voice Mode</span>
+          <Mic class="w-3.5 h-3.5 animate-pulse" />
+          <span>Voice Live</span>
         {:else}
           <Radio class="w-3.5 h-3.5" />
-          <span>Enable Voice Mentor</span>
+          <span>Voice Mentor</span>
         {/if}
-      </Button>
+      </button>
     </div>
-  </div>
+  </header>
 
-  <!-- Editorial Socratic Mentor Vignette -->
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center surface-card rounded-none p-4 sm:p-5 border border-(--border-subtle)">
-    <div class="md:col-span-5">
-      <IllustrationFrame
-        src="/images/illustrations/socratic_inquiry.jpg"
-        alt="Asian mentor and student in thoughtful philosophical dialogue over open journals in library courtyard"
-        aspectRatio="1:1"
-        badge="Socratic Method"
-        caption="The Atrium of Inquiry • Step-by-step problem decomposition and intellectual growth."
-        credit="CREED OS • Guided Mentorship"
-      />
-    </div>
-    <div class="md:col-span-7 space-y-3">
-      <span class="text-xs font-semibold uppercase tracking-wider text-(--accent-indigo)">
-        Pedagogical Principle
-      </span>
-      <h2 class="text-lg font-bold text-(--text-primary)">
-        "We ask the questions that help you discover the principle yourself."
-      </h2>
-      <p class="text-xs text-(--text-secondary) leading-relaxed">
-        The Socratic Guide is designed to prevent passive answers. Instead of solving equations for you, it guides your attention toward identifying invariants, testing edge cases, and sketching mental models.
-      </p>
-      <div class="pt-2 border-t border-(--border-subtle) flex items-center gap-2 text-xs text-(--text-muted)">
-        <Sparkles class="w-3.5 h-3.5 text-(--accent-primary)" />
-        <span>Observation tags are captured into your verified longitudinal evidence graph.</span>
+  <!-- 2. CONVERSATIONAL WORKSPACE (Compact & Connected, No Giant Blank Gaps) -->
+  <div class="surface-card rounded-sm border border-(--border-subtle) overflow-hidden flex flex-col">
+    <!-- Top Bar: Mentor State & Pedagogical Principle -->
+    <div class="px-5 py-3 border-b border-(--border-subtle) bg-(--surface-sunken) flex items-center justify-between text-xs">
+      <!-- Active Mentor State Indicator -->
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-2 rounded-full {currentState === 'listening' ? 'bg-(--accent-success) animate-ping' : (currentState === 'thinking' ? 'bg-(--accent-primary) animate-pulse' : (currentState === 'reflecting' ? 'bg-(--accent-indigo)' : (currentState === 'evidence_captured' ? 'bg-(--accent-success)' : 'bg-(--text-muted)')))}"></div>
+        <span class="font-medium text-(--text-primary)">
+          {#if currentState === 'listening'}
+            Listening for your reasoning...
+          {:else if currentState === 'thinking'}
+            Formulating Socratic question...
+          {:else if currentState === 'reflecting'}
+            Reflecting on your approach...
+          {:else if currentState === 'summarizing'}
+            Synthesizing demonstrated principle...
+          {:else if currentState === 'evidence_captured'}
+            Evidence item captured to profile
+          {:else}
+            Socratic Guide ready
+          {/if}
+        </span>
       </div>
-    </div>
-  </div>
 
-  <!-- Voice Mentor Waveform HUD (When Voice Mode is Active) -->
-  {#if voiceMode}
-    <Card variant="raised" class="p-6 space-y-4 border border-(--accent-primary)/30">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <div class="w-3 h-3 rounded-none {audioState === 'listening' ? 'bg-(--accent-success) animate-ping' : (audioState === 'thinking' ? 'bg-(--accent-primary) animate-pulse' : 'bg-(--accent-indigo)')}"></div>
-          <span class="text-xs font-bold uppercase tracking-wider text-(--text-primary)">
-            Mentor Voice State:
-            <span class="text-(--accent-primary) font-mono">{audioState}</span>
-          </span>
+      <!-- Pedagogical Collapsible Trigger -->
+      <button
+        type="button"
+        onclick={() => (showPedagogicalNote = !showPedagogicalNote)}
+        class="text-[11px] text-(--text-muted) hover:text-(--text-primary) flex items-center gap-1 transition-colors cursor-pointer"
+      >
+        <span>Pedagogy</span>
+        {#if showPedagogicalNote}
+          <ChevronUp class="w-3 h-3" />
+        {:else}
+          <ChevronDown class="w-3 h-3" />
+        {/if}
+      </button>
+    </div>
+
+    <!-- Collapsible Compact Pedagogy Note -->
+    {#if showPedagogicalNote}
+      <div class="px-5 py-3 bg-(--surface-canvas) border-b border-(--border-subtle) text-xs text-(--text-secondary) flex items-start gap-2 leading-relaxed">
+        <Info class="w-4 h-4 text-(--accent-indigo) shrink-0 mt-0.5" />
+        <div>
+          <strong class="text-(--text-primary)">The Socratic Method:</strong> We guide attention toward invariants, edge cases, and mental representations so you discover the core insight independently. Observations are securely indexed into your learning map.
+        </div>
+      </div>
+    {/if}
+
+    <!-- Voice Waveform HUD (If active) -->
+    {#if voiceMode}
+      <div class="px-6 py-4 border-b border-(--border-subtle) bg-(--surface-canvas) flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-1.5 h-8">
+          {#each [14, 24, 38, 18, 30, 42, 22, 34, 28, 16, 36, 20, 32, 24, 30] as h, i}
+            <div
+              class="w-1 rounded-full transition-all duration-200 {currentState === 'listening' ? 'bg-(--accent-success)' : (currentState === 'thinking' ? 'bg-(--accent-primary)' : 'bg-(--border-subtle)')}"
+              style="height: {currentState === 'idle' ? 4 : (currentState === 'listening' ? Math.max(6, (h * 0.6) + (Math.sin(i) * 8)) : Math.max(8, h * 0.7))}px;"
+            ></div>
+          {/each}
         </div>
 
         <div class="flex items-center gap-2">
           <button
             type="button"
             onclick={() => (isMuted = !isMuted)}
-            class="p-1.5 rounded-none text-(--text-muted) hover:text-(--text-primary) hover:bg-(--surface-sunken) transition-colors cursor-pointer border border-(--border-subtle)"
-            aria-label={isMuted ? 'Unmute voice' : 'Mute voice'}
+            class="p-1.5 rounded-sm surface-card text-(--text-muted) hover:text-(--text-primary) border border-(--border-subtle) transition-colors cursor-pointer"
+            aria-label={isMuted ? 'Unmute' : 'Mute'}
           >
             {#if isMuted}
               <VolumeX class="w-4 h-4" />
@@ -226,136 +260,127 @@
               <Volume2 class="w-4 h-4 text-(--accent-primary)" />
             {/if}
           </button>
-          <Button variant="secondary" size="sm" onclick={simulateVoiceInput}>
-            {#if audioState === 'listening'}
-              <span>Simulate Speech</span>
-            {:else}
-              <span>Listen Again</span>
-            {/if}
-          </Button>
+          <button
+            type="button"
+            onclick={simulateVoiceInput}
+            class="px-3 py-1.5 rounded-sm bg-(--surface-raised) hover:bg-(--surface-sunken) text-xs font-medium text-(--text-primary) border border-(--border-subtle) transition-colors cursor-pointer"
+          >
+            {currentState === 'listening' ? 'Simulate Speech' : 'Listen Again'}
+          </button>
         </div>
       </div>
+    {/if}
 
-      <!-- Dynamic Audio Waveform -->
-      <div class="h-20 bg-(--surface-sunken) rounded-none flex items-center justify-center px-4 overflow-hidden relative border border-(--border-subtle)">
-        <div class="flex items-center gap-1.5 h-12">
-          {#each [16, 28, 44, 20, 36, 48, 24, 40, 32, 18, 42, 22, 38, 26, 34] as h, i}
-            <div
-              class="w-1.5 rounded-none transition-all duration-300 {audioState === 'listening' ? 'bg-(--accent-success)' : (audioState === 'thinking' ? 'bg-(--accent-primary)' : (audioState === 'speaking' ? 'bg-(--accent-indigo)' : 'bg-(--border-subtle)'))}"
-              style="height: {audioState === 'idle' ? 6 : (audioState === 'listening' ? Math.max(8, (h * 0.7) + (Math.sin(i) * 10)) : (audioState === 'thinking' ? 12 + (i % 4) * 6 : Math.max(10, h)))}px;"
-            ></div>
-          {/each}
-        </div>
-
-        <span class="absolute bottom-1.5 text-[10px] text-(--text-muted) font-mono">
-          {#if audioState === 'listening'}
-            Listening for your reasoning...
-          {:else if audioState === 'thinking'}
-            Formulating Socratic question...
-          {:else if audioState === 'speaking'}
-            Guiding your thought process...
-          {:else}
-            Voice mentor standing by
+    <!-- Connected Message Thread -->
+    <div class="p-5 sm:p-6 space-y-4 max-h-115 overflow-y-auto bg-(--surface-canvas)">
+      {#each messages as msg}
+        <div class="flex items-start gap-3 {msg.role === 'user' ? 'justify-end' : 'justify-start'}">
+          {#if msg.role === 'assistant'}
+            <div class="w-7 h-7 rounded-sm bg-(--accent-primary-subtle) text-(--accent-primary) flex items-center justify-center shrink-0 border border-(--border-subtle)">
+              <Bot class="w-4 h-4" />
+            </div>
           {/if}
-        </span>
-      </div>
-    </Card>
-  {/if}
 
-  <!-- Chat History Window -->
-  <Card variant="canvas" class="p-6 space-y-4 min-h-100 max-h-135 overflow-y-auto">
-    {#each messages as msg}
-      <div class="flex items-start gap-3 {msg.role === 'user' ? 'justify-end' : 'justify-start'}">
-        {#if msg.role === 'assistant'}
-          <div class="w-8 h-8 rounded-none bg-(--accent-primary-subtle) text-(--accent-primary) flex items-center justify-center shrink-0 border border-(--border-subtle)">
-            <Bot class="w-4 h-4" />
+          <div class="space-y-1.5 max-w-[82%]">
+            <div class="p-4 rounded-sm text-xs sm:text-sm leading-relaxed border {msg.role === 'user' ? 'bg-(--accent-primary) text-white font-medium border-(--accent-primary)' : 'surface-card text-(--text-primary) border-(--border-subtle)'}">
+              {msg.text}
+            </div>
+
+            <!-- Transparent AI Marker & Evidence provenance -->
+            {#if msg.role === 'assistant'}
+              <div class="flex items-center gap-2 text-[10px] text-(--text-muted) px-1">
+                <span class="inline-flex items-center gap-1 text-(--accent-indigo)">
+                  <Sparkles class="w-2.5 h-2.5" />
+                  <span>AI Guided Dialogue</span>
+                </span>
+                <span>•</span>
+                <span>Child-safe guardrails</span>
+              </div>
+            {/if}
+
+            {#if msg.observation}
+              <div class="flex items-center gap-1.5 px-3 py-1 rounded-sm badge-growth text-[11px] font-medium border border-(--border-subtle)">
+                <CheckCircle2 class="w-3.5 h-3.5 text-(--accent-success)" />
+                <span>Demonstrated: [{msg.observation.competency.replace('_', ' ')}] — {msg.observation.note}</span>
+              </div>
+            {/if}
           </div>
-        {/if}
 
-        <div class="space-y-2 max-w-[80%]">
-          <div class="p-4 rounded-none text-sm leading-relaxed border {msg.role === 'user' ? 'bg-(--accent-primary) text-white font-medium border-(--accent-primary)' : 'surface-card text-(--text-primary) border-(--border-subtle)'}">
-            {msg.text}
-          </div>
-
-          {#if msg.observation}
-            <div class="flex items-center gap-1.5 px-3 py-1 rounded-none badge-growth text-[11px] font-medium border border-(--border-subtle)">
-              <CheckCircle2 class="w-3.5 h-3.5" />
-              <span>Evidence Captured: [{msg.observation.competency}] — {msg.observation.note}</span>
+          {#if msg.role === 'user'}
+            <div class="w-7 h-7 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) flex items-center justify-center text-(--text-primary) shrink-0 font-semibold text-[11px]">
+              AV
             </div>
           {/if}
         </div>
-
-        {#if msg.role === 'user'}
-          <div class="w-8 h-8 rounded-none bg-(--surface-sunken) border border-(--border-subtle) flex items-center justify-center text-(--text-primary) shrink-0 font-semibold text-xs">
-            AV
-          </div>
-        {/if}
-      </div>
-    {/each}
-
-    {#if isSending}
-      <div class="flex items-center gap-2 text-xs text-(--accent-primary) pl-11">
-        <div class="w-2 h-2 rounded-none bg-(--accent-primary) animate-pulse"></div>
-        <span>Formulating Socratic inquiry...</span>
-      </div>
-    {/if}
-  </Card>
-
-  <!-- Socratic Strategy Nudges -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-    {#each socraticNudges as nudge}
-      <div class="p-3 rounded-none bg-(--surface-sunken) border border-(--border-subtle) text-xs space-y-0.5">
-        <span class="font-bold text-(--accent-primary) flex items-center gap-1">
-          <Compass class="w-3 h-3" />
-          {nudge.title}
-        </span>
-        <p class="text-(--text-muted) text-[11px] leading-tight">{nudge.desc}</p>
-      </div>
-    {/each}
-  </div>
-
-  <!-- Prompt Starters -->
-  <div class="space-y-2">
-    <span class="text-xs text-(--text-muted) font-medium flex items-center gap-1.5">
-      <Lightbulb class="w-3.5 h-3.5 text-(--accent-warning)" />
-      <span>Suggested Reasoning Questions</span>
-    </span>
-    <div class="flex flex-wrap gap-2">
-      {#each samplePrompts as prompt}
-        <button
-          type="button"
-          onclick={() => handleSend(prompt)}
-          class="px-3.5 py-1.5 rounded-none surface-card text-xs text-(--text-secondary) hover:text-(--text-primary) hover:border-(--accent-primary) transition-colors text-left cursor-pointer border border-(--border-subtle)"
-        >
-          {prompt}
-        </button>
       {/each}
+
+      {#if isSending}
+        <div class="flex items-center gap-2 text-xs text-(--accent-primary) pl-10">
+          <div class="w-2 h-2 rounded-full bg-(--accent-primary) animate-pulse"></div>
+          <span>Formulating Socratic inquiry...</span>
+        </div>
+      {/if}
+    </div>
+
+    <!-- Integrated Controls Section (Suggested moves & input in same view) -->
+    <div class="p-4 sm:p-5 bg-(--surface-sunken) border-t border-(--border-subtle) space-y-3">
+      <!-- Reasoning Moves Ribbon -->
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-[11px] font-semibold text-(--text-muted) flex items-center gap-1 mr-1">
+          <Compass class="w-3 h-3 text-(--accent-primary)" />
+          Moves:
+        </span>
+        {#each reasoningMoves as move}
+          <button
+            type="button"
+            onclick={() => handleSend(`Can you guide me through how to ${move.title.toLowerCase()} this problem?`)}
+            class="px-2.5 py-1 rounded-sm bg-(--surface-canvas) hover:bg-(--surface-raised) text-[11px] font-medium text-(--text-secondary) hover:text-(--text-primary) border border-(--border-subtle) transition-colors cursor-pointer"
+          >
+            <strong class="text-(--text-primary)">{move.title}:</strong> {move.desc}
+          </button>
+        {/each}
+      </div>
+
+      <!-- Quick Starter Prompts -->
+      <div class="flex flex-wrap items-center gap-1.5 pt-1">
+        <span class="text-[11px] text-(--text-muted) flex items-center gap-1 mr-1">
+          <Lightbulb class="w-3 h-3 text-(--accent-warning)" />
+          Try:
+        </span>
+        {#each samplePrompts as prompt}
+          <button
+            type="button"
+            onclick={() => handleSend(prompt)}
+            class="px-2.5 py-1 rounded-sm bg-(--surface-canvas) hover:bg-(--surface-raised) text-[11px] text-(--text-secondary) hover:text-(--text-primary) border border-(--border-subtle) transition-colors text-left truncate max-w-xs cursor-pointer"
+          >
+            {prompt}
+          </button>
+        {/each}
+      </div>
+
+      <!-- Compact Input Bar -->
+      <form
+        onsubmit={(e) => {
+          e.preventDefault();
+          handleSend();
+        }}
+        class="flex items-center gap-2 pt-1"
+      >
+        <input
+          type="text"
+          bind:value={inputQuery}
+          placeholder="Ask a question or describe a constraint you're stuck on..."
+          class="flex-1 bg-(--surface-canvas) border border-(--border-subtle) rounded-sm px-4 py-2.5 text-xs sm:text-sm text-(--text-primary) placeholder-(--text-muted) focus:outline-none focus:border-(--accent-primary)"
+        />
+        <button
+          type="submit"
+          disabled={!inputQuery.trim() || isSending}
+          class="px-5 py-2.5 rounded-sm bg-(--accent-primary) hover:opacity-90 disabled:opacity-40 text-white font-medium text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-sm cursor-pointer shrink-0"
+        >
+          <span>Ask</span>
+          <Send class="w-3.5 h-3.5" />
+        </button>
+      </form>
     </div>
   </div>
-
-  <!-- Message Input Bar -->
-  <form
-    onsubmit={(e) => {
-      e.preventDefault();
-      handleSend();
-    }}
-    class="flex items-center gap-2 p-2 rounded-none surface-card border border-(--border-subtle)"
-  >
-    <input
-      type="text"
-      bind:value={inputQuery}
-      placeholder="Ask about a problem, concept, or project mission constraint..."
-      class="flex-1 bg-transparent px-4 py-2.5 text-sm text-(--text-primary) placeholder-(--text-muted) focus:outline-none"
-    />
-    <Button
-      type="submit"
-      variant="primary"
-      size="md"
-      disabled={!inputQuery.trim() || isSending}
-    >
-      <span>Ask</span>
-      <Send class="w-4 h-4" />
-    </Button>
-  </form>
 </div>
-

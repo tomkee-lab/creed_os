@@ -1,0 +1,23 @@
+{
+  "rules": {
+    "allowedRadii": ["0px", "4px", "8px"],
+    "allowedRadiusClasses": ["rounded-none", "rounded-sm", "rounded-md", "rounded-full"],
+    "prohibitedRadiusClasses": ["rounded-lg", "rounded-xl", "rounded-2xl", "rounded-3xl"],
+    "allowedSpacingPx": [4, 8, 16, 24, 32, 40, 48, 64, 80, 96],
+    "prohibitedSpacingClasses": ["p-2.5", "px-2.5", "py-2.5", "m-2.5", "gap-2.5", "p-[10px]", "p-[13px]", "p-[17px]", "p-[19px]"],
+    "allowedDurationsMs": [140, 200, 240, 280],
+    "prohibitedDurationClasses": ["duration-500", "duration-550", "duration-700", "duration-1000"],
+    "tokenOnlyColors": true,
+    "prohibitedHexInClasses": true,
+    "roleAwareVocabulary": {
+      "student": {
+        "forbidden": ["theta", "θ", "SE", "3PL", "Fisher Information", "Percentile rank", "Psychometrics", "Calibrated baseline"],
+        "requiredTone": "developmental-growth"
+      },
+      "parent": {
+        "forbidden": ["theta", "θ", "SE", "3PL", "Quadrature", "Information curve", "74% pathway fit"],
+        "requiredTone": "reassurance-evidence"
+      }
+    }
+  }
+}

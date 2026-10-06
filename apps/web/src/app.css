@@ -30,7 +30,7 @@
   * {
     border-color: var(--border);
     outline-color: color-mix(in oklch, var(--ring) 50%, transparent);
-    border-radius: var(--radius, 0rem);
+    border-radius: var(--radius, 4px);
   }
 
   html {
@@ -38,11 +38,11 @@
   }
 }
 
-/* Tactile Surface Classes (Strict rectilinear discipline with 0-radius) */
+/* Tactile Surface Classes (WAY 2.0 Calibrated Architectural Layering) */
 .surface-card {
   background-color: var(--surface-raised);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius, 0rem);
+  border-radius: var(--radius-control, 4px);
   box-shadow: var(--shadow-subtle);
   transition: box-shadow var(--duration-micro) var(--ease-lagom),
               border-color var(--duration-micro) var(--ease-lagom);
@@ -50,20 +50,28 @@
 
 .surface-card:hover {
   box-shadow: var(--shadow-raised);
+  border-color: var(--border-strong);
 }
 
 .surface-elevated {
   background-color: var(--surface-raised);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius, 0rem);
+  border-radius: var(--radius-control, 4px);
   box-shadow: var(--shadow-raised);
 }
 
 .surface-sunken {
   background-color: var(--surface-sunken);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius, 0rem);
+  border-radius: var(--radius-control, 4px);
 }
+
+/* Layer Hierarchy Classes */
+.layer-l0 { background-color: var(--surface-canvas); }
+.layer-l1 { background-color: var(--surface-content); border: 1px solid var(--border-subtle); }
+.layer-l2 { background-color: var(--surface-raised); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-subtle); }
+.layer-l3 { background-color: var(--surface-overlay); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-raised); }
+.layer-l4 { background-color: var(--surface-modal); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-overlay); }
 
 /* Subtle accent text & background utilities */
 .badge-growth {

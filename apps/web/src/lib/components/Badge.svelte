@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
 
-  type BadgeVariant = 'growth' | 'alert' | 'neutral' | 'primary' | 'indigo' | 'teal' | 'success';
+  type BadgeVariant = 'growth' | 'focus' | 'alert' | 'neutral' | 'primary' | 'indigo' | 'teal' | 'success';
   type BadgeSize = 'sm' | 'md';
 
   interface Props {
@@ -18,7 +18,7 @@
     children
   }: Props = $props();
 
-  const baseClasses = 'inline-flex items-center font-medium rounded-none select-none';
+  const baseClasses = 'inline-flex items-center font-medium rounded-sm select-none';
 
   const sizeClasses: Record<BadgeSize, string> = {
     sm: 'text-[11px] px-2 py-0.5 gap-1',
@@ -27,11 +27,12 @@
 
   const variantClasses: Record<BadgeVariant, string> = {
     growth: 'badge-growth',
+    focus: 'badge-focus',
     alert: 'badge-alert',
-    neutral: 'bg-(--surface-sunken) border border-(--border-subtle) text-(--text-secondary)',
+    neutral: 'bg-(--surface-content) border border-(--border-subtle) text-(--text-secondary)',
     primary: 'bg-(--accent-primary-subtle) text-(--accent-primary) border border-(--accent-primary)/20',
     indigo: 'bg-(--accent-indigo-subtle) text-(--accent-indigo) border border-(--accent-indigo)/20',
-    teal: 'bg-(--accent-teal-subtle) text-(--accent-teal) border border-(--accent-teal)/20',
+    teal: 'bg-(--accent-primary-subtle) text-(--accent-primary) border border-(--accent-primary)/20',
     success: 'bg-(--accent-success-subtle) text-(--accent-success) border border-(--accent-success)/20'
   };
 
