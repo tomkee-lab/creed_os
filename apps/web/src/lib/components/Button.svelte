@@ -40,7 +40,7 @@
 
   const variantClasses: Record<ButtonVariant, string> = {
     primary:
-      'bg-(--accent-primary) text-white hover:opacity-95 shadow-sm active:bg-(--accent-primary)/90',
+      'bg-(--accent-indigo) text-white hover:bg-(--accent-indigo)/90 shadow-sm active:bg-(--accent-indigo)/80 font-semibold',
     secondary:
       'surface-card text-(--text-primary) hover:bg-(--surface-content) active:bg-(--surface-sunken)',
     outline:

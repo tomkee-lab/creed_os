@@ -4,6 +4,5 @@
   "buildScriptName": "build-storybook",
   "storybookBaseDir": "apps/web",
   "storybookConfigDir": "apps/web/.storybook",
-  "autoAcceptChanges": "main",
-  "exitOnceUploaded": true
+  "exitZeroOnChanges": true
 }

@@ -25,7 +25,7 @@
 
 <Story name="Primary" args={{ variant: 'primary', size: 'md' }}>
   {#snippet template(args)}
-    <Button {...args}>Primary Action</Button>
+    <Button {...args}>Explore Pathway &rarr;</Button>
   {/snippet}
 </Story>
 
