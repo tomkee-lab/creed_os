@@ -1,5 +1,4 @@
 {
-  "$schema": "https://raw.githubusercontent.com/greptileai/greptile/main/schema/config.json",
   "strictness": 2,
   "commentTypes": ["logic", "syntax"],
   "instructions": "This package contains core domain types, schemas, and Effect workflows for CREED OS. Invariants: 1) Strict Schema & Type safety using Zod and Effect/Schema, 2) Immutable data models, 3) DPDP compliant parental consent state machine transitions.",

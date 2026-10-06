@@ -1,5 +1,4 @@
 {
-  "$schema": "https://raw.githubusercontent.com/greptileai/greptile/main/schema/config.json",
   "strictness": 2,
   "commentTypes": ["syntax", "logic", "style"],
   "instructions": "This package is the CREED OS web application built with Svelte 5, SvelteKit 2, Tailwind CSS 4, and the WAY Design System. Enforce: 1) Svelte 5 runes ($props, $state, $derived, $effect) exclusively, 2) WAY Design System zero-radius tactile styling (strictly rounded-none, no rounded-md or rounded-lg), 3) Semantic OKLCH tokens only (no ad-hoc hex codes), 4) Strict 8pt spacing rhythm, 5) Full interactive state coverage.",

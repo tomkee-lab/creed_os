@@ -1,5 +1,4 @@
 {
-  "$schema": "https://raw.githubusercontent.com/greptileai/greptile/main/schema/config.json",
   "strictness": 1,
   "effort": "apex",
   "commentTypes": ["logic", "syntax"],

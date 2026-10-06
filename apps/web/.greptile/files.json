@@ -1,5 +1,4 @@
 {
-  "$schema": "https://raw.githubusercontent.com/greptileai/greptile/main/schema/files.json",
   "files": [
     {
       "path": "src/app.css",
