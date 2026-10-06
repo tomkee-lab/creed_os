@@ -1,21 +1,17 @@
 <script lang="ts">
   import {
     Users,
-    Activity,
     AlertCircle,
     CheckCircle2,
     ArrowRight,
-    Layers,
     Plus,
-    BookOpen,
-    Send,
-    Sparkles,
     Search,
     ChevronRight,
-    Zap,
-    Filter
+    ChevronDown,
+    ChevronUp,
+    Zap
   } from 'lucide-svelte';
-  import { Button, Badge, Card, Tabs, Input } from '$lib/components';
+  import { WaySection } from '$lib/components';
 
   let { data } = $props();
   let cohort = $derived(data.cohort);
@@ -25,14 +21,41 @@
   let newObservationText = $state('');
   let observationLoggedSuccess = $state(false);
   let searchQuery = $state('');
-  let activeTab = $state('all');
 
-  const tabItems = [
-    { id: 'all', label: 'All Workspace' },
-    { id: 'queue', label: 'Needs Attention', count: 3 },
-    { id: 'clusters', label: 'Misconceptions', count: 3 },
-    { id: 'roster', label: 'Class Roster', count: 24 },
-    { id: 'observe', label: 'Log Observation' }
+  // Active intervention group disclosure
+  let expandedInterventionId = $state<string | null>(null);
+
+  const interventions = [
+    {
+      id: 'int-1',
+      title: 'Proportional Equations & Rates',
+      learnerCount: 7,
+      status: 'Developing',
+      suggestedActivity: '15-Minute Scaffolding Sprint',
+      diagnosticDetails: 'Diagnostic evidence shows variable transposition errors during inverse balance scale operations. Short visual balance models resolve this gap.',
+      priority: 'Priority 1',
+      variant: 'alert' as const
+    },
+    {
+      id: 'int-2',
+      title: '3D Isometric Projections',
+      learnerCount: 5,
+      status: 'Emerging',
+      suggestedActivity: 'Isometric Block Assembly Lab',
+      diagnosticDetails: 'Learners struggle distinguishing orthographic top-down views from side elevations during 3D rotations.',
+      priority: 'Priority 2',
+      variant: 'primary' as const
+    },
+    {
+      id: 'int-3',
+      title: 'Algorithmic Decomposition',
+      learnerCount: 3,
+      status: 'Strong Foundation',
+      suggestedActivity: 'Binary Search Extension Task',
+      diagnosticDetails: 'Students demonstrate fluency with linear iteration and are ready for divide-and-conquer algorithm challenges.',
+      priority: 'Priority 3',
+      variant: 'growth' as const
+    }
   ];
 
   function handleLogObservation(e: Event) {
@@ -54,167 +77,109 @@
   );
 </script>
 
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-  <!-- Teacher Copilot Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-(--border-subtle)">
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+  <!-- 1. TEACHER HEADER: Actionable classroom context -->
+  <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-(--border-subtle)">
     <div class="space-y-1">
       <div class="flex items-center gap-2">
-        <Users class="w-6 h-6 text-(--accent-success)" />
+        <Users class="w-5 h-5 text-(--accent-primary)" />
         <h1 class="text-2xl sm:text-3xl font-bold text-(--text-primary) tracking-tight">
-          Teacher Action & Intervention Workspace
+          Teacher Action Workspace
         </h1>
       </div>
       <p class="text-xs sm:text-sm text-(--text-secondary)">
-        Action-oriented decision interface for <strong class="text-(--text-primary)">{cohort.name}</strong> • 24 Active Learners
+        Prioritized interventions and classroom evidence for <strong class="text-(--text-primary)">{cohort.name}</strong> • 24 Active Learners
       </p>
     </div>
 
-    <div class="flex items-center gap-2">
-      <Badge variant="neutral" size="md">
-        <span>Grade 8 • Section A</span>
-      </Badge>
-    </div>
-  </div>
+    <span class="px-3 py-1 rounded-sm text-xs font-semibold bg-(--surface-sunken) text-(--text-secondary) border border-(--border-subtle) self-start sm:self-auto">
+      Grade 8 • Section A
+    </span>
+  </header>
 
-  <!-- Workspace Filter Tabs -->
-  <div class="flex items-center justify-between gap-4">
-    <Tabs
-      items={tabItems}
-      bind:activeId={activeTab}
-      variant="pills"
-    />
-  </div>
-
-  <!-- 1. TEACHER ACTION QUEUE (Needs Attention Today - Priority Decision Interface) -->
-  {#if activeTab === 'all' || activeTab === 'queue'}
-    <Card variant="raised" class="p-6 border-l-4 border-l-(--accent-warning) space-y-4">
-      <div class="flex items-center justify-between border-b border-(--border-subtle) pb-3">
-        <div class="flex items-center gap-2">
-          <Zap class="w-5 h-5 text-(--accent-warning)" />
-          <h2 class="text-lg font-bold text-(--text-primary)">
-            Needs Attention Today (Prioritized Decision Queue)
-          </h2>
-        </div>
-        <Badge variant="alert" size="sm">
-          <span>3 Active Intervention Groups</span>
-        </Badge>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
-        <Card variant="sunken" class="p-4 space-y-2 flex flex-col justify-between">
-          <div>
+  <!-- 2. NEEDS ATTENTION TODAY: Action-First Priority Queue -->
+  <WaySection
+    eyebrow="Action Queue"
+    title="Needs Attention Today"
+    subtitle="Identify intervention priorities and assign differentiated scaffolds in seconds."
+  >
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {#each interventions as item}
+        <div class="surface-card rounded-sm p-5 border border-(--border-subtle) flex flex-col justify-between space-y-4 hover:border-(--border-strong) transition-colors">
+          <div class="space-y-2">
             <div class="flex items-center justify-between text-xs">
-              <span class="font-bold text-(--accent-warning)">7 Learners</span>
-              <span class="text-[10px] text-(--text-muted) font-medium">Priority 1</span>
+              <span class="font-bold text-(--text-primary)">{item.learnerCount} Learners</span>
+              <span class="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-sm {item.variant === 'alert' ? 'bg-(--accent-warning-subtle) text-(--accent-warning)' : (item.variant === 'primary' ? 'bg-(--accent-indigo-subtle) text-(--accent-indigo)' : 'bg-(--accent-success-subtle) text-(--accent-success)')} border border-(--border-subtle)">
+                {item.status}
+              </span>
             </div>
-            <h3 class="text-sm font-bold text-(--text-primary) mt-1">Proportional Equations & Rates</h3>
-            <p class="text-xs text-(--text-secondary) mt-1 leading-relaxed">
-              Diagnosed variable transposition errors during inverse operations on balance scales.
-            </p>
+
+            <h3 class="text-base font-bold text-(--text-primary)">
+              {item.title}
+            </h3>
+
+            <div class="text-xs text-(--text-secondary)">
+              <span class="text-(--text-muted)">Suggested:</span> <strong class="text-(--text-primary)">{item.suggestedActivity}</strong>
+            </div>
           </div>
-          <Button variant="primary" size="sm" class="w-full mt-3">
-            <span>Launch 15-Min Scaffolding</span>
-            <ArrowRight class="w-3.5 h-3.5" />
-          </Button>
-        </Card>
 
-        <Card variant="sunken" class="p-4 space-y-2 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between text-xs">
-              <span class="font-bold text-(--accent-indigo)">5 Learners</span>
-              <span class="text-[10px] text-(--text-muted) font-medium">Priority 2</span>
-            </div>
-            <h3 class="text-sm font-bold text-(--text-primary) mt-1">Spatial 3D Isometric Projection</h3>
-            <p class="text-xs text-(--text-secondary) mt-1 leading-relaxed">
-              Need tactile reinforcement distinguishing orthographic top-down views from side elevations.
-            </p>
-          </div>
-          <Button variant="secondary" size="sm" class="w-full mt-3">
-            <span>Assign Isometric Lab</span>
-            <ArrowRight class="w-3.5 h-3.5" />
-          </Button>
-        </Card>
-
-        <Card variant="sunken" class="p-4 space-y-2 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between text-xs">
-              <span class="font-bold text-(--accent-success)">3 Learners</span>
-              <span class="text-[10px] text-(--text-muted) font-medium">Priority 3</span>
-            </div>
-            <h3 class="text-sm font-bold text-(--text-primary) mt-1">Algorithmic Decomposition</h3>
-            <p class="text-xs text-(--text-secondary) mt-1 leading-relaxed">
-              Ready for advanced divide-and-conquer logic challenges and binary search simulations.
-            </p>
-          </div>
-          <Button variant="secondary" size="sm" class="w-full mt-3">
-            <span>Assign Extension Task</span>
-            <ArrowRight class="w-3.5 h-3.5" />
-          </Button>
-        </Card>
-      </div>
-    </Card>
-  {/if}
-
-  <!-- 2. AUTOMATED MISCONCEPTION CLUSTERS -->
-  {#if activeTab === 'all' || activeTab === 'clusters'}
-    <section class="space-y-4">
-      <div class="flex items-baseline justify-between border-b border-(--border-subtle) pb-3">
-        <div>
-          <h2 class="text-xl font-bold text-(--text-primary) tracking-tight">
-            Misconception Clusters
-          </h2>
-          <p class="text-xs text-(--text-muted) mt-0.5">
-            Dynamic grouping by shared conceptual gap rather than arbitrary percentage grades.
-          </p>
-        </div>
-        <span class="text-xs text-(--text-secondary) font-medium">
-          Updated from latest diagnostic checks
-        </span>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {#each cohort.misconceptionClusters as cluster}
-          <Card variant="raised" class="p-5 space-y-3 flex flex-col justify-between" interactive>
-            <div class="space-y-2">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-bold text-(--accent-warning)">{cluster.studentCount} Students</span>
-                <span class="text-[11px] text-(--text-muted) font-medium uppercase">
-                  {cluster.affectedCompetency.replace('_', ' ')}
-                </span>
-              </div>
-              <h3 class="text-base font-bold text-(--text-primary)">{cluster.clusterName}</h3>
-              <p class="text-xs text-(--text-secondary) leading-relaxed">
-                <strong class="text-(--text-primary)">Differentiated Activity:</strong> {cluster.recommendedDifferentiatedActivity}
-              </p>
-            </div>
-
-            <Button variant="secondary" size="sm" class="w-full mt-2">
-              <span>Assign Differentiated Task</span>
+          <div class="space-y-3 pt-3 border-t border-(--border-subtle)">
+            <button
+              type="button"
+              onclick={() => alert(`Assigned: ${item.suggestedActivity} to ${item.learnerCount} learners`)}
+              class="w-full px-4 py-2 rounded-sm bg-(--accent-primary) hover:opacity-90 text-white font-medium text-xs transition-all shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              <span>Assign Scaffold</span>
               <ArrowRight class="w-3.5 h-3.5" />
-            </Button>
-          </Card>
-        {/each}
-      </div>
-    </section>
-  {/if}
+            </button>
 
-  <!-- 3. STUDENT ROSTER & OBSERVATION LOGGER -->
-  {#if activeTab === 'all' || activeTab === 'roster' || activeTab === 'observe'}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Student Roster (2 cols) -->
-      {#if activeTab === 'all' || activeTab === 'roster'}
-        <Card variant="raised" class="p-6 space-y-4 {activeTab === 'roster' ? 'lg:col-span-3' : 'lg:col-span-2'}">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-(--border-subtle) pb-3">
+            <!-- Progressive Disclosure for Diagnostic Evidence -->
             <div>
-              <h2 class="text-lg font-bold text-(--text-primary)">Classroom Competency Roster</h2>
-              <p class="text-xs text-(--text-muted)">Verified capabilities across core STEM dimensions.</p>
+              <button
+                type="button"
+                onclick={() => (expandedInterventionId = expandedInterventionId === item.id ? null : item.id)}
+                class="text-[11px] text-(--text-muted) hover:text-(--text-primary) flex items-center gap-1 transition-colors cursor-pointer"
+              >
+                <span>{expandedInterventionId === item.id ? 'Hide diagnostic evidence' : 'Diagnostic evidence'}</span>
+                {#if expandedInterventionId === item.id}
+                  <ChevronUp class="w-3 h-3" />
+                {:else}
+                  <ChevronDown class="w-3 h-3" />
+                {/if}
+              </button>
+
+              {#if expandedInterventionId === item.id}
+                <p class="text-xs text-(--text-secondary) mt-2 p-2.5 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) leading-relaxed animate-in fade-in duration-150">
+                  {item.diagnosticDetails}
+                </p>
+              {/if}
             </div>
+          </div>
+        </div>
+      {/each}
+    </div>
+  </WaySection>
+
+  <!-- 3. CLASSROOM ROSTER & OBSERVATION LOGGING -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <!-- Class Roster (8 cols) -->
+    <div class="lg:col-span-8 space-y-4">
+      <WaySection
+        eyebrow="Roster Intelligence"
+        title="Classroom Competency Overview"
+        subtitle="Verified demonstrations across core STEM dimensions."
+      >
+        <div class="surface-card rounded-sm border border-(--border-subtle) overflow-hidden">
+          <div class="p-4 border-b border-(--border-subtle) flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-(--surface-sunken)">
+            <span class="text-xs font-semibold text-(--text-primary)">
+              {filteredStudents.length} Students Listed
+            </span>
             <div class="w-full sm:w-64">
-              <Input
+              <input
                 type="search"
                 bind:value={searchQuery}
-                placeholder="Search learners or topics..."
-                icon={Search}
+                placeholder="Filter by student or domain..."
+                class="w-full px-3 py-1.5 rounded-sm bg-(--surface-canvas) border border-(--border-subtle) text-xs text-(--text-primary) placeholder-(--text-muted) focus:outline-none focus:border-(--accent-primary)"
               />
             </div>
           </div>
@@ -222,37 +187,37 @@
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
               <thead>
-                <tr class="border-b border-(--border-subtle) text-(--text-muted) font-medium">
-                  <th class="pb-2.5">Learner</th>
-                  <th class="pb-2.5">Demonstrated Strength</th>
-                  <th class="pb-2.5">Active Growth Area</th>
-                  <th class="pb-2.5">Readiness</th>
-                  <th class="pb-2.5 text-right">Actions</th>
+                <tr class="border-b border-(--border-subtle) bg-(--surface-canvas) text-(--text-muted) font-medium">
+                  <th class="p-3">Learner</th>
+                  <th class="p-3">Demonstrated Strength</th>
+                  <th class="p-3">Active Growth Focus</th>
+                  <th class="p-3">Foundation</th>
+                  <th class="p-3 text-right">Action</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-(--border-subtle)">
                 {#each filteredStudents as student}
                   <tr class="hover:bg-(--surface-sunken) transition-colors">
-                    <td class="py-3 font-semibold text-(--text-primary)">
+                    <td class="p-3 font-bold text-(--text-primary)">
                       {student.name}
                     </td>
-                    <td class="py-3 text-(--accent-success) font-medium">
+                    <td class="p-3 text-(--accent-success) font-medium">
                       {student.strongestCompetency.replace('_', ' ')}
                     </td>
-                    <td class="py-3 text-(--accent-warning) font-medium">
-                      {student.weakestCompetency.replace('_', ' ')} ({student.weakestScore}/5.0)
+                    <td class="p-3 text-(--accent-warning) font-medium">
+                      {student.weakestCompetency.replace('_', ' ')}
                     </td>
-                    <td class="py-3">
-                      <Badge variant="growth" size="sm">
-                        <span>{student.overallReadiness}</span>
-                      </Badge>
+                    <td class="p-3">
+                      <span class="px-2 py-0.5 rounded-sm text-[10px] font-semibold bg-(--accent-success-subtle) text-(--accent-success) border border-(--border-subtle)">
+                        {student.overallReadiness}
+                      </span>
                     </td>
-                    <td class="py-3 text-right">
+                    <td class="p-3 text-right">
                       <a
                         href="/student"
                         class="text-(--accent-primary) font-semibold hover:underline inline-flex items-center gap-1"
                       >
-                        <span>View Map</span>
+                        <span>Profile</span>
                         <ChevronRight class="w-3.5 h-3.5" />
                       </a>
                     </td>
@@ -261,34 +226,35 @@
               </tbody>
             </table>
           </div>
-        </Card>
-      {/if}
+        </div>
+      </WaySection>
+    </div>
 
-      <!-- Right Col: Log Teacher Observation (Anchored to Evidence Stream) -->
-      {#if activeTab === 'all' || activeTab === 'observe'}
-        <Card variant="raised" class="p-6 space-y-4 {activeTab === 'observe' ? 'lg:col-span-3 max-w-2xl mx-auto' : ''}">
-          <div class="border-b border-(--border-subtle) pb-3">
-            <h3 class="text-base font-bold text-(--text-primary)">Log Classroom Observation</h3>
-            <p class="text-xs text-(--text-muted)">Anchors directly as Level 4 teacher evidence atom.</p>
-          </div>
-
+    <!-- Log Observation (4 cols) -->
+    <div class="lg:col-span-4 space-y-4">
+      <WaySection
+        eyebrow="Evidence Capture"
+        title="Log Observation"
+        subtitle="Anchor a direct classroom demonstration to the learner's longitudinal profile."
+      >
+        <div class="surface-card rounded-sm p-5 border border-(--border-subtle) space-y-4">
           {#if observationLoggedSuccess}
-            <div class="p-3.5 rounded-sm badge-growth text-xs space-y-1">
+            <div class="p-3 rounded-sm bg-(--accent-success-subtle) text-(--accent-success) text-xs space-y-1 border border-(--border-subtle)">
               <div class="flex items-center gap-1.5 font-bold">
                 <CheckCircle2 class="w-4 h-4" />
-                <span>Observation Logged to Evidence Stream!</span>
+                <span>Observation Logged</span>
               </div>
-              <p>The learner's longitudinal graph has incorporated this classroom observation.</p>
+              <p>Anchored into verified longitudinal profile.</p>
             </div>
           {/if}
 
-          <form onsubmit={handleLogObservation} class="space-y-4 text-xs">
-            <div class="space-y-1.5">
+          <form onsubmit={handleLogObservation} class="space-y-3 text-xs">
+            <div class="space-y-1">
               <label for="learner-select" class="block font-medium text-(--text-secondary)">Learner</label>
               <select
                 id="learner-select"
                 bind:value={newObservationStudentId}
-                class="w-full px-3 py-2 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--accent-primary)"
+                class="w-full px-3 py-2 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) text-(--text-primary) focus:outline-none focus:border-(--accent-primary)"
               >
                 {#each cohort.students as s}
                   <option value={s.id}>{s.name}</option>
@@ -296,12 +262,12 @@
               </select>
             </div>
 
-            <div class="space-y-1.5">
-              <label for="competency-select" class="block font-medium text-(--text-secondary)">Competency Dimension</label>
+            <div class="space-y-1">
+              <label for="competency-select" class="block font-medium text-(--text-secondary)">Competency</label>
               <select
                 id="competency-select"
                 bind:value={newObservationCompetency}
-                class="w-full px-3 py-2 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--accent-primary)"
+                class="w-full px-3 py-2 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) text-(--text-primary) focus:outline-none focus:border-(--accent-primary)"
               >
                 <option value="spatial_reasoning">Spatial Reasoning</option>
                 <option value="computational_thinking">Computational Thinking</option>
@@ -310,31 +276,28 @@
               </select>
             </div>
 
-            <div class="space-y-1.5">
-              <label for="observation-notes" class="block font-medium text-(--text-secondary)">Observation Notes</label>
+            <div class="space-y-1">
+              <label for="observation-notes" class="block font-medium text-(--text-secondary)">Notes</label>
               <textarea
                 id="observation-notes"
                 bind:value={newObservationText}
                 rows={3}
-                placeholder="e.g. Observed student independently solving binary search logic..."
-                class="w-full px-3 py-2 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) text-(--text-primary) placeholder-(--text-muted) focus:outline-none focus:ring-2 focus:ring-(--accent-primary)"
+                placeholder="Observed student solving proportional gear balance..."
+                class="w-full px-3 py-2 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) text-(--text-primary) placeholder-(--text-muted) focus:outline-none focus:border-(--accent-primary)"
               ></textarea>
             </div>
 
-            <Button
+            <button
               type="submit"
-              variant="primary"
-              size="md"
-              class="w-full"
               disabled={!newObservationText.trim()}
+              class="w-full px-4 py-2 rounded-sm bg-(--accent-primary) hover:opacity-90 disabled:opacity-40 text-white font-medium text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer"
             >
               <Plus class="w-4 h-4" />
-              <span>Save Evidence Atom</span>
-            </Button>
+              <span>Save Observation Atom</span>
+            </button>
           </form>
-        </Card>
-      {/if}
+        </div>
+      </WaySection>
     </div>
-  {/if}
+  </div>
 </div>
-

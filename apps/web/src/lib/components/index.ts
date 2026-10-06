@@ -15,3 +15,11 @@ export { default as Input } from './Input.svelte';
 export { default as Tabs } from './Tabs.svelte';
 export { default as Modal } from './Modal.svelte';
 export { default as IllustrationFrame } from './IllustrationFrame.svelte';
+
+// WAY 2.1 Proprietary Patterns
+export { default as WaySection } from './WaySection.svelte';
+export { default as DecisionSurface } from './DecisionSurface.svelte';
+export { default as EditorialFeature } from './EditorialFeature.svelte';
+export { default as EvidenceDisclosure } from './EvidenceDisclosure.svelte';
+export { default as AIExplainability } from './AIExplainability.svelte';
+

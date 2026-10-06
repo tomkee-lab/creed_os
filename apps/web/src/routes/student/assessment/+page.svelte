@@ -3,11 +3,8 @@
   import {
     Activity,
     CheckCircle2,
-    XCircle,
     ArrowRight,
-    Sparkles,
     AlertCircle,
-    RefreshCw,
     Award,
     Clock,
     Loader2
@@ -23,16 +20,6 @@
   let currentTheta = $state(0.0);
   let standardError = $state(1.0);
   let errorMessage = $state<string | null>(null);
-
-  // Timer simulation
-  let secondsElapsed = $state(0);
-  let timerInterval: any = null;
-
-  const formattedTime = $derived.by(() => {
-    const mins = Math.floor(secondsElapsed / 60);
-    const secs = secondsElapsed % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  });
 
   // Result state for current question
   let lastEvaluation = $state<{
@@ -55,14 +42,6 @@
     lastEvaluation = null;
     selectedOptionId = null;
     completionSummary = null;
-    secondsElapsed = 0;
-
-    if (timerInterval) clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-      if (status === 'active' || status === 'evaluating') {
-        secondsElapsed++;
-      }
-    }, 1000);
 
     try {
       const res = await fetch('/api/v1/assessments/sessions', {
@@ -117,7 +96,6 @@
       itemsAnswered = data.itemsAnswered;
 
       if (data.isTestComplete) {
-        if (timerInterval) clearInterval(timerInterval);
         completionSummary = data.completionSummary || {
           finalTheta: data.currentTheta,
           finalStandardError: data.standardError,
@@ -130,7 +108,7 @@
           selectedOptionId = null;
           lastEvaluation = null;
           status = 'active';
-        }, 2400);
+        }, 2200);
       }
     } catch (err: any) {
       status = 'error';
@@ -140,9 +118,6 @@
 
   onMount(() => {
     startSession();
-    return () => {
-      if (timerInterval) clearInterval(timerInterval);
-    };
   });
 </script>
 
@@ -158,11 +133,11 @@
       </h1>
     </div>
 
-    <!-- Calm timer and step indicator -->
+    <!-- Calm pacing indicator without pressure-inducing countdown timer -->
     <div class="flex items-center gap-4 text-xs text-(--text-secondary)">
-      <div class="flex items-center gap-1.5 font-mono">
-        <Clock class="w-3.5 h-3.5 text-(--text-muted)" />
-        <span>{formattedTime}</span>
+      <div class="flex items-center gap-1.5 text-(--text-muted)">
+        <Clock class="w-3.5 h-3.5" />
+        <span>~15 min estimated</span>
       </div>
       <div class="h-4 w-px bg-(--border-subtle)"></div>
       <span class="font-medium">
@@ -263,7 +238,7 @@
       </div>
     </div>
   {:else if currentItem}
-    <!-- Active Question Shell (Architectural Precision Frame, 0px frame, 4px controls) -->
+    <!-- Active Question Shell (Architectural 0px frame for assessment item, 4px controls) -->
     <div class="surface-card rounded-none p-6 sm:p-8 space-y-6 border border-(--border-subtle)">
       <!-- Domain indicator -->
       <div class="flex items-center justify-between text-xs text-(--text-muted)">

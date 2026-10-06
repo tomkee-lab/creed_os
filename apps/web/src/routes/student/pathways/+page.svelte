@@ -2,21 +2,15 @@
   import {
     Compass,
     CheckCircle2,
-    AlertCircle,
     ArrowRight,
-    Award,
-    Target,
-    Layers,
-    BookOpen,
-    Play,
-    Zap,
     FlaskConical,
     Sparkles,
     ChevronDown,
-    ChevronUp
+    ChevronUp,
+    ShieldCheck
   } from 'lucide-svelte';
   import { getCompetencyDescriptor } from '@core-os/ui';
-  import { IllustrationFrame } from '$lib/components';
+  import { WaySection } from '$lib/components';
 
   let { data } = $props();
   let pathways = $derived(data.pathways);
@@ -44,262 +38,261 @@
       };
     });
 
-    const isStrong = metCount >= 4;
     return {
       metCount,
       totalCount: pathway.requirements.length,
-      isStrong,
       requirements
     };
   }
 
   let comparison = $derived(calculateComparison(selectedPathway));
+
+  const illustrations: Record<string, { src: string; alt: string }> = {
+    'PATH-ROBOTICS': {
+      src: '/images/illustrations/pathway_robotics.jpg',
+      alt: 'Asian engineering student calibrating precision robotic joint on blueprint'
+    },
+    'PATH-BIO': {
+      src: '/images/illustrations/pathway_bio.jpg',
+      alt: 'Asian student researching botanical biomimicry and cellular biology'
+    }
+  };
 </script>
 
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
-  <!-- Header: Invitational Exploration -->
-  <header class="space-y-1.5 pb-3 border-b border-(--border-subtle)">
+  <!-- 1. EDITORIAL HEADER: 1 title, 1 sentence, no giant walls of text -->
+  <header class="space-y-1 pb-4 border-b border-(--border-subtle)">
     <div class="flex items-center gap-2">
-      <Compass class="w-6 h-6 text-(--accent-primary)" />
+      <Compass class="w-5 h-5 text-(--accent-primary)" />
       <h1 class="text-2xl sm:text-3xl font-bold text-(--text-primary) tracking-tight">
-        Pathway Exploration & Real-World Projects
+        Pathway Exploration
       </h1>
     </div>
-    <p class="text-xs sm:text-sm text-(--text-secondary) max-w-3xl">
-      We never assign fixed career labels or close doors. We measure foundational alignment, highlight growth areas, and invite you to try hands-on project trials before you choose your educational stream.
+    <p class="text-xs sm:text-sm text-(--text-secondary) max-w-2xl leading-relaxed">
+      Experience authentic project missions before choosing academic streams. We highlight alignment, not fixed labels.
     </p>
   </header>
 
-  <!-- Pathway Selector Grid (Qualitative Tiers, 4px Radius) -->
+  <!-- 2. FIELD SELECTOR TILES (Qualitative foundation badges, 4px radius) -->
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
     {#each pathways as p}
       {@const isSelected = selectedPathwayId === p.id}
       <button
         type="button"
         onclick={() => (selectedPathwayId = p.id)}
-        class="text-left p-5 rounded-sm border transition-all cursor-pointer {isSelected ? 'surface-elevated border-(--accent-primary) ring-1 ring-(--accent-primary)' : 'surface-card hover:bg-(--surface-sunken) border-(--border-subtle)'}"
+        class="text-left p-5 rounded-sm border transition-all cursor-pointer {isSelected ? 'surface-card border-(--accent-primary) ring-1 ring-(--accent-primary)' : 'surface-card hover:bg-(--surface-sunken) border-(--border-subtle)'}"
       >
-        <span class="text-xs font-semibold uppercase tracking-wider text-(--accent-indigo)">
-          {p.field.replace('_', ' ')}
-        </span>
-        <h3 class="text-base font-bold text-(--text-primary) mt-1">{p.title}</h3>
-        <p class="text-xs text-(--text-secondary) mt-2 line-clamp-2 leading-relaxed">{p.tagline}</p>
-
-        <div class="mt-4 pt-3 border-t border-(--border-subtle) flex items-center justify-between text-xs">
-          <span class="text-(--text-muted) font-medium">Demonstrated Fit</span>
-          <span class="font-semibold {p.id === 'PATH-ROBOTICS' ? 'text-(--accent-warning)' : 'text-(--accent-success)'}">
-            {p.id === 'PATH-ROBOTICS' ? 'Strong Foundation (4/6 Met)' : 'Strong Foundation (5/6 Met)'}
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-(--accent-indigo)">
+            {p.field.replace('_', ' ')}
+          </span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-sm {p.id === 'PATH-ROBOTICS' ? 'bg-(--accent-warning-subtle) text-(--accent-warning)' : 'bg-(--accent-success-subtle) text-(--accent-success)'} border border-(--border-subtle)">
+            {p.id === 'PATH-ROBOTICS' ? '4 of 6 Demonstrated' : '5 of 6 Demonstrated'}
           </span>
         </div>
+        <h3 class="text-base font-bold text-(--text-primary) mt-2">{p.title}</h3>
+        <p class="text-xs text-(--text-secondary) mt-1 line-clamp-2 leading-relaxed">{p.tagline}</p>
       </button>
     {/each}
   </div>
 
-  <!-- Selected Pathway Detail View -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <!-- Left 2 Cols: Invitation, Editorial Context & Skill Comparison -->
-    <div class="lg:col-span-2 space-y-8">
-      <!-- Field Introduction Card with Tactile Editorial Illustration -->
-      <div class="surface-card rounded-sm p-6 space-y-5 border border-(--border-subtle)">
-        <IllustrationFrame
-          src={selectedPathway.id === 'PATH-ROBOTICS'
-            ? '/images/illustrations/pathway_robotics.jpg'
-            : '/images/illustrations/pathway_bio.jpg'}
-          alt={selectedPathway.id === 'PATH-ROBOTICS'
-            ? 'Asian engineering student calibrating precision robotic joint on blueprint'
-            : 'Asian student researching botanical biomimicry and cellular biology'}
-          aspectRatio="3:2"
-          badge={selectedPathway.field.replace('_', ' ')}
-          caption="{selectedPathway.title} • Experiential blueprint and foundational competency alignment."
-          credit="CREED OS • Fine Art Mixed-Media Series"
-        />
-
-        <div class="space-y-2">
-          <span class="text-xs font-semibold uppercase tracking-wider text-(--accent-indigo)">
-            Featured Field
-          </span>
-          <h2 class="text-xl sm:text-2xl font-bold text-(--text-primary)">
-            {selectedPathway.title}
-          </h2>
-          <p class="text-xs sm:text-sm text-(--text-secondary) leading-relaxed">
-            {selectedPathway.overview}
-          </p>
+  <!-- 3. FEATURED FIELD EDITORIAL SPREAD -->
+  <div class="space-y-10">
+    <!-- Hero Visual + Overview (Artwork carries emotion, UI carries information) -->
+    <div class="surface-card rounded-sm overflow-hidden border border-(--border-subtle)">
+      <div class="grid grid-cols-1 lg:grid-cols-12 items-stretch">
+        <div class="lg:col-span-7 relative aspect-16/9 lg:aspect-auto overflow-hidden bg-(--surface-sunken)">
+          <img
+            src={illustrations[selectedPathway.id]?.src || illustrations['PATH-ROBOTICS'].src}
+            alt={illustrations[selectedPathway.id]?.alt || 'Field illustration'}
+            loading="lazy"
+            class="w-full h-full object-cover transition-transform duration-280 hover:scale-[1.01]"
+          />
+          <div class="absolute top-4 left-4">
+            <span class="px-3 py-1 rounded-sm bg-(--surface-canvas)/90 backdrop-blur-xs border border-(--border-subtle) text-xs font-semibold uppercase tracking-wider text-(--text-primary)">
+              {selectedPathway.field.replace('_', ' ')}
+            </span>
+          </div>
         </div>
 
-        <div class="p-3.5 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) text-xs text-(--text-secondary) flex items-center justify-between">
-          <span class="font-medium">Curiosity Outlook:</span>
-          <span class="font-semibold text-(--accent-success)">
-            High Opportunity Area • Multidisciplinary Hardware & Software
-          </span>
-        </div>
-      </div>
-
-      <!-- Why This Field Fits You: Capability Alignment (Progressive disclosure for benchmarks) -->
-      <div class="surface-card rounded-sm p-6 space-y-5 border border-(--border-subtle)">
-        <div class="flex items-center justify-between border-b border-(--border-subtle) pb-3">
-          <div>
-            <h3 class="text-base font-bold text-(--text-primary)">
-              Why This Field Fits You
-            </h3>
-            <p class="text-xs text-(--text-muted) mt-0.5">
-              {comparison.metCount} of {comparison.totalCount} foundational competencies demonstrated
+        <div class="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between space-y-6">
+          <div class="space-y-3">
+            <h2 class="text-xl sm:text-2xl font-bold text-(--text-primary) tracking-tight leading-snug">
+              {selectedPathway.title}
+            </h2>
+            <p class="text-xs sm:text-sm text-(--text-secondary) leading-relaxed">
+              {selectedPathway.overview}
             </p>
           </div>
+
+          <div class="p-4 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-(--text-muted) block">
+              Curiosity Alignment
+            </span>
+            <p class="text-xs font-semibold text-(--accent-success)">
+              Strong Foundation demonstrated across kinematics and spatial modeling.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. WHY THIS FIELD MIGHT FIT YOU (Three clean evidence signals) -->
+    <WaySection
+      eyebrow="Competency Alignment"
+      title="Why This Field Fits You"
+      subtitle="{comparison.metCount} of {comparison.totalCount} foundational competencies demonstrated across project trials and diagnostics."
+    >
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {#each comparison.requirements.slice(0, 3) as req}
+            <div class="p-4 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-(--text-primary)">{req.domainName}</span>
+                <span class="text-[11px] font-semibold {req.delta >= 0 ? 'text-(--accent-success)' : 'text-(--accent-warning)'}">
+                  {req.delta >= 0 ? 'Demonstrated' : 'Focus Area'}
+                </span>
+              </div>
+              <p class="text-xs text-(--text-secondary)">{req.descriptor}</p>
+            </div>
+          {/each}
+        </div>
+
+        <!-- Progressive disclosure for full requirements & benchmark provenance -->
+        <div class="flex justify-end pt-1">
           <button
             type="button"
             onclick={() => (showBenchmarkMetadata = !showBenchmarkMetadata)}
-            class="text-[11px] font-medium text-(--accent-primary) hover:underline flex items-center gap-1 cursor-pointer"
+            class="text-xs font-medium text-(--accent-primary) hover:underline inline-flex items-center gap-1 cursor-pointer"
           >
-            <span>Benchmark context</span>
+            <span>{showBenchmarkMetadata ? 'Hide detailed rubric' : 'Inspect all requirements & benchmark provenance'}</span>
             {#if showBenchmarkMetadata}
-              <ChevronUp class="w-3 h-3" />
+              <ChevronUp class="w-3.5 h-3.5" />
             {:else}
-              <ChevronDown class="w-3 h-3" />
+              <ChevronDown class="w-3.5 h-3.5" />
             {/if}
           </button>
         </div>
 
         {#if showBenchmarkMetadata}
-          <div class="p-3 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) text-[11px] text-(--text-secondary) space-y-1">
-            <span class="font-bold text-(--text-primary) block">Normative Benchmark Source:</span>
-            <p>Age 13–14 STEM Foundation Benchmark cohort (N=1,420 multi-curriculum calibrated items). Not an aptitude ceiling or deterministic filter.</p>
+          <div class="p-5 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-4 animate-in fade-in duration-200">
+            <div class="flex items-center justify-between text-xs text-(--text-muted) border-b border-(--border-subtle) pb-2">
+              <span>All Pathway Competency Standards</span>
+              <span>Normative cohort: Age 13–14 calibrated items</span>
+            </div>
+
+            <div class="space-y-2">
+              {#each comparison.requirements as req}
+                <div class="flex items-center justify-between text-xs py-1 border-b border-(--border-subtle)/50">
+                  <span class="text-(--text-primary) font-medium">{req.domainName}</span>
+                  <div class="flex items-center gap-4">
+                    <span class="text-(--text-secondary)">Your Evidence: {req.descriptor}</span>
+                    <span class="font-semibold {req.delta >= 0 ? 'text-(--accent-success)' : 'text-(--accent-warning)'}">
+                      {req.delta >= 0 ? 'Demonstrated' : 'Sprint Focus'}
+                    </span>
+                  </div>
+                </div>
+              {/each}
+            </div>
           </div>
         {/if}
+      </div>
+    </WaySection>
 
-        <div class="space-y-3">
-          {#each comparison.requirements as req}
-            <div class="p-3.5 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-              <div class="space-y-0.5">
-                <span class="font-semibold text-(--text-primary) text-sm">{req.domainName}</span>
-                <span class="text-[11px] text-(--text-muted) block">Weight: {req.importance}</span>
-              </div>
-
-              <div class="flex items-center gap-6">
-                <div class="text-right">
-                  <span class="text-[10px] text-(--text-muted) uppercase block">Your Evidence</span>
-                  <span class="font-semibold text-(--text-primary)">{req.descriptor}</span>
-                </div>
-                <div class="text-right">
-                  <span class="text-[10px] text-(--text-muted) uppercase block">Pathway Requirement</span>
-                  <span class="font-medium text-(--text-secondary)">{req.minimumLevel >= 3.5 ? 'Strong' : 'Developing'}</span>
-                </div>
-                <div class="w-20 text-right">
-                  {#if req.delta >= 0}
-                    <span class="text-[11px] font-semibold text-(--accent-success)">Met</span>
-                  {:else}
-                    <span class="text-[11px] font-semibold text-(--accent-warning)">Sprint Focus</span>
-                  {/if}
-                </div>
-              </div>
+    <!-- 5. TRY IT: Two hands-on project trials -->
+    <WaySection
+      eyebrow="Hands-On Trials"
+      title="Try-Before-You-Choose Missions"
+      subtitle="Complete a miniature 30–45 minute mission to experience the actual thinking required in this field."
+    >
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="surface-card p-6 rounded-sm border border-(--border-subtle) flex flex-col justify-between space-y-4">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="px-2 py-0.5 rounded-sm bg-(--accent-indigo-subtle) text-(--accent-indigo) font-semibold">
+                Maker Mission
+              </span>
+              <span class="text-[11px] text-(--text-muted)">45 mins</span>
             </div>
-          {/each}
-        </div>
-
-        <!-- Constructive Growth Narrative -->
-        <div class="p-4 rounded-sm border border-(--accent-warning)/40 bg-(--accent-warning-subtle) space-y-2 mt-4">
-          <div class="flex items-center gap-2 text-sm font-bold text-(--text-primary)">
-            <Zap class="w-4 h-4 text-(--accent-warning)" />
-            <span>Constructive Growth Opportunity</span>
-          </div>
-          <p class="text-xs text-(--text-secondary) leading-relaxed">
-            Your spatial and computational reasoning are well above the requirements for this engineering field. Practicing proportional scaling opens up deeper mechanical design challenges.
-          </p>
-          <div class="pt-1 text-xs font-semibold text-(--text-primary)">
-            Recommended Next Step: Try one of the hands-on project trials below with your Socratic Guide.
-          </div>
-        </div>
-      </div>
-
-      <!-- Multiple Pathways to Mastery (No Single Exam Trap) -->
-      <div class="surface-card rounded-sm p-6 space-y-4 border border-(--border-subtle)">
-        <div>
-          <h3 class="text-base font-bold text-(--text-primary)">
-            Possible Routes & Education Tracks
-          </h3>
-          <p class="text-xs text-(--text-muted) mt-0.5">
-            Real-world mastery has multiple viable routes, not just single high-stakes exams.
-          </p>
-        </div>
-
-        <div class="grid sm:grid-cols-3 gap-3 text-xs">
-          <div class="p-3.5 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-1.5">
-            <span class="text-[10px] font-semibold text-(--accent-indigo) uppercase">University Degree</span>
-            <h4 class="font-bold text-(--text-primary)">B.Tech Mechatronics</h4>
-            <p class="text-[11px] text-(--text-secondary)">Undergraduate degree with kinematic lab work.</p>
-          </div>
-          <div class="p-3.5 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-1.5">
-            <span class="text-[10px] font-semibold text-(--accent-primary) uppercase">Applied Diploma</span>
-            <h4 class="font-bold text-(--text-primary)">Robotics Automation</h4>
-            <p class="text-[11px] text-(--text-secondary)">Industrial PLC programming & direct equipment training.</p>
-          </div>
-          <div class="p-3.5 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-1.5">
-            <span class="text-[10px] font-semibold text-(--accent-success) uppercase">Applied Portfolio</span>
-            <h4 class="font-bold text-(--text-primary)">Open-Source Robotics</h4>
-            <p class="text-[11px] text-(--text-secondary)">Demonstrated ROS contributions and physical build logs.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Col: Try-Before-You-Choose Project Missions -->
-    <div class="space-y-6">
-      <div class="surface-card rounded-sm p-6 space-y-5 border border-(--border-subtle)">
-        <div>
-          <div class="flex items-center gap-2">
-            <FlaskConical class="w-5 h-5 text-(--accent-indigo)" />
-            <h3 class="text-lg font-bold text-(--text-primary)">
-              Try Before You Choose
+            <h3 class="text-base font-bold text-(--text-primary)">
+              RoboBridge Structural Optimization
             </h3>
+            <p class="text-xs sm:text-sm text-(--text-secondary) leading-relaxed">
+              Design a lightweight truss carrying 5x its own weight across a gap for an exploration rover.
+            </p>
           </div>
-          <p class="text-xs text-(--text-secondary) mt-1.5 leading-relaxed">
-            Experience miniature project challenges to test your curiosity and grit before committing to educational streams.
-          </p>
+
+          <div class="pt-3 border-t border-(--border-subtle)">
+            <a
+              href="/student/mentor"
+              class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-sm bg-(--accent-primary) hover:opacity-90 text-white font-medium text-xs sm:text-sm transition-all shadow-sm cursor-pointer"
+            >
+              <FlaskConical class="w-4 h-4" />
+              <span>Launch Mission with AI Guide</span>
+            </a>
+          </div>
         </div>
 
-        <div class="space-y-4">
-          <div class="p-4 rounded-sm border border-(--border-subtle) bg-(--surface-sunken) space-y-3">
+        <div class="surface-card p-6 rounded-sm border border-(--border-subtle) flex flex-col justify-between space-y-4">
+          <div class="space-y-2">
             <div class="flex items-center justify-between text-xs">
-              <span class="font-bold text-(--text-primary)">
-                RoboBridge Structural Optimization
+              <span class="px-2 py-0.5 rounded-sm bg-(--accent-indigo-subtle) text-(--accent-indigo) font-semibold">
+                Algorithm Mission
               </span>
-              <span class="text-[11px] font-medium text-(--text-muted)">45 mins</span>
+              <span class="text-[11px] text-(--text-muted)">30 mins</span>
             </div>
-            <p class="text-xs text-(--text-secondary) leading-relaxed">
-              Design a lightweight bridge truss carrying 5x its own weight across a canyon for a supply rover.
-            </p>
-            <div class="pt-1">
-              <a
-                href="/student/mentor"
-                class="w-full inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-sm bg-(--accent-primary) text-white text-xs font-medium hover:opacity-90 transition-opacity cursor-pointer"
-              >
-                <Sparkles class="w-3.5 h-3.5" />
-                <span>Launch Mission with AI Guide</span>
-              </a>
-            </div>
-          </div>
-
-          <div class="p-4 rounded-sm border border-(--border-subtle) bg-(--surface-sunken) space-y-3">
-            <div class="flex items-center justify-between text-xs">
-              <span class="font-bold text-(--text-primary)">
-                Autonomous Maze Wall-Follower
-              </span>
-              <span class="text-[11px] font-medium text-(--text-muted)">30 mins</span>
-            </div>
-            <p class="text-xs text-(--text-secondary) leading-relaxed">
+            <h3 class="text-base font-bold text-(--text-primary)">
+              Autonomous Maze Wall-Follower
+            </h3>
+            <p class="text-xs sm:text-sm text-(--text-secondary) leading-relaxed">
               Tune ultrasonic proximity sensor thresholds for collision-free rover navigation in subterranean caves.
             </p>
-            <div class="pt-1">
-              <a
-                href="/student/mentor"
-                class="w-full inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-sm surface-card text-(--text-primary) hover:bg-(--surface-sunken) text-xs font-medium transition-colors border border-(--border-subtle) cursor-pointer"
-              >
-                <Sparkles class="w-3.5 h-3.5 text-(--accent-primary)" />
-                <span>Launch Mission with AI Guide</span>
-              </a>
-            </div>
+          </div>
+
+          <div class="pt-3 border-t border-(--border-subtle)">
+            <a
+              href="/student/mentor"
+              class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-sm surface-card hover:bg-(--surface-sunken) text-(--text-primary) font-medium text-xs sm:text-sm transition-colors border border-(--border-subtle) cursor-pointer"
+            >
+              <Sparkles class="w-4 h-4 text-(--accent-indigo)" />
+              <span>Launch Mission with AI Guide</span>
+            </a>
           </div>
         </div>
       </div>
-    </div>
+    </WaySection>
+
+    <!-- 6. POSSIBLE EDUCATION ROUTES -->
+    <WaySection
+      eyebrow="Multiple Routes"
+      title="Possible Routes & Tracks"
+      subtitle="Mastery in this field can be reached through multiple valid educational pathways."
+    >
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+        <div class="p-4 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-1.5">
+          <span class="text-[10px] font-semibold text-(--accent-indigo) uppercase block">University Degree</span>
+          <h4 class="font-bold text-(--text-primary) text-sm">B.Tech Mechatronics</h4>
+          <p class="text-[11px] text-(--text-secondary) leading-relaxed">
+            Undergraduate degree with kinematic lab work and control systems engineering.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-1.5">
+          <span class="text-[10px] font-semibold text-(--accent-primary) uppercase block">Applied Diploma</span>
+          <h4 class="font-bold text-(--text-primary) text-sm">Robotics Automation</h4>
+          <p class="text-[11px] text-(--text-secondary) leading-relaxed">
+            Industrial automation programming and direct mechatronic equipment training.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-1.5">
+          <span class="text-[10px] font-semibold text-(--accent-success) uppercase block">Applied Portfolio</span>
+          <h4 class="font-bold text-(--text-primary) text-sm">Open-Source Robotics</h4>
+          <p class="text-[11px] text-(--text-secondary) leading-relaxed">
+            Demonstrated ROS contributions, physical maker build logs, and challenge awards.
+          </p>
+        </div>
+      </div>
+    </WaySection>
   </div>
 </div>

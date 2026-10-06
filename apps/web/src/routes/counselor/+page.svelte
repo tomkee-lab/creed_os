@@ -1,82 +1,59 @@
 <script lang="ts">
   import {
     BookOpen,
-    Users,
-    TrendingUp,
-    AlertCircle,
     CheckCircle2,
-    ArrowRight,
-    BarChart3,
     Search,
-    Filter,
-    FileText,
-    Compass,
     ChevronRight,
-    Star,
-    Clock,
-    Zap,
-    Target,
     X,
     Calendar,
-    HeartHandshake
+    ArrowRight
   } from 'lucide-svelte';
-  import { Button, Badge, Card, Tabs } from '$lib/components';
+  import { WaySection } from '$lib/components';
 
   let { data } = $props();
-  let cohort = $derived(data.cohort);
-  let pathways = $derived(data.pathways);
 
   const referrals = [
     {
       id: 'ref-001',
-      priorityRank: 2,
       studentName: 'Anaya Verma',
       studentClass: 'Class 8-A',
       referralType: 'Pathway Alignment',
-      urgency: 'Medium',
-      badgeVariant: 'alert' as const,
-      issue: 'Parent aspiration (IIT-JEE) vs Quantitative Reasoning foundation gap (score 2.8). High Spatial (4.5).',
-      evidenceBase: 'Diagnostic #EVD-3904 + Project',
-      recommendedAction: 'Schedule 3-way parent-student-counselor dialogue to explore Mechatronics bridge sprint.',
-      lastContact: 'Oct 2, 2026',
+      priority: 'Priority 2',
+      variant: 'alert' as const,
+      issue: 'Parent aspiration (IIT-JEE) vs Quantitative Reasoning foundation gap (2.8). High Spatial (4.5).',
+      evidenceBase: 'Diagnostic #EVD-3904 + Linkage Project',
+      recommendedAction: 'Schedule 3-way dialogue to explore Mechatronics bridge sprint.',
       nextReview: 'Oct 15, 2026',
-      competenciesInvolved: ['Quantitative Reasoning', 'Spatial Reasoning'],
-      raisedBy: 'Pathway Mismatch Engine',
-      status: 'Open'
+      competencies: ['Quantitative Reasoning', 'Spatial Reasoning'],
+      source: 'Pathway Alignment Engine'
     },
     {
       id: 'ref-002',
-      priorityRank: 1,
       studentName: 'Zoya Khan',
       studentClass: 'Class 8-A',
       referralType: 'Curriculum Acceleration',
-      urgency: 'High',
-      badgeVariant: 'primary' as const,
+      priority: 'Priority 1',
+      variant: 'primary' as const,
       issue: 'Logical Deduction 4.6 exceeds Class 8 ceiling. Under-challenged; disengagement risk.',
       evidenceBase: 'CAT Session #EVD-3891',
-      recommendedAction: 'Fast-track to Class 9 Logic and Computational Thinking curriculum + Olympiad challenge.',
-      lastContact: 'Sep 30, 2026',
+      recommendedAction: 'Fast-track to Class 9 Computational Thinking curriculum.',
       nextReview: 'Oct 12, 2026',
-      competenciesInvolved: ['Logical Deduction', 'Metacognition'],
-      raisedBy: 'Adaptive Diagnostic Engine',
-      status: 'Action Required'
+      competencies: ['Logical Deduction', 'Metacognition'],
+      source: 'Adaptive Diagnostic Engine'
     },
     {
       id: 'ref-003',
-      priorityRank: 3,
       studentName: 'Rohan Sharma',
       studentClass: 'Class 8-A',
       referralType: 'Modality Scaffolding',
-      urgency: 'Routine',
-      badgeVariant: 'growth' as const,
+      priority: 'Priority 3',
+      variant: 'growth' as const,
       issue: 'Spatial Reasoning plateaued over 3 assessments. Needs physical 3D manipulative labs.',
       evidenceBase: 'Teacher Observation (Ms. Nair)',
-      recommendedAction: 'Enroll in weekend hands-on robotics hardware lab. Monitor growth across 4 weeks.',
-      lastContact: 'Oct 1, 2026',
+      recommendedAction: 'Enroll in weekend hands-on robotics hardware lab.',
       nextReview: 'Oct 22, 2026',
-      competenciesInvolved: ['Spatial Reasoning'],
-      raisedBy: 'Teacher Copilot',
-      status: 'Open'
+      competencies: ['Spatial Reasoning'],
+      source: 'Teacher Copilot'
     }
   ];
 
@@ -113,13 +90,13 @@
 </script>
 
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-  <!-- Header -->
-  <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-(--border-subtle)">
+  <!-- 1. COUNSELOR HEADER -->
+  <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-(--border-subtle)">
     <div class="space-y-1">
       <div class="flex items-center gap-2">
-        <BookOpen class="w-6 h-6 text-(--accent-indigo)" />
+        <BookOpen class="w-5 h-5 text-(--accent-primary)" />
         <h1 class="text-2xl sm:text-3xl font-bold text-(--text-primary) tracking-tight">
-          Counselor Guidance & Caseload Center
+          Counselor Guidance & Caseload
         </h1>
       </div>
       <p class="text-xs sm:text-sm text-(--text-secondary)">
@@ -127,117 +104,119 @@
       </p>
     </div>
 
-    <div class="flex items-center gap-2">
-      <Badge variant="neutral" size="md">
-        <span>Delhi Public International School</span>
-      </Badge>
-    </div>
+    <span class="px-3 py-1 rounded-sm text-xs font-semibold bg-(--surface-sunken) text-(--text-secondary) border border-(--border-subtle) self-start sm:self-auto">
+      Delhi Public International School
+    </span>
   </header>
 
-  <!-- Top Metrics Bar (4px radius) -->
+  <!-- 2. METRICS AT A GLANCE (Semantic tiles) -->
   <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-    <Card variant="raised" padding="sm" class="space-y-1 rounded-sm">
-      <span class="text-xs text-(--text-muted) font-medium">Active Caseload</span>
+    <div class="p-4 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
+      <span class="text-[10px] uppercase font-semibold text-(--text-muted) block">Active Caseload</span>
       <p class="text-2xl font-bold text-(--text-primary)">24</p>
       <span class="text-[11px] text-(--text-secondary)">Middle School Cohort</span>
-    </Card>
-    <Card variant="raised" padding="sm" class="space-y-1 rounded-sm">
-      <span class="text-xs text-(--text-muted) font-medium">Open Referrals</span>
+    </div>
+
+    <div class="p-4 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
+      <span class="text-[10px] uppercase font-semibold text-(--accent-warning) block">Open Referrals</span>
       <p class="text-2xl font-bold text-(--accent-warning)">3</p>
       <span class="text-[11px] text-(--text-secondary)">2 need 3-way dialogue</span>
-    </Card>
-    <Card variant="raised" padding="sm" class="space-y-1 rounded-sm">
-      <span class="text-xs text-(--text-muted) font-medium">On Track</span>
+    </div>
+
+    <div class="p-4 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
+      <span class="text-[10px] uppercase font-semibold text-(--accent-success) block">On Track</span>
       <p class="text-2xl font-bold text-(--accent-success)">17</p>
-      <span class="text-[11px] text-(--text-secondary)">Steady longitudinal progress</span>
-    </Card>
-    <Card variant="raised" padding="sm" class="space-y-1 rounded-sm">
-      <span class="text-xs text-(--text-muted) font-medium">Curriculum Acceleration</span>
+      <span class="text-[11px] text-(--text-secondary)">Steady growth demonstrated</span>
+    </div>
+
+    <div class="p-4 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
+      <span class="text-[10px] uppercase font-semibold text-(--accent-indigo) block">Acceleration</span>
       <p class="text-2xl font-bold text-(--accent-indigo)">1</p>
-      <span class="text-[11px] text-(--text-secondary)">Exceeding Grade ceiling</span>
-    </Card>
+      <span class="text-[11px] text-(--text-secondary)">Exceeding grade ceiling</span>
+    </div>
   </div>
 
-  <!-- Priority Case-Management Table (Carbon Structural Discipline: 0px Frame, 4px Controls) -->
-  <Card variant="raised" class="p-6 space-y-4 rounded-sm border border-(--border-subtle)">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-(--border-subtle) pb-3">
-      <div>
-        <h2 class="text-lg font-bold text-(--text-primary)">
-          Priority Guidance Queue & Case Roster
-        </h2>
-        <p class="text-xs text-(--text-muted)">
-          Triage referrals automatically generated by engine diagnostics or educator observations.
-        </p>
-      </div>
-      <div class="flex items-center gap-2">
-        <Tabs
-          items={filterTabs}
-          bind:activeId={filterCategory}
-          variant="pills"
-        />
-      </div>
-    </div>
-
-    <!-- Structured List / Case Table -->
-    <div class="overflow-x-auto rounded-none border border-(--border-subtle)">
-      <table class="w-full text-left text-xs border-collapse">
-        <thead class="bg-(--surface-sunken) text-(--text-muted) border-b border-(--border-subtle)">
-          <tr>
-            <th class="py-3 px-3.5 font-semibold">Priority</th>
-            <th class="py-3 px-3.5 font-semibold">Student</th>
-            <th class="py-3 px-3.5 font-semibold">Focus Issue</th>
-            <th class="py-3 px-3.5 font-semibold">Evidence Base</th>
-            <th class="py-3 px-3.5 font-semibold">Recommended Action</th>
-            <th class="py-3 px-3.5 font-semibold">Last Contact</th>
-            <th class="py-3 px-3.5 font-semibold">Next Review</th>
-            <th class="py-3 px-3.5 text-right font-semibold">Action</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-(--border-subtle) bg-(--surface-canvas)">
-          {#each filteredReferrals as ref}
-            <tr class="hover:bg-(--surface-sunken) transition-colors cursor-pointer" onclick={() => openReferral(ref)}>
-              <td class="py-3.5 px-3.5">
-                <Badge variant={ref.badgeVariant} size="sm">
-                  <span>{ref.urgency}</span>
-                </Badge>
-              </td>
-              <td class="py-3.5 px-3.5">
-                <span class="font-bold text-(--text-primary) block">{ref.studentName}</span>
-                <span class="text-[10px] text-(--text-muted)">{ref.studentClass}</span>
-              </td>
-              <td class="py-3.5 px-3.5 max-w-xs text-(--text-secondary) leading-snug">
-                {ref.issue}
-              </td>
-              <td class="py-3.5 px-3.5 text-(--text-secondary) whitespace-nowrap">
-                {ref.evidenceBase}
-              </td>
-              <td class="py-3.5 px-3.5 max-w-xs text-(--text-primary) font-medium leading-snug">
-                {ref.recommendedAction}
-              </td>
-              <td class="py-3.5 px-3.5 text-(--text-muted) whitespace-nowrap">
-                {ref.lastContact}
-              </td>
-              <td class="py-3.5 px-3.5 font-semibold text-(--accent-warning) whitespace-nowrap">
-                {ref.nextReview}
-              </td>
-              <td class="py-3.5 px-3.5 text-right whitespace-nowrap">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onclick={() => openReferral(ref)}
-                >
-                  <span>Review</span>
-                  <ChevronRight class="w-3.5 h-3.5" />
-                </Button>
-              </td>
-            </tr>
+  <!-- 3. CASE ROSTER TABLE (0px structural table frame, 4px controls) -->
+  <WaySection
+    eyebrow="Case Management"
+    title="Priority Caseload Roster"
+    subtitle="Referrals prioritized by alignment friction and developmental indicators."
+  >
+    <div class="surface-card rounded-none border border-(--border-subtle) overflow-hidden">
+      <!-- Filter bar -->
+      <div class="p-3 bg-(--surface-sunken) border-b border-(--border-subtle) flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-1.5">
+          {#each filterTabs as tab}
+            <button
+              type="button"
+              onclick={() => (filterCategory = tab.id)}
+              class="px-2.5 py-1 rounded-sm transition-colors cursor-pointer {filterCategory === tab.id ? 'bg-(--accent-primary) text-white font-medium' : 'surface-card text-(--text-secondary) hover:text-(--text-primary) border border-(--border-subtle)'}"
+            >
+              {tab.label} ({tab.count})
+            </button>
           {/each}
-        </tbody>
-      </table>
-    </div>
-  </Card>
+        </div>
+      </div>
 
-  <!-- Side Drawer for Case Details (Progressive Disclosure) -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-(--border-subtle) bg-(--surface-canvas) text-(--text-muted) font-medium">
+              <th class="p-3">Priority</th>
+              <th class="p-3">Student</th>
+              <th class="p-3">Issue</th>
+              <th class="p-3">Evidence Base</th>
+              <th class="p-3">Next Step</th>
+              <th class="p-3">Review Date</th>
+              <th class="p-3 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-(--border-subtle)">
+            {#each filteredReferrals as ref}
+              <tr class="hover:bg-(--surface-sunken) transition-colors cursor-pointer" onclick={() => openReferral(ref)}>
+                <td class="p-3">
+                  <span class="px-2 py-0.5 rounded-sm text-[10px] font-semibold uppercase {ref.variant === 'alert' ? 'bg-(--accent-warning-subtle) text-(--accent-warning)' : (ref.variant === 'primary' ? 'bg-(--accent-indigo-subtle) text-(--accent-indigo)' : 'bg-(--accent-success-subtle) text-(--accent-success)')} border border-(--border-subtle)">
+                    {ref.priority}
+                  </span>
+                </td>
+                <td class="p-3">
+                  <span class="font-bold text-(--text-primary) block">{ref.studentName}</span>
+                  <span class="text-[10px] text-(--text-muted)">{ref.studentClass}</span>
+                </td>
+                <td class="p-3 max-w-xs text-(--text-secondary) leading-snug">
+                  {ref.issue}
+                </td>
+                <td class="p-3 text-(--text-secondary) whitespace-nowrap">
+                  {ref.evidenceBase}
+                </td>
+                <td class="p-3 max-w-xs text-(--text-primary) font-medium leading-snug">
+                  {ref.recommendedAction}
+                </td>
+                <td class="p-3 font-semibold text-(--accent-warning) whitespace-nowrap">
+                  {ref.nextReview}
+                </td>
+                <td class="p-3 text-right whitespace-nowrap">
+                  <button
+                    type="button"
+                    onclick={(e) => {
+                      e.stopPropagation();
+                      openReferral(ref);
+                    }}
+                    class="px-2.5 py-1 rounded-sm surface-card hover:bg-(--surface-raised) text-xs font-medium text-(--text-primary) border border-(--border-subtle) transition-colors cursor-pointer inline-flex items-center gap-1"
+                  >
+                    <span>Inspect</span>
+                    <ChevronRight class="w-3.5 h-3.5" />
+                  </button>
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </WaySection>
+
+  <!-- 4. SIDE DRAWER FOR CASE DETAILS & 3-WAY DIALOGUE -->
   {#if sidePanelOpen && activeReferral}
     <div class="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-xs">
       <div
@@ -249,11 +228,11 @@
         aria-label="Close case drawer"
       ></div>
 
-      <div class="relative w-full max-w-lg surface-elevated h-full p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-2xl overflow-y-auto z-10 animate-in slide-in-from-right duration-200">
+      <div class="relative w-full max-w-lg surface-card h-full p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-2xl overflow-y-auto z-10 animate-in slide-in-from-right duration-200 border-l border-(--border-subtle)">
         <div class="space-y-6">
           <div class="flex items-center justify-between border-b border-(--border-subtle) pb-4">
             <div>
-              <span class="text-xs font-semibold uppercase text-(--accent-indigo)">
+              <span class="text-[11px] font-semibold uppercase text-(--accent-indigo) block">
                 Case File: {activeReferral.referralType}
               </span>
               <h3 class="text-xl font-bold text-(--text-primary) mt-0.5">
@@ -266,64 +245,62 @@
               class="w-8 h-8 rounded-sm flex items-center justify-center text-(--text-muted) hover:text-(--text-primary) hover:bg-(--surface-sunken) transition-colors cursor-pointer border border-(--border-subtle)"
               aria-label="Close drawer"
             >
-              <X class="w-5 h-5" />
+              <X class="w-4 h-4" />
             </button>
           </div>
 
           {#if scheduleSuccess}
-            <div class="p-3.5 rounded-sm badge-growth text-xs flex items-center gap-2 border border-(--border-subtle)">
+            <div class="p-3.5 rounded-sm bg-(--accent-success-subtle) text-(--accent-success) text-xs flex items-center gap-2 border border-(--border-subtle)">
               <CheckCircle2 class="w-4 h-4 shrink-0" />
-              <span>3-Way Dialogue Invitation dispatched to student and guardian!</span>
+              <span>3-Way Dialogue Invitation dispatched to student and guardian.</span>
             </div>
           {/if}
 
           <div class="space-y-4 text-xs">
-            <Card variant="sunken" padding="sm" class="space-y-1 rounded-sm">
+            <div class="p-4 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
               <span class="font-bold text-(--text-primary) block">Referral Context</span>
               <p class="text-(--text-secondary) leading-relaxed">{activeReferral.issue}</p>
-            </Card>
+            </div>
 
-            <div class="p-3.5 rounded-sm border border-(--accent-indigo)/30 bg-(--accent-indigo-subtle) space-y-1">
-              <span class="font-bold text-(--text-primary) block">Recommended Counselor Action</span>
-              <p class="text-(--text-secondary) leading-relaxed">{activeReferral.recommendedAction}</p>
+            <div class="p-4 rounded-sm bg-(--accent-indigo-subtle) border border-(--border-subtle) space-y-1">
+              <span class="font-bold text-(--accent-indigo) block">Recommended Counselor Action</span>
+              <p class="text-(--text-primary) leading-relaxed">{activeReferral.recommendedAction}</p>
             </div>
 
             <div class="space-y-1.5">
-              <span class="font-bold text-(--text-primary) block">Competencies Involved:</span>
-              <div class="flex flex-wrap gap-2">
-                {#each activeReferral.competenciesInvolved as comp}
-                  <Badge variant="neutral" size="sm">
+              <span class="font-bold text-(--text-primary) block">Competencies Involved</span>
+              <div class="flex flex-wrap gap-1.5">
+                {#each activeReferral.competencies as comp}
+                  <span class="px-2 py-0.5 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) text-[11px] text-(--text-secondary)">
                     {comp}
-                  </Badge>
+                  </span>
                 {/each}
               </div>
             </div>
 
             <div class="pt-2 border-t border-(--border-subtle) flex items-center justify-between text-[11px] text-(--text-muted)">
-              <span>Source: {activeReferral.raisedBy}</span>
-              <span>Logged: {activeReferral.lastContact}</span>
+              <span>Source: {activeReferral.source}</span>
+              <span>Review: {activeReferral.nextReview}</span>
             </div>
           </div>
         </div>
 
         <div class="space-y-2 pt-4 border-t border-(--border-subtle)">
-          <Button
-            variant="primary"
-            size="md"
-            class="w-full"
+          <button
+            type="button"
             onclick={handleScheduleSession}
+            class="w-full px-4 py-2.5 rounded-sm bg-(--accent-primary) hover:opacity-90 text-white font-medium text-xs flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
           >
             <Calendar class="w-4 h-4" />
-            <span>Schedule 3-Way Dialogue Session</span>
-          </Button>
-          <Button
-            variant="outline"
-            size="md"
+            <span>Schedule 3-Way Dialogue</span>
+          </button>
+          <a
             href="/student"
-            class="w-full"
+            class="w-full px-4 py-2.5 rounded-sm surface-card hover:bg-(--surface-sunken) text-(--text-primary) font-medium text-xs flex items-center justify-center gap-1.5 transition-colors border border-(--border-subtle) cursor-pointer"
           >
-            <span>View Longitudinal Learner Graph</span>
-          </Button>
+            <span>View Student Longitudinal Profile</span>
+            <ArrowRight class="w-3.5 h-3.5" />
+          </a>
         </div>
       </div>
     </div>

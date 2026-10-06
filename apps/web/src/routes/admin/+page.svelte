@@ -97,7 +97,7 @@
             <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-(--text-primary)">
               {overview.schoolName}
             </h1>
-            <span class="text-[11px] font-mono px-2 py-0.5 rounded-md bg-(--surface-sunken) border border-(--border-subtle) text-(--text-secondary)">
+            <span class="text-[11px] font-mono px-2 py-0.5 rounded-sm bg-(--surface-sunken) border border-(--border-subtle) text-(--text-secondary)">
               {overview.schoolId}
             </span>
           </div>

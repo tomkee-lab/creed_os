@@ -255,102 +255,115 @@
     {@render children()}
   </main>
 
-  <!-- Global Footer (Clean, honest, non-cluttered) -->
+  <!-- Global Footer (Clean, role-aware, non-cluttered) -->
   <footer class="border-t border-(--border-subtle) bg-(--surface-raised)/60 py-6 text-xs text-(--text-muted)">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-      <div class="space-y-0.5">
-        <p class="font-medium text-(--text-secondary)">CREED OS • Longitudinal Learner Intelligence & Navigation Platform</p>
-        <p>Evidence Before Inference. Growth Before Labeling. Deterministic Assessment Scoring.</p>
+      <div>
+        <p class="font-medium text-(--text-primary)">
+          {#if activeRole === 'student'}
+            CREED OS · Learning that grows with you
+          {:else if activeRole === 'parent'}
+            CREED OS · Evidence-led learner development
+          {:else if activeRole === 'teacher'}
+            CREED OS · Actionable classroom intelligence
+          {:else if activeRole === 'counselor'}
+            CREED OS · Evidence-backed guidance & caseload
+          {:else if activeRole === 'admin' || activeRole === 'author'}
+            CREED OS · Institutional operations & psychometrics
+          {:else}
+            CREED OS · AI-Native Learner Intelligence & Navigation Platform
+          {/if}
+        </p>
       </div>
       <div class="flex items-center gap-3 text-[11px]">
         <span class="inline-flex items-center gap-1 text-(--text-secondary)">
           <Shield class="w-3 h-3 text-(--accent-success)" />
-          Child Privacy & Consent Protected
+          Parental Consent & Child Safety Protected
         </span>
-        <span>•</span>
-        <a href="/docs" class="hover:text-(--text-primary) underline">Documentation</a>
         <span>•</span>
         <a href="/" class="hover:text-(--text-primary) underline">Home</a>
       </div>
     </div>
   </footer>
 
-  <!-- Floating DEV Role Switcher Dock (Internal Developer / Stakeholder Inspection Tool) -->
-  <aside class="fixed bottom-4 right-4 z-50 select-none print:hidden" aria-label="Developer Role Switcher">
-    <div class="relative">
-      {#if devMenuOpen}
-        <!-- Backdrop to close -->
-        <button
-          class="fixed inset-0 bg-black/10 z-40 backdrop-blur-[1px] cursor-default"
-          onclick={() => (devMenuOpen = false)}
-          aria-label="Close developer menu"
-        ></button>
+  <!-- Floating DEV Role Switcher Dock (Internal Developer Only - Hidden in Production) -->
+  {#if import.meta.env.DEV}
+    <aside class="fixed bottom-4 right-4 z-50 select-none print:hidden" aria-label="Developer Role Switcher">
+      <div class="relative">
+        {#if devMenuOpen}
+          <!-- Backdrop to close -->
+          <button
+            class="fixed inset-0 bg-black/10 z-40 backdrop-blur-[1px] cursor-default"
+            onclick={() => (devMenuOpen = false)}
+            aria-label="Close developer menu"
+          ></button>
 
-        <!-- Popover Menu -->
-        <div class="absolute bottom-11 right-0 z-50 w-72 surface-elevated rounded-sm p-2 shadow-2xl border border-(--border-subtle) space-y-1 animate-in fade-in zoom-in-95 duration-140">
-          <div class="px-3 py-1.5 border-b border-(--border-subtle) flex items-center justify-between">
-            <span class="text-[11px] font-semibold text-(--text-secondary) uppercase tracking-wider flex items-center gap-1.5">
-              <Wrench class="w-3 h-3 text-(--accent-warning)" />
-              Internal Role Inspector
-            </span>
-            <span class="text-[9px] px-1.5 py-0.5 rounded-sm bg-(--accent-warning-subtle) text-(--accent-warning) border border-(--border-subtle) font-mono">
-              DEV ONLY
-            </span>
-          </div>
+          <!-- Popover Menu -->
+          <div class="absolute bottom-11 right-0 z-50 w-72 surface-elevated rounded-sm p-2 shadow-2xl border border-(--border-subtle) space-y-1 animate-in fade-in zoom-in-95 duration-140">
+            <div class="px-3 py-1.5 border-b border-(--border-subtle) flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-(--text-secondary) uppercase tracking-wider flex items-center gap-1.5">
+                <Wrench class="w-3 h-3 text-(--accent-warning)" />
+                Internal Role Inspector
+              </span>
+              <span class="text-[9px] px-1.5 py-0.5 rounded-sm bg-(--accent-warning-subtle) text-(--accent-warning) border border-(--border-subtle) font-mono">
+                DEV ONLY
+              </span>
+            </div>
 
-          <div class="max-h-80 overflow-y-auto space-y-0.5 py-1">
-            {#each personas as p}
-              {@const isSelected = p.id === activeRole}
-              <a
-                href={p.href}
-                onclick={() => (devMenuOpen = false)}
-                class="flex items-center justify-between p-2 rounded-sm text-xs transition-colors {isSelected ? 'bg-(--accent-primary-subtle) text-(--accent-primary) font-semibold border border-(--border-subtle)' : 'text-(--text-primary) hover:bg-(--surface-content)'}"
-              >
-                <div class="flex items-center gap-2.5">
-                  <p.icon class="w-4 h-4 shrink-0 {isSelected ? 'text-(--accent-primary)' : 'text-(--text-muted)'}" />
-                  <div>
-                    <div class="flex items-center gap-1.5">
-                      <span>{p.label}</span>
-                      {#if isSelected}
-                        <Check class="w-3 h-3 text-(--accent-primary)" />
-                      {/if}
+            <div class="max-h-80 overflow-y-auto space-y-0.5 py-1">
+              {#each personas as p}
+                {@const isSelected = p.id === activeRole}
+                <a
+                  href={p.href}
+                  onclick={() => (devMenuOpen = false)}
+                  class="flex items-center justify-between p-2 rounded-sm text-xs transition-colors {isSelected ? 'bg-(--accent-primary-subtle) text-(--accent-primary) font-semibold border border-(--border-subtle)' : 'text-(--text-primary) hover:bg-(--surface-content)'}"
+                >
+                  <div class="flex items-center gap-2.5">
+                    <p.icon class="w-4 h-4 shrink-0 {isSelected ? 'text-(--accent-primary)' : 'text-(--text-muted)'}" />
+                    <div>
+                      <div class="flex items-center gap-1.5">
+                        <span>{p.label}</span>
+                        {#if isSelected}
+                          <Check class="w-3 h-3 text-(--accent-primary)" />
+                        {/if}
+                      </div>
+                      <span class="text-[10px] text-(--text-muted) block font-normal">{p.sublabel}</span>
                     </div>
-                    <span class="text-[10px] text-(--text-muted) block font-normal">{p.sublabel}</span>
                   </div>
-                </div>
-              </a>
-            {/each}
-          </div>
+                </a>
+              {/each}
+            </div>
 
-          <div class="pt-1.5 border-t border-(--border-subtle) flex items-center justify-between px-2 text-[11px]">
-            <span class="text-(--text-muted)">Theme Mode:</span>
-            <button
-              onclick={toggleTheme}
-              class="flex items-center gap-1 text-(--text-secondary) hover:text-(--text-primary) font-medium px-2 py-1 rounded-sm bg-(--surface-content) transition-colors border border-(--border-subtle) cursor-pointer"
-            >
-              {#if isDarkMode}
-                <Moon class="w-3 h-3 text-amber-400" /> Dark Slate
-              {:else}
-                <Sun class="w-3 h-3 text-amber-500" /> Mineral White
-              {/if}
-            </button>
+            <div class="pt-1.5 border-t border-(--border-subtle) flex items-center justify-between px-2 text-[11px]">
+              <span class="text-(--text-muted)">Theme Mode:</span>
+              <button
+                onclick={toggleTheme}
+                class="flex items-center gap-1 text-(--text-secondary) hover:text-(--text-primary) font-medium px-2 py-1 rounded-sm bg-(--surface-content) transition-colors border border-(--border-subtle) cursor-pointer"
+              >
+                {#if isDarkMode}
+                  <Moon class="w-3 h-3 text-amber-400" /> Dark Slate
+                {:else}
+                  <Sun class="w-3 h-3 text-amber-500" /> Mineral White
+                {/if}
+              </button>
+            </div>
           </div>
-        </div>
-      {/if}
+        {/if}
 
-      <!-- Compact Trigger Pill Button with distinct DEV branding -->
-      <button
-        onclick={() => (devMenuOpen = !devMenuOpen)}
-        class="flex items-center gap-2 px-3 py-1.5 rounded-sm surface-card text-xs font-medium text-(--text-secondary) hover:text-(--text-primary) shadow-md hover:shadow-lg transition-all border border-(--border-subtle) cursor-pointer bg-(--surface-raised)/90 backdrop-blur-sm"
-        aria-label="Open developer persona switcher"
-        aria-expanded={devMenuOpen}
-        title="Developer Persona Inspector (Internal Demo Only)"
-      >
-        <Wrench class="w-3.5 h-3.5 text-(--text-muted)" />
-        <span class="text-[11px] font-mono tracking-tight text-(--text-muted)">DEV:</span>
-        <span class="font-semibold text-xs text-(--text-primary) capitalize">{activeRole}</span>
-        <ChevronDown class="w-3 h-3 text-(--text-muted) transition-transform {devMenuOpen ? 'rotate-180' : ''}" />
-      </button>
-    </div>
-  </aside>
+        <!-- Compact Trigger Pill Button with distinct DEV branding -->
+        <button
+          onclick={() => (devMenuOpen = !devMenuOpen)}
+          class="flex items-center gap-2 px-3 py-1.5 rounded-sm surface-card text-xs font-medium text-(--text-secondary) hover:text-(--text-primary) shadow-md hover:shadow-lg transition-all border border-(--border-subtle) cursor-pointer bg-(--surface-raised)/90 backdrop-blur-sm"
+          aria-label="Open developer persona switcher"
+          aria-expanded={devMenuOpen}
+          title="Developer Persona Inspector (Internal Demo Only)"
+        >
+          <Wrench class="w-3.5 h-3.5 text-(--text-muted)" />
+          <span class="text-[11px] font-mono tracking-tight text-(--text-muted)">DEV:</span>
+          <span class="font-semibold text-xs text-(--text-primary) capitalize">{activeRole}</span>
+          <ChevronDown class="w-3 h-3 text-(--text-muted) transition-transform {devMenuOpen ? 'rotate-180' : ''}" />
+        </button>
+      </div>
+    </aside>
+  {/if}
 </div>

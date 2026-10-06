@@ -1,17 +1,24 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "name": "WAY 2.0 — Calm Intelligence",
-  "version": "2.0.0",
+  "name": "WAY 2.1 — Quiet Editorial Intelligence",
+  "version": "2.1.0",
   "system": "WAY Design System",
   "product": "CREED OS",
-  "doctrine": "Complexity is hidden until it becomes useful. Calm enough to understand, intelligent enough to adapt, human enough to belong to.",
+  "doctrine": "Complexity is hidden until it becomes useful. Quiet Editorial Intelligence: an authored software instrument combining Nordic Lagom, Carbon Next, Apple HIG, Untitled UI, and Japandi restraint.",
   "principles": [
-    "Calm Intelligence (Nordic Lagom)",
+    "Quiet Editorial Intelligence (Signal -> Context -> Action -> Evidence -> Disclosure)",
     "Structured Discipline & Density (IBM Carbon 2x)",
-    "Tactile Hierarchy & Easing (Apple HIG)",
-    "Form Utility & Clarity (Untitled UI)",
-    "Editorial Storytelling & Craft (Japandi Editorial)"
+    "Tactile Hierarchy & Intentional Easing (Apple HIG)",
+    "Form Utility & Composable Controls (Untitled UI)",
+    "Editorial Storytelling & Asymmetric Balance (Japandi Editorial)",
+    "Semantic AI Transparency & Provenance (Carbon for AI)"
   ],
+  "contentRule": {
+    "titleCount": 1,
+    "maxSupportingSentences": 1,
+    "primaryActionCount": 1,
+    "detailPlacement": "disclosure_or_drawer"
+  },
   "radius": {
     "structural": {
       "value": "0px",
@@ -21,7 +28,7 @@
     "control": {
       "value": "4px",
       "class": "rounded-sm",
-      "useCases": ["Buttons", "Inputs", "Tiles", "Content cards", "Dialogs", "Navigation items", "Badges"]
+      "useCases": ["Buttons", "Inputs", "Tiles", "Content panels", "Dialogs", "Navigation items", "Badges"]
     },
     "expressive": {
       "value": "8px",
@@ -56,23 +63,23 @@
     "ease": "cubic-bezier(0.16, 1, 0.3, 1)"
   },
   "cognitiveJobs": {
-    "studentMap": "Orient me and show what to do next",
-    "assessment": "Let me concentrate in peace",
-    "mentor": "Help me think and explore reason",
-    "pathway": "Help me explore possibilities without labeling",
-    "parent": "Reassure me and show how I can help",
-    "teacher": "Show what needs attention today and offer interventions",
-    "counselor": "Case-manage caseload with evidence",
-    "admin": "Govern with auditable density",
-    "studio": "Calibrate psychometric items with mathematical rigor"
+    "studentMap": "Orient me and show what to do next in <= 5s",
+    "assessment": "Let me concentrate in peace, distraction-free",
+    "mentor": "Guided Thinking Studio: help me reason step-by-step",
+    "pathway": "Explore fields with tactile trials without labeling",
+    "parent": "Reassure me and show how I can help at home in <= 10s",
+    "teacher": "Triage interventions and assign scaffolds in <= 10s",
+    "counselor": "Case-manage caseload with evidence in <= 2 clicks",
+    "admin": "Govern with auditable density and speed in <= 15s",
+    "studio": "Calibrate psychometric items with mathematical precision"
   },
   "prohibitedInExperience": [
     "θ (latent ability)",
     "SE (standard error)",
     "3PL item parameters (a, b, c)",
     "Fisher Information",
-    "Raw test percentages as career readiness",
+    "Raw percentages as career readiness (e.g. 74% fit)",
     "Evaluator diagnostic telemetry drawer",
-    "Persistent developer switcher chrome"
+    "Persistent developer switcher chrome in production"
   ]
 }
