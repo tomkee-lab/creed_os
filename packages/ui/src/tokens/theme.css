@@ -1,0 +1,64 @@
+/* WAY Design System — Nordic Lagom x Sci-Fi Tokens (OKLCH) */
+
+:root {
+  /* Surface Tokens (Light Theme: Mineral White / Crisp Arctic) */
+  --surface-canvas: oklch(0.985 0.005 240);
+  --surface-raised: oklch(1.000 0.000 0);
+  --surface-overlay: oklch(0.965 0.008 240);
+  --surface-sunken: oklch(0.940 0.010 240);
+
+  /* Border Tokens */
+  --border-subtle: oklch(0.900 0.008 240);
+  --border-strong: oklch(0.800 0.015 240);
+  --border-hairline: rgba(0, 0, 0, 0.08);
+
+  /* Typography Tokens */
+  --text-primary: oklch(0.180 0.020 250);
+  --text-secondary: oklch(0.420 0.025 250);
+  --text-muted: oklch(0.580 0.020 250);
+  --text-inverse: oklch(0.990 0.002 240);
+
+  /* Precision Sci-Fi Accents */
+  --accent-cyan: oklch(0.680 0.160 215);
+  --accent-cyan-subtle: oklch(0.940 0.040 215);
+  --accent-cyan-glow: rgba(0, 200, 255, 0.15);
+  --accent-aurora: oklch(0.650 0.180 290);
+  --accent-emerald: oklch(0.680 0.150 155);
+  --accent-amber: oklch(0.720 0.160 75);
+  --accent-crimson: oklch(0.600 0.190 25);
+
+  /* Fonts */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Motion */
+  --duration-fast: 180ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --ease-lagom: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark {
+  /* Surface Tokens (Dark Theme: Deep Slate / Cosmic Black) */
+  --surface-canvas: oklch(0.130 0.018 250);    /* #0c1017 */
+  --surface-raised: oklch(0.180 0.020 250);    /* #141a24 */
+  --surface-overlay: oklch(0.220 0.025 250);   /* #1c2432 */
+  --surface-sunken: oklch(0.100 0.015 250);
+
+  /* Border Tokens */
+  --border-subtle: oklch(0.240 0.020 250);
+  --border-strong: oklch(0.320 0.030 250);
+  --border-hairline: rgba(255, 255, 255, 0.08);
+
+  /* Typography Tokens */
+  --text-primary: oklch(0.960 0.005 240);
+  --text-secondary: oklch(0.750 0.020 240);
+  --text-muted: oklch(0.520 0.020 250);
+  --text-inverse: oklch(0.120 0.015 250);
+
+  /* Brand Accents */
+  --accent-cyan: oklch(0.760 0.160 215);
+  --accent-cyan-subtle: oklch(0.220 0.050 215);
+  --accent-cyan-glow: rgba(56, 189, 248, 0.20);
+  --accent-aurora: oklch(0.720 0.180 290);
+}
