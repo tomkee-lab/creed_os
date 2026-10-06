@@ -27,8 +27,8 @@ function loadEnvLocal() {
         }
       }
     }
-  } catch {
-    // Ignore error
+  } catch (err: unknown) {
+    console.warn(`[env] Notice: Unable to load .env.local: ${err instanceof Error ? err.message : String(err)}`);
   }
 }
 
@@ -111,22 +111,40 @@ export async function callGreptileTool(name: string, args: Record<string, unknow
     headers['Authorization'] = `Bearer ${API_KEY}`;
   }
 
-  const res = await fetch(GREPTILE_MCP_ENDPOINT, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      jsonrpc: '2.0',
-      id: Date.now(),
-      method: 'tools/call',
-      params: {
-        name,
-        arguments: args
-      }
-    } satisfies JsonRpcRequest)
-  });
+  try {
+    const res = await fetch(GREPTILE_MCP_ENDPOINT, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: Date.now(),
+        method: 'tools/call',
+        params: {
+          name,
+          arguments: args
+        }
+      } satisfies JsonRpcRequest)
+    });
 
-  const data = await res.json() as JsonRpcResponse<{ content: Array<{ type: string; text: string }> }>;
-  return data;
+    if (!res.ok) {
+      const errorText = await res.text();
+      const errorMsg = `[mcp-client] HTTP ${res.status} ${res.statusText} while calling tool "${name}": ${errorText}`;
+      console.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+
+    const data = await res.json() as JsonRpcResponse<{ content: Array<{ type: string; text: string }> }>;
+    if (data.error) {
+      const rpcErrorMsg = `[mcp-client] JSON-RPC error from tool "${name}" (code ${data.error.code}): ${data.error.message}`;
+      console.error(rpcErrorMsg, data.error.data ?? '');
+      throw new Error(rpcErrorMsg);
+    }
+
+    return data;
+  } catch (err: unknown) {
+    console.error(`[mcp-client] Async failure invoking tool "${name}": ${err instanceof Error ? err.message : String(err)}`);
+    throw err;
+  }
 }
 
 // CLI execution
@@ -175,6 +193,51 @@ async function main() {
       console.log(`\nActive Custom Context / Team Standards (${parsed.total}):`);
       for (const item of parsed.customContexts || []) {
         console.log(`  - [${item.status}] ${item.body?.slice(0, 80)}...`);
+      }
+    }
+
+    // Pull Requests
+    console.log(`\nChecking Pull Requests for tomkee-lab/creed_os via Greptile MCP...`);
+    const prs = await callGreptileTool('list_pull_requests', {
+      name: 'tomkee-lab/creed_os',
+      remote: 'github',
+      defaultBranch: 'main'
+    });
+    const prsText = prs.result?.content?.[0]?.text;
+    if (prsText) {
+      const parsed = JSON.parse(prsText);
+      const mrList = parsed.mergeRequests || [];
+      console.log(`Active Pull Requests in Greptile (${mrList.length}):`);
+      for (const pr of mrList) {
+        console.log(`  - PR #${pr.number}: "${pr.title}" (state: ${pr.state})`);
+      }
+
+      if (mrList.length > 0) {
+        const prNum = mrList[0].number;
+        console.log(`\nFetching Greptile Review Details for PR #${prNum}...`);
+        const details = await callGreptileTool('get_merge_request', {
+          name: 'tomkee-lab/creed_os',
+          remote: 'github',
+          defaultBranch: 'main',
+          prNumber: prNum
+        });
+        const detailsText = details.result?.content?.[0]?.text;
+        if (detailsText) {
+          try {
+            const parsed = JSON.parse(detailsText);
+            const mr = parsed.mergeRequest;
+            console.log(`PR #${prNum} Title: ${mr?.title}`);
+            console.log(`Status: ${mr?.state}`);
+            console.log(`Reviews Count: ${mr?.codeReviews?.length || 0}`);
+            if (mr?.reviewAnalysis) {
+              console.log(`Review Completeness: ${mr.reviewAnalysis.reviewCompleteness || 'In Progress'}`);
+              const unaddressed = mr.reviewAnalysis.unaddressedComments || [];
+              console.log(`Unaddressed Comments: ${unaddressed.length}`);
+            }
+          } catch {
+            console.log('Response:', detailsText);
+          }
+        }
       }
     }
   } else {

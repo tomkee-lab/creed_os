@@ -5,7 +5,7 @@
   "rules": [
     {
       "id": "consent-state-transitions",
-      "rule": "Parental consent state machine transitions must be strictly enforced. A state may only advance through valid edges: DRAFT -> PARENT_INVITED -> PARENT_CONSENT_PENDING -> PARENT_CONSENTED. Never bypass state validation.",
+      "rule": "Parental consent state machine transitions must be strictly enforced. A state may only advance through valid edges: PENDING_PARENTAL_NOTICE -> NOTICE_SENT -> VERIFIED_ACTIVE, with explicit transitions to WITHDRAWN and EXPIRED. Never bypass state validation.",
       "severity": "high",
       "enabled": true
     },

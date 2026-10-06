@@ -41,7 +41,7 @@ Always start by checking identity if organizations are unknown:
   - `number`: PR number
   - `addressed`: `false` (to retrieve only unaddressed feedback)
   - `remote`: `github`
-  - `defaultBranch`: `master`
+  - `defaultBranch`: `main`
 
 ### Anatomy of a Comment
 Each comment returned contains:
@@ -80,8 +80,8 @@ Greptile's Custom Context allows defining and checking organizational standards 
 ## 4. Local Review CLI Commands
 
 When developing locally or checking a branch before pushing:
-- Run review: `pnpm dlx greptile review`
-- Review against specific base: `pnpm dlx greptile review --branch master`
-- View diff layout: `pnpm dlx greptile review --diff`
-- Inspect effective config: `pnpm dlx greptile config [path]`
-- Check review status for commit: `pnpm dlx greptile review status`
+- Run review: `pnpm run greptile:review`
+- Review against specific base: `pnpm run greptile:review -- --branch main`
+- View diff layout: `pnpm run greptile:review -- --diff`
+- Inspect effective config: `pnpm run greptile:config [path]`
+- Check review status for commit: `pnpm run greptile:status -- --commit <sha>`

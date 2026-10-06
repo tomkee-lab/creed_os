@@ -3,8 +3,11 @@ name: Greptile PR Review & Quality Gate
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
-  issue_comment:
-    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
 
 concurrency:
   group: greptile-${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -25,7 +28,7 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 11.25.0
-          run_install: false
+          standalone: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -39,7 +42,7 @@ jobs:
       - name: Verify Monorepo Type Check
         run: pnpm run check
 
-      - name: Run Test Suite
+      - name: Run Package Unit Tests (vitest)
         run: pnpm test
 
       - name: Check Greptile Review Status (if GREPTILE_API_KEY configured)
@@ -48,7 +51,7 @@ jobs:
           GREPTILE_API_KEY: ${{ secrets.GREPTILE_API_KEY }}
         run: |
           echo "Checking Greptile review status for commit ${{ github.sha }}..."
-          pnpm dlx greptile review status --commit ${{ github.sha }} || true
+          pnpm run greptile:status -- --commit ${{ github.sha }}
 
       - name: PR Review Helper Comment
         if: failure()
@@ -62,9 +65,14 @@ jobs:
             @greptileai review
             \`\`\`
             `;
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });
+            try {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+              console.log(`[CI Helper] Successfully posted quality gate guidance comment to PR #${context.issue.number}`);
+            } catch (err) {
+              console.error(`[CI Helper] Failed to post PR guidance comment: ${err instanceof Error ? err.message : String(err)}`);
+            }

@@ -11,8 +11,8 @@
       "enabled": true
     },
     {
-      "id": "gauss-hermite-quadrature",
-      "rule": "Ability estimation (theta) must use Gauss-Hermite Expected A Posteriori (EAP) quadrature with a minimum of 21 integration nodes and bounded prior distribution N(0, 1).",
+      "id": "numerical-eap-quadrature",
+      "rule": "Ability estimation (theta) must use Expected A Posteriori (EAP) numerical quadrature with at least 41 integration nodes spanning [-4.0, 4.0] and standard normal prior N(0, 1).",
       "severity": "high",
       "enabled": true
     },

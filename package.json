@@ -11,14 +11,15 @@
     "check": "turbo run check",
     "lint": "turbo run lint",
     "clean": "turbo run clean",
-    "greptile:review": "pnpm dlx greptile review",
-    "greptile:status": "pnpm dlx greptile review status",
-    "greptile:config": "pnpm dlx greptile config"
+    "greptile:review": "greptile review",
+    "greptile:status": "greptile review status",
+    "greptile:config": "greptile config"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^4.0.0",
     "@sveltejs/kit": "^2.70.3",
-    "@types/node": "^26.6.4",
+    "@types/node": "^22.20.5",
+    "greptile": "^3.6.1",
     "svelte": "^5.57.1",
     "turbo": "^2.4.4",
     "typescript": "^5.7.3",

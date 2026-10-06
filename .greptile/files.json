@@ -29,13 +29,18 @@
       "description": "Public and internal API contracts for assessment sessions, evidence engine, and mentoring endpoints."
     },
     {
-      "path": "packages/domain/src/schemas/consent.ts",
+      "path": "packages/domain/src/consent.ts",
       "description": "Parental consent state machine schema and DPDP compliance types.",
       "scope": ["packages/domain/**", "apps/web/src/routes/api/**"]
     },
     {
-      "path": "packages/assessment/src/irt/cat.ts",
-      "description": "Computerized Adaptive Testing engine and deterministic IRT scoring routines.",
+      "path": "packages/assessment/src/cat/estimator.ts",
+      "description": "Computerized Adaptive Testing EAP ability estimation engine and deterministic scoring routines.",
+      "scope": ["packages/assessment/**"]
+    },
+    {
+      "path": "packages/assessment/src/cat/selector.ts",
+      "description": "CAT next-item selection engine using Fisher Information maximization.",
       "scope": ["packages/assessment/**"]
     },
     {

@@ -1,3 +1,3 @@
 [mcp_servers.greptile]
 url = "https://api.greptile.com/mcp"
-http_headers = { Authorization = "Bearer sLTEnOycWYUn5pWzZ2wFvZk/yRl+I10WZpgHsj3TkJewcXtO" }
+http_headers = { Authorization = "Bearer ${GREPTILE_API_KEY}" }
