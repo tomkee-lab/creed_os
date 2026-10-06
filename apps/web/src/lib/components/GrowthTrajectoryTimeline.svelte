@@ -154,7 +154,7 @@
           </span>
 
           <!-- Node Title snippet -->
-          <span class="text-[11px] font-medium max-w-[80px] sm:max-w-[100px] truncate mt-0.5 {isActive ? 'text-(--text-primary) font-semibold' : 'text-(--text-secondary)'}">
+          <span class="text-[11px] font-medium max-w-20 sm:max-w-25 truncate mt-0.5 {isActive ? 'text-(--text-primary) font-semibold' : 'text-(--text-secondary)'}">
             {milestone.title}
           </span>
         </button>
