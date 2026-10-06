@@ -234,7 +234,7 @@
             <button
               type="button"
               onclick={() => (sidePanelOpen = false)}
-              class="w-8 h-8 rounded-lg flex items-center justify-center text-(--text-muted) hover:text-(--text-primary) hover:bg-(--surface-sunken) transition-colors cursor-pointer"
+              class="w-8 h-8 rounded-none flex items-center justify-center text-(--text-muted) hover:text-(--text-primary) hover:bg-(--surface-sunken) transition-colors cursor-pointer border border-(--border-subtle)"
               aria-label="Close drawer"
             >
               <X class="w-5 h-5" />
@@ -242,7 +242,7 @@
           </div>
 
           {#if scheduleSuccess}
-            <div class="p-3.5 rounded-xl badge-growth text-xs flex items-center gap-2">
+            <div class="p-3.5 rounded-none badge-growth text-xs flex items-center gap-2 border border-(--border-subtle)">
               <CheckCircle2 class="w-4 h-4 shrink-0" />
               <span>3-Way Dialogue Invitation dispatched to student and guardian!</span>
             </div>
@@ -254,7 +254,7 @@
               <p class="text-(--text-secondary) leading-relaxed">{activeReferral.issue}</p>
             </Card>
 
-            <div class="p-3.5 rounded-xl border border-(--accent-indigo)/30 bg-(--accent-indigo-subtle) space-y-1">
+            <div class="p-3.5 rounded-none border border-(--accent-indigo)/30 bg-(--accent-indigo-subtle) space-y-1">
               <span class="font-bold text-(--text-primary) block">Recommended Counselor Action</span>
               <p class="text-(--text-secondary) leading-relaxed">{activeReferral.recommendedAction}</p>
             </div>

@@ -6,6 +6,8 @@
     pathway: Pathway;
     studentReadinessScore?: number; // 0 to 5.0
     isSelected?: boolean;
+    illustrationUrl?: string;
+    illustrationAlt?: string;
     onSelect?: (pathway: Pathway) => void;
   }
 
@@ -13,6 +15,8 @@
     pathway,
     studentReadinessScore = 3.8,
     isSelected = false,
+    illustrationUrl,
+    illustrationAlt,
     onSelect
   }: Props = $props();
 
@@ -25,10 +29,27 @@
 </script>
 
 <div
-  class="surface-card p-5 space-y-4 text-left transition-all {isSelected
+  class="surface-card rounded-none overflow-hidden text-left transition-all {isSelected
     ? 'border-(--accent-primary) ring-1 ring-(--accent-primary)'
     : 'hover:border-(--accent-primary)'}"
 >
+  {#if illustrationUrl}
+    <div class="relative aspect-3/2 w-full overflow-hidden border-b border-(--border-subtle) bg-(--surface-sunken)">
+      <img
+        src={illustrationUrl}
+        alt={illustrationAlt || pathway.title}
+        loading="lazy"
+        class="w-full h-full object-cover rounded-none transition-transform duration-500 hover:scale-[1.02]"
+      />
+      <div class="absolute bottom-2 left-2 z-10">
+        <span class="px-2 py-0.5 rounded-none bg-(--surface-canvas)/90 backdrop-blur-xs border border-(--border-subtle) text-[10px] font-semibold uppercase tracking-wider text-(--text-primary)">
+          {pathway.field.replace('_', ' ')}
+        </span>
+      </div>
+    </div>
+  {/if}
+
+  <div class="p-5 space-y-4">
   <div class="flex items-start justify-between gap-3">
     <div>
       <div class="flex items-center gap-2 mb-1">
@@ -99,4 +120,5 @@
       <ArrowRight class="w-3.5 h-3.5" />
     </button>
   {/if}
+  </div>
 </div>

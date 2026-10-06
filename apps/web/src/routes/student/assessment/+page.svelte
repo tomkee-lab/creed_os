@@ -187,15 +187,15 @@
       <p class="text-sm font-medium text-(--text-primary)">{errorMessage}</p>
       <button
         onclick={startSession}
-        class="px-4 py-2 rounded-lg bg-(--accent-primary) text-white text-xs font-medium hover:opacity-90 transition-opacity"
+        class="px-4 py-2 rounded-none bg-(--accent-primary) text-white text-xs font-medium hover:opacity-90 transition-opacity"
       >
         Retry Diagnostic
       </button>
     </div>
   {:else if status === 'completed'}
     <!-- Friendly Completion View (Humanized summary, growth tone) -->
-    <div class="surface-card p-8 text-center space-y-6">
-      <div class="w-14 h-14 rounded-full bg-(--accent-success-subtle) text-(--accent-success) flex items-center justify-center mx-auto">
+    <div class="surface-card rounded-none p-8 text-center space-y-6 border border-(--border-subtle)">
+      <div class="w-14 h-14 rounded-none bg-(--accent-success-subtle) text-(--accent-success) flex items-center justify-center mx-auto border border-(--border-subtle)">
         <Award class="w-7 h-7" />
       </div>
 
@@ -214,13 +214,13 @@
       <div class="pt-4 flex items-center justify-center gap-3">
         <a
           href="/student"
-          class="px-6 py-2.5 rounded-lg bg-(--accent-primary) text-white font-medium text-sm hover:opacity-90 transition-all shadow-sm"
+          class="px-6 py-2.5 rounded-none bg-(--accent-primary) text-white font-medium text-sm hover:opacity-90 transition-all shadow-sm"
         >
           View Updated Map
         </a>
         <button
           onclick={startSession}
-          class="px-4 py-2.5 rounded-lg surface-card text-(--text-secondary) hover:text-(--text-primary) font-medium text-sm transition-colors"
+          class="px-4 py-2.5 rounded-none surface-card text-(--text-secondary) hover:text-(--text-primary) font-medium text-sm transition-colors border border-(--border-subtle)"
         >
           Try Another Session
         </button>
@@ -228,7 +228,7 @@
     </div>
   {:else if currentItem}
     <!-- Active Question Shell (Nordic Lagom Clean Canvas) -->
-    <div class="surface-card p-6 sm:p-8 space-y-6">
+    <div class="surface-card rounded-none p-6 sm:p-8 space-y-6 border border-(--border-subtle)">
       <!-- Domain indicator -->
       <div class="flex items-center justify-between text-xs text-(--text-muted)">
         <span class="font-medium text-(--accent-primary)">
@@ -251,12 +251,12 @@
             type="button"
             disabled={status === 'evaluating'}
             onclick={() => (selectedOptionId = opt.id)}
-            class="w-full text-left p-4 rounded-xl border transition-all flex items-center justify-between {selectedOptionId === opt.id ? 'border-(--accent-primary) bg-(--accent-primary-subtle) text-(--text-primary) font-medium ring-1 ring-(--accent-primary)' : 'border-(--border-subtle) bg-(--surface-raised) hover:bg-(--surface-sunken) text-(--text-secondary)'}"
+            class="w-full text-left p-4 rounded-none border transition-all flex items-center justify-between {selectedOptionId === opt.id ? 'border-(--accent-primary) bg-(--accent-primary-subtle) text-(--text-primary) font-medium ring-1 ring-(--accent-primary)' : 'border-(--border-subtle) bg-(--surface-raised) hover:bg-(--surface-sunken) text-(--text-secondary)'}"
           >
             <span class="text-sm">{opt.text}</span>
-            <div class="w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ml-3 {selectedOptionId === opt.id ? 'border-(--accent-primary) bg-(--accent-primary)' : 'border-(--border-strong)'}">
+            <div class="w-4 h-4 rounded-none border flex items-center justify-center shrink-0 ml-3 {selectedOptionId === opt.id ? 'border-(--accent-primary) bg-(--accent-primary)' : 'border-(--border-strong)'}">
               {#if selectedOptionId === opt.id}
-                <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
+                <div class="w-1.5 h-1.5 rounded-none bg-white"></div>
               {/if}
             </div>
           </button>
@@ -265,7 +265,7 @@
 
       <!-- Immediate Learning Feedback -->
       {#if lastEvaluation}
-        <div class="p-4 rounded-xl border transition-all {lastEvaluation.isCorrect ? 'bg-(--accent-success-subtle) border-(--accent-success) text-(--accent-success)' : 'bg-(--accent-warning-subtle) border-(--accent-warning) text-(--accent-warning)'} space-y-1">
+        <div class="p-4 rounded-none border transition-all {lastEvaluation.isCorrect ? 'bg-(--accent-success-subtle) border-(--accent-success) text-(--accent-success)' : 'bg-(--accent-warning-subtle) border-(--accent-warning) text-(--accent-warning)'} space-y-1">
           <div class="flex items-center gap-2 text-sm font-semibold">
             {#if lastEvaluation.isCorrect}
               <CheckCircle2 class="w-4 h-4" />
@@ -286,7 +286,7 @@
           <button
             onclick={submitResponse}
             disabled={!selectedOptionId || status === 'evaluating'}
-            class="px-6 py-2.5 rounded-lg bg-(--accent-primary) hover:opacity-90 disabled:opacity-40 disabled:pointer-events-none text-white font-medium text-sm transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+            class="px-6 py-2.5 rounded-none bg-(--accent-primary) hover:opacity-90 disabled:opacity-40 disabled:pointer-events-none text-white font-medium text-sm transition-all shadow-sm flex items-center gap-2 cursor-pointer"
           >
             <span>Save & Continue</span>
             <ArrowRight class="w-4 h-4" />
@@ -297,7 +297,7 @@
   {/if}
 
   <!-- 2. COLLAPSIBLE PSYCHOMETRIC DIAGNOSTICS (For Evaluators & Psychometricians Only) -->
-  <div class="border border-(--border-subtle) rounded-xl bg-(--surface-sunken) overflow-hidden text-xs">
+  <div class="border border-(--border-subtle) rounded-none bg-(--surface-sunken) overflow-hidden text-xs">
     <button
       type="button"
       onclick={() => (debugDrawerOpen = !debugDrawerOpen)}
@@ -317,19 +317,19 @@
     {#if debugDrawerOpen}
       <div class="p-4 border-t border-(--border-subtle) space-y-3 font-mono bg-(--surface-canvas)">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px]">
-          <div class="p-2 rounded bg-(--surface-raised) border border-(--border-subtle)">
+          <div class="p-2 rounded-none bg-(--surface-raised) border border-(--border-subtle)">
             <span class="text-[10px] text-(--text-muted) block">Latent Ability θ</span>
             <span class="font-bold text-(--accent-primary)">{currentTheta >= 0 ? '+' : ''}{currentTheta.toFixed(3)}</span>
           </div>
-          <div class="p-2 rounded bg-(--surface-raised) border border-(--border-subtle)">
+          <div class="p-2 rounded-none bg-(--surface-raised) border border-(--border-subtle)">
             <span class="text-[10px] text-(--text-muted) block">Standard Error SE(θ)</span>
             <span class="font-bold text-(--text-primary)">±{standardError.toFixed(3)}</span>
           </div>
-          <div class="p-2 rounded bg-(--surface-raised) border border-(--border-subtle)">
+          <div class="p-2 rounded-none bg-(--surface-raised) border border-(--border-subtle)">
             <span class="text-[10px] text-(--text-muted) block">Item Bank Code</span>
             <span class="text-(--text-primary)">{currentItem?.code || 'SCI-002'}</span>
           </div>
-          <div class="p-2 rounded bg-(--surface-raised) border border-(--border-subtle)">
+          <div class="p-2 rounded-none bg-(--surface-raised) border border-(--border-subtle)">
             <span class="text-[10px] text-(--text-muted) block">Estimation Method</span>
             <span class="text-(--text-primary)">Gauss-Hermite EAP</span>
           </div>

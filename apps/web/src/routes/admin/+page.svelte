@@ -172,7 +172,7 @@
             <button
               type="button"
               onclick={() => (consentFilter = filterOpt)}
-              class="px-3 py-1 rounded-lg text-[11px] font-medium transition-colors cursor-pointer {consentFilter === filterOpt ? 'bg-(--accent-primary) text-white' : 'bg-(--surface-sunken) text-(--text-secondary) hover:text-(--text-primary)'}"
+              class="px-3 py-1 rounded-none text-[11px] font-medium transition-colors cursor-pointer border border-(--border-subtle) {consentFilter === filterOpt ? 'bg-(--accent-primary) text-white' : 'bg-(--surface-sunken) text-(--text-secondary) hover:text-(--text-primary)'}"
             >
               {filterOpt.replace('_', ' ')}
             </button>

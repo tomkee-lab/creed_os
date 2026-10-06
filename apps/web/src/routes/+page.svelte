@@ -17,6 +17,7 @@
     Lock,
     BrainCircuit
   } from 'lucide-svelte';
+  import { IllustrationFrame } from '$lib/components';
 
   let { data } = $props();
 
@@ -136,6 +137,19 @@
     </div>
   </section>
 
+  <!-- Editorial Centerpiece Illustration -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <IllustrationFrame
+      src="/images/illustrations/hero_observatory.jpg"
+      alt="Asian learner in stone observatory reviewing celestial charts and botanical journals"
+      aspectRatio="16:9"
+      priority={true}
+      badge="Evidence Horizon"
+      caption="The Learner Observatory • Longitudinal intelligence anchoring every ability claim to tangible diagnostic and project evidence."
+      credit="CREED OS • Fine Art Mixed-Media Archive"
+    />
+  </section>
+
   <!-- Interactive Learner Map Showcase Card -->
   <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="surface-elevated p-8 sm:p-10 border border-(--border-subtle) space-y-6">
@@ -148,26 +162,26 @@
             Anaya Verma • Class 8 (Middle Stage)
           </h2>
         </div>
-        <div class="flex items-center gap-2 text-xs font-medium text-(--accent-success) px-3 py-1 rounded-full bg-(--accent-success-subtle)">
+        <div class="flex items-center gap-2 text-xs font-medium text-(--accent-success) px-3 py-1 rounded-none bg-(--accent-success-subtle) border border-(--border-subtle)">
           <CheckCircle2 class="w-4 h-4" />
           <span>Longitudinal Graph Verified</span>
         </div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-2">
-        <div class="p-4 rounded-xl bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
+        <div class="p-4 rounded-none bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
           <span class="text-xs font-medium text-(--text-muted)">Core Demonstrated Strength</span>
           <p class="font-bold text-(--text-primary) text-sm">Spatial Reasoning & 3D Modeling</p>
           <p class="text-xs text-(--text-secondary)">Advanced (4.5 / 5.0) • 2 verified assessments</p>
         </div>
 
-        <div class="p-4 rounded-xl bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
+        <div class="p-4 rounded-none bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
           <span class="text-xs font-medium text-(--text-muted)">Active Growth Focus</span>
           <p class="font-bold text-(--text-primary) text-sm">Quantitative Proportional Rates</p>
           <p class="text-xs text-(--text-secondary)">Developing (2.8 / 5.0) • 4-week sprint active</p>
         </div>
 
-        <div class="p-4 rounded-xl bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
+        <div class="p-4 rounded-none bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
           <span class="text-xs font-medium text-(--text-muted)">Best Pathway Match</span>
           <p class="font-bold text-(--text-primary) text-sm">Robotics & Autonomous Systems</p>
           <p class="text-xs text-(--text-secondary)">74% Baseline Fit • 2 missions pending</p>
@@ -203,10 +217,10 @@
         >
           <div class="space-y-3">
             <div class="flex items-center justify-between">
-              <div class="w-10 h-10 rounded-lg bg-(--surface-sunken) text-(--accent-primary) flex items-center justify-center border border-(--border-subtle)">
+              <div class="w-10 h-10 rounded-none bg-(--surface-sunken) text-(--accent-primary) flex items-center justify-center border border-(--border-subtle)">
                 <ws.icon class="w-5 h-5" />
               </div>
-              <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-(--surface-sunken) text-(--text-muted) border border-(--border-subtle)">
+              <span class="text-[11px] font-medium px-2 py-0.5 rounded-none bg-(--surface-sunken) text-(--text-muted) border border-(--border-subtle)">
                 {ws.badge}
               </span>
             </div>
@@ -246,7 +260,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
       {#each pillars as pillar}
         <div class="surface-card p-6 space-y-3 border border-(--border-subtle)">
-          <div class="w-8 h-8 rounded-lg bg-(--accent-primary-subtle) text-(--accent-primary) flex items-center justify-center">
+          <div class="w-8 h-8 rounded-none bg-(--accent-primary-subtle) text-(--accent-primary) flex items-center justify-center border border-(--border-subtle)">
             <pillar.icon class="w-4 h-4" />
           </div>
           <h3 class="text-base font-bold text-(--text-primary)">{pillar.title}</h3>

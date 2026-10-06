@@ -360,7 +360,7 @@
               <input
                 type="text"
                 bind:value={opt.text}
-                class="flex-1 px-2.5 py-1.5 rounded-lg bg-(--surface-raised) border border-(--border-subtle) text-(--text-primary) focus:outline-none"
+                class="flex-1 px-2.5 py-1.5 rounded-none bg-(--surface-raised) border border-(--border-subtle) text-(--text-primary) focus:outline-none"
               />
               {#if correctOptionIndex === idx}
                 <Badge variant="growth" size="sm">
@@ -373,7 +373,7 @@
                 type="text"
                 bind:value={opt.misconception}
                 placeholder="Diagnosed misconception description..."
-                class="w-full px-2.5 py-1.5 rounded-lg bg-(--surface-raised) border border-(--border-subtle) text-[11px] text-(--text-secondary) placeholder-(--text-muted) focus:outline-none"
+                class="w-full px-2.5 py-1.5 rounded-none bg-(--surface-raised) border border-(--border-subtle) text-[11px] text-(--text-secondary) placeholder-(--text-muted) focus:outline-none"
               />
             {/if}
           </div>

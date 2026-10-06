@@ -155,12 +155,12 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <!-- Brand & Product Title -->
       <a href="/" class="flex items-center gap-2.5 group" onclick={closeMobileNav}>
-        <div class="w-8 h-8 rounded-lg bg-(--accent-primary-subtle) text-(--accent-primary) flex items-center justify-center font-bold text-sm transition-transform group-hover:scale-105">
+        <div class="w-8 h-8 rounded-none bg-(--accent-primary-subtle) text-(--accent-primary) flex items-center justify-center font-bold text-sm transition-transform group-hover:scale-105 border border-(--border-subtle)">
           <BrainCircuit class="w-4 h-4" />
         </div>
         <div class="flex items-center gap-2">
           <span class="font-bold tracking-tight text-(--text-primary) text-base">CREED OS</span>
-          <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-(--surface-sunken) text-(--text-secondary) border border-(--border-subtle)">
+          <span class="text-[11px] font-medium px-2 py-0.5 rounded-none bg-(--surface-sunken) text-(--text-secondary) border border-(--border-subtle)">
             {activePersonaInfo.badge}
           </span>
         </div>
@@ -172,7 +172,7 @@
           {@const isActive = link.match(currentPath)}
           <a
             href={link.href}
-            class="px-3 py-1.5 rounded-md transition-colors flex items-center gap-2 {isActive ? 'bg-(--surface-sunken) text-(--accent-primary) font-semibold' : 'text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--surface-sunken)/60'}"
+            class="px-3 py-1.5 rounded-none transition-colors flex items-center gap-2 {isActive ? 'bg-(--surface-sunken) text-(--accent-primary) font-semibold border border-(--border-subtle)' : 'text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--surface-sunken)/60'}"
           >
             <link.icon class="w-4 h-4 {isActive ? 'text-(--accent-primary)' : 'text-(--text-muted)'}" />
             <span>{link.label}</span>
@@ -185,7 +185,7 @@
         <!-- Quick Theme Toggle -->
         <button
           onclick={toggleTheme}
-          class="w-8 h-8 rounded-lg flex items-center justify-center text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--surface-sunken) transition-colors border border-(--border-subtle)"
+          class="w-8 h-8 rounded-none flex items-center justify-center text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--surface-sunken) transition-colors border border-(--border-subtle)"
           aria-label="Toggle light/dark theme"
           title="Toggle light/dark theme"
         >
@@ -202,7 +202,7 @@
             <p class="text-xs font-semibold text-(--text-primary)">{activePersonaInfo.sublabel}</p>
             <p class="text-[10px] text-(--text-muted) capitalize">{activeRole} Workspace</p>
           </div>
-          <div class="w-8 h-8 rounded-full bg-(--accent-primary-subtle) text-(--accent-primary) font-semibold text-xs flex items-center justify-center border border-(--border-subtle)">
+          <div class="w-8 h-8 rounded-none bg-(--accent-primary-subtle) text-(--accent-primary) font-semibold text-xs flex items-center justify-center border border-(--border-subtle)">
             {#if activeRole === 'student'}AV
             {:else if activeRole === 'parent'}RV
             {:else if activeRole === 'teacher'}MS
@@ -217,7 +217,7 @@
         <!-- Mobile hamburger -->
         <button
           id="mobile-nav-toggle"
-          class="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-(--text-secondary) hover:bg-(--surface-sunken) transition-colors"
+          class="md:hidden w-8 h-8 flex items-center justify-center rounded-none text-(--text-secondary) hover:bg-(--surface-sunken) transition-colors border border-(--border-subtle)"
           onclick={() => (mobileNavOpen = !mobileNavOpen)}
           aria-label="Toggle navigation menu"
         >
@@ -238,7 +238,7 @@
           <a
             href={link.href}
             onclick={closeMobileNav}
-            class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors {isActive ? 'bg-(--surface-sunken) text-(--accent-primary) font-semibold' : 'text-(--text-secondary) hover:bg-(--surface-sunken)'}"
+            class="flex items-center gap-3 px-3 py-2 rounded-none text-sm font-medium transition-colors {isActive ? 'bg-(--surface-sunken) text-(--accent-primary) font-semibold border border-(--border-subtle)' : 'text-(--text-secondary) hover:bg-(--surface-sunken)'}"
           >
             <link.icon class="w-4 h-4 {isActive ? 'text-(--accent-primary)' : 'text-(--text-muted)'}" />
             <span>{link.label}</span>
@@ -262,7 +262,7 @@
       </div>
       <div class="flex items-center gap-3 text-[11px]">
         <span class="inline-flex items-center gap-1 text-(--accent-success)">
-          <span class="w-1.5 h-1.5 rounded-full bg-(--accent-success)"></span>
+          <span class="w-1.5 h-1.5 rounded-none bg-(--accent-success)"></span>
           DPDP Verified
         </span>
         <span>•</span>
@@ -285,10 +285,10 @@
         ></button>
 
         <!-- Popover Menu -->
-        <div class="absolute bottom-12 right-0 z-50 w-72 surface-elevated p-2 shadow-2xl border border-(--border-subtle) space-y-1 animate-in fade-in zoom-in-95 duration-150">
+        <div class="absolute bottom-12 right-0 z-50 w-72 surface-elevated rounded-none p-2 shadow-2xl border border-(--border-subtle) space-y-1 animate-in fade-in zoom-in-95 duration-150">
           <div class="px-3 py-1.5 border-b border-(--border-subtle) flex items-center justify-between">
             <span class="text-xs font-semibold text-(--text-secondary) uppercase tracking-wider">Switch Persona / Role</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-(--surface-sunken) text-(--text-muted)">Auditor Dock</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded-none bg-(--surface-sunken) text-(--text-muted) border border-(--border-subtle)">Auditor Dock</span>
           </div>
 
           <div class="max-h-80 overflow-y-auto space-y-0.5 py-1">
@@ -297,7 +297,7 @@
               <a
                 href={p.href}
                 onclick={() => (personaMenuOpen = false)}
-                class="flex items-center justify-between p-2 rounded-lg text-xs transition-colors {isSelected ? 'bg-(--accent-primary-subtle) text-(--accent-primary) font-semibold' : 'text-(--text-primary) hover:bg-(--surface-sunken)'}"
+                class="flex items-center justify-between p-2 rounded-none text-xs transition-colors {isSelected ? 'bg-(--accent-primary-subtle) text-(--accent-primary) font-semibold border border-(--border-subtle)' : 'text-(--text-primary) hover:bg-(--surface-sunken)'}"
               >
                 <div class="flex items-center gap-2.5">
                   <p.icon class="w-4 h-4 shrink-0 {isSelected ? 'text-(--accent-primary)' : 'text-(--text-muted)'}" />
@@ -311,7 +311,7 @@
                     <span class="text-[10px] text-(--text-muted) block font-normal">{p.sublabel}</span>
                   </div>
                 </div>
-                <span class="text-[9px] px-1.5 py-0.5 rounded bg-(--surface-sunken) border border-(--border-subtle) text-(--text-muted)">
+                <span class="text-[9px] px-1.5 py-0.5 rounded-none bg-(--surface-sunken) border border-(--border-subtle) text-(--text-muted)">
                   {p.badge}
                 </span>
               </a>
@@ -322,7 +322,7 @@
             <span class="text-(--text-muted)">Canvas Theme:</span>
             <button
               onclick={toggleTheme}
-              class="flex items-center gap-1 text-(--text-secondary) hover:text-(--text-primary) font-medium px-2 py-1 rounded bg-(--surface-sunken) transition-colors"
+              class="flex items-center gap-1 text-(--text-secondary) hover:text-(--text-primary) font-medium px-2 py-1 rounded-none bg-(--surface-sunken) transition-colors border border-(--border-subtle)"
             >
               {#if isDarkMode}
                 <Moon class="w-3 h-3 text-amber-400" /> Dark Slate
@@ -337,7 +337,7 @@
       <!-- Trigger Pill Button -->
       <button
         onclick={() => (personaMenuOpen = !personaMenuOpen)}
-        class="flex items-center gap-2 px-3.5 py-2 rounded-full surface-elevated text-xs font-medium text-(--text-primary) shadow-lg hover:shadow-xl transition-all border border-(--border-subtle) hover:scale-102 cursor-pointer"
+        class="flex items-center gap-2 px-3.5 py-2 rounded-none surface-elevated text-xs font-medium text-(--text-primary) shadow-lg hover:shadow-xl transition-all border border-(--border-subtle) cursor-pointer"
         aria-label="Open persona switcher"
         aria-expanded={personaMenuOpen}
       >

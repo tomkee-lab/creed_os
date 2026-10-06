@@ -14,6 +14,7 @@
     Sparkles
   } from 'lucide-svelte';
   import { getCompetencyDescriptor } from '@core-os/ui';
+  import { IllustrationFrame } from '$lib/components';
 
   let { data } = $props();
   let pathways = $derived(data.pathways);
@@ -74,7 +75,7 @@
       <button
         type="button"
         onclick={() => (selectedPathwayId = p.id)}
-        class="text-left p-5 rounded-xl border transition-all cursor-pointer {isSelected ? 'surface-elevated border-(--accent-primary) ring-1 ring-(--accent-primary)' : 'surface-card hover:bg-(--surface-sunken)'}"
+        class="text-left p-5 rounded-none border transition-all cursor-pointer {isSelected ? 'surface-elevated border-(--accent-primary) ring-1 ring-(--accent-primary)' : 'surface-card hover:bg-(--surface-sunken)'}"
       >
         <span class="text-xs font-semibold uppercase tracking-wider text-(--accent-indigo)">
           {p.field.replace('_', ' ')}
@@ -96,8 +97,21 @@
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     <!-- Left 2 Cols: Skill Comparison & Growth Plan -->
     <div class="lg:col-span-2 space-y-8">
-      <!-- Pathway Title & Context -->
-      <div class="surface-card p-6 space-y-4">
+      <!-- Pathway Title & Context with Editorial Illustration -->
+      <div class="surface-card rounded-none p-6 space-y-5 border border-(--border-subtle)">
+        <IllustrationFrame
+          src={selectedPathway.id === 'PATH-ROBOTICS'
+            ? '/images/illustrations/pathway_robotics.jpg'
+            : '/images/illustrations/pathway_bio.jpg'}
+          alt={selectedPathway.id === 'PATH-ROBOTICS'
+            ? 'Asian engineering student calibrating precision robotic joint on blueprint'
+            : 'Asian student researching botanical biomimicry and cellular biology'}
+          aspectRatio="3:2"
+          badge={selectedPathway.field.replace('_', ' ')}
+          caption="{selectedPathway.title} • Experiential blueprint and foundational competency alignment."
+          credit="CREED OS • Fine Art Mixed-Media Series"
+        />
+
         <div>
           <span class="text-xs font-semibold uppercase tracking-wider text-(--accent-indigo)">
             Featured Field
@@ -110,7 +124,7 @@
           </p>
         </div>
 
-        <div class="p-3.5 rounded-lg bg-(--surface-sunken) border border-(--border-subtle) text-xs text-(--text-secondary) flex items-center justify-between">
+        <div class="p-3.5 rounded-none bg-(--surface-sunken) border border-(--border-subtle) text-xs text-(--text-secondary) flex items-center justify-between">
           <span class="font-medium">Industry & Future Outlook:</span>
           <span class="font-semibold text-(--accent-success)">
             High Growth (+28% projected 10-year demand in autonomous systems)
@@ -119,7 +133,7 @@
       </div>
 
       <!-- Capability Comparison Table (Human-first, no jargon) -->
-      <div class="surface-card p-6 space-y-4">
+      <div class="surface-card rounded-none p-6 space-y-4 border border-(--border-subtle)">
         <div class="flex items-center justify-between border-b border-(--border-subtle) pb-3">
           <div>
             <h3 class="text-base font-bold text-(--text-primary)">
@@ -129,14 +143,14 @@
               Comparison between your verified demonstrations and typical foundational requirements.
             </p>
           </div>
-          <span class="text-xs font-medium px-2.5 py-1 rounded-full {comparison.hasGap ? 'badge-focus' : 'badge-growth'}">
+          <span class="text-xs font-medium px-2.5 py-1 rounded-none border border-(--border-subtle) {comparison.hasGap ? 'badge-focus' : 'badge-growth'}">
             {comparison.hasGap ? 'Active Growth Sprint' : 'Ready to Advance'}
           </span>
         </div>
 
         <div class="space-y-3">
           {#each comparison.requirements as req}
-            <div class="p-3.5 rounded-lg bg-(--surface-sunken) border border-(--border-subtle) flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div class="p-3.5 rounded-none bg-(--surface-sunken) border border-(--border-subtle) flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
               <div class="space-y-0.5">
                 <span class="font-semibold text-(--text-primary) text-sm">{req.domainName}</span>
                 <span class="text-[11px] text-(--text-muted) block">Importance: {req.importance}</span>
@@ -164,7 +178,7 @@
         </div>
 
         <!-- Constructive Growth Guidance (Never close the door!) -->
-        <div class="p-4 rounded-xl border border-(--accent-warning)/40 bg-(--accent-warning-subtle) space-y-2 mt-4">
+        <div class="p-4 rounded-none border border-(--accent-warning)/40 bg-(--accent-warning-subtle) space-y-2 mt-4">
           <div class="flex items-center gap-2 text-sm font-bold text-(--text-primary)">
             <Zap class="w-4 h-4 text-(--accent-warning)" />
             <span>Constructive Growth Plan (Do Not Close the Door!)</span>
@@ -179,7 +193,7 @@
       </div>
 
       <!-- Multi-Route Educational Paths -->
-      <div class="surface-card p-6 space-y-4">
+      <div class="surface-card rounded-none p-6 space-y-4 border border-(--border-subtle)">
         <div>
           <h3 class="text-base font-bold text-(--text-primary)">
             Multiple Pathways to Mastery
@@ -190,17 +204,17 @@
         </div>
 
         <div class="grid sm:grid-cols-3 gap-3 text-xs">
-          <div class="p-3.5 rounded-lg bg-(--surface-sunken) border border-(--border-subtle) space-y-1.5">
+          <div class="p-3.5 rounded-none bg-(--surface-sunken) border border-(--border-subtle) space-y-1.5">
             <span class="text-[10px] font-semibold text-(--accent-indigo) uppercase">University Track</span>
             <h4 class="font-bold text-(--text-primary)">B.Tech Mechatronics</h4>
             <p class="text-[11px] text-(--text-secondary)">Undergraduate degree with kinematic lab work.</p>
           </div>
-          <div class="p-3.5 rounded-lg bg-(--surface-sunken) border border-(--border-subtle) space-y-1.5">
+          <div class="p-3.5 rounded-none bg-(--surface-sunken) border border-(--border-subtle) space-y-1.5">
             <span class="text-[10px] font-semibold text-(--accent-primary) uppercase">Applied Diploma</span>
             <h4 class="font-bold text-(--text-primary)">Robotics Automation</h4>
             <p class="text-[11px] text-(--text-secondary)">Industrial PLC programming & direct equipment training.</p>
           </div>
-          <div class="p-3.5 rounded-lg bg-(--surface-sunken) border border-(--border-subtle) space-y-1.5">
+          <div class="p-3.5 rounded-none bg-(--surface-sunken) border border-(--border-subtle) space-y-1.5">
             <span class="text-[10px] font-semibold text-(--accent-success) uppercase">Project Portfolio</span>
             <h4 class="font-bold text-(--text-primary)">Open-Source Robotics</h4>
             <p class="text-[11px] text-(--text-secondary)">Demonstrated ROS contributions and physical build logs.</p>
@@ -211,7 +225,7 @@
 
     <!-- Right Col: Try-Before-You-Choose Project Missions -->
     <div class="space-y-6">
-      <div class="surface-card p-6 space-y-5">
+      <div class="surface-card rounded-none p-6 space-y-5 border border-(--border-subtle)">
         <div>
           <div class="flex items-center gap-2">
             <FlaskConical class="w-5 h-5 text-(--accent-indigo)" />
@@ -225,7 +239,7 @@
         </div>
 
         <div class="space-y-4">
-          <div class="p-4 rounded-xl border border-(--border-subtle) bg-(--surface-sunken) space-y-3">
+          <div class="p-4 rounded-none border border-(--border-subtle) bg-(--surface-sunken) space-y-3">
             <div class="flex items-center justify-between text-xs">
               <span class="font-bold text-(--text-primary)">
                 RoboBridge Structural Optimization
@@ -238,7 +252,7 @@
             <div class="pt-1">
               <a
                 href="/student/mentor"
-                class="w-full inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-(--accent-primary) text-white text-xs font-medium hover:opacity-90 transition-opacity"
+                class="w-full inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-none bg-(--accent-primary) text-white text-xs font-medium hover:opacity-90 transition-opacity"
               >
                 <Sparkles class="w-3.5 h-3.5" />
                 <span>Launch Mission with AI Guide</span>
@@ -246,7 +260,7 @@
             </div>
           </div>
 
-          <div class="p-4 rounded-xl border border-(--border-subtle) bg-(--surface-sunken) space-y-3">
+          <div class="p-4 rounded-none border border-(--border-subtle) bg-(--surface-sunken) space-y-3">
             <div class="flex items-center justify-between text-xs">
               <span class="font-bold text-(--text-primary)">
                 Autonomous Maze Wall-Follower
@@ -259,7 +273,7 @@
             <div class="pt-1">
               <a
                 href="/student/mentor"
-                class="w-full inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg surface-card text-(--text-primary) hover:bg-(--surface-sunken) text-xs font-medium transition-colors"
+                class="w-full inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-none surface-card text-(--text-primary) hover:bg-(--surface-sunken) text-xs font-medium transition-colors border border-(--border-subtle)"
               >
                 <Sparkles class="w-3.5 h-3.5 text-(--accent-primary)" />
                 <span>Launch Mission with AI Guide</span>
