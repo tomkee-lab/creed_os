@@ -2,7 +2,10 @@
   "mcpServers": {
     "greptile": {
       "type": "http",
-      "url": "https://api.greptile.com/mcp"
+      "url": "https://api.greptile.com/mcp",
+      "headers": {
+        "Authorization": "Bearer sLTEnOycWYUn5pWzZ2wFvZk/yRl+I10WZpgHsj3TkJewcXtO"
+      }
     }
   }
 }
