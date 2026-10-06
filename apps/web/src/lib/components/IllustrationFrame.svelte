@@ -26,7 +26,7 @@
   }: Props = $props();
 
   const aspectClasses: Record<string, string> = {
-    '16:9': 'aspect-16/9',
+    '16:9': 'aspect-video',
     '3:2': 'aspect-3/2',
     '1:1': 'aspect-square',
     '4:3': 'aspect-4/3',
@@ -44,7 +44,7 @@
   class="surface-card rounded-none border border-(--border-subtle) p-2 sm:p-2.5 bg-(--surface-sunken) {containerInteractive} {className}"
 >
   <!-- Hairline Passe-Partout Matting & Inner Image Frame -->
-  <div class="relative overflow-hidden rounded-none border border-(--border-subtle) bg-(--surface-raised) {aspectClasses[aspectRatio] || 'aspect-16/9'}">
+  <div class="relative overflow-hidden rounded-none border border-(--border-subtle) bg-(--surface-raised) {aspectClasses[aspectRatio] || 'aspect-video'}">
     <img
       {src}
       {alt}
