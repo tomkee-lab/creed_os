@@ -83,7 +83,7 @@
       </div>
 
       <!-- Horizontal Bar Metric (True 8pt Rhythm, No Rainbow) -->
-      <div class="flex-1 min-w-[120px] max-w-xs flex items-center gap-2">
+      <div class="flex-1 min-w-30 max-w-xs flex items-center gap-2">
         <div class="flex-1 h-2 rounded-none bg-(--surface-sunken) overflow-hidden border border-(--border-subtle)">
           <div
             class="h-full rounded-none transition-all duration-200 {comp.score >= 3.5 ? 'bg-(--accent-primary)' : 'bg-(--accent-warning)'}"
