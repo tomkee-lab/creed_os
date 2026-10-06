@@ -13,3 +13,4 @@ test-results/
 playwright-report/
 *.tsbuildinfo
 supabase/.temp/
+.mcp.json
