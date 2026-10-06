@@ -13,6 +13,7 @@
     Sparkles,
     BookOpen
   } from 'lucide-svelte';
+  import { MasterySunburst, GrowthTrajectoryTimeline } from '$lib/components';
 
   let { data } = $props();
   let learner = $derived(data.learner);
@@ -69,6 +70,24 @@
   </div>
 
   {#if selectedTab === 'overview'}
+    <!-- Developmental Mastery Orbit Map -->
+    <div class="space-y-4">
+      <div class="flex items-baseline justify-between border-b border-(--border-subtle) pb-2">
+        <div>
+          <h2 class="text-base sm:text-lg font-bold text-(--text-primary)">
+            Developmental Capability Map
+          </h2>
+          <p class="text-xs text-(--text-muted)">
+            Non-evaluative holistic snapshot of {learner.fullName}'s cognitive, inquiry, and metacognitive growth.
+          </p>
+        </div>
+        <span class="text-xs font-medium text-(--text-secondary)">
+          Verified Longitudinal State
+        </span>
+      </div>
+      <MasterySunburst />
+    </div>
+
     <!-- Four Essential Questions (Clean, Humane, Non-Stigmatizing) -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- 1. What is Anaya excelling in? -->
@@ -190,6 +209,9 @@
       </div>
     </div>
   {:else if selectedTab === 'evidence'}
+    <!-- Longitudinal Growth Trajectory Timeline -->
+    <GrowthTrajectoryTimeline />
+
     <!-- Verifiable Evidence Stream -->
     <div class="surface-card p-6 space-y-4">
       <div class="flex items-center justify-between border-b border-(--border-subtle) pb-3">

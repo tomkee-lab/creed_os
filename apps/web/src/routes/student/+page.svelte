@@ -15,11 +15,14 @@
     FlaskConical
   } from 'lucide-svelte';
   import { getCompetencyDescriptor } from '@core-os/ui';
+  import { MasterySunburst, GrowthTrajectoryTimeline } from '$lib/components';
 
   let { data } = $props();
   let learner = $derived(data.learner);
   let evidence = $derived(data.evidence);
   let pathways = $derived(data.pathways);
+
+  let activeVisualTab = $state<'sunburst' | 'trajectory' | 'bars'>('sunburst');
 
   // Group competencies into strengths and focus areas
   const competenciesList = $derived(
@@ -109,9 +112,9 @@
     </div>
   </section>
 
-  <!-- 2. DEMONSTRATED STRENGTHS & CAPABILITIES (Horizontal rhythm, no card soup) -->
+  <!-- 2. DEMONSTRATED STRENGTHS & CAPABILITIES (Interactive Sunburst, Trajectory & Horizontal rhythm) -->
   <section class="space-y-6">
-    <div class="flex items-baseline justify-between border-b border-(--border-subtle) pb-3">
+    <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 border-b border-(--border-subtle) pb-3">
       <div>
         <h2 class="text-xl font-bold text-(--text-primary) tracking-tight">
           Your Demonstrated Capabilities
@@ -120,38 +123,66 @@
           Anchored in verified assessments, classroom challenges, and project missions.
         </p>
       </div>
-      <span class="text-xs text-(--text-secondary) font-medium">
-        8 Core Dimensions Evaluated
-      </span>
+
+      <!-- Interactive View Toggle -->
+      <div class="flex items-center gap-1 p-1 rounded-xl bg-(--surface-sunken) border border-(--border-subtle) text-xs shrink-0">
+        <button
+          type="button"
+          onclick={() => activeVisualTab = 'sunburst'}
+          class="px-3 py-1.5 rounded-lg font-medium transition-all {activeVisualTab === 'sunburst' ? 'bg-(--surface-raised) text-(--text-primary) shadow-sm' : 'text-(--text-secondary) hover:text-(--text-primary)'}"
+        >
+          Mastery Sunburst
+        </button>
+        <button
+          type="button"
+          onclick={() => activeVisualTab = 'trajectory'}
+          class="px-3 py-1.5 rounded-lg font-medium transition-all {activeVisualTab === 'trajectory' ? 'bg-(--surface-raised) text-(--text-primary) shadow-sm' : 'text-(--text-secondary) hover:text-(--text-primary)'}"
+        >
+          Growth Trajectory
+        </button>
+        <button
+          type="button"
+          onclick={() => activeVisualTab = 'bars'}
+          class="px-3 py-1.5 rounded-lg font-medium transition-all {activeVisualTab === 'bars' ? 'bg-(--surface-raised) text-(--text-primary) shadow-sm' : 'text-(--text-secondary) hover:text-(--text-primary)'}"
+        >
+          Dimension List
+        </button>
+      </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-      {#each competenciesList as comp}
-        <div class="space-y-2 group">
-          <div class="flex items-center justify-between text-sm">
-            <div class="flex items-center gap-2">
-              <span class="font-semibold text-(--text-primary)">{comp.name}</span>
-              <span class="text-[11px] px-2 py-0.5 rounded-full font-medium {comp.colorClass}">
-                {comp.descriptor}
-              </span>
+    {#if activeVisualTab === 'sunburst'}
+      <MasterySunburst />
+    {:else if activeVisualTab === 'trajectory'}
+      <GrowthTrajectoryTimeline />
+    {:else}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+        {#each competenciesList as comp}
+          <div class="space-y-2 group">
+            <div class="flex items-center justify-between text-sm">
+              <div class="flex items-center gap-2">
+                <span class="font-semibold text-(--text-primary)">{comp.name}</span>
+                <span class="text-[11px] px-2 py-0.5 rounded-full font-medium {comp.colorClass}">
+                  {comp.descriptor}
+                </span>
+              </div>
+              <div class="flex items-center gap-1.5 text-xs text-(--text-muted) font-medium">
+                <span>{comp.score.toFixed(1)} / 5.0</span>
+                <span>•</span>
+                <span>{comp.evidenceCount} evidence items</span>
+              </div>
             </div>
-            <div class="flex items-center gap-1.5 text-xs text-(--text-muted) font-medium">
-              <span>{comp.score.toFixed(1)} / 5.0</span>
-              <span>•</span>
-              <span>{comp.evidenceCount} evidence items</span>
-            </div>
-          </div>
 
-          <!-- Progress Bar (Clean Apple HIG / Nordic style) -->
-          <div class="h-2 w-full bg-(--surface-sunken) rounded-full overflow-hidden border border-(--border-subtle)">
-            <div
-              class="h-full rounded-full transition-all duration-500 bg-(--accent-primary) group-hover:opacity-90"
-              style="width: {(comp.score / 5.0) * 100}%;"
-            ></div>
+            <!-- Progress Bar (Clean Apple HIG / Nordic style) -->
+            <div class="h-2 w-full bg-(--surface-sunken) rounded-full overflow-hidden border border-(--border-subtle)">
+              <div
+                class="h-full rounded-full transition-all duration-500 bg-(--accent-primary) group-hover:opacity-90"
+                style="width: {(comp.score / 5.0) * 100}%;"
+              ></div>
+            </div>
           </div>
-        </div>
-      {/each}
-    </div>
+        {/each}
+      </div>
+    {/if}
   </section>
 
   <!-- 3. EXPLORE PATHWAYS & TRY-BEFORE-YOU-CHOOSE MISSIONS -->
