@@ -1,0 +1,52 @@
+<script lang="ts">
+  import type { Snippet } from 'svelte';
+
+  type CardVariant = 'raised' | 'elevated' | 'sunken' | 'canvas';
+  type CardPadding = 'none' | 'sm' | 'md' | 'lg';
+
+  interface Props {
+    variant?: CardVariant;
+    padding?: CardPadding;
+    interactive?: boolean;
+    class?: string;
+    children?: Snippet;
+  }
+
+  let {
+    variant = 'raised',
+    padding = 'md',
+    interactive = false,
+    class: className = '',
+    children
+  }: Props = $props();
+
+  const variantClasses: Record<CardVariant, string> = {
+    raised: 'surface-card border border-(--border-subtle)',
+    elevated: 'surface-elevated border border-(--border-subtle) shadow-md',
+    sunken: 'bg-(--surface-sunken) border border-(--border-subtle)',
+    canvas: 'bg-(--surface-canvas)'
+  };
+
+  const paddingClasses: Record<CardPadding, string> = {
+    none: 'p-0',
+    sm: 'p-4',
+    md: 'p-6',
+    lg: 'p-8'
+  };
+
+  const interactiveClass = $derived(
+    interactive
+      ? 'transition-all duration-200 hover:border-(--border-strong) hover:shadow-sm cursor-pointer'
+      : ''
+  );
+
+  const computedClass = $derived(
+    `rounded-2xl ${variantClasses[variant]} ${paddingClasses[padding]} ${interactiveClass} ${className}`
+  );
+</script>
+
+<div class={computedClass}>
+  {#if children}
+    {@render children()}
+  {/if}
+</div>

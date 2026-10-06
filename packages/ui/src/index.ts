@@ -23,7 +23,7 @@ export const COMPETENCY_BANDS: MetricBand[] = [
     label: 'Developing',
     studentLabel: 'Next Focus',
     parentLabel: 'Developing Foundation',
-    colorClass: 'text-[oklch(0.680_0.150_75)] bg-[oklch(0.960_0.030_75)] border-[oklch(0.850_0.060_75)] dark:bg-[oklch(0.220_0.040_75)]'
+    colorClass: 'text-(--accent-warning) bg-(--accent-warning-subtle) border border-(--border-subtle)'
   },
   {
     min: 2.5,
@@ -31,7 +31,7 @@ export const COMPETENCY_BANDS: MetricBand[] = [
     label: 'Expected',
     studentLabel: 'On Track',
     parentLabel: 'Age Expected',
-    colorClass: 'text-[oklch(0.550_0.140_215)] bg-[oklch(0.960_0.025_215)] border-[oklch(0.850_0.050_215)] dark:bg-[oklch(0.220_0.040_215)]'
+    colorClass: 'text-(--accent-primary) bg-(--accent-primary-subtle) border border-(--border-subtle)'
   },
   {
     min: 3.5,
@@ -39,7 +39,7 @@ export const COMPETENCY_BANDS: MetricBand[] = [
     label: 'Proficient',
     studentLabel: 'Solid Strength',
     parentLabel: 'Strong Foundation',
-    colorClass: 'text-[oklch(0.600_0.140_150)] bg-[oklch(0.950_0.030_150)] border-[oklch(0.850_0.050_150)] dark:bg-[oklch(0.220_0.040_150)]'
+    colorClass: 'text-(--accent-success) bg-(--accent-success-subtle) border border-(--border-subtle)'
   },
   {
     min: 4.3,
@@ -47,7 +47,7 @@ export const COMPETENCY_BANDS: MetricBand[] = [
     label: 'Advanced',
     studentLabel: 'Superpower',
     parentLabel: 'Advanced Demonstrated Capability',
-    colorClass: 'text-[oklch(0.560_0.150_280)] bg-[oklch(0.960_0.025_280)] border-[oklch(0.850_0.050_280)] dark:bg-[oklch(0.220_0.040_280)]'
+    colorClass: 'text-(--accent-indigo) bg-(--accent-indigo-subtle) border border-(--border-subtle)'
   }
 ];
 
