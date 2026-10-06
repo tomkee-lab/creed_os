@@ -24,6 +24,20 @@
 
   // Active intervention group disclosure
   let expandedInterventionId = $state<string | null>(null);
+  let activeAssignmentToast = $state<{ id: string; title: string; count: number } | null>(null);
+
+  function handleAssignScaffold(item: (typeof interventions)[0]) {
+    activeAssignmentToast = { id: item.id, title: item.suggestedActivity, count: item.learnerCount };
+    setTimeout(() => {
+      if (activeAssignmentToast?.id === item.id) {
+        activeAssignmentToast = null;
+      }
+    }, 5000);
+  }
+
+  function handleUndoAssignment() {
+    activeAssignmentToast = null;
+  }
 
   const interventions = [
     {
@@ -103,6 +117,22 @@
     title="Needs Attention Today"
     subtitle="Identify intervention priorities and assign differentiated scaffolds in seconds."
   >
+    {#if activeAssignmentToast}
+      <div class="mb-4 p-3.5 rounded-sm bg-(--accent-success-subtle) text-(--accent-success) text-xs flex items-center justify-between border border-(--border-subtle) animate-in fade-in duration-150">
+        <div class="flex items-center gap-2">
+          <CheckCircle2 class="w-4 h-4 shrink-0" />
+          <span>Dispatched <strong>{activeAssignmentToast.title}</strong> to {activeAssignmentToast.count} targeted learners' focus queue.</span>
+        </div>
+        <button
+          type="button"
+          onclick={handleUndoAssignment}
+          class="text-xs font-bold underline hover:opacity-80 cursor-pointer ml-3 shrink-0"
+        >
+          Undo
+        </button>
+      </div>
+    {/if}
+
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       {#each interventions as item}
         <div class="surface-card rounded-sm p-5 border border-(--border-subtle) flex flex-col justify-between space-y-4 hover:border-(--border-strong) transition-colors">
@@ -126,7 +156,7 @@
           <div class="space-y-3 pt-3 border-t border-(--border-subtle)">
             <button
               type="button"
-              onclick={() => alert(`Assigned: ${item.suggestedActivity} to ${item.learnerCount} learners`)}
+              onclick={() => handleAssignScaffold(item)}
               class="w-full px-4 py-2 rounded-sm bg-(--accent-primary) hover:opacity-90 text-white font-medium text-xs transition-all shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
             >
               <span>Assign Scaffold</span>

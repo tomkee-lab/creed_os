@@ -27,6 +27,7 @@
   let mobileNavOpen = $state(false);
   let devMenuOpen = $state(false);
   let isDarkMode = $state(false);
+  let isDemoMode = $state(false);
 
   onMount(() => {
     // Light mode default across all experience roles
@@ -37,6 +38,18 @@
     } else {
       isDarkMode = false;
       document.documentElement.classList.remove('dark');
+    }
+
+    // Gated stakeholder demo mode for staging/preview reviews
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('demo') === 'true') {
+      isDemoMode = true;
+      localStorage.setItem('way_demo_mode', 'true');
+    } else if (urlParams.get('demo') === 'false') {
+      isDemoMode = false;
+      localStorage.removeItem('way_demo_mode');
+    } else if (localStorage.getItem('way_demo_mode') === 'true') {
+      isDemoMode = true;
     }
   });
 
@@ -286,8 +299,8 @@
     </div>
   </footer>
 
-  <!-- Floating DEV Role Switcher Dock (Internal Developer Only - Hidden in Production) -->
-  {#if import.meta.env.DEV}
+  <!-- Floating Role Switcher Dock (Developer & Gated Staging Demo Only - Hidden in Clean Production) -->
+  {#if import.meta.env.DEV || isDemoMode}
     <aside class="fixed bottom-4 right-4 z-50 select-none print:hidden" aria-label="Developer Role Switcher">
       <div class="relative">
         {#if devMenuOpen}
@@ -306,7 +319,7 @@
                 Internal Role Inspector
               </span>
               <span class="text-[9px] px-1.5 py-0.5 rounded-sm bg-(--accent-warning-subtle) text-(--accent-warning) border border-(--border-subtle) font-mono">
-                DEV ONLY
+                {import.meta.env.DEV ? 'DEV ONLY' : 'DEMO DOCK'}
               </span>
             </div>
 
@@ -350,7 +363,7 @@
           </div>
         {/if}
 
-        <!-- Compact Trigger Pill Button with distinct DEV branding -->
+        <!-- Compact Trigger Pill Button with distinct DEV/DEMO branding -->
         <button
           onclick={() => (devMenuOpen = !devMenuOpen)}
           class="flex items-center gap-2 px-3 py-1.5 rounded-sm surface-card text-xs font-medium text-(--text-secondary) hover:text-(--text-primary) shadow-md hover:shadow-lg transition-all border border-(--border-subtle) cursor-pointer bg-(--surface-raised)/90 backdrop-blur-sm"
@@ -359,7 +372,7 @@
           title="Developer Persona Inspector (Internal Demo Only)"
         >
           <Wrench class="w-3.5 h-3.5 text-(--text-muted)" />
-          <span class="text-[11px] font-mono tracking-tight text-(--text-muted)">DEV:</span>
+          <span class="text-[11px] font-mono tracking-tight text-(--text-muted)">{import.meta.env.DEV ? 'DEV:' : 'DEMO:'}</span>
           <span class="font-semibold text-xs text-(--text-primary) capitalize">{activeRole}</span>
           <ChevronDown class="w-3 h-3 text-(--text-muted) transition-transform {devMenuOpen ? 'rotate-180' : ''}" />
         </button>

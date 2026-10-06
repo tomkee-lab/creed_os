@@ -8,7 +8,9 @@
     ChevronUp,
     HeartHandshake,
     ArrowRight,
-    TrendingUp
+    TrendingUp,
+    FileText,
+    Printer
   } from 'lucide-svelte';
   import {
     MasterySunburst,
@@ -196,13 +198,24 @@
           <div class="text-xs text-(--text-secondary)">
             <strong class="text-(--text-primary)">Next Experiment:</strong> Build a small autonomous rover linkage together.
           </div>
-          <a
-            href="/student/pathways"
-            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-sm bg-(--accent-primary) hover:opacity-90 text-white font-medium text-xs transition-all shadow-sm cursor-pointer self-start sm:self-auto"
-          >
-            <span>Explore Mission Together</span>
-            <ArrowRight class="w-3.5 h-3.5" />
-          </a>
+          <div class="flex items-center gap-2 self-start sm:self-auto">
+            <button
+              type="button"
+              onclick={() => window.print()}
+              class="inline-flex items-center gap-1.5 px-3 py-2 rounded-sm surface-card hover:bg-(--surface-raised) text-xs font-medium text-(--text-secondary) hover:text-(--text-primary) transition-colors border border-(--border-subtle) cursor-pointer"
+              title="Print or save as PDF for offline family discussion"
+            >
+              <Printer class="w-3.5 h-3.5" />
+              <span>Export Family Dialogue Card</span>
+            </button>
+            <a
+              href="/student/pathways"
+              class="inline-flex items-center gap-1.5 px-4 py-2 rounded-sm bg-(--accent-primary) hover:opacity-90 text-white font-medium text-xs transition-all shadow-sm cursor-pointer"
+            >
+              <span>Explore Mission Together</span>
+              <ArrowRight class="w-3.5 h-3.5" />
+            </a>
+          </div>
         </div>
       </div>
     </div>
