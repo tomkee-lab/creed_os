@@ -54,17 +54,17 @@
     <div class="flex items-center gap-3">
       <a
         href="/student/assessment"
-        class="px-4 py-2.5 rounded-sm bg-(--accent-primary) hover:opacity-90 text-white font-medium text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm cursor-pointer"
+        class="px-4 py-2 rounded-sm bg-(--accent-primary) hover:opacity-90 text-white font-medium text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm cursor-pointer"
       >
         <Activity class="w-4 h-4" />
-        <span>Diagnostic Check</span>
+        <span>Diagnostic</span>
       </a>
       <a
         href="/student/mentor"
-        class="px-4 py-2.5 rounded-sm surface-card text-(--text-primary) hover:bg-(--surface-sunken) font-medium text-xs sm:text-sm flex items-center gap-2 transition-all cursor-pointer border border-(--border-subtle)"
+        class="px-4 py-2 rounded-sm surface-card text-(--text-primary) hover:bg-(--surface-sunken) font-medium text-xs sm:text-sm flex items-center gap-2 transition-all cursor-pointer border border-(--border-subtle)"
       >
         <Sparkles class="w-4 h-4 text-(--accent-primary)" />
-        <span>Socratic Guide</span>
+        <span>AI Guide</span>
       </a>
     </div>
   </header>

@@ -116,29 +116,29 @@
       <span>CREED OS • WAY 2.0 Calm Intelligence</span>
     </div>
 
-    <h1 class="text-4xl sm:text-6xl font-bold tracking-tight text-(--text-primary) leading-[1.14]">
-      Understand how a learner grows.<br />
-      <span class="text-(--accent-primary)">Assess deeply. Learn personally. Explore freely.</span>
+    <h1 class="text-4xl sm:text-6xl font-bold tracking-tight text-(--text-primary) leading-tight">
+      Understand how<br />
+      <span class="text-(--accent-primary)">a learner grows.</span>
     </h1>
 
-    <p class="text-base sm:text-lg text-(--text-secondary) leading-relaxed max-w-2xl mx-auto">
-      Continuous learner intelligence connecting adaptive diagnostics, verifiable real-world project evidence, and transparent pathway navigation.
+    <p class="text-base sm:text-lg text-(--text-secondary) leading-relaxed max-w-lg mx-auto">
+      Assess deeply. Learn personally. Explore freely.
     </p>
 
     <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
       <a
         href="/student"
-        class="px-6 py-3 rounded-sm bg-(--accent-primary) hover:opacity-90 text-white font-medium text-sm transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+        class="px-5 py-2.5 rounded-sm bg-(--accent-primary) hover:opacity-90 text-white font-medium text-sm transition-all shadow-sm flex items-center gap-2 cursor-pointer"
       >
-        <span>Explore Student Map</span>
+        <span>Explore Map</span>
         <ArrowRight class="w-4 h-4" />
       </a>
       <a
         href="/student/assessment"
-        class="px-6 py-3 rounded-sm surface-card hover:bg-(--surface-sunken) text-(--text-primary) font-medium text-sm transition-colors flex items-center gap-2 cursor-pointer border border-(--border-subtle)"
+        class="px-5 py-2.5 rounded-sm surface-card hover:bg-(--surface-sunken) text-(--text-primary) font-medium text-sm transition-colors flex items-center gap-2 cursor-pointer border border-(--border-subtle)"
       >
         <Activity class="w-4 h-4 text-(--accent-primary)" />
-        <span>Try Adaptive Diagnostic</span>
+        <span>Try Diagnostic</span>
       </a>
     </div>
   </section>
