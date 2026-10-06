@@ -15,7 +15,6 @@
     font-family: var(--font-sans);
     transition: background-color var(--duration-standard) var(--ease-lagom),
                 color var(--duration-standard) var(--ease-lagom);
-  	@apply bg-background text-foreground;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -27,12 +26,15 @@
     outline: 2px solid var(--border-focus);
     outline-offset: 2px;
   }
-	* {
-		@apply border-border outline-ring/50;
+
+  * {
+    border-color: var(--border);
+    outline-color: color-mix(in oklch, var(--ring) 50%, transparent);
     border-radius: var(--radius, 0rem);
   }
-	html {
-		@apply font-sans;
+
+  html {
+    font-family: var(--font-sans);
   }
 }
 
