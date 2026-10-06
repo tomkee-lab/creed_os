@@ -62,7 +62,7 @@
 
     <!-- Modal Content -->
     <div
-      class="relative w-full {maxWidthClasses[maxWidth]} surface-elevated rounded-2xl border border-(--border-subtle) shadow-2xl overflow-hidden z-10 animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
+      class="relative w-full {maxWidthClasses[maxWidth]} surface-elevated rounded-none border border-(--border-subtle) shadow-2xl overflow-hidden z-10 animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
     >
       {#if title}
         <div class="px-6 py-4.5 border-b border-(--border-subtle) flex items-center justify-between gap-4">
@@ -80,7 +80,7 @@
           <button
             type="button"
             onclick={handleClose}
-            class="p-1.5 rounded-lg text-(--text-muted) hover:text-(--text-primary) hover:bg-(--surface-sunken) transition-colors cursor-pointer"
+            class="p-1.5 rounded-none text-(--text-muted) hover:text-(--text-primary) hover:bg-(--surface-sunken) transition-colors cursor-pointer"
             aria-label="Close dialog"
           >
             <X class="w-4 h-4" />

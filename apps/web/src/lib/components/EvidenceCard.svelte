@@ -45,7 +45,7 @@
   <div class="flex items-start justify-between gap-3">
     <div class="space-y-1">
       <div class="flex items-center gap-2">
-        <span class="text-xs px-2.5 py-0.5 rounded-full font-medium {currentSource.badgeClass}">
+        <span class="text-xs px-2.5 py-0.5 rounded-none font-medium {currentSource.badgeClass}">
           {currentSource.label}
         </span>
         <span class="text-[11px] text-(--text-muted) flex items-center gap-1 font-mono">

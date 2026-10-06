@@ -36,7 +36,7 @@
           {pathway.field.replace('_', ' ')}
         </span>
         {#if isStrongMatch}
-          <span class="text-[11px] font-medium px-2 py-0.5 rounded-full badge-growth flex items-center gap-1">
+          <span class="text-[11px] font-medium px-2 py-0.5 rounded-none badge-growth flex items-center gap-1">
             <Sparkles class="w-3 h-3" /> High Alignment
           </span>
         {/if}
@@ -63,7 +63,7 @@
       <span class="text-[11px] text-(--text-muted) font-medium">Core Requirements:</span>
       <div class="flex flex-wrap gap-1.5">
         {#each pathway.requirements as req}
-          <span class="text-[10px] px-2 py-0.5 rounded-md bg-(--surface-sunken) border border-(--border-subtle) text-(--text-secondary)">
+          <span class="text-[10px] px-2 py-0.5 rounded-none bg-(--surface-sunken) border border-(--border-subtle) text-(--text-secondary)">
             {req.competency.replace('_', ' ')} (≥{req.minimumLevel.toFixed(1)})
           </span>
         {/each}
@@ -77,9 +77,9 @@
       <span>Foundational Fit</span>
       <span class="font-bold text-(--accent-primary)">{readinessPercent}%</span>
     </div>
-    <div class="h-2 bg-(--surface-sunken) rounded-full overflow-hidden border border-(--border-subtle)">
+    <div class="h-2 bg-(--surface-sunken) rounded-none overflow-hidden border border-(--border-subtle)">
       <div
-        class="h-full rounded-full transition-all duration-500 {isStrongMatch
+        class="h-full rounded-none transition-all duration-500 {isStrongMatch
           ? 'bg-(--accent-success)'
           : isModerateMatch
             ? 'bg-(--accent-primary)'
@@ -93,7 +93,7 @@
     <button
       type="button"
       onclick={() => onSelect(pathway)}
-      class="w-full mt-2 py-2 px-3 rounded-lg text-xs font-medium surface-card hover:bg-(--surface-sunken) text-(--text-primary) transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+      class="w-full mt-2 py-2 px-3 rounded-none text-xs font-medium surface-card hover:bg-(--surface-sunken) text-(--text-primary) transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
     >
       <span>Explore Milestones & Curriculum</span>
       <ArrowRight class="w-3.5 h-3.5" />

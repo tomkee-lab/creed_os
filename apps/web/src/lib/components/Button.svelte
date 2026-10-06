@@ -30,7 +30,7 @@
   }: Props = $props();
 
   const baseClasses =
-    'inline-flex items-center justify-center font-medium transition-all duration-150 rounded-xl select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary) focus-visible:ring-offset-2 disabled:opacity-40 disabled:pointer-events-none disabled:cursor-not-allowed active:scale-[0.98]';
+    'inline-flex items-center justify-center font-medium transition-all duration-150 rounded-none select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-primary) focus-visible:ring-offset-2 disabled:opacity-40 disabled:pointer-events-none disabled:cursor-not-allowed active:scale-[0.98]';
 
   const sizeClasses: Record<ButtonSize, string> = {
     sm: 'text-xs px-3 py-1.5 gap-1.5',

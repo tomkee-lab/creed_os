@@ -13,7 +13,8 @@
     Clock,
     ChevronDown,
     ChevronUp,
-    Sliders
+    Sliders,
+    Loader2
   } from 'lucide-svelte';
   import type { ClientAssessmentItem } from '@core-os/domain';
 
@@ -177,7 +178,7 @@
 
   {#if status === 'loading'}
     <div class="surface-card p-16 text-center space-y-4">
-      <div class="w-8 h-8 border-2 border-(--accent-primary) border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <Loader2 class="w-8 h-8 text-(--accent-primary) animate-spin mx-auto" />
       <p class="text-sm text-(--text-secondary)">Preparing your personalized questions...</p>
     </div>
   {:else if status === 'error'}

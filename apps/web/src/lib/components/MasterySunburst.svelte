@@ -163,7 +163,7 @@
   }
 </script>
 
-<div class="flex flex-col lg:flex-row items-center gap-8 surface-card p-6 rounded-2xl border border-(--border-subtle)">
+<div class="flex flex-col lg:flex-row items-center gap-8 surface-card p-6 rounded-none border border-(--border-subtle)">
   <!-- 1. Interactive Sunburst Orbit SVG -->
   <div class="relative flex items-center justify-center shrink-0" style="width: {size}px; height: {size}px;">
     <svg width={size} height={size} class="overflow-visible select-none" role="img" aria-label="Developmental Mastery Sunburst Chart">
@@ -276,7 +276,7 @@
       <div>
         <div class="flex items-center gap-2">
           <span
-            class="w-3 h-3 rounded-full shrink-0"
+            class="w-3 h-3 rounded-none shrink-0"
             style="background-color: {activeDomain.color};"
           ></span>
           <h3 class="text-lg font-bold text-(--text-primary)">
@@ -289,7 +289,7 @@
         </p>
       </div>
 
-      <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full badge-growth text-xs font-semibold shrink-0">
+      <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-none badge-growth text-xs font-semibold shrink-0">
         <Sparkles class="w-3.5 h-3.5 text-(--accent-primary)" />
         <span>Growth Horizon</span>
       </div>
@@ -309,10 +309,10 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {#each activeDomain.skills as skill}
-          <div class="p-2.5 rounded-lg bg-(--surface-sunken) border border-(--border-subtle) space-y-1 text-xs">
+          <div class="p-2.5 rounded-none bg-(--surface-sunken) border border-(--border-subtle) space-y-1 text-xs">
             <div class="flex items-center justify-between font-medium">
               <span class="text-(--text-primary)">{skill.name}</span>
-              <span class="text-[10px] px-1.5 py-0.5 rounded-md font-semibold {skill.level === 'Advanced' ? 'bg-(--accent-teal-subtle) text-(--accent-teal)' : skill.level === 'Proficient' ? 'bg-(--accent-primary-subtle) text-(--accent-primary)' : 'bg-(--accent-warning-subtle) text-(--accent-warning)'}">
+              <span class="text-[10px] px-1.5 py-0.5 rounded-none font-semibold {skill.level === 'Advanced' ? 'bg-(--accent-teal-subtle) text-(--accent-teal)' : skill.level === 'Proficient' ? 'bg-(--accent-primary-subtle) text-(--accent-primary)' : 'bg-(--accent-warning-subtle) text-(--accent-warning)'}">
                 {skill.level}
               </span>
             </div>
@@ -325,7 +325,7 @@
     </div>
 
     <!-- Constructive Next Milestone Guidance -->
-    <div class="p-3 rounded-xl bg-(--accent-primary-subtle) border border-(--accent-primary)/20 flex items-start gap-2.5 text-xs">
+    <div class="p-3 rounded-none bg-(--accent-primary-subtle) border border-(--accent-primary)/20 flex items-start gap-2.5 text-xs">
       <Compass class="w-4 h-4 text-(--accent-primary) shrink-0 mt-0.5" />
       <div>
         <span class="font-semibold text-(--text-primary)">Suggested Next Exploration: </span>

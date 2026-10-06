@@ -68,7 +68,7 @@
       {required}
       {oninput}
       {onchange}
-      class="w-full py-2 {IconComponent ? 'pl-9.5 pr-3.5' : 'px-3.5'} rounded-xl bg-(--surface-sunken) border {error ? 'border-(--accent-danger)' : 'border-(--border-subtle)'} text-xs sm:text-sm text-(--text-primary) placeholder-(--text-muted) transition-all duration-150 focus:outline-none focus:ring-2 {error ? 'focus:ring-(--accent-danger)' : 'focus:ring-(--accent-primary)'} focus:border-transparent disabled:opacity-40 disabled:cursor-not-allowed {className}"
+      class="w-full py-2 {IconComponent ? 'pl-9.5 pr-3.5' : 'px-3.5'} rounded-none bg-(--surface-sunken) border {error ? 'border-(--accent-danger)' : 'border-(--border-subtle)'} text-xs sm:text-sm text-(--text-primary) placeholder-(--text-muted) transition-all duration-150 focus:outline-none focus:ring-2 {error ? 'focus:ring-(--accent-danger)' : 'focus:ring-(--accent-primary)'} focus:border-transparent disabled:opacity-40 disabled:cursor-not-allowed {className}"
     />
   </div>
 

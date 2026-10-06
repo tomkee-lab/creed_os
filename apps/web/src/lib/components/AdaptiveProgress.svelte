@@ -39,10 +39,10 @@
   const isConverged = $derived(standardError <= targetSe || itemsAnswered >= maxItems);
 </script>
 
-<div class="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
+<div class="rounded-none border border-white/10 bg-white/5 p-4 space-y-3">
   <div class="flex items-center justify-between">
     <div class="flex items-center gap-2">
-      <div class="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400">
+      <div class="p-1.5 rounded-none bg-cyan-500/10 text-cyan-400">
         <Activity class="w-4 h-4" />
       </div>
       <div>
@@ -71,15 +71,15 @@
       <span>Grade Baseline (0.0)</span>
       <span>Advanced (+3.0)</span>
     </div>
-    <div class="relative h-3 bg-black/40 rounded-full overflow-hidden border border-white/10">
+    <div class="relative h-3 bg-black/40 rounded-none overflow-hidden border border-white/10">
       <!-- 95% Confidence Interval band -->
       <div
-        class="absolute top-0 bottom-0 bg-cyan-500/30 rounded-full transition-all duration-300"
+        class="absolute top-0 bottom-0 bg-cyan-500/30 rounded-none transition-all duration-300"
         style="left: {marginLower}%; width: {Math.max(4, marginUpper - marginLower)}%;"
       ></div>
       <!-- Center Theta point -->
       <div
-        class="absolute top-0 bottom-0 w-1.5 bg-cyan-400 rounded-full shadow-[0_0_8px_rgba(34,211,238,0.8)] transition-all duration-300 -translate-x-1/2"
+        class="absolute top-0 bottom-0 w-1.5 bg-cyan-400 rounded-none shadow-[0_0_8px_rgba(34,211,238,0.8)] transition-all duration-300 -translate-x-1/2"
         style="left: {normalizedTheta}%;"
       ></div>
     </div>
@@ -90,7 +90,7 @@
       <div>
         <span class="text-slate-400 text-[11px]">Items Administered</span>
         <div class="flex items-center gap-2 mt-0.5">
-          <div class="flex-1 h-1.5 bg-black/40 rounded-full overflow-hidden">
+          <div class="flex-1 h-1.5 bg-black/40 rounded-none overflow-hidden">
             <div
               class="h-full bg-cyan-400 transition-all duration-300"
               style="width: {(itemsAnswered / maxItems) * 100}%;"
@@ -106,7 +106,7 @@
             <CheckCircle2 class="w-3.5 h-3.5 text-emerald-400 shrink-0" />
             <span class="text-emerald-300 text-[11px] font-medium">Standard Error Met</span>
           {:else}
-            <div class="flex-1 h-1.5 bg-black/40 rounded-full overflow-hidden">
+            <div class="flex-1 h-1.5 bg-black/40 rounded-none overflow-hidden">
               <div
                 class="h-full bg-amber-400 transition-all duration-300"
                 style="width: {convergenceRatio * 100}%;"
