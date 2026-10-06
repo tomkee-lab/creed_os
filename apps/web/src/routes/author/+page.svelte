@@ -17,6 +17,7 @@
     ArrowUpRight
   } from 'lucide-svelte';
   import type { AssessmentItem } from '@core-os/domain';
+  import { Button, Badge, Card, Tabs, Input } from '$lib/components';
 
   let { data } = $props();
 
@@ -48,6 +49,13 @@
   let feedbackMessage = $state<string | null>(null);
   let bankFilter = $state<string>('ALL');
   let searchQuery = $state<string>('');
+
+  const domainTabs = [
+    { id: 'ALL', label: 'All Domains' },
+    { id: 'spatial_reasoning', label: 'Spatial' },
+    { id: 'computational_thinking', label: 'Computational' },
+    { id: 'quantitative_reasoning', label: 'Quantitative' }
+  ];
 
   // 3PL Fisher Information function
   function fisherInfo(theta: number, a: number, b: number, c: number): number {
@@ -165,7 +173,7 @@
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-(--border-subtle)">
     <div>
       <div class="flex items-center gap-2.5">
-        <div class="p-2 rounded-lg bg-(--surface-sunken) text-(--accent-primary) border border-(--border-subtle)">
+        <div class="p-2 rounded-xl bg-(--surface-sunken) text-(--accent-primary) border border-(--border-subtle)">
           <Sliders class="w-5 h-5" />
         </div>
         <div>
@@ -173,9 +181,9 @@
             <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-(--text-primary)">
               Psychometric Item Bank & Calibration Studio
             </h1>
-            <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-(--surface-sunken) border border-(--border-subtle) text-(--text-secondary)">
+            <Badge variant="neutral" size="sm">
               Console Mode
-            </span>
+            </Badge>
           </div>
           <p class="text-xs text-(--text-muted) mt-0.5">
             Calibrate 3-Parameter Logistic (3PL) Item Response Theory Models • Fisher Information Curves
@@ -186,7 +194,7 @@
 
     <!-- Active Metrics -->
     <div class="flex items-center gap-3">
-      <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg surface-card text-xs font-mono text-(--text-primary)">
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl surface-card text-xs font-mono text-(--text-primary)">
         <Database class="w-4 h-4 text-(--accent-primary)" />
         <span>Bank: {itemBank.length} Items</span>
       </div>
@@ -195,7 +203,7 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
     <!-- Left Column (5 cols): Item Bank Dense Table -->
-    <div class="lg:col-span-5 surface-card p-6 space-y-4">
+    <Card variant="raised" class="lg:col-span-5 p-6 space-y-4">
       <div class="flex items-center justify-between border-b border-(--border-subtle) pb-3">
         <div>
           <h2 class="text-base font-bold text-(--text-primary)">Calibrated Item Bank</h2>
@@ -208,33 +216,24 @@
 
       <!-- Search & Filter -->
       <div class="space-y-2">
-        <div class="relative">
-          <Search class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-(--text-muted)" />
-          <input
-            type="text"
-            bind:value={searchQuery}
-            placeholder="Search items or codes..."
-            class="w-full pl-9 pr-3 py-1.5 rounded-lg bg-(--surface-sunken) border border-(--border-subtle) text-xs text-(--text-primary) placeholder-(--text-muted) focus:outline-none focus:border-(--accent-primary)"
-          />
-        </div>
+        <Input
+          type="search"
+          bind:value={searchQuery}
+          placeholder="Search items or codes..."
+          icon={Search}
+        />
 
-        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px]">
-          {#each ['ALL', 'spatial_reasoning', 'computational_thinking', 'quantitative_reasoning'] as compFilter}
-            <button
-              type="button"
-              onclick={() => (bankFilter = compFilter)}
-              class="px-2.5 py-1 rounded whitespace-nowrap font-medium transition-colors cursor-pointer {bankFilter === compFilter ? 'bg-(--accent-primary) text-white' : 'bg-(--surface-sunken) text-(--text-secondary) hover:text-(--text-primary)'}"
-            >
-              {compFilter === 'ALL' ? 'All Domains' : compFilter.split('_')[0].toUpperCase()}
-            </button>
-          {/each}
-        </div>
+        <Tabs
+          items={domainTabs}
+          bind:activeId={bankFilter}
+          variant="pills"
+        />
       </div>
 
       <!-- Items List -->
       <div class="space-y-3 max-h-145 overflow-y-auto pr-1">
         {#each filteredItems as item}
-          <div class="p-3.5 rounded-xl surface-card border border-(--border-subtle) hover:border-(--accent-primary) transition-all space-y-2 text-xs">
+          <Card variant="sunken" padding="sm" class="space-y-2 text-xs" interactive>
             <div class="flex items-center justify-between font-mono text-[11px]">
               <span class="font-bold text-(--accent-primary)">{item.code}</span>
               <span class="text-(--text-muted)">b = {item.irt.b.toFixed(2)}</span>
@@ -247,13 +246,13 @@
               <span>c = {item.irt.c.toFixed(2)} (guess)</span>
               <span class="text-(--accent-success)">Calibrated</span>
             </div>
-          </div>
+          </Card>
         {/each}
       </div>
-    </div>
+    </Card>
 
     <!-- Right Column (7 cols): Authoring & 3PL Calibration Panel -->
-    <div class="lg:col-span-7 surface-card p-6 space-y-6">
+    <Card variant="raised" class="lg:col-span-7 p-6 space-y-6">
       <div class="border-b border-(--border-subtle) pb-3">
         <h2 class="text-base font-bold text-(--text-primary)">Item Authoring & Parameter Calibration</h2>
         <p class="text-xs text-(--text-muted)">Configure prompt, distractor misconceptions, and 3PL parameters.</p>
@@ -266,12 +265,12 @@
           id="author-prompt"
           bind:value={promptText}
           rows={3}
-          class="w-full p-3 rounded-lg bg-(--surface-sunken) border border-(--border-subtle) text-(--text-primary) focus:outline-none focus:border-(--accent-primary) leading-relaxed"
+          class="w-full p-3 rounded-xl bg-(--surface-sunken) border border-(--border-subtle) text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--accent-primary) leading-relaxed"
         ></textarea>
       </div>
 
       <!-- 3PL Parameter Sliders -->
-      <div class="p-4 rounded-xl bg-(--surface-sunken) border border-(--border-subtle) space-y-4 text-xs font-mono">
+      <Card variant="sunken" class="p-4 space-y-4 text-xs font-mono">
         <div class="flex items-center justify-between border-b border-(--border-subtle) pb-2 font-sans font-bold text-(--text-primary)">
           <span>3PL IRT Parameters</span>
           <span class="text-[11px] font-mono text-(--accent-primary)">Peak Info θ = {paramB.toFixed(2)}</span>
@@ -330,7 +329,7 @@
             <span>Fisher Information Curve I(θ)</span>
             <span>Max Yield: {infoCurvePoints().maxInfo}</span>
           </div>
-          <div class="w-full h-28 bg-(--surface-canvas) rounded-lg border border-(--border-subtle) p-2 flex items-center justify-center">
+          <div class="w-full h-28 bg-(--surface-canvas) rounded-xl border border-(--border-subtle) p-2 flex items-center justify-center">
             <svg viewBox="0 0 360 140" class="w-full h-full overflow-visible">
               <line x1="20" y1="120" x2="340" y2="120" stroke="var(--border-strong)" stroke-width="1" />
               <polyline
@@ -342,13 +341,13 @@
             </svg>
           </div>
         </div>
-      </div>
+      </Card>
 
       <!-- Multiple Choice Options & Distractor Misconceptions -->
       <div class="space-y-3 text-xs">
         <span class="font-semibold text-(--text-primary) block">Options & Misconception Mappings</span>
         {#each options as opt, idx}
-          <div class="p-3 rounded-lg border border-(--border-subtle) bg-(--surface-sunken) space-y-2">
+          <div class="p-3 rounded-xl border border-(--border-subtle) bg-(--surface-sunken) space-y-2">
             <div class="flex items-center gap-2">
               <input
                 type="radio"
@@ -361,12 +360,12 @@
               <input
                 type="text"
                 bind:value={opt.text}
-                class="flex-1 px-2.5 py-1 rounded bg-(--surface-raised) border border-(--border-subtle) text-(--text-primary) focus:outline-none"
+                class="flex-1 px-2.5 py-1.5 rounded-lg bg-(--surface-raised) border border-(--border-subtle) text-(--text-primary) focus:outline-none"
               />
               {#if correctOptionIndex === idx}
-                <span class="text-[10px] font-bold text-(--accent-success) font-mono px-2 py-0.5 rounded bg-(--accent-success-subtle)">
+                <Badge variant="growth" size="sm">
                   CORRECT
-                </span>
+                </Badge>
               {/if}
             </div>
             {#if correctOptionIndex !== idx}
@@ -374,7 +373,7 @@
                 type="text"
                 bind:value={opt.misconception}
                 placeholder="Diagnosed misconception description..."
-                class="w-full px-2.5 py-1 rounded bg-(--surface-raised) border border-(--border-subtle) text-[11px] text-(--text-secondary) placeholder-(--text-muted) focus:outline-none"
+                class="w-full px-2.5 py-1.5 rounded-lg bg-(--surface-raised) border border-(--border-subtle) text-[11px] text-(--text-secondary) placeholder-(--text-muted) focus:outline-none"
               />
             {/if}
           </div>
@@ -383,15 +382,17 @@
 
       <!-- Submit Action -->
       <div class="pt-2 flex justify-end">
-        <button
+        <Button
           type="button"
+          variant="primary"
+          size="md"
           onclick={handlePublishItem}
-          class="px-6 py-2.5 rounded-lg bg-(--accent-primary) text-white text-xs font-semibold hover:opacity-90 transition-opacity shadow-sm flex items-center gap-1.5 cursor-pointer"
         >
           <Plus class="w-4 h-4" />
           <span>Calibrate & Commit Item to Bank</span>
-        </button>
+        </Button>
       </div>
-    </div>
+    </Card>
   </div>
 </div>
+

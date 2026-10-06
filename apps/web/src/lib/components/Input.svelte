@@ -12,7 +12,7 @@
     error?: string;
     disabled?: boolean;
     required?: boolean;
-    icon?: Component<{ class?: string }>;
+    icon?: any;
     class?: string;
     oninput?: (e: Event) => void;
     onchange?: (e: Event) => void;
