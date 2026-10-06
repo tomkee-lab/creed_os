@@ -101,7 +101,7 @@
     <!-- Hero Visual + Overview (Artwork carries emotion, UI carries information) -->
     <div class="surface-card rounded-sm overflow-hidden border border-(--border-subtle)">
       <div class="grid grid-cols-1 lg:grid-cols-12 items-stretch">
-        <div class="lg:col-span-7 relative aspect-16/9 lg:aspect-auto overflow-hidden bg-(--surface-sunken)">
+        <div class="lg:col-span-7 relative aspect-video lg:aspect-auto overflow-hidden bg-(--surface-sunken)">
           <img
             src={illustrations[selectedPathway.id]?.src || illustrations['PATH-ROBOTICS'].src}
             alt={illustrations[selectedPathway.id]?.alt || 'Field illustration'}

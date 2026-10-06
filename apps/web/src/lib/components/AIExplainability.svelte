@@ -67,12 +67,12 @@
 
         <div class="space-y-2 text-xs">
           <div>
-            <strong class="text-(--text-primary) block text-[11px] uppercase text-(--text-muted)">Reasoning Context</strong>
+            <strong class="block text-[11px] uppercase text-(--text-muted)">Reasoning Context</strong>
             <p class="text-(--text-secondary) leading-relaxed mt-0.5">{displayIntent}</p>
           </div>
 
           <div>
-            <strong class="text-(--text-primary) block text-[11px] uppercase text-(--text-muted)">Evidence Used</strong>
+            <strong class="block text-[11px] uppercase text-(--text-muted)">Evidence Used</strong>
             <ul class="list-disc list-inside text-(--text-secondary) space-y-0.5 mt-0.5 text-[11px]">
               {#each normalizedEvidence as src}
                 <li>{src}</li>
@@ -82,7 +82,7 @@
 
           {#if limitations}
             <div>
-              <strong class="text-(--text-primary) block text-[11px] uppercase text-(--text-muted)">Limitations</strong>
+              <strong class="block text-[11px] uppercase text-(--text-muted)">Limitations</strong>
               <p class="text-(--text-secondary) leading-relaxed mt-0.5 text-[11px]">{limitations}</p>
             </div>
           {/if}
