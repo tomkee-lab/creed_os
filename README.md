@@ -86,7 +86,7 @@ core-os/
 ## Quickstart
 
 ### Prerequisites
-- Node.js v20+ or v24+
+- Node.js v22+ (`node -v` >= 22.0.0)
 - `pnpm` v9+ or v11+ (`corepack enable pnpm`)
 
 ### Installation & Execution
