@@ -1,64 +1,127 @@
-/* WAY Design System — Nordic Lagom x Sci-Fi Tokens (OKLCH) */
+/* WAY Design System — Nordic Lagom x Carbon x Apple HIG Foundations */
 
 :root {
-  /* Surface Tokens (Light Theme: Mineral White / Crisp Arctic) */
-  --surface-canvas: oklch(0.985 0.005 240);
-  --surface-raised: oklch(1.000 0.000 0);
-  --surface-overlay: oklch(0.965 0.008 240);
-  --surface-sunken: oklch(0.940 0.010 240);
+  /* Surface Tokens (Light Theme: Warm Mineral White / Crisp Arctic) */
+  --surface-canvas: oklch(0.985 0.005 240);    /* #F8F9FA Mineral White */
+  --surface-raised: oklch(1.000 0.000 0);      /* #FFFFFF Pure Card */
+  --surface-overlay: oklch(0.965 0.008 240);   /* Elevated Popover */
+  --surface-sunken: oklch(0.940 0.010 240);    /* Soft Input / Well */
 
   /* Border Tokens */
-  --border-subtle: oklch(0.900 0.008 240);
-  --border-strong: oklch(0.800 0.015 240);
-  --border-hairline: rgba(0, 0, 0, 0.08);
+  --border-subtle: oklch(0.910 0.008 240);     /* Hairline #E2E8F0 */
+  --border-strong: oklch(0.820 0.015 240);     /* Interactive Border */
+  --border-focus: oklch(0.550 0.140 215);      /* Primary Focus Ring */
 
   /* Typography Tokens */
-  --text-primary: oklch(0.180 0.020 250);
-  --text-secondary: oklch(0.420 0.025 250);
-  --text-muted: oklch(0.580 0.020 250);
-  --text-inverse: oklch(0.990 0.002 240);
+  --text-primary: oklch(0.200 0.020 250);      /* Deep Slate #0F172A */
+  --text-secondary: oklch(0.440 0.022 250);    /* Muted Slate #475569 */
+  --text-muted: oklch(0.580 0.018 250);        /* Caption Grey #64748B */
+  --text-inverse: oklch(0.990 0.002 240);      /* White on dark */
 
-  /* Precision Sci-Fi Accents */
-  --accent-cyan: oklch(0.680 0.160 215);
-  --accent-cyan-subtle: oklch(0.940 0.040 215);
-  --accent-cyan-glow: rgba(0, 200, 255, 0.15);
-  --accent-aurora: oklch(0.650 0.180 290);
-  --accent-emerald: oklch(0.680 0.150 155);
-  --accent-amber: oklch(0.720 0.160 75);
-  --accent-crimson: oklch(0.600 0.190 25);
+  /* Semantic Brand Accents (70% neutral, 20% surface, 8% brand, 2% state) */
+  --accent-primary: oklch(0.550 0.140 215);    /* Calm Cyan/Teal #0891B2 */
+  --accent-primary-subtle: oklch(0.960 0.025 215);
+  --accent-indigo: oklch(0.560 0.150 280);     /* Pathway Discovery #4F46E5 */
+  --accent-indigo-subtle: oklch(0.960 0.025 280);
+  --accent-success: oklch(0.600 0.140 150);    /* Natural Growth Sage #16A34A */
+  --accent-success-subtle: oklch(0.950 0.030 150);
+  --accent-warning: oklch(0.680 0.150 75);     /* Earthy Amber #D97706 */
+  --accent-warning-subtle: oklch(0.960 0.030 75);
+  --accent-danger: oklch(0.580 0.180 25);      /* Restrained Crimson #DC2626 */
+  --accent-danger-subtle: oklch(0.960 0.035 25);
 
-  /* Fonts */
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* Competency Dimension Spectrum (Restrained Harmony) */
+  --comp-spatial: oklch(0.550 0.140 215);
+  --comp-computational: oklch(0.580 0.150 290);
+  --comp-quantitative: oklch(0.680 0.150 75);
+  --comp-scientific: oklch(0.600 0.140 150);
+  --comp-creative: oklch(0.580 0.160 320);
 
-  /* Motion */
-  --duration-fast: 180ms;
-  --duration-normal: 250ms;
-  --duration-slow: 350ms;
+  /* Carbon 8pt Spacing Rhythm */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Density Modes */
+  --row-height: 48px;
+  --input-height: 40px;
+  --target-min: 44px;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* Apple HIG Tactile Shadows (Semantic, non-glowing) */
+  --shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --shadow-raised: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-overlay: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+
+  /* Motion Curves (Apple HIG / Nordic Lagom) */
+  --duration-micro: 140ms;
+  --duration-standard: 220ms;
+  --duration-emphasis: 320ms;
   --ease-lagom: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .dark {
-  /* Surface Tokens (Dark Theme: Deep Slate / Cosmic Black) */
-  --surface-canvas: oklch(0.130 0.018 250);    /* #0c1017 */
-  --surface-raised: oklch(0.180 0.020 250);    /* #141a24 */
-  --surface-overlay: oklch(0.220 0.025 250);   /* #1c2432 */
-  --surface-sunken: oklch(0.100 0.015 250);
+  /* Surface Tokens (Dark Theme: Deep Slate / Nordic Night) */
+  --surface-canvas: oklch(0.150 0.018 250);    /* #101622 Deep Slate */
+  --surface-raised: oklch(0.200 0.020 250);    /* #182232 Slate Raised */
+  --surface-overlay: oklch(0.240 0.025 250);   /* #202b3e Elevated */
+  --surface-sunken: oklch(0.120 0.015 250);    /* #0c111a Well */
 
   /* Border Tokens */
-  --border-subtle: oklch(0.240 0.020 250);
-  --border-strong: oklch(0.320 0.030 250);
-  --border-hairline: rgba(255, 255, 255, 0.08);
+  --border-subtle: oklch(0.260 0.020 250);     /* #273448 */
+  --border-strong: oklch(0.350 0.030 250);     /* #3b4d66 */
+  --border-focus: oklch(0.720 0.150 215);
 
   /* Typography Tokens */
-  --text-primary: oklch(0.960 0.005 240);
-  --text-secondary: oklch(0.750 0.020 240);
-  --text-muted: oklch(0.520 0.020 250);
-  --text-inverse: oklch(0.120 0.015 250);
+  --text-primary: oklch(0.960 0.005 240);      /* Crisp White #F8FAFC */
+  --text-secondary: oklch(0.780 0.018 240);    /* Light Slate #CBD5E1 */
+  --text-muted: oklch(0.580 0.020 250);        /* Muted Slate #64748B */
+  --text-inverse: oklch(0.150 0.015 250);
 
-  /* Brand Accents */
-  --accent-cyan: oklch(0.760 0.160 215);
-  --accent-cyan-subtle: oklch(0.220 0.050 215);
-  --accent-cyan-glow: rgba(56, 189, 248, 0.20);
-  --accent-aurora: oklch(0.720 0.180 290);
+  /* Accents */
+  --accent-primary: oklch(0.720 0.150 215);    /* Luminescent Teal */
+  --accent-primary-subtle: oklch(0.220 0.040 215);
+  --accent-indigo: oklch(0.720 0.160 280);
+  --accent-indigo-subtle: oklch(0.220 0.040 280);
+  --accent-success: oklch(0.720 0.150 150);
+  --accent-success-subtle: oklch(0.220 0.040 150);
+  --accent-warning: oklch(0.750 0.160 75);
+  --accent-warning-subtle: oklch(0.220 0.040 75);
+  --accent-danger: oklch(0.680 0.190 25);
+  --accent-danger-subtle: oklch(0.220 0.040 25);
+
+  /* Dark Shadows */
+  --shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+  --shadow-raised: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-overlay: 0 12px 20px -3px rgba(0, 0, 0, 0.5);
+}
+
+/* Density Variants (Carbon Discipline) */
+[data-density="comfortable"] {
+  --row-height: 56px;
+  --input-height: 44px;
+}
+
+[data-density="standard"] {
+  --row-height: 44px;
+  --input-height: 40px;
+}
+
+[data-density="compact"] {
+  --row-height: 36px;
+  --input-height: 32px;
+}
+
+[data-density="dense"] {
+  --row-height: 30px;
+  --input-height: 28px;
 }

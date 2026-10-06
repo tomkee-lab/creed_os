@@ -8,7 +8,8 @@
     BrainCircuit,
     Lightbulb,
     CheckCircle2,
-    Shield
+    Shield,
+    HeartHandshake
   } from 'lucide-svelte';
 
   interface ChatMessage {
@@ -22,7 +23,7 @@
     {
       id: 'm1',
       role: 'assistant',
-      text: 'Hello Anaya! I am your Core_OS Socratic Mentor. I won’t give you direct answers or write out homework solutions, but I will help you break down tricky STEM, spatial, or reasoning problems step-by-step. What are you investigating today?'
+      text: 'Hello Anaya! I am your Socratic Guide. I will never simply give away direct answers or do your homework for you, but I will help you break down tricky STEM, spatial, and mathematical problems step-by-step. What question or mission are you working through today?'
     }
   ]);
 
@@ -30,9 +31,9 @@
   let isSending = $state(false);
 
   const samplePrompts = [
-    'How do I balance an equation with variables on both sides?',
-    'Why do 12 unit cubes on a 3x3x3 painted cube have exactly two painted faces?',
-    'How does gear teeth count affect rotation speed?'
+    'How do I balance an equation when variables are on both sides?',
+    'Why do edge cubes on a 3×3×3 cube have exactly two painted faces?',
+    'How does gear teeth ratio change rotational speed and torque?'
   ];
 
   async function handleSend(textToSend?: string) {
@@ -78,7 +79,7 @@
         {
           id: crypto.randomUUID(),
           role: 'assistant',
-          text: 'Let’s pause and look at what you already know: what is the single most critical variable given in your problem?'
+          text: 'Let us pause and look at what you already know: what is the single most critical variable given in your problem?'
         }
       ];
     } finally {
@@ -87,50 +88,50 @@
   }
 </script>
 
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+<div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
   <!-- Header -->
-  <div class="flex items-center justify-between p-4 rounded-xl glass-panel">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-        <Sparkles class="w-5 h-5" />
+  <div class="flex items-center justify-between border-b border-(--border-subtle) pb-4">
+    <div class="space-y-0.5">
+      <div class="flex items-center gap-2">
+        <Sparkles class="w-5 h-5 text-(--accent-primary)" />
+        <h1 class="text-xl font-bold text-(--text-primary)">Socratic AI Guide</h1>
       </div>
-      <div>
-        <h1 class="text-base font-bold text-white leading-tight">Socratic AI Mentor</h1>
-        <p class="text-[11px] text-slate-400 font-mono">Guiding Decomposition • Zero Answer Dumping • Evidence Extracting</p>
-      </div>
+      <p class="text-xs text-(--text-secondary)">
+        Thoughtful step-by-step problem decomposition • Child safety & zero answer dumping
+      </p>
     </div>
 
-    <div class="flex items-center gap-1 text-[11px] font-mono text-cyan-300 bg-cyan-500/10 px-2.5 py-1 rounded border border-cyan-500/20">
-      <Shield class="w-3.5 h-3.5 text-cyan-400" />
-      <span>DPDP Safe Guardrails</span>
+    <div class="flex items-center gap-1.5 text-xs text-(--accent-success) font-medium px-2.5 py-1 rounded-full bg-(--accent-success-subtle)">
+      <Shield class="w-3.5 h-3.5" />
+      <span>DPDP Guarded</span>
     </div>
   </div>
 
   <!-- Chat History Window -->
-  <div class="p-6 rounded-xl glass-panel space-y-4 min-h-[420px] max-h-[580px] overflow-y-auto">
+  <div class="surface-card p-6 space-y-4 min-h-105 max-h-140 overflow-y-auto">
     {#each messages as msg}
       <div class="flex items-start gap-3 {msg.role === 'user' ? 'justify-end' : 'justify-start'}">
         {#if msg.role === 'assistant'}
-          <div class="w-8 h-8 rounded-full bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-300 shrink-0">
+          <div class="w-8 h-8 rounded-full bg-(--accent-primary-subtle) text-(--accent-primary) flex items-center justify-center shrink-0 border border-(--border-subtle)">
             <Bot class="w-4 h-4" />
           </div>
         {/if}
 
-        <div class="space-y-2 max-w-[82%]">
-          <div class="p-4 rounded-xl text-sm leading-relaxed {msg.role === 'user' ? 'bg-cyan-500 text-slate-950 font-medium' : 'bg-white/5 border border-white/8 text-slate-200'}">
+        <div class="space-y-2 max-w-[80%]">
+          <div class="p-4 rounded-2xl text-sm leading-relaxed {msg.role === 'user' ? 'bg-(--accent-primary) text-white font-medium rounded-tr-none' : 'surface-card rounded-tl-none text-(--text-primary)'}">
             {msg.text}
           </div>
 
           {#if msg.observation}
-            <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-[11px] font-mono text-purple-300">
-              <CheckCircle2 class="w-3.5 h-3.5 text-purple-400" />
+            <div class="flex items-center gap-1.5 px-3 py-1 rounded-full badge-growth text-[11px] font-medium">
+              <CheckCircle2 class="w-3.5 h-3.5" />
               <span>Evidence Captured: [{msg.observation.competency}] — {msg.observation.note}</span>
             </div>
           {/if}
         </div>
 
         {#if msg.role === 'user'}
-          <div class="w-8 h-8 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-white shrink-0 font-bold text-xs">
+          <div class="w-8 h-8 rounded-full bg-(--surface-sunken) border border-(--border-subtle) flex items-center justify-center text-(--text-primary) shrink-0 font-semibold text-xs">
             AV
           </div>
         {/if}
@@ -138,17 +139,17 @@
     {/each}
 
     {#if isSending}
-      <div class="flex items-center gap-2 text-xs font-mono text-cyan-400 pl-11">
-        <div class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></div>
-        <span>Decomposing reasoning prompt...</span>
+      <div class="flex items-center gap-2 text-xs text-(--accent-primary) pl-11">
+        <div class="w-2 h-2 rounded-full bg-(--accent-primary) animate-pulse"></div>
+        <span>Thinking about your question...</span>
       </div>
     {/if}
   </div>
 
   <!-- Prompt Starters -->
   <div class="space-y-2">
-    <span class="text-xs font-mono text-slate-400 flex items-center gap-1.5">
-      <Lightbulb class="w-3.5 h-3.5 text-amber-400" />
+    <span class="text-xs text-(--text-muted) font-medium flex items-center gap-1.5">
+      <Lightbulb class="w-3.5 h-3.5 text-(--accent-warning)" />
       <span>Suggested Reasoning Questions</span>
     </span>
     <div class="flex flex-wrap gap-2">
@@ -156,7 +157,7 @@
         <button
           type="button"
           onclick={() => handleSend(prompt)}
-          class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/8 text-xs text-slate-300 hover:text-white transition-colors text-left"
+          class="px-3.5 py-1.5 rounded-lg surface-card text-xs text-(--text-secondary) hover:text-(--text-primary) hover:border-(--accent-primary) transition-colors text-left cursor-pointer"
         >
           {prompt}
         </button>
@@ -170,18 +171,18 @@
       e.preventDefault();
       handleSend();
     }}
-    class="flex items-center gap-2 p-2 rounded-xl glass-panel-elevated"
+    class="flex items-center gap-2 p-2 rounded-xl surface-card"
   >
     <input
       type="text"
       bind:value={inputQuery}
       placeholder="Ask about a problem, concept, or project mission constraint..."
-      class="flex-1 bg-transparent px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none"
+      class="flex-1 bg-transparent px-4 py-2.5 text-sm text-(--text-primary) placeholder-(--text-muted) focus:outline-none"
     />
     <button
       type="submit"
       disabled={!inputQuery.trim() || isSending}
-      class="px-5 py-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:opacity-40 text-slate-950 font-semibold text-sm transition-all shadow-md shadow-cyan-500/20 flex items-center gap-2"
+      class="px-5 py-2.5 rounded-lg bg-(--accent-primary) hover:opacity-90 disabled:opacity-40 text-white font-medium text-sm transition-all shadow-sm flex items-center gap-2 cursor-pointer"
     >
       <span>Ask</span>
       <Send class="w-4 h-4" />

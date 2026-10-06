@@ -4,9 +4,18 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./tokens/*": "./src/tokens/*",
+    "./*": "./src/*"
+  },
   "scripts": {
     "build": "tsc -b",
     "check": "tsc --noEmit",
+    "lint": "tsc --noEmit",
     "clean": "rimraf dist"
   },
   "dependencies": {
@@ -14,7 +23,9 @@
     "tailwind-merge": "^3.0.2"
   },
   "devDependencies": {
+    "lucide-svelte": "^0.475.0",
     "rimraf": "^6.0.1",
+    "svelte": "^5.57.1",
     "typescript": "^5.7.3"
   }
 }

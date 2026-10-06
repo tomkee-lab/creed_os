@@ -554,6 +554,215 @@ class LocalCoreRepository {
   getClassCohort(): ClassCohort {
     return this.classCohort;
   }
+
+  // --- School Administration & DPDP Consent ---
+  getSchoolOverview() {
+    return {
+      schoolId: 'SCH-DL-0921',
+      schoolName: 'Delhi Public International School',
+      affiliation: 'CBSE & PARAKH National Standards',
+      academicYear: '2026–2027',
+      totalLearners: 420,
+      activeCatSessions: 38,
+      dpdpConsentRate: 0.942,
+      meanCalibrationIndex: 3.65,
+      parentEngagementRate: 0.88,
+      activeReferralsCount: 12
+    };
+  }
+
+  getConsentLedger(): Array<{
+    id: string;
+    learnerId: string;
+    learnerName: string;
+    gradeBand: string;
+    parentName: string;
+    parentContact: string;
+    channel: 'DigiLocker' | 'SMS OTP' | 'Email Verification';
+    status: 'VERIFIED_ACTIVE' | 'PENDING_NOTICE' | 'WITHDRAWN' | 'EXPIRED';
+    consentVersion: string;
+    verifiedAt: string;
+    expiresAt: string;
+    auditHash: string;
+  }> {
+    return [
+      {
+        id: 'cst-001',
+        learnerId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+        learnerName: 'Anaya Verma',
+        gradeBand: 'Class 8-A',
+        parentName: 'Sunita Verma',
+        parentContact: '+91 98765 43210',
+        channel: 'DigiLocker',
+        status: 'VERIFIED_ACTIVE',
+        consentVersion: 'v1.2-dpdp-2023',
+        verifiedAt: '2026-08-14T09:30:00Z',
+        expiresAt: '2027-08-14T09:30:00Z',
+        auditHash: 'dpdp_9a7b3c21'
+      },
+      {
+        id: 'cst-002',
+        learnerId: '9fa11b72-1204-4821-b3fa-110294821102',
+        learnerName: 'Rohan Mehra',
+        gradeBand: 'Class 8-A',
+        parentName: 'Deepak Mehra',
+        parentContact: 'deepak.m@example.com',
+        channel: 'SMS OTP',
+        status: 'VERIFIED_ACTIVE',
+        consentVersion: 'v1.2-dpdp-2023',
+        verifiedAt: '2026-08-16T11:15:00Z',
+        expiresAt: '2027-08-16T11:15:00Z',
+        auditHash: 'dpdp_3e8f4a19'
+      },
+      {
+        id: 'cst-003',
+        learnerId: '8ac41d99-3194-4712-a1bb-592817401928',
+        learnerName: 'Zoya Khan',
+        gradeBand: 'Class 8-A',
+        parentName: 'Parveen Khan',
+        parentContact: '+91 98112 33445',
+        channel: 'Email Verification',
+        status: 'VERIFIED_ACTIVE',
+        consentVersion: 'v1.2-dpdp-2023',
+        verifiedAt: '2026-08-18T14:45:00Z',
+        expiresAt: '2027-08-18T14:45:00Z',
+        auditHash: 'dpdp_7b2c9e42'
+      },
+      {
+        id: 'cst-004',
+        learnerId: '7cc12e44-5512-4019-9182-192847102948',
+        learnerName: 'Dev Patel',
+        gradeBand: 'Class 8-B',
+        parentName: 'Kishore Patel',
+        parentContact: '+91 97234 11223',
+        channel: 'SMS OTP',
+        status: 'PENDING_NOTICE',
+        consentVersion: 'v1.2-dpdp-2023',
+        verifiedAt: '',
+        expiresAt: '2026-10-20T00:00:00Z',
+        auditHash: 'dpdp_pending_notice'
+      },
+      {
+        id: 'cst-005',
+        learnerId: '6bb99a11-8823-4102-a819-291847192841',
+        learnerName: 'Mira Nair',
+        gradeBand: 'Class 9-A',
+        parentName: 'Radhika Nair',
+        parentContact: 'radhika.nair@example.com',
+        channel: 'DigiLocker',
+        status: 'VERIFIED_ACTIVE',
+        consentVersion: 'v1.2-dpdp-2023',
+        verifiedAt: '2026-07-29T10:00:00Z',
+        expiresAt: '2027-07-29T10:00:00Z',
+        auditHash: 'dpdp_4d1a9f02'
+      },
+      {
+        id: 'cst-006',
+        learnerId: '5aa22c33-9912-4928-8172-102938471920',
+        learnerName: 'Kabir Sengupta',
+        gradeBand: 'Class 9-B',
+        parentName: 'Arun Sengupta',
+        parentContact: '+91 98301 99887',
+        channel: 'SMS OTP',
+        status: 'WITHDRAWN',
+        consentVersion: 'v1.1-dpdp-2023',
+        verifiedAt: '2026-05-12T08:00:00Z',
+        expiresAt: '2026-09-01T00:00:00Z',
+        auditHash: 'dpdp_frozen_withdrawn'
+      }
+    ];
+  }
+
+  getTeacherRoster(): Array<{
+    id: string;
+    name: string;
+    email: string;
+    subject: string;
+    assignedClasses: string[];
+    totalStudents: number;
+    activeAssessmentsAssigned: number;
+    status: 'Active' | 'On Leave';
+  }> {
+    return [
+      {
+        id: 'tch-01',
+        name: 'Ms. Priya Nair',
+        email: 'priya.nair@dpis.edu.in',
+        subject: 'STEM Reasoning & Mathematics',
+        assignedClasses: ['Class 8-A', 'Class 8-B'],
+        totalStudents: 52,
+        activeAssessmentsAssigned: 3,
+        status: 'Active'
+      },
+      {
+        id: 'tch-02',
+        name: 'Mr. Arjun Desai',
+        email: 'arjun.desai@dpis.edu.in',
+        subject: 'Computational Thinking & Robotics',
+        assignedClasses: ['Class 9-A', 'Class 9-B'],
+        totalStudents: 56,
+        activeAssessmentsAssigned: 2,
+        status: 'Active'
+      },
+      {
+        id: 'tch-03',
+        name: 'Ms. Kavita Reddy',
+        email: 'kavita.reddy@dpis.edu.in',
+        subject: 'Scientific Inquiry & Physics',
+        assignedClasses: ['Class 10-A'],
+        totalStudents: 26,
+        activeAssessmentsAssigned: 4,
+        status: 'Active'
+      },
+      {
+        id: 'tch-04',
+        name: 'Dr. Suresh Sharma',
+        email: 'suresh.sharma@dpis.edu.in',
+        subject: 'Foundational Logic & Thinking Skills',
+        assignedClasses: ['Class 6-A', 'Class 7-A'],
+        totalStudents: 48,
+        activeAssessmentsAssigned: 1,
+        status: 'Active'
+      }
+    ];
+  }
+
+  getSchoolPathwayDistribution() {
+    return [
+      {
+        pathwayId: 'ai-robotics',
+        title: 'AI Systems & Robotics Engineering',
+        field: 'computing_ai',
+        interestedLearners: 94,
+        capacityRating: 'High',
+        readinessIndex: 3.8
+      },
+      {
+        pathwayId: 'biotech-genomics',
+        title: 'Biotechnology & Computational Genomics',
+        field: 'natural_sciences',
+        interestedLearners: 78,
+        capacityRating: 'Balanced',
+        readinessIndex: 3.5
+      },
+      {
+        pathwayId: 'clean-energy-systems',
+        title: 'Clean Energy & Aerospace Systems',
+        field: 'engineering',
+        interestedLearners: 65,
+        capacityRating: 'Balanced',
+        readinessIndex: 3.6
+      },
+      {
+        pathwayId: 'data-economics',
+        title: 'Computational Economics & Decision Science',
+        field: 'applied_tech',
+        interestedLearners: 42,
+        capacityRating: 'High',
+        readinessIndex: 3.4
+      }
+    ];
+  }
 }
 
 export const coreRepository = new LocalCoreRepository();

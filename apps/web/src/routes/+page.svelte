@@ -10,199 +10,249 @@
     CheckCircle2,
     Layers,
     Cpu,
-    Target
+    Target,
+    BookOpen,
+    Building2,
+    Sliders,
+    Lock,
+    BrainCircuit
   } from 'lucide-svelte';
 
   let { data } = $props();
+
+  const workspaces = [
+    {
+      title: 'Student Experience',
+      subtitle: 'Ages 10–16 (Classes 5–10)',
+      description: 'Discover demonstrated strengths, master foundational gaps, and test real-world passion with hands-on STEM missions.',
+      href: '/student',
+      icon: GraduationCap,
+      badge: 'Discovery & Map',
+      tag: 'Anaya Verma (Class 8)'
+    },
+    {
+      title: 'Parent Alignment',
+      subtitle: 'DPDP Verified Consent',
+      description: 'Replace anxiety with plain-language developmental summaries, concrete home actions, and collaborative pathway exploration.',
+      href: '/parent',
+      icon: Shield,
+      badge: 'Family Consensus',
+      tag: 'Rajesh Verma (Father)'
+    },
+    {
+      title: 'Teacher Copilot',
+      subtitle: 'Differentiated Interventions',
+      description: 'Action-first queue grouping learners automatically by misconception clusters with targeted exercises.',
+      href: '/teacher',
+      icon: Users,
+      badge: 'Classroom Copilot',
+      tag: 'Meera Sen (Class 8-A)'
+    },
+    {
+      title: 'Counselor Center',
+      subtitle: 'Guidance & Triage',
+      description: 'Prioritize student caseloads, inspect longitudinal evidence trails, and navigate multidimensional career horizons.',
+      href: '/counselor',
+      icon: BookOpen,
+      badge: 'Guidance Caseload',
+      tag: 'Dr. Rao (Specialist)'
+    },
+    {
+      title: 'Admin Operations',
+      subtitle: 'Institutional Governance',
+      description: 'Carbon-disciplined high-density table views for learner rosters, staff permissions, and DPDP audit trails.',
+      href: '/admin',
+      icon: Building2,
+      badge: 'Enterprise Console',
+      tag: 'DPIS Administration'
+    },
+    {
+      title: 'Item Studio',
+      subtitle: 'Psychometrics & Calibration',
+      description: 'Calibrated item authoring, 3PL IRT parameter estimation, and Fisher Information curves for psychometricians.',
+      href: '/author',
+      icon: Sliders,
+      badge: '3PL IRT Engine',
+      tag: 'Item Bank Authoring'
+    }
+  ];
+
+  const pillars = [
+    {
+      title: 'Deterministic Psychometrics',
+      desc: '3PL IRT with Gauss-Hermite EAP quadrature. Precise ability estimates scored deterministically, never hallucinated by raw LLMs.',
+      icon: Activity
+    },
+    {
+      title: 'Longitudinal Evidence Graph',
+      desc: 'Every claimed competency is anchored to auditable evidence atoms: diagnostic checks, classroom observations, and project missions.',
+      icon: Layers
+    },
+    {
+      title: 'Constructive Mismatch Engine',
+      desc: 'We never close doors on a child’s dream. When prerequisites show gaps, we provide targeted foundation sprints and practical trials.',
+      icon: Compass
+    },
+    {
+      title: 'DPDP Act Child Safety & RLS',
+      desc: 'Zero advertising to minors, verified parental consent state machine, relationship-scoped row level security, and ephemeral processing.',
+      icon: Lock
+    }
+  ];
 </script>
 
-<div class="relative overflow-hidden py-12 lg:py-20">
-  <!-- Subtle Aurora Glow Background -->
-  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-gradient-to-b from-cyan-500/10 via-purple-500/5 to-transparent blur-3xl -z-10 pointer-events-none"></div>
-
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-    <!-- Hero Section -->
-    <div class="text-center max-w-3xl mx-auto space-y-6">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 text-xs font-mono">
-        <Sparkles class="w-3.5 h-3.5 text-cyan-400" />
-        <span>AI-Native Learner Intelligence & Navigation OS</span>
-      </div>
-
-      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight">
-        Measure deeply.<br />
-        <span class="bg-gradient-to-r from-cyan-400 via-sky-300 to-purple-400 bg-clip-text text-transparent">
-          Decide with evidence.
-        </span>
-      </h1>
-
-      <p class="text-lg text-slate-300 leading-relaxed">
-        We do not decide a child’s future or rank them with an IQ number. Core_OS maintains a longitudinal evidence graph, continuously connecting adaptive psychometric diagnostics, hands-on project experiments, and transparent pathway navigation.
-      </p>
-
-      <div class="flex flex-wrap items-center justify-center gap-4 pt-4">
-        <a
-          href="/student"
-          class="px-6 py-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-sm transition-all shadow-lg shadow-cyan-500/20 flex items-center gap-2"
-        >
-          <span>Launch Student Map</span>
-          <ArrowRight class="w-4 h-4" />
-        </a>
-        <a
-          href="/student/assessment"
-          class="px-6 py-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium text-sm transition-all flex items-center gap-2"
-        >
-          <Activity class="w-4 h-4 text-cyan-400" />
-          <span>Try Adaptive CAT Test</span>
-        </a>
-      </div>
+<div class="py-12 sm:py-20 space-y-24">
+  <!-- Editorial Hero Section -->
+  <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-(--border-subtle) bg-(--surface-sunken) text-xs font-medium text-(--accent-primary)">
+      <Sparkles class="w-3.5 h-3.5" />
+      <span>WAYFORGE • Learner Intelligence & Navigation OS</span>
     </div>
 
-    <!-- Multi-Persona Portals Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <!-- 1. Student Portal Card -->
+    <h1 class="text-4xl sm:text-6xl font-bold tracking-tight text-(--text-primary) leading-[1.12]">
+      Measure deeply.<br />
+      <span class="text-(--accent-primary)">Decide with evidence.</span>
+    </h1>
+
+    <p class="text-base sm:text-lg text-(--text-secondary) leading-relaxed max-w-2xl mx-auto">
+      We do not rank children with an IQ number or determine their destiny. WAYFORGE maintains a longitudinal evidence graph, continuously connecting adaptive psychometrics, hands-on project experiments, and transparent pathway navigation.
+    </p>
+
+    <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
       <a
         href="/student"
-        class="group p-6 rounded-xl glass-panel hover:glass-panel-elevated transition-all flex flex-col justify-between"
+        class="px-6 py-3 rounded-lg bg-(--accent-primary) hover:opacity-90 text-white font-medium text-sm transition-all shadow-sm flex items-center gap-2 cursor-pointer"
       >
-        <div class="space-y-4">
-          <div class="w-12 h-12 rounded-lg bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-            <GraduationCap class="w-6 h-6" />
-          </div>
-          <div>
-            <h2 class="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors flex items-center justify-between">
-              <span>Student Experience</span>
-              <ArrowRight class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </h2>
-            <p class="text-xs text-slate-400 mt-1">Ages 10–16 (Classes 5–10)</p>
-          </div>
-          <p class="text-sm text-slate-300">
-            "My Learning & Future Map" — Discover demonstrated strengths, foundation gaps, daily STEM reasoning puzzles, and try-before-you-choose missions.
-          </p>
-        </div>
-        <div class="pt-6 border-t border-white/8 mt-6 flex items-center gap-2 font-mono text-xs text-cyan-400">
-          <span>Active Learner: Anaya Verma (Gr 8)</span>
-        </div>
+        <span>Explore Student Map</span>
+        <ArrowRight class="w-4 h-4" />
       </a>
-
-      <!-- 2. Parent Portal Card -->
       <a
-        href="/parent"
-        class="group p-6 rounded-xl glass-panel hover:glass-panel-elevated transition-all flex flex-col justify-between"
+        href="/student/assessment"
+        class="px-6 py-3 rounded-lg surface-card hover:bg-(--surface-sunken) text-(--text-primary) font-medium text-sm transition-colors flex items-center gap-2 cursor-pointer"
       >
-        <div class="space-y-4">
-          <div class="w-12 h-12 rounded-lg bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400">
-            <Shield class="w-6 h-6" />
-          </div>
-          <div>
-            <h2 class="text-lg font-bold text-white group-hover:text-purple-300 transition-colors flex items-center justify-between">
-              <span>Parent Alignment Workspace</span>
-              <ArrowRight class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </h2>
-            <p class="text-xs text-slate-400 mt-1">DPDP Verified Consent & Transparency</p>
-          </div>
-          <p class="text-sm text-slate-300">
-            Replace anxiety with concrete next actions. View plain-language development summaries, evidence provenance, and align on career pathways collaboratively.
-          </p>
-        </div>
-        <div class="pt-6 border-t border-white/8 mt-6 flex items-center gap-2 font-mono text-xs text-purple-400">
-          <span>Pathway Mismatch Engine Active</span>
-        </div>
-      </a>
-
-      <!-- 3. Teacher Portal Card -->
-      <a
-        href="/teacher"
-        class="group p-6 rounded-xl glass-panel hover:glass-panel-elevated transition-all flex flex-col justify-between"
-      >
-        <div class="space-y-4">
-          <div class="w-12 h-12 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-            <Users class="w-6 h-6" />
-          </div>
-          <div>
-            <h2 class="text-lg font-bold text-white group-hover:text-emerald-300 transition-colors flex items-center justify-between">
-              <span>Teacher Copilot Portal</span>
-              <ArrowRight class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </h2>
-            <p class="text-xs text-slate-400 mt-1">Differentiated Interventions</p>
-          </div>
-          <p class="text-sm text-slate-300">
-            Inspect Class 8-A competency heatmaps, view students grouped automatically by conceptual misconception, and assign targeted differentiated exercises.
-          </p>
-        </div>
-        <div class="pt-6 border-t border-white/8 mt-6 flex items-center gap-2 font-mono text-xs text-emerald-400">
-          <span>24 Active Students Synced</span>
-        </div>
+        <Activity class="w-4 h-4 text-(--accent-primary)" />
+        <span>Try Adaptive Diagnostic</span>
       </a>
     </div>
+  </section>
 
-    <!-- Core Scientific Moats Section -->
-    <div class="border border-white/10 rounded-2xl p-8 glass-panel space-y-8">
-      <div class="text-center max-w-2xl mx-auto space-y-2">
-        <h3 class="text-2xl font-bold text-white">The Six Architectural Moats of Core_OS</h3>
-        <p class="text-sm text-slate-400">Why Core_OS breaks out of the "quiz app" and "generic AI wrapper" category</p>
+  <!-- Interactive Learner Map Showcase Card -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="surface-elevated p-8 sm:p-10 border border-(--border-subtle) space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-(--border-subtle) pb-4">
+        <div>
+          <span class="text-xs font-semibold uppercase text-(--accent-indigo)">
+            Sample Learner Profile
+          </span>
+          <h2 class="text-xl sm:text-2xl font-bold text-(--text-primary)">
+            Anaya Verma • Class 8 (Middle Stage)
+          </h2>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-medium text-(--accent-success) px-3 py-1 rounded-full bg-(--accent-success-subtle)">
+          <CheckCircle2 class="w-4 h-4" />
+          <span>Longitudinal Graph Verified</span>
+        </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div class="p-4 rounded-lg bg-white/5 border border-white/5 space-y-2">
-          <div class="flex items-center gap-2 text-cyan-400 font-semibold text-sm">
-            <Cpu class="w-4 h-4" />
-            <span>3PL IRT Adaptive CAT Engine</span>
-          </div>
-          <p class="text-xs text-slate-300">
-            Dynamic Fisher Information maximization selects the most informative diagnostic question, estimating latent ability θ with rigorous Gauss-Hermite EAP quadrature.
-          </p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-2">
+        <div class="p-4 rounded-xl bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
+          <span class="text-xs font-medium text-(--text-muted)">Core Demonstrated Strength</span>
+          <p class="font-bold text-(--text-primary) text-sm">Spatial Reasoning & 3D Modeling</p>
+          <p class="text-xs text-(--text-secondary)">Advanced (4.5 / 5.0) • 2 verified assessments</p>
         </div>
 
-        <div class="p-4 rounded-lg bg-white/5 border border-white/5 space-y-2">
-          <div class="flex items-center gap-2 text-purple-400 font-semibold text-sm">
-            <Layers class="w-4 h-4" />
-            <span>5-Level Learner Evidence Graph</span>
-          </div>
-          <p class="text-xs text-slate-300">
-            Every claimed strength or gap is anchored to immutable evidence atoms (Level 1 self-report to Level 4 project missions) with auditable provenance.
-          </p>
+        <div class="p-4 rounded-xl bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
+          <span class="text-xs font-medium text-(--text-muted)">Active Growth Focus</span>
+          <p class="font-bold text-(--text-primary) text-sm">Quantitative Proportional Rates</p>
+          <p class="text-xs text-(--text-secondary)">Developing (2.8 / 5.0) • 4-week sprint active</p>
         </div>
 
-        <div class="p-4 rounded-lg bg-white/5 border border-white/5 space-y-2">
-          <div class="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
-            <Target class="w-4 h-4" />
-            <span>Constructive Mismatch Engine</span>
-          </div>
-          <p class="text-xs text-slate-300">
-            Never rejects a child’s dream. When prerequisites are missing, generates an 8-week foundation sprint and hands-on trial missions rather than closing the door.
-          </p>
+        <div class="p-4 rounded-xl bg-(--surface-sunken) border border-(--border-subtle) space-y-1">
+          <span class="text-xs font-medium text-(--text-muted)">Best Pathway Match</span>
+          <p class="font-bold text-(--text-primary) text-sm">Robotics & Autonomous Systems</p>
+          <p class="text-xs text-(--text-secondary)">74% Baseline Fit • 2 missions pending</p>
         </div>
+      </div>
 
-        <div class="p-4 rounded-lg bg-white/5 border border-white/5 space-y-2">
-          <div class="flex items-center gap-2 text-sky-400 font-semibold text-sm">
-            <Compass class="w-4 h-4" />
-            <span>Try-Before-You-Choose Missions</span>
-          </div>
-          <p class="text-xs text-slate-300">
-            Authentic simulation tasks (bridge stress testing, climate sensor anomaly isolation) let learners test their real-world grit before academic commitments.
-          </p>
-        </div>
-
-        <div class="p-4 rounded-lg bg-white/5 border border-white/5 space-y-2">
-          <div class="flex items-center gap-2 text-amber-400 font-semibold text-sm">
-            <Sparkles class="w-4 h-4" />
-            <span>Socratic AI with Strict Guardrails</span>
-          </div>
-          <p class="text-xs text-slate-300">
-            Never dumps answers or assigns IQ scores. Asks high-leverage decomposition questions and captures qualitative reflection signals into the evidence store.
-          </p>
-        </div>
-
-        <div class="p-4 rounded-lg bg-white/5 border border-white/5 space-y-2">
-          <div class="flex items-center gap-2 text-indigo-400 font-semibold text-sm">
-            <Shield class="w-4 h-4" />
-            <span>DPDP Act Child Safety & RLS</span>
-          </div>
-          <p class="text-xs text-slate-300">
-            Zero advertising to minors, ephemeral voice processing with zero audio retention, relationship-gated RLS, and non-enumerable RPC token security.
-          </p>
-        </div>
+      <div class="pt-4 flex items-center justify-between text-xs text-(--text-muted)">
+        <span>Scored with deterministic 3PL IRT • DPDP Act Verified Consent</span>
+        <a href="/student" class="text-(--accent-primary) font-semibold hover:underline flex items-center gap-1">
+          <span>Open Full Interactive Student View</span>
+          <ArrowRight class="w-3.5 h-3.5" />
+        </a>
       </div>
     </div>
-  </div>
+  </section>
+
+  <!-- Six Purpose-Built Workspaces Grid -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+    <div class="text-center max-w-2xl mx-auto space-y-2">
+      <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-(--text-primary)">
+        Six Purpose-Built Experiences
+      </h2>
+      <p class="text-xs sm:text-sm text-(--text-secondary)">
+        A single coherent intelligence engine, tailored in density, vocabulary, and workflows for each role.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {#each workspaces as ws}
+        <a
+          href={ws.href}
+          class="surface-card p-6 flex flex-col justify-between space-y-4 hover:border-(--accent-primary) transition-all group cursor-pointer"
+        >
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="w-10 h-10 rounded-lg bg-(--surface-sunken) text-(--accent-primary) flex items-center justify-center border border-(--border-subtle)">
+                <ws.icon class="w-5 h-5" />
+              </div>
+              <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-(--surface-sunken) text-(--text-muted) border border-(--border-subtle)">
+                {ws.badge}
+              </span>
+            </div>
+
+            <div>
+              <h3 class="text-base font-bold text-(--text-primary) group-hover:text-(--accent-primary) transition-colors flex items-center justify-between">
+                <span>{ws.title}</span>
+                <ArrowRight class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </h3>
+              <p class="text-[11px] font-medium text-(--text-muted) mt-0.5">{ws.subtitle}</p>
+            </div>
+
+            <p class="text-xs text-(--text-secondary) leading-relaxed">
+              {ws.description}
+            </p>
+          </div>
+
+          <div class="pt-4 border-t border-(--border-subtle) text-[11px] text-(--text-muted) font-medium">
+            Demo Context: <span class="text-(--text-primary)">{ws.tag}</span>
+          </div>
+        </a>
+      {/each}
+    </div>
+  </section>
+
+  <!-- Architectural Moats & Educational Principles -->
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+    <div class="text-center max-w-xl mx-auto space-y-2">
+      <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-(--text-primary)">
+        Core Educational Principles
+      </h2>
+      <p class="text-xs sm:text-sm text-(--text-secondary)">
+        Why Core_OS breaks out of the "quiz app" and "generic AI wrapper" categories.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      {#each pillars as pillar}
+        <div class="surface-card p-6 space-y-3 border border-(--border-subtle)">
+          <div class="w-8 h-8 rounded-lg bg-(--accent-primary-subtle) text-(--accent-primary) flex items-center justify-center">
+            <pillar.icon class="w-4 h-4" />
+          </div>
+          <h3 class="text-base font-bold text-(--text-primary)">{pillar.title}</h3>
+          <p class="text-xs sm:text-sm text-(--text-secondary) leading-relaxed">{pillar.desc}</p>
+        </div>
+      {/each}
+    </div>
+  </section>
 </div>

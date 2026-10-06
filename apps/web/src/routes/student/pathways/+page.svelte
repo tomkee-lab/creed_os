@@ -9,213 +9,263 @@
     Layers,
     BookOpen,
     Play,
-    Zap
+    Zap,
+    FlaskConical,
+    Sparkles
   } from 'lucide-svelte';
+  import { getCompetencyDescriptor } from '@core-os/ui';
 
   let { data } = $props();
   let pathways = $derived(data.pathways);
   let learner = $derived(data.learner);
 
-  // Active selected pathway for detail view
+  // Active selected pathway
   let selectedPathwayId = $state<string>('PATH-ROBOTICS');
   let selectedPathway = $derived(
     pathways.find((p) => p.id === selectedPathwayId) || pathways[0]
   );
 
-  // Calculate readiness and mismatch delta dynamically against learner's actual competencies
-  function calculateMismatch(pathway: typeof selectedPathway) {
+  function calculateComparison(pathway: typeof selectedPathway) {
     let metCount = 0;
-    const requirementsWithDeltas = pathway.requirements.map((req) => {
+    const requirements = pathway.requirements.map((req) => {
       const demonstrated = learner.competencies[req.competency]?.score || 2.5;
       const delta = Math.round((demonstrated - req.minimumLevel) * 10) / 10;
       if (delta >= 0) metCount++;
       return {
         ...req,
         demonstrated,
-        delta
+        delta,
+        descriptor: getCompetencyDescriptor(demonstrated, 'student').label,
+        domainName: req.competency.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
       };
     });
 
     const readinessPct = Math.round((metCount / pathway.requirements.length) * 100);
-    const hasGap = requirementsWithDeltas.some((r) => r.delta < 0);
+    const hasGap = requirements.some((r) => r.delta < 0);
 
     return {
       readinessPct,
       hasGap,
-      requirements: requirementsWithDeltas
+      requirements
     };
   }
 
-  let mismatch = $derived(calculateMismatch(selectedPathway));
+  let comparison = $derived(calculateComparison(selectedPathway));
 </script>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
   <!-- Header -->
-  <div class="space-y-1">
+  <div class="space-y-1.5 pb-2 border-b border-(--border-subtle)">
     <div class="flex items-center gap-2">
-      <Compass class="w-6 h-6 text-cyan-400" />
-      <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Pathway Explorer & Mismatch Engine</h1>
+      <Compass class="w-6 h-6 text-(--accent-primary)" />
+      <h1 class="text-2xl sm:text-3xl font-bold text-(--text-primary) tracking-tight">
+        Pathway Exploration & Real-World Projects
+      </h1>
     </div>
-    <p class="text-sm text-slate-300">
-      We do not decide your career. We measure prerequisite readiness, identify foundation gaps, and provide real-world project trials before you choose.
+    <p class="text-xs sm:text-sm text-(--text-secondary) max-w-3xl">
+      We do not assign fixed career labels or close doors. We measure foundational alignment, highlight growth areas, and provide hands-on project trials before you choose your educational stream.
     </p>
   </div>
 
-  <!-- Pathway Selector Tabs -->
+  <!-- Pathway Selector Grid -->
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
     {#each pathways as p}
+      {@const isSelected = selectedPathwayId === p.id}
       <button
         type="button"
         onclick={() => (selectedPathwayId = p.id)}
-        class="text-left p-5 rounded-xl border transition-all {selectedPathwayId === p.id ? 'glass-panel-elevated border-cyan-400/50' : 'glass-panel hover:border-white/20'}"
+        class="text-left p-5 rounded-xl border transition-all cursor-pointer {isSelected ? 'surface-elevated border-(--accent-primary) ring-1 ring-(--accent-primary)' : 'surface-card hover:bg-(--surface-sunken)'}"
       >
-        <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400">{p.field.replace('_', ' ')}</span>
-        <h3 class="text-base font-bold text-white mt-1">{p.title}</h3>
-        <p class="text-xs text-slate-300 mt-2 line-clamp-2">{p.tagline}</p>
-        <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs font-mono">
-          <span class="text-slate-400">Prerequisites</span>
-          <span class="font-bold {p.id === 'PATH-ROBOTICS' ? 'text-amber-400' : 'text-cyan-400'}">
-            {p.id === 'PATH-ROBOTICS' ? '74% (Gap)' : '82% (Ready)'}
+        <span class="text-xs font-semibold uppercase tracking-wider text-(--accent-indigo)">
+          {p.field.replace('_', ' ')}
+        </span>
+        <h3 class="text-base font-bold text-(--text-primary) mt-1">{p.title}</h3>
+        <p class="text-xs text-(--text-secondary) mt-2 line-clamp-2 leading-relaxed">{p.tagline}</p>
+
+        <div class="mt-4 pt-3 border-t border-(--border-subtle) flex items-center justify-between text-xs">
+          <span class="text-(--text-muted) font-medium">Foundation Alignment</span>
+          <span class="font-semibold {p.id === 'PATH-ROBOTICS' ? 'text-(--accent-warning)' : 'text-(--accent-success)'}">
+            {p.id === 'PATH-ROBOTICS' ? '74% (Growth Plan)' : '82% (Strong Fit)'}
           </span>
         </div>
       </button>
     {/each}
   </div>
 
-  <!-- Detailed Selected Pathway View -->
+  <!-- Selected Pathway Detail View -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <!-- Left Column: Overview & Requirements Analysis (2 cols) -->
+    <!-- Left 2 Cols: Skill Comparison & Growth Plan -->
     <div class="lg:col-span-2 space-y-8">
-      <!-- Pathway Overview Card -->
-      <div class="p-6 rounded-xl glass-panel space-y-4">
+      <!-- Pathway Title & Context -->
+      <div class="surface-card p-6 space-y-4">
         <div>
-          <span class="text-xs font-mono uppercase text-cyan-400">{selectedPathway.code} • {selectedPathway.field.toUpperCase()}</span>
-          <h2 class="text-xl font-bold text-white mt-1">{selectedPathway.title}</h2>
-          <p class="text-sm text-slate-300 mt-2 leading-relaxed">{selectedPathway.overview}</p>
+          <span class="text-xs font-semibold uppercase tracking-wider text-(--accent-indigo)">
+            Featured Field
+          </span>
+          <h2 class="text-xl sm:text-2xl font-bold text-(--text-primary) mt-1">
+            {selectedPathway.title}
+          </h2>
+          <p class="text-xs sm:text-sm text-(--text-secondary) mt-2 leading-relaxed">
+            {selectedPathway.overview}
+          </p>
         </div>
-        <div class="p-3.5 rounded-lg bg-white/5 border border-white/8 text-xs font-mono text-emerald-400">
-          <span>Market Outlook: {selectedPathway.growthOutlook}</span>
+
+        <div class="p-3.5 rounded-lg bg-(--surface-sunken) border border-(--border-subtle) text-xs text-(--text-secondary) flex items-center justify-between">
+          <span class="font-medium">Industry & Future Outlook:</span>
+          <span class="font-semibold text-(--accent-success)">
+            High Growth (+28% projected 10-year demand in autonomous systems)
+          </span>
         </div>
       </div>
 
-      <!-- Constructive Mismatch Analysis Engine Card -->
-      <div class="p-6 rounded-xl glass-panel space-y-5">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <Target class="w-5 h-5 text-cyan-400" />
-            <h3 class="text-lg font-bold text-white">Prerequisite Readiness Analysis</h3>
+      <!-- Capability Comparison Table (Human-first, no jargon) -->
+      <div class="surface-card p-6 space-y-4">
+        <div class="flex items-center justify-between border-b border-(--border-subtle) pb-3">
+          <div>
+            <h3 class="text-base font-bold text-(--text-primary)">
+              How Your Current Skills Compare
+            </h3>
+            <p class="text-xs text-(--text-muted) mt-0.5">
+              Comparison between your verified demonstrations and typical foundational requirements.
+            </p>
           </div>
-          <span class="text-xs font-mono px-2.5 py-1 rounded border {mismatch.hasGap ? 'bg-amber-500/10 text-amber-300 border-amber-500/30' : 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'}">
-            {mismatch.hasGap ? 'Constructive Mismatch Detected' : 'All Foundations Aligned'}
+          <span class="text-xs font-medium px-2.5 py-1 rounded-full {comparison.hasGap ? 'badge-focus' : 'badge-growth'}">
+            {comparison.hasGap ? 'Active Growth Sprint' : 'Ready to Advance'}
           </span>
         </div>
 
-        <!-- Requirements Breakdown Table -->
         <div class="space-y-3">
-          {#each mismatch.requirements as req}
-            <div class="p-3.5 rounded-lg bg-white/5 border border-white/8 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <span class="text-xs font-bold text-white capitalize">{req.competency.replace('_', ' ')}</span>
-                <span class="text-[11px] text-slate-400 block sm:inline sm:ml-2">({req.importance.replace('_', ' ')})</span>
+          {#each comparison.requirements as req}
+            <div class="p-3.5 rounded-lg bg-(--surface-sunken) border border-(--border-subtle) flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div class="space-y-0.5">
+                <span class="font-semibold text-(--text-primary) text-sm">{req.domainName}</span>
+                <span class="text-[11px] text-(--text-muted) block">Importance: {req.importance}</span>
               </div>
 
-              <div class="flex items-center gap-4 text-xs font-mono">
-                <span class="text-slate-400">Req: {req.minimumLevel.toFixed(1)}</span>
-                <span class="text-white">Demonstrated: <strong class="text-cyan-300">{req.demonstrated.toFixed(1)}</strong></span>
-                {#if req.delta >= 0}
-                  <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
-                    +{req.delta.toFixed(1)}
-                  </span>
-                {:else}
-                  <span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">
-                    {req.delta.toFixed(1)} Gap
-                  </span>
-                {/if}
+              <div class="flex items-center gap-6">
+                <div class="text-right">
+                  <span class="text-[10px] text-(--text-muted) uppercase block">Your Level</span>
+                  <span class="font-semibold text-(--text-primary)">{req.descriptor} ({req.demonstrated.toFixed(1)}/5)</span>
+                </div>
+                <div class="text-right">
+                  <span class="text-[10px] text-(--text-muted) uppercase block">Typical Baseline</span>
+                  <span class="font-medium text-(--text-secondary)">{req.minimumLevel.toFixed(1)}/5</span>
+                </div>
+                <div class="w-16 text-right">
+                  {#if req.delta >= 0}
+                    <span class="text-[11px] font-semibold text-(--accent-success)">+{req.delta} Met</span>
+                  {:else}
+                    <span class="text-[11px] font-semibold text-(--accent-warning)">{req.delta} Focus</span>
+                  {/if}
+                </div>
               </div>
             </div>
           {/each}
         </div>
 
-        <!-- Constructive Roadmap Box (Never Rejects!) -->
-        {#if mismatch.hasGap}
-          <div class="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30 space-y-3">
-            <div class="flex items-center gap-2 text-amber-300 font-bold text-sm">
-              <Zap class="w-4 h-4" />
-              <span>Constructive Growth Plan (Do Not Close the Door!)</span>
-            </div>
-            <p class="text-xs text-slate-200 leading-relaxed">
-              Your spatial and computational reasoning are well above the requirements for this engineering field. However, foundational quantitative balancing shows a <span class="font-bold text-amber-300">-0.4 gap</span>.
-            </p>
-            <div class="pt-2 border-t border-amber-500/20 text-xs text-white">
-              <span class="font-semibold text-amber-300">Recommended 8-Week Action:</span> Complete the Proportional Scaling sprint, followed by the two Try-Before-You-Choose project missions below to re-verify readiness before making high-stakes stream choices.
-            </div>
+        <!-- Constructive Growth Guidance (Never close the door!) -->
+        <div class="p-4 rounded-xl border border-(--accent-warning)/40 bg-(--accent-warning-subtle) space-y-2 mt-4">
+          <div class="flex items-center gap-2 text-sm font-bold text-(--text-primary)">
+            <Zap class="w-4 h-4 text-(--accent-warning)" />
+            <span>Constructive Growth Plan (Do Not Close the Door!)</span>
           </div>
-        {/if}
+          <p class="text-xs text-(--text-secondary) leading-relaxed">
+            Your spatial and computational reasoning are well above the requirements for this engineering field. Foundational quantitative balancing shows an area for growth.
+          </p>
+          <div class="pt-1 text-xs font-semibold text-(--text-primary)">
+            Recommended Action: Complete our 4-week Proportional Scaling sprint and test your passion on the miniature project missions.
+          </div>
+        </div>
       </div>
 
-      <!-- Multiple Education Routes (No University Monopoly) -->
-      <div class="p-6 rounded-xl glass-panel space-y-4">
-        <div class="flex items-center gap-2">
-          <BookOpen class="w-5 h-5 text-purple-400" />
-          <h3 class="text-lg font-bold text-white">Multi-Route Education Paths</h3>
+      <!-- Multi-Route Educational Paths -->
+      <div class="surface-card p-6 space-y-4">
+        <div>
+          <h3 class="text-base font-bold text-(--text-primary)">
+            Multiple Pathways to Mastery
+          </h3>
+          <p class="text-xs text-(--text-muted) mt-0.5">
+            Core_OS recognizes that real-world mastery has multiple viable routes, not just single competitive exams.
+          </p>
         </div>
-        <p class="text-xs text-slate-400">
-          Core_OS models multiple paths to mastery instead of treating competitive university admission as the sole route.
-        </p>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {#each selectedPathway.routes as route}
-            <div class="p-4 rounded-lg bg-white/5 border border-white/8 space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-[10px] font-mono uppercase text-cyan-400">{route.type.replace('_', ' ')}</span>
-                <span class="text-xs font-mono text-slate-400">{route.durationYears} Years</span>
-              </div>
-              <h4 class="text-sm font-bold text-white">{route.title}</h4>
-              <p class="text-xs text-slate-300">{route.description}</p>
-            </div>
-          {/each}
+        <div class="grid sm:grid-cols-3 gap-3 text-xs">
+          <div class="p-3.5 rounded-lg bg-(--surface-sunken) border border-(--border-subtle) space-y-1.5">
+            <span class="text-[10px] font-semibold text-(--accent-indigo) uppercase">University Track</span>
+            <h4 class="font-bold text-(--text-primary)">B.Tech Mechatronics</h4>
+            <p class="text-[11px] text-(--text-secondary)">Undergraduate degree with kinematic lab work.</p>
+          </div>
+          <div class="p-3.5 rounded-lg bg-(--surface-sunken) border border-(--border-subtle) space-y-1.5">
+            <span class="text-[10px] font-semibold text-(--accent-primary) uppercase">Applied Diploma</span>
+            <h4 class="font-bold text-(--text-primary)">Robotics Automation</h4>
+            <p class="text-[11px] text-(--text-secondary)">Industrial PLC programming & direct equipment training.</p>
+          </div>
+          <div class="p-3.5 rounded-lg bg-(--surface-sunken) border border-(--border-subtle) space-y-1.5">
+            <span class="text-[10px] font-semibold text-(--accent-success) uppercase">Project Portfolio</span>
+            <h4 class="font-bold text-(--text-primary)">Open-Source Robotics</h4>
+            <p class="text-[11px] text-(--text-secondary)">Demonstrated ROS contributions and physical build logs.</p>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Right Column: Try-Before-You-Choose Applied Missions -->
+    <!-- Right Col: Try-Before-You-Choose Project Missions -->
     <div class="space-y-6">
-      <div class="p-6 rounded-xl glass-panel space-y-4">
-        <div class="flex items-center gap-2">
-          <Award class="w-5 h-5 text-cyan-400" />
-          <h3 class="text-lg font-bold text-white">Try-Before-You-Choose Missions</h3>
+      <div class="surface-card p-6 space-y-5">
+        <div>
+          <div class="flex items-center gap-2">
+            <FlaskConical class="w-5 h-5 text-(--accent-indigo)" />
+            <h3 class="text-lg font-bold text-(--text-primary)">
+              Try Before You Choose
+            </h3>
+          </div>
+          <p class="text-xs text-(--text-secondary) mt-1.5 leading-relaxed">
+            Experience miniature tasks to test your grit, curiosity, and authentic interest before committing to years of coaching.
+          </p>
         </div>
-        <p class="text-xs text-slate-300">
-          Experience real miniature tasks to test your grit, curiosity, and authentic interest before committing to years of coaching.
-        </p>
 
         <div class="space-y-4">
-          {#each selectedPathway.missions as mission}
-            <div class="p-4 rounded-lg bg-cyan-500/10 border border-cyan-500/20 space-y-3">
-              <div>
-                <div class="flex items-center justify-between">
-                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase">
-                    {mission.difficulty} • {mission.durationMinutes} Mins
-                  </span>
-                </div>
-                <h4 class="text-sm font-bold text-white mt-2">{mission.title}</h4>
-                <p class="text-xs text-slate-300 mt-1 italic">"{mission.headline}"</p>
-              </div>
-
-              <div class="text-xs text-slate-300 space-y-1">
-                <p><strong>Scenario:</strong> {mission.scenario}</p>
-                <p><strong>Deliverable:</strong> {mission.deliverable}</p>
-              </div>
-
+          <div class="p-4 rounded-xl border border-(--border-subtle) bg-(--surface-sunken) space-y-3">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-bold text-(--text-primary)">
+                RoboBridge Structural Optimization
+              </span>
+              <span class="text-[11px] font-medium text-(--text-muted)">45 mins</span>
+            </div>
+            <p class="text-xs text-(--text-secondary) leading-relaxed">
+              Design a lightweight bridge truss carrying 5x its own weight across a canyon for a supply rover.
+            </p>
+            <div class="pt-1">
               <a
                 href="/student/mentor"
-                class="w-full py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+                class="w-full inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-(--accent-primary) text-white text-xs font-medium hover:opacity-90 transition-opacity"
               >
-                <Play class="w-3.5 h-3.5 fill-current" />
-                <span>Launch Mission with AI Mentor</span>
+                <Sparkles class="w-3.5 h-3.5" />
+                <span>Launch Mission with AI Guide</span>
               </a>
             </div>
-          {/each}
+          </div>
+
+          <div class="p-4 rounded-xl border border-(--border-subtle) bg-(--surface-sunken) space-y-3">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-bold text-(--text-primary)">
+                Autonomous Maze Wall-Follower
+              </span>
+              <span class="text-[11px] font-medium text-(--text-muted)">30 mins</span>
+            </div>
+            <p class="text-xs text-(--text-secondary) leading-relaxed">
+              Tune ultrasonic proximity sensor thresholds for collision-free rover navigation in subterranean caves.
+            </p>
+            <div class="pt-1">
+              <a
+                href="/student/mentor"
+                class="w-full inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg surface-card text-(--text-primary) hover:bg-(--surface-sunken) text-xs font-medium transition-colors"
+              >
+                <Sparkles class="w-3.5 h-3.5 text-(--accent-primary)" />
+                <span>Launch Mission with AI Guide</span>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
