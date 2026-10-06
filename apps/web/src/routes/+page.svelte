@@ -104,7 +104,7 @@
 <div class="py-12 sm:py-20 space-y-24">
   <!-- Editorial Hero Section -->
   <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
-    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-(--border-subtle) bg-(--surface-sunken) text-xs font-medium text-(--accent-primary)">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-none border border-(--border-subtle) bg-(--surface-sunken) text-xs font-medium text-(--accent-primary)">
       <Sparkles class="w-3.5 h-3.5" />
       <span>WAYFORGE • Learner Intelligence & Navigation OS</span>
     </div>
@@ -114,21 +114,21 @@
       <span class="text-(--accent-primary)">Decide with evidence.</span>
     </h1>
 
-    <p class="text-base sm:text-lg text-(--text-secondary) leading-relaxed max-w-2xl mx-auto">
-      We do not rank children with an IQ number or determine their destiny. WAYFORGE maintains a longitudinal evidence graph, continuously connecting adaptive psychometrics, hands-on project experiments, and transparent pathway navigation.
+    <p class="text-base sm:text-lg text-(--text-secondary) leading-relaxed max-w-xl mx-auto">
+      Continuous learner intelligence connecting adaptive diagnostics, real-world project evidence, and transparent pathway navigation.
     </p>
 
     <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
       <a
         href="/student"
-        class="px-6 py-3 rounded-lg bg-(--accent-primary) hover:opacity-90 text-white font-medium text-sm transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+        class="px-6 py-3 rounded-none bg-(--accent-primary) hover:opacity-90 text-white font-medium text-sm transition-all shadow-sm flex items-center gap-2 cursor-pointer"
       >
         <span>Explore Student Map</span>
         <ArrowRight class="w-4 h-4" />
       </a>
       <a
         href="/student/assessment"
-        class="px-6 py-3 rounded-lg surface-card hover:bg-(--surface-sunken) text-(--text-primary) font-medium text-sm transition-colors flex items-center gap-2 cursor-pointer"
+        class="px-6 py-3 rounded-none surface-card hover:bg-(--surface-sunken) text-(--text-primary) font-medium text-sm transition-colors flex items-center gap-2 cursor-pointer"
       >
         <Activity class="w-4 h-4 text-(--accent-primary)" />
         <span>Try Adaptive Diagnostic</span>
