@@ -268,7 +268,7 @@ class LocalCoreRepository {
             title: 'Applied Hardware & Open-Source Portfolio',
             durationYears: 2,
             description: 'Demonstrated ROS (Robot Operating System) contributions and physical robot build logs.',
-            entryMilestones: ['3 Verified Project Missions in Core_OS']
+            entryMilestones: ['3 Verified Project Missions in CREED OS']
           }
         ],
         missions: [

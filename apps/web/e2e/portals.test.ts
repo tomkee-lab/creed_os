@@ -3,10 +3,10 @@ import { test, expect } from '@playwright/test';
 // ── Navigation & Core Layout ─────────────────────────────────────────────────
 
 test.describe('Global Layout', () => {
-  test('header renders WAYFORGE brand and navigation links', async ({ page }) => {
+  test('header renders CREED OS brand and navigation links', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('header')).toBeVisible();
-    await expect(page.getByRole('link', { name: /WAYFORGE/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /CREED OS/i })).toBeVisible();
   });
 
   test('mobile nav toggle opens and closes the drawer', async ({ page }) => {
@@ -200,9 +200,9 @@ test.describe('Psychometric & Item Bank Studio (/author)', () => {
   });
 });
 
-// ── Core_OS REST APIs ─────────────────────────────────────────────────────────
+// ── CREED OS REST APIs ─────────────────────────────────────────────────────────
 
-test.describe('Core_OS REST API Contracts (/api/v1)', () => {
+test.describe('CREED OS REST API Contracts (/api/v1)', () => {
   test('GET /api/v1/learners/:id/profile returns 200 with competencies', async ({ request }) => {
     const res = await request.get('/api/v1/learners/3fa85f64-5717-4562-b3fc-2c963f66afa6/profile');
     expect(res.status()).toBe(200);

@@ -141,7 +141,7 @@
     personas.find(p => p.id === activeRole) || {
       id: 'public',
       label: 'Public Overview',
-      sublabel: 'Core_OS Experience',
+      sublabel: 'CREED OS Experience',
       href: '/',
       icon: BrainCircuit,
       badge: 'Editorial'
@@ -159,7 +159,7 @@
           <BrainCircuit class="w-4 h-4" />
         </div>
         <div class="flex items-center gap-2">
-          <span class="font-bold tracking-tight text-(--text-primary) text-base">WAYFORGE</span>
+          <span class="font-bold tracking-tight text-(--text-primary) text-base">CREED OS</span>
           <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-(--surface-sunken) text-(--text-secondary) border border-(--border-subtle)">
             {activePersonaInfo.badge}
           </span>
@@ -209,7 +209,7 @@
             {:else if activeRole === 'counselor'}CR
             {:else if activeRole === 'admin'}AD
             {:else if activeRole === 'author'}PS
-            {:else}WF
+            {:else}CR
             {/if}
           </div>
         </div>
@@ -257,7 +257,7 @@
   <footer class="border-t border-(--border-subtle) bg-(--surface-raised)/60 py-6 text-xs text-(--text-muted)">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
       <div class="space-y-0.5">
-        <p class="font-medium text-(--text-secondary)">Core_OS • WAY Design System</p>
+        <p class="font-medium text-(--text-secondary)">CREED OS • Continuous Learner Intelligence</p>
         <p>Calm Intelligence. Deterministic Psychometrics. NEP 2020 & DPDP Aligned.</p>
       </div>
       <div class="flex items-center gap-3 text-[11px]">

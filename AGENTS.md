@@ -1,7 +1,7 @@
-# Core_OS Agent Guidelines & Rules
+# CREED OS Agent Guidelines & Rules
 
 ## Project Identity
-- **Project Name:** Core_OS
+- **Project Name:** CREED OS
 - **Domain:** AI-Native Learner Intelligence, Assessment, Learning & Pathway Navigation Platform
 - **Audience:** Students (Ages 10–16 / Classes 5–10), Parents, Teachers, Counselors, School/Institute Administrators
 

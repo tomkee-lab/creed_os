@@ -185,7 +185,7 @@
             Multiple Pathways to Mastery
           </h3>
           <p class="text-xs text-(--text-muted) mt-0.5">
-            Core_OS recognizes that real-world mastery has multiple viable routes, not just single competitive exams.
+            CREED OS recognizes that real-world mastery has multiple viable routes, not just single competitive exams.
           </p>
         </div>
 

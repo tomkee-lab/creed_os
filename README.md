@@ -1,8 +1,8 @@
-# Core_OS: AI-Native Learner Intelligence & Navigation Platform
+# CREED OS: AI-Native Learner Intelligence & Navigation Platform
 
 > **Measure Deeply. Learn Personally. Explore Boldly. Decide with Evidence.**
 
-Core_OS is a production-oriented multi-tenant educational intelligence platform. It maintains a longitudinal learner evidence model connecting adaptive diagnostic assessments (Item Response Theory), continuous competency tracking, hands-on project experiments, and transparent pathway navigation.
+CREED OS is a production-oriented multi-tenant educational intelligence platform. It maintains a longitudinal learner evidence model connecting adaptive diagnostic assessments (Item Response Theory), continuous competency tracking, hands-on project experiments, and transparent pathway navigation.
 
 ---
 

@@ -106,7 +106,7 @@
   <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-none border border-(--border-subtle) bg-(--surface-sunken) text-xs font-medium text-(--accent-primary)">
       <Sparkles class="w-3.5 h-3.5" />
-      <span>WAYFORGE • Learner Intelligence & Navigation OS</span>
+      <span>CREED OS • Learner Intelligence & Navigation Platform</span>
     </div>
 
     <h1 class="text-4xl sm:text-6xl font-bold tracking-tight text-(--text-primary) leading-[1.12]">
@@ -239,7 +239,7 @@
         Core Educational Principles
       </h2>
       <p class="text-xs sm:text-sm text-(--text-secondary)">
-        Why Core_OS breaks out of the "quiz app" and "generic AI wrapper" categories.
+        Why CREED OS breaks out of the "quiz app" and "generic AI wrapper" categories.
       </p>
     </div>
 
