@@ -6,9 +6,26 @@ import { sveltekitCookies } from 'better-auth/svelte-kit';
 import { getRequestEvent } from '$app/server';
 
 import { env } from '$env/dynamic/private';
+import pg from 'pg';
+const { Pool } = pg;
 
 const isProduction = process.env.NODE_ENV === 'production';
 const secret = env.BETTER_AUTH_SECRET || process.env.BETTER_AUTH_SECRET;
+
+const databaseUrl = env.DATABASE_URL || process.env.DATABASE_URL;
+let dbPool: pg.Pool | undefined = undefined;
+
+if (databaseUrl) {
+  dbPool = new Pool({
+    connectionString: databaseUrl,
+    connectionTimeoutMillis: 5000,
+    max: 10
+  });
+  // Prevent unhandled error events on idle clients from crashing Node process
+  dbPool.on('error', (err) => {
+    console.warn('[auth:db] Postgres pool idle client warning:', err.message);
+  });
+}
 
 if (isProduction && !secret) {
   throw new Error('FATAL: BETTER_AUTH_SECRET must be configured in production environments.');
@@ -83,12 +100,7 @@ export const auth = betterAuth({
       }
     }
   },
-  database: (env.DATABASE_URL || process.env.DATABASE_URL)
-    ? {
-        connectionString: (env.DATABASE_URL || process.env.DATABASE_URL)!,
-        provider: 'postgres'
-      }
-    : undefined,
+  database: dbPool,
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false
