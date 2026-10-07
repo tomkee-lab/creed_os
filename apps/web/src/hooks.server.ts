@@ -26,6 +26,8 @@ const PUBLIC_PREFIXES: string[] = [
   '/consent',
   '/passkey',
   '/reset-password',
+  // Public consent verification API (statutory DPDP consent submission)
+  '/api/v1/consent/verify',
   // Better Auth API (must be fully public)
   '/api/auth',
   // Marketing pages
@@ -71,12 +73,14 @@ export const handle: Handle = async ({ event, resolve }) => {
   }
 
   // ── 2. Route protection ────────────────────────────────────────────────────
-  // Skip enforcement in dev so the high-fidelity persona mock in
-  // (app)/+layout.server.ts can still operate without a real login.
-  if (!import.meta.env.DEV && !isPublicRoute(pathname)) {
+  // Enforce session requirements:
+  // - In production: strictly enforce on all non-public routes (workspace + internal APIs)
+  // - Over network / tunnels (non-localhost): enforce to prevent unauthorized remote access
+  if (!isPublicRoute(pathname)) {
+    const isLocalDev = import.meta.env.DEV && (event.url.hostname === 'localhost' || event.url.hostname === '127.0.0.1');
     const isAuthenticated = !!event.locals.session;
 
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !isLocalDev) {
       // Internal API routes → 401 JSON
       if (pathname.startsWith('/api/')) {
         throw error(401, JSON.stringify({ error: 'Unauthorized', code: 'SESSION_REQUIRED' }));

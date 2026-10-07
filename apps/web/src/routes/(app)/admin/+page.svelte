@@ -200,20 +200,20 @@
     </div>
   </section>
 
-  <!-- 4. AUDIT TRAIL: Cryptographic Proof Ledger -->
+  <!-- 4. AUDIT TRAIL: Statutory Compliance Audit Ledger -->
   <section id="audit" class="space-y-4">
     <div class="flex items-center justify-between">
       <h2 class="text-base font-semibold text-ink">
         Statutory Compliance & Audit Trail
       </h2>
-      <span class="text-xs text-ink-muted">DPDP Act Section 9 Verified</span>
+      <span class="text-xs text-ink-muted">DPDP Act Section 9 Compliance</span>
     </div>
     <div class="p-4 rounded-sm bg-surface border border-border text-xs space-y-2">
-      <div class="flex justify-between text-ink-muted font-mono">
-        <span>LEDGER HASH: SHA-256 (MERKLE ROOTS)</span>
-        <span class="text-positive">VALIDATED</span>
+      <div class="flex justify-between text-ink-muted font-mono text-[11px]">
+        <span>CONSENT LEDGER LOG: IMMUTABLE AUDIT TRAIL</span>
+        <span class="text-positive font-sans font-medium">Active</span>
       </div>
-      <p class="text-ink-secondary">All consent grants, modifications, and revocations append exclusively to the tamper-evident cryptographic log with guardian digital signatures.</p>
+      <p class="text-ink-secondary">All consent notices, guardian authorizations, and state transitions are recorded into an append-only institutional audit ledger in compliance with DPDP statutory requirements.</p>
     </div>
   </section>
 

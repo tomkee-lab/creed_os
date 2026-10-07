@@ -40,7 +40,7 @@
   <button
     type="button"
     onclick={() => (showExplain = !showExplain)}
-    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm bg-ai-subtle text-ai border border-ai/20 text-[10px] font-medium hover:border-ai/40 transition-colors cursor-pointer"
+    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm bg-ai-subtle text-ai border border-ai/20 text-[10px] font-medium hover:border-ai/40 active:scale-95 focus-visible:outline-2 focus-visible:outline-focus disabled:opacity-50 disabled:pointer-events-none transition-all cursor-pointer"
     title="Click to view AI explainability & provenance"
   >
     <Sparkles class="w-3 h-3 text-ai" />
@@ -59,7 +59,8 @@
           <button
             type="button"
             onclick={() => (showExplain = false)}
-            class="text-ink-muted hover:text-ink p-1 rounded-sm cursor-pointer"
+            class="text-ink-muted hover:text-ink hover:bg-surface-subtle active:scale-95 focus-visible:outline-2 focus-visible:outline-focus disabled:opacity-50 disabled:pointer-events-none p-1 rounded-sm cursor-pointer transition-all"
+            aria-label="Close dialog"
           >
             <X class="w-4 h-4" />
           </button>

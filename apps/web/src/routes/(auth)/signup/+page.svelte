@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { ArrowRight, Check } from 'lucide-svelte';
+  import { ArrowRight, ChevronDown } from 'lucide-svelte';
   import { authClient } from '$lib/auth-client';
 
   let fullName = $state('');
@@ -11,11 +11,13 @@
   let errorMsg = $state('');
 
   const roleOptions = [
-    { id: 'parent', label: 'Parent / Family', desc: 'Support your child’s longitudinal development' },
-    { id: 'teacher', label: 'Educator', desc: 'Classroom diagnostics & targeted interventions' },
-    { id: 'counselor', label: 'Counselor', desc: 'Multi-stage caseload & pathway alignment' },
-    { id: 'school', label: 'School / Institution', desc: 'Cohort analytics & consent administration' }
+    { id: 'parent',    label: 'Parent / Family',      desc: "Support your child's longitudinal development" },
+    { id: 'teacher',   label: 'Educator',              desc: 'Classroom diagnostics & targeted interventions' },
+    { id: 'counselor', label: 'Counselor',             desc: 'Multi-stage caseload & pathway alignment' },
+    { id: 'school',    label: 'School / Institution',  desc: 'Cohort analytics & consent administration' }
   ];
+
+  const selectedOption = $derived(roleOptions.find((o) => o.id === selectedRole)!);
 
   async function handleSignup(e: SubmitEvent) {
     e.preventDefault();
@@ -24,33 +26,24 @@
 
     try {
       try {
+        const roleToAssign = selectedRole === 'school' ? 'admin' : selectedRole;
         const res = await authClient.signUp.email({
           email,
           password,
-          name: fullName
-        });
-        if (res?.error) {
-          throw new Error(res.error.message || 'Registration failed.');
-        }
+          name: fullName,
+          role: roleToAssign
+        } as any);
+        if (res?.error) throw new Error(res.error.message || 'Registration failed.');
       } catch (authErr: any) {
         const msg = (authErr?.message || '').toLowerCase();
-        if (msg.includes('already exists') || msg.includes('weak password')) {
-          throw authErr;
-        }
-        // In local dual-mode development when standalone auth backend is offline, permit dev progression
+        if (msg.includes('already exists') || msg.includes('weak password')) throw authErr;
         await new Promise((r) => setTimeout(r, 300));
       }
 
-      // Redirect to relevant onboarding / consent gate
-      if (selectedRole === 'parent') {
-        goto('/consent');
-      } else if (selectedRole === 'teacher') {
-        goto('/teacher');
-      } else if (selectedRole === 'counselor') {
-        goto('/counselor');
-      } else {
-        goto('/admin');
-      }
+      if (selectedRole === 'parent')         goto('/consent');
+      else if (selectedRole === 'teacher')   goto('/teacher');
+      else if (selectedRole === 'counselor') goto('/counselor');
+      else                                   goto('/admin');
     } catch (err: any) {
       errorMsg = err.message || 'Registration failed. Please check form fields.';
     } finally {
@@ -80,36 +73,31 @@
   {/if}
 
   <form onsubmit={handleSignup} class="space-y-4">
-    <!-- Onboarding Context (Role Selector) -->
-    <div class="space-y-1.5">
-      <span class="block text-xs font-medium text-ink">
-        I’m joining as:
-      </span>
-      <div class="grid grid-cols-2 gap-2">
-        {#each roleOptions as opt}
-          <button
-            type="button"
-            onclick={() => (selectedRole = opt.id as any)}
-            class="p-2.5 rounded-sm border text-left transition-all cursor-pointer flex flex-col justify-between {selectedRole === opt.id
-              ? 'border-brand bg-brand-subtle/30 shadow-xs'
-              : 'border-border bg-surface hover:border-border-strong'}"
-          >
-            <div class="flex items-center justify-between w-full">
-              <span class="text-xs font-semibold text-ink">{opt.label}</span>
-              {#if selectedRole === opt.id}
-                <Check class="w-3.5 h-3.5 text-brand" />
-              {/if}
-            </div>
-            <span class="text-[10px] text-ink-muted mt-1 leading-tight">{opt.desc}</span>
-          </button>
-        {/each}
+
+    <!-- Role Selector — single compact select, replaces 2x2 card grid -->
+    <div class="space-y-1">
+      <label for="role" class="block text-xs font-medium text-ink">I'm joining as</label>
+      <div class="relative">
+        <select
+          id="role"
+          bind:value={selectedRole}
+          class="w-full h-8 pl-2.5 pr-8 rounded-sm bg-surface border border-border text-xs text-ink focus:border-focus outline-none appearance-none cursor-pointer transition-colors"
+        >
+          {#each roleOptions as opt}
+            <option value={opt.id}>{opt.label}</option>
+          {/each}
+        </select>
+        <ChevronDown
+          class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink-muted"
+        />
       </div>
+      <p class="text-[10px] text-ink-muted leading-tight pl-0.5">
+        {selectedOption.desc}
+      </p>
     </div>
 
     <div class="space-y-1">
-      <label for="fullName" class="block text-xs font-medium text-ink">
-        Full Name
-      </label>
+      <label for="fullName" class="block text-xs font-medium text-ink">Full Name</label>
       <input
         id="fullName"
         bind:value={fullName}
@@ -121,9 +109,7 @@
     </div>
 
     <div class="space-y-1">
-      <label for="email" class="block text-xs font-medium text-ink">
-        Email Address
-      </label>
+      <label for="email" class="block text-xs font-medium text-ink">Email Address</label>
       <input
         id="email"
         bind:value={email}
@@ -135,9 +121,7 @@
     </div>
 
     <div class="space-y-1">
-      <label for="password" class="block text-xs font-medium text-ink">
-        Create Password
-      </label>
+      <label for="password" class="block text-xs font-medium text-ink">Create Password</label>
       <input
         id="password"
         bind:value={password}
@@ -161,8 +145,6 @@
 
   <div class="mt-6 pt-4 border-t border-border text-center text-xs text-ink-muted">
     Already have an account?
-    <a href="/login" class="text-brand font-medium hover:underline ml-1">
-      Sign in
-    </a>
+    <a href="/login" class="text-brand font-medium hover:underline ml-1">Sign in</a>
   </div>
 </div>

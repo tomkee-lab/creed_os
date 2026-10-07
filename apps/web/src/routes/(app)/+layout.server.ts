@@ -28,10 +28,10 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
     throw redirect(303, `/login?next=${encodeURIComponent(url.pathname)}`);
   }
 
-  const userRole = (user as any).role || 'student';
+  const userRole = (user as any).role || (user as any).metadata?.role || 'student';
 
   // Role access enforcement:
-  // Non-privileged users (students, parents) cannot access staff or administrative workspaces
+  // Non-privileged users cannot access staff, guardian, or administrative workspaces
   if (!import.meta.env.DEV) {
     if (requestedRole === 'admin' && userRole !== 'admin') {
       throw error(403, 'Forbidden: Administrative privilege required');
@@ -39,16 +39,32 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
     if ((requestedRole === 'teacher' || requestedRole === 'counselor') && !['teacher', 'counselor', 'admin'].includes(userRole)) {
       throw error(403, 'Forbidden: Educator or counselor credential required');
     }
+    if (requestedRole === 'studio' && !['studio', 'admin', 'teacher'].includes(userRole)) {
+      throw error(403, 'Forbidden: Item calibration credentials required');
+    }
+    if (requestedRole === 'parent' && !['parent', 'admin'].includes(userRole)) {
+      throw error(403, 'Forbidden: Guardian relationship credential required');
+    }
   }
 
   // Scope data based on authenticated role and relationship
-  const scopedLearnerId = (user as any).learnerId || '3fa85f64-5717-4562-b3fc-2c963f66afa6';
-  const learner = coreRepository.getLearnerProfile(scopedLearnerId);
-  const evidence = coreRepository.getLearnerEvidence(learner.id);
-  const pathways = coreRepository.getPathways();
+  // Minor learner details and evidence are strictly isolated to student and authorized guardian views
+  const isStudentOrParentRoute = ['student', 'parent'].includes(requestedRole);
+  const scopedLearnerId = (user as any).learnerId || (import.meta.env.DEV ? '3fa85f64-5717-4562-b3fc-2c963f66afa6' : (user as any).id);
+
+  const learner = isStudentOrParentRoute && scopedLearnerId
+    ? coreRepository.getLearnerProfile(scopedLearnerId)
+    : null;
+  const evidence = isStudentOrParentRoute && learner
+    ? coreRepository.getLearnerEvidence(learner.id)
+    : null;
+  const pathways = isStudentOrParentRoute
+    ? coreRepository.getPathways()
+    : null;
 
   // Cohort analytics scoped strictly to educator/admin roles
-  const isEducatorOrAdmin = ['teacher', 'counselor', 'admin', 'studio'].includes(requestedRole);
+  const isEducatorOrAdmin = ['teacher', 'counselor', 'admin', 'studio'].includes(requestedRole) &&
+    (import.meta.env.DEV || ['teacher', 'counselor', 'admin', 'studio'].includes(userRole));
   const cohort = isEducatorOrAdmin ? coreRepository.getClassCohort() : null;
 
   return {

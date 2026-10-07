@@ -148,7 +148,7 @@
     </aside>
 
     <!-- PANE 2: Item Authoring Editor (Col 5) -->
-    <main class="col-span-5 rounded-none bg-surface border border-border flex flex-col min-h-0 overflow-y-auto p-4 space-y-4">
+    <main id="authoring" class="col-span-5 rounded-none bg-surface border border-border flex flex-col min-h-0 overflow-y-auto p-4 space-y-4">
       <div class="flex items-center justify-between text-xs font-mono font-semibold text-ink pb-2 border-b border-border">
         <span>AUTHORING SURFACE</span>
         <span class="text-[11px] text-ink-muted">ID: {selectedItemId}</span>
@@ -170,7 +170,7 @@
           <select
             id="comp-select"
             bind:value={selectedCompetency}
-            class="w-full p-1.5 rounded-none bg-surface-subtle border border-border text-xs text-ink"
+            class="w-full p-1.5 rounded-none bg-surface-subtle border border-border text-xs text-ink hover:border-border-strong active:bg-surface focus-visible:outline-2 focus-visible:outline-focus focus-visible:border-focus disabled:opacity-50 disabled:pointer-events-none transition-colors cursor-pointer"
           >
             <option value="spatial_reasoning">Spatial Reasoning</option>
             <option value="computational_thinking">Computational Thinking</option>
@@ -183,7 +183,7 @@
           <select
             id="grade-select"
             bind:value={gradeBand}
-            class="w-full p-1.5 rounded-none bg-surface-subtle border border-border text-xs text-ink"
+            class="w-full p-1.5 rounded-none bg-surface-subtle border border-border text-xs text-ink hover:border-border-strong active:bg-surface focus-visible:outline-2 focus-visible:outline-focus focus-visible:border-focus disabled:opacity-50 disabled:pointer-events-none transition-colors cursor-pointer"
           >
             <option>Middle Stage (Classes 6–8)</option>
             <option>Secondary Stage (Classes 9–10)</option>
@@ -225,7 +225,7 @@
     </main>
 
     <!-- PANE 3: Psychometric Calibration (Col 4) -->
-    <aside class="col-span-4 rounded-none bg-surface border border-border flex flex-col min-h-0 overflow-y-auto p-4 space-y-4 font-mono text-xs">
+    <aside id="calibration" class="col-span-4 rounded-none bg-surface border border-border flex flex-col min-h-0 overflow-y-auto p-4 space-y-4 font-mono text-xs">
       <div class="flex items-center justify-between font-semibold text-ink pb-2 border-b border-border">
         <span>CALIBRATION // 3PL IRT</span>
         <span class="text-[11px] text-positive">Converged (EAP)</span>

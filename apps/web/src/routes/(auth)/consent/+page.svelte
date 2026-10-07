@@ -156,7 +156,7 @@
         type="button"
         onclick={() => (channel = 'sms')}
         disabled={verified || otpRequested}
-        class="p-2.5 rounded-sm border text-left transition-colors cursor-pointer disabled:cursor-not-allowed {channel === 'sms'
+        class="p-2.5 rounded-sm border text-left transition-colors cursor-pointer hover:border-border-strong active:scale-95 focus-visible:outline-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-60 {channel === 'sms'
           ? 'border-brand bg-brand-subtle/30 font-medium'
           : 'border-border bg-surface'}"
       >
@@ -168,7 +168,7 @@
         type="button"
         onclick={() => (channel = 'digilocker')}
         disabled={verified || otpRequested}
-        class="p-2.5 rounded-sm border text-left transition-colors cursor-pointer disabled:cursor-not-allowed {channel === 'digilocker'
+        class="p-2.5 rounded-sm border text-left transition-colors cursor-pointer hover:border-border-strong active:scale-95 focus-visible:outline-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-60 {channel === 'digilocker'
           ? 'border-brand bg-brand-subtle/30 font-medium'
           : 'border-border bg-surface'}"
       >
@@ -183,7 +183,7 @@
     <button
       type="button"
       onclick={handleRequestOtp}
-      class="w-full h-8 rounded-sm bg-surface border border-border text-ink text-xs font-medium hover:bg-surface-subtle shadow-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+      class="w-full h-8 rounded-sm bg-surface border border-border text-ink text-xs font-medium hover:bg-surface-subtle hover:border-border-strong active:scale-95 focus-visible:outline-2 focus-visible:outline-focus shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
     >
       <Phone class="w-3.5 h-3.5 text-brand" />
       <span>Send Verification OTP</span>
@@ -202,13 +202,13 @@
           bind:value={otp}
           placeholder="123456"
           disabled={verified}
-          class="flex-1 px-3 py-1.5 text-xs font-mono tracking-widest text-center rounded-sm bg-surface-subtle border border-border text-ink focus:outline-none focus:ring-1 focus:ring-brand disabled:opacity-60"
+          class="flex-1 px-3 py-1.5 text-xs font-mono tracking-widest text-center rounded-sm bg-surface-subtle border border-border text-ink hover:border-border-strong focus-visible:outline-2 focus-visible:outline-focus focus-visible:border-focus disabled:opacity-60 transition-colors"
         />
         <button
           type="button"
           onclick={() => (otpRequested = false)}
           disabled={verified}
-          class="px-2 py-1.5 text-[11px] rounded-sm border border-border text-ink-muted hover:text-ink cursor-pointer"
+          class="px-2 py-1.5 text-[11px] rounded-sm border border-border text-ink-muted hover:text-ink hover:border-border-strong active:scale-95 focus-visible:outline-2 focus-visible:outline-focus disabled:opacity-50 cursor-pointer transition-all"
         >
           Change
         </button>
@@ -218,7 +218,7 @@
     <button
       onclick={handleConsentSubmit}
       disabled={verified || loading}
-      class="w-full h-8 rounded-sm bg-brand text-white text-xs font-medium hover:bg-brand/90 shadow-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+      class="w-full h-8 rounded-sm bg-brand text-white text-xs font-medium hover:bg-brand/90 active:scale-95 focus-visible:outline-2 focus-visible:outline-focus shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
     >
       {#if verified}
         <CheckCircle2 class="w-3.5 h-3.5 text-white" />

@@ -32,13 +32,22 @@
     onRoleChange?: (role: 'student' | 'parent' | 'teacher' | 'counselor' | 'admin' | 'studio') => void;
   } = $props();
 
+  let isSigningOut = $state(false);
+
   async function handleSignOut() {
+    if (isSigningOut) return;
+    isSigningOut = true;
     try {
-      await authClient.signOut();
-    } catch (err) {
-      console.error('[auth] Failed to sign out via authClient:', err);
-    } finally {
+      const res = await authClient.signOut();
+      if (res?.error) {
+        console.error('[auth] Failed to sign out via authClient:', res.error);
+        return;
+      }
       goto('/login');
+    } catch (err) {
+      console.error('[auth] Exception during sign out via authClient:', err);
+    } finally {
+      isSigningOut = false;
     }
   }
 

@@ -13,7 +13,7 @@
   import { WaySection } from '$lib/components';
 
   let { data } = $props();
-  let pathways = $derived(data.pathways);
+  let pathways = $derived(data.pathways || []);
   let learner = $derived(data.learner);
 
   let selectedPathwayId = $state<string>('PATH-ROBOTICS');
@@ -24,9 +24,12 @@
   let showBenchmarkMetadata = $state(false);
 
   function calculateComparison(pathway: typeof selectedPathway) {
+    if (!pathway) {
+      return { metCount: 0, totalCount: 0, requirements: [] };
+    }
     let metCount = 0;
     const requirements = pathway.requirements.map((req) => {
-      const demonstrated = learner.competencies[req.competency]?.score || 2.5;
+      const demonstrated = learner?.competencies[req.competency]?.score || 2.5;
       const delta = Math.round((demonstrated - req.minimumLevel) * 10) / 10;
       if (delta >= 0) metCount++;
       return {

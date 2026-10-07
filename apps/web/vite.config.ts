@@ -10,7 +10,12 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
-    allowedHosts: true
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      '.trycloudflare.com',
+      '.loca.lt'
+    ]
   },
   ssr: {
     noExternal: ['svelte-sonner']

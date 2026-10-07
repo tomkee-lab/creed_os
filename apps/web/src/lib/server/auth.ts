@@ -26,6 +26,22 @@ export const auth = betterAuth({
   appName: 'CREED OS',
   baseURL: env.BETTER_AUTH_URL || process.env.BETTER_AUTH_URL || 'http://localhost:5173',
   secret: secret || 'creed-os-local-dev-secret-32-chars-entropy-key',
+  user: {
+    additionalFields: {
+      role: {
+        type: 'string',
+        required: false,
+        defaultValue: 'student',
+        input: true
+      }
+    }
+  },
+  database: (env.DATABASE_URL || process.env.DATABASE_URL)
+    ? {
+        connectionString: (env.DATABASE_URL || process.env.DATABASE_URL)!,
+        provider: 'postgres'
+      }
+    : undefined,
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false

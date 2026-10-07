@@ -100,12 +100,15 @@
       } else {
         throw new Error('Mentor service unavailable');
       }
-    } catch (err) {
-      // Fallback Socratic inquiry prompt
+    } catch (err: any) {
+      console.error('[mentor/chat] Socratic mentor inference request failed:', {
+        userMessage: userMsg,
+        error: err?.message || err
+      });
       messages.push({
         id: `m-${Date.now() + 1}`,
         role: 'guide',
-        text: 'That connects directly to mechanical advantage. If the output arm travels half the speed, what does that mean for the force it can lift?',
+        text: 'I had trouble connecting to the mentor service just now. Please try your question again or check your network connection.',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       });
     } finally {

@@ -85,19 +85,14 @@
           { label: 'Learners', href: '/admin#learners', icon: GraduationCap },
           { label: 'Organizations', href: '/admin#orgs', icon: Building2 },
           { label: 'Consent', href: '/admin#consent', icon: Lock },
-          { label: 'Staff', href: '/admin#staff', icon: Users },
-          { label: 'Evidence', href: '/admin#evidence', icon: FileText },
           { label: 'Audit Trail', href: '/admin#audit', icon: Shield },
-          { label: 'Settings', href: '/admin#settings', icon: Settings }
+          { label: 'Settings', href: '/settings', icon: Settings }
         ];
       case 'studio':
         return [
           { label: 'Item Bank', href: '/studio', icon: FolderKanban },
           { label: 'Authoring', href: '/studio#authoring', icon: Wrench },
-          { label: 'Calibration', href: '/studio#calibration', icon: Activity },
-          { label: 'Diagnostics', href: '/studio#diagnostics', icon: BrainCircuit },
-          { label: 'Blueprints', href: '/studio#blueprints', icon: Layers },
-          { label: 'Reports', href: '/studio#reports', icon: FileText }
+          { label: 'Calibration', href: '/studio#calibration', icon: Activity }
         ];
       default:
         return [];
