@@ -9,7 +9,8 @@ export default defineConfig({
   ],
   server: {
     port: 5173,
-    host: true
+    host: true,
+    allowedHosts: true
   },
   ssr: {
     noExternal: ['svelte-sonner']

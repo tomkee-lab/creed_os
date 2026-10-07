@@ -4,12 +4,18 @@ import type { RequestHandler } from './$types';
 const ALLOWED_ORIGINS = [
   'https://dash.better-auth.com',
   'http://localhost:5173',
-  'http://localhost:4173'
+  'http://localhost:4173',
+  'https://locally-departmental-marathon-gbp.trycloudflare.com',
+  'https://real-taxes-try.loca.lt'
 ];
 
 function getCorsHeaders(request: Request): Record<string, string> {
   const origin = request.headers.get('origin');
-  const allowedOrigin = origin && (ALLOWED_ORIGINS.includes(origin) || origin.endsWith('.better-auth.com'))
+  const allowedOrigin = origin && (
+    ALLOWED_ORIGINS.includes(origin) ||
+    origin.endsWith('.better-auth.com') ||
+    origin.endsWith('.trycloudflare.com')
+  )
     ? origin
     : 'https://dash.better-auth.com';
 
