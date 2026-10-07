@@ -62,16 +62,16 @@
 
     <!-- Modal Content (L4 Modal Layer) -->
     <div
-      class="relative w-full {maxWidthClasses[maxWidth]} surface-elevated rounded-sm border border-(--border-subtle) shadow-2xl overflow-hidden z-10 animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
+      class="relative w-full {maxWidthClasses[maxWidth]} bg-surface-modal rounded-sm border border-border shadow-2xl overflow-hidden z-10 animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
     >
       {#if title}
-        <div class="px-6 py-4 border-b border-(--border-subtle) flex items-center justify-between gap-4">
+        <div class="px-6 py-4 border-b border-border flex items-center justify-between gap-4">
           <div>
-            <h3 class="text-base sm:text-lg font-bold text-(--text-primary)">
+            <h3 class="text-base sm:text-lg font-bold text-ink">
               {title}
             </h3>
             {#if description}
-              <p class="text-xs text-(--text-secondary) mt-0.5">
+              <p class="text-xs text-ink-secondary mt-0.5">
                 {description}
               </p>
             {/if}
@@ -80,7 +80,7 @@
           <button
             type="button"
             onclick={handleClose}
-            class="p-1.5 rounded-sm text-(--text-muted) hover:text-(--text-primary) hover:bg-(--surface-sunken) transition-colors cursor-pointer"
+            class="p-1.5 rounded-sm text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
             aria-label="Close dialog"
           >
             <X class="w-4 h-4" />
@@ -88,14 +88,14 @@
         </div>
       {/if}
 
-      <div class="p-6 overflow-y-auto space-y-4 text-xs sm:text-sm text-(--text-secondary)">
+      <div class="p-6 overflow-y-auto space-y-4 text-xs sm:text-sm text-ink-secondary">
         {#if children}
           {@render children()}
         {/if}
       </div>
 
       {#if footer}
-        <div class="px-6 py-4 bg-(--surface-sunken)/40 border-t border-(--border-subtle) flex items-center justify-end gap-3">
+        <div class="px-6 py-4 bg-surface-subtle/40 border-t border-border flex items-center justify-end gap-3">
           {@render footer()}
         </div>
       {/if}

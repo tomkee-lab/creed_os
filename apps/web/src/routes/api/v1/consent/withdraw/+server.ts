@@ -2,7 +2,12 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { transitionConsentState, type ConsentRecord } from '@core-os/domain';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals }) => {
+  // Enforce session requirements for consent withdrawal under DPDP Act 2023
+  if (!locals.session && !import.meta.env.DEV) {
+    return json({ error: 'Unauthorized: Active session required to withdraw statutory consent.' }, { status: 401 });
+  }
+
   const body = await request.json().catch(() => ({}));
   const {
     learnerId = '3fa85f64-5717-4562-b3fc-2c963f66afa6',

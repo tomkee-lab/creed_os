@@ -39,10 +39,10 @@
 </script>
 
 <div
-  class="surface-card rounded-sm overflow-hidden border border-(--border-subtle) transition-all hover:border-(--border-strong) flex flex-col justify-between {className}"
+  class="surface-card rounded-sm overflow-hidden border border-border transition-all hover:border-border-strong flex flex-col justify-between {className}"
 >
   <!-- Integrated Editorial Visual (8px expressive radius on container) -->
-  <div class="relative {aspectMap[aspectRatio]} w-full overflow-hidden bg-(--surface-sunken)">
+  <div class="relative {aspectMap[aspectRatio]} w-full overflow-hidden bg-surface-subtle">
     <img
       {src}
       {alt}
@@ -52,7 +52,7 @@
     {#if badge}
       <div class="absolute top-3 left-3 z-10">
         <span
-          class="px-2.5 py-1 rounded-sm bg-(--surface-canvas)/90 backdrop-blur-xs border border-(--border-subtle) text-[10px] font-semibold uppercase tracking-wider text-(--text-primary)"
+          class="px-2.5 py-1 rounded-sm bg-canvas/90 backdrop-blur-xs border border-border text-[10px] font-semibold uppercase tracking-wider text-ink"
         >
           {badge}
         </span>
@@ -63,25 +63,25 @@
   <!-- Narrative Context & Action Bar -->
   <div class="p-6 sm:p-7 space-y-4 flex-1 flex flex-col justify-between">
     <div class="space-y-2">
-      <h3 class="text-xl font-bold tracking-tight text-(--text-primary)">
+      <h3 class="text-xl font-bold tracking-tight text-ink">
         {title}
       </h3>
-      <p class="text-xs sm:text-sm text-(--text-secondary) leading-relaxed">
+      <p class="text-xs sm:text-sm text-ink-secondary leading-relaxed">
         {description}
       </p>
       {#if caption}
-        <p class="text-[11px] text-(--text-muted) pt-1 font-mono">
+        <p class="text-[11px] text-ink-muted pt-1 font-mono">
           {caption}
         </p>
       {/if}
     </div>
 
     <!-- Actions -->
-    <div class="pt-3 border-t border-(--border-subtle) flex items-center justify-between gap-3">
+    <div class="pt-3 border-t border-border flex items-center justify-between gap-3">
       {#if secondaryLabel && secondaryHref}
         <a
           href={secondaryHref}
-          class="text-xs font-medium text-(--text-secondary) hover:text-(--text-primary) transition-colors cursor-pointer"
+          class="text-xs font-medium text-ink-secondary hover:text-ink transition-colors cursor-pointer"
         >
           {secondaryLabel}
         </a>
@@ -91,7 +91,7 @@
 
       <a
         href={actionHref}
-        class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-sm bg-(--accent-primary) hover:opacity-90 text-white font-medium text-xs sm:text-sm transition-all shadow-sm cursor-pointer"
+        class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-sm bg-brand hover:bg-brand/90 text-white font-medium text-xs sm:text-sm transition-colors shadow-xs cursor-pointer"
       >
         <span>{actionLabel}</span>
         <ArrowRight class="w-3.5 h-3.5" />

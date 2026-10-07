@@ -7,11 +7,225 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Base Body Styling with Nordic Lagom warm canvas default */
+/* ============================================================
+   WAY 3.0 — Quiet Editorial Workspace Design System
+   Core Architectural Rules:
+   - Single authoritative semantic token hierarchy
+   - L0 Canvas (warm mineral default) -> L1 Surface -> L2 Raised -> L3 Overlay -> L4 Modal
+   - Architectural Radii: 0px (technical), 4px (controls/surfaces), 8px (hero/media)
+   - Motion budget: strictly 140ms–280ms
+   - One purpose per section: Orient, Decide, Explore, Prove, Act
+   ============================================================ */
+
+:root {
+  /* --- WAY 3.0 Semantic Surfaces (Light Theme: Warm Mineral Palette) --- */
+  --color-canvas: oklch(0.978 0.006 240);          /* L0 Base Canvas (#F5F7FA) */
+  --color-surface: oklch(0.965 0.008 240);         /* L1 Content Well / Section */
+  --color-surface-subtle: oklch(0.950 0.010 240);  /* Inset / Subtle Well */
+  --color-surface-raised: oklch(1.000 0.000 0);    /* L2 Raised Card / Active Tile */
+  --color-surface-overlay: oklch(0.985 0.004 240); /* L3 Popover, Dropdown, Menu */
+  --color-surface-modal: oklch(1.000 0.000 0);     /* L4 Dialog, Focus Sheet */
+
+  /* --- WAY 3.0 Typography & Ink --- */
+  --color-ink: oklch(0.200 0.020 250);            /* Primary Deep Slate #0F172A */
+  --color-ink-secondary: oklch(0.440 0.022 250);  /* Supporting Slate #475569 */
+  --color-ink-muted: oklch(0.580 0.018 250);      /* Caption Muted #64748B */
+  --color-ink-inverse: oklch(0.990 0.002 240);    /* White on Dark */
+
+  /* --- WAY 3.0 Brand & Functional Accents --- */
+  --color-brand: oklch(0.550 0.140 215);          /* Restrained Calm Teal #0891B2 */
+  --color-brand-subtle: oklch(0.960 0.025 215);
+  --color-ai: oklch(0.560 0.150 280);             /* Muted Iris for Explainability */
+  --color-ai-subtle: oklch(0.960 0.025 280);
+  --color-positive: oklch(0.600 0.140 150);       /* Sage Growth */
+  --color-positive-subtle: oklch(0.950 0.030 150);
+  --color-attention: oklch(0.680 0.150 75);       /* Ochre / Attention */
+  --color-attention-subtle: oklch(0.960 0.030 75);
+  --color-critical: oklch(0.580 0.180 25);        /* Controlled Vermilion */
+  --color-critical-subtle: oklch(0.960 0.035 25);
+
+  /* --- Structural Boundaries --- */
+  --color-border: oklch(0.900 0.008 240);         /* Hairline boundary #E2E8F0 */
+  --color-border-strong: oklch(0.810 0.015 240);  /* Interactive border */
+  --color-focus: oklch(0.550 0.140 215);          /* Calm Cyan Focus Ring */
+
+  /* --- Backward-Compatibility Bridges for @core-os/ui --- */
+  --surface-canvas: var(--color-canvas);
+  --surface-content: var(--color-surface);
+  --surface-raised: var(--color-surface-raised);
+  --surface-overlay: var(--color-surface-overlay);
+  --surface-modal: var(--color-surface-modal);
+  --surface-sunken: var(--color-surface-subtle);
+  --text-primary: var(--color-ink);
+  --text-secondary: var(--color-ink-secondary);
+  --text-muted: var(--color-ink-muted);
+  --border-subtle: var(--color-border);
+  --border-strong: var(--color-border-strong);
+  --border-focus: var(--color-focus);
+  --accent-primary: var(--color-brand);
+  --accent-primary-subtle: var(--color-brand-subtle);
+  --accent-indigo: var(--color-ai);
+  --accent-indigo-subtle: var(--color-ai-subtle);
+  --accent-success: var(--color-positive);
+  --accent-success-subtle: var(--color-positive-subtle);
+  --accent-warning: var(--color-attention);
+  --accent-warning-subtle: var(--color-attention-subtle);
+  --accent-danger: var(--color-critical);
+  --accent-danger-subtle: var(--color-critical-subtle);
+
+  /* --- shadcn Primitives Map INTO WAY 3.0 Tokens (Single Source of Truth) --- */
+  --background: var(--color-canvas);
+  --foreground: var(--color-ink);
+  --card: var(--color-surface-raised);
+  --card-foreground: var(--color-ink);
+  --popover: var(--color-surface-overlay);
+  --popover-foreground: var(--color-ink);
+  --primary: var(--color-brand);
+  --primary-foreground: var(--color-ink-inverse);
+  --secondary: var(--color-surface);
+  --secondary-foreground: var(--color-ink);
+  --muted: var(--color-surface-subtle);
+  --muted-foreground: var(--color-ink-secondary);
+  --accent: var(--color-surface);
+  --accent-foreground: var(--color-ink);
+  --destructive: var(--color-critical);
+  --destructive-foreground: var(--color-ink-inverse);
+  --border: var(--color-border);
+  --input: var(--color-border);
+  --ring: var(--color-focus);
+
+  /* Sidebar Tokens */
+  --sidebar: var(--color-surface);
+  --sidebar-foreground: var(--color-ink);
+  --sidebar-primary: var(--color-brand);
+  --sidebar-primary-foreground: var(--color-ink-inverse);
+  --sidebar-accent: var(--color-surface-subtle);
+  --sidebar-accent-foreground: var(--color-ink);
+  --sidebar-border: var(--color-border);
+  --sidebar-ring: var(--color-focus);
+
+  /* Architectural Radius System — WAY 2.1 Compliance
+   * 0px (--radius-none): Structural & technical surfaces (data tables, assessment frames, console grids)
+   * 4px (--radius-sm):   Controls & content surfaces (buttons, inputs, tiles, cards, dialogs)
+   * 8px (--radius-md):   Expressive media frames (hero media, editorial features, illustration frames)
+   * PROHIBITED: 12px+ bubbly consumer curves (12px+, 16px+, pill buttons)
+   * rounded-sm (4px) and rounded-md (8px) are COMPLIANT by design — not violations.
+   */
+  --radius-none: 0px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius: 4px;
+
+  /* Spacing Scale (4, 8, 16, 24, 32, 40, 48, 64, 80, 96px) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* Motion Budget */
+  --duration-micro: 140ms;
+  --duration-standard: 200ms;
+  --duration-emphasis: 280ms;
+  --ease-lagom: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark {
+  /* --- WAY 3.0 Dark Surfaces (Deep Slate Studio / Nordic Night) --- */
+  --color-canvas: oklch(0.145 0.018 250);          /* L0 Base Slate (#101622) */
+  --color-surface: oklch(0.180 0.020 250);         /* L1 Soft Slate Well (#141D2C) */
+  --color-surface-subtle: oklch(0.120 0.015 250);  /* L0/L1 Inset (#0C111A) */
+  --color-surface-raised: oklch(0.210 0.022 250);  /* L2 Raised Card (#1A2538) */
+  --color-surface-overlay: oklch(0.250 0.025 250); /* L3 Popover (#212E44) */
+  --color-surface-modal: oklch(0.220 0.022 250);   /* L4 Dialog */
+
+  /* --- WAY 3.0 Dark Typography & Ink --- */
+  --color-ink: oklch(0.960 0.005 240);            /* Crisp White #F8FAFC */
+  --color-ink-secondary: oklch(0.700 0.015 240);  /* Soft Slate #94A3B8 */
+  --color-ink-muted: oklch(0.520 0.015 240);      /* Muted Slate #64748B */
+  --color-ink-inverse: oklch(0.145 0.018 250);
+
+  /* --- WAY 3.0 Dark Accents --- */
+  --color-brand: oklch(0.720 0.150 215);          /* Luminous Cyan */
+  --color-brand-subtle: oklch(0.240 0.040 215);
+  --color-ai: oklch(0.720 0.140 280);             /* Muted Iris */
+  --color-ai-subtle: oklch(0.230 0.040 280);
+  --color-positive: oklch(0.700 0.130 150);       /* Sage */
+  --color-positive-subtle: oklch(0.230 0.040 150);
+  --color-attention: oklch(0.750 0.140 75);       /* Ochre */
+  --color-attention-subtle: oklch(0.240 0.040 75);
+  --color-critical: oklch(0.700 0.160 25);        /* Vermilion */
+  --color-critical-subtle: oklch(0.240 0.040 25);
+
+  /* --- Dark Boundaries --- */
+  --color-border: oklch(0.260 0.020 250);         /* Subtle boundary #273448 */
+  --color-border-strong: oklch(0.350 0.030 250);  /* Interactive border #3B4D66 */
+  --color-focus: oklch(0.720 0.150 215);
+
+  /* --- Backward-Compatibility Bridges for Dark --- */
+  --surface-canvas: var(--color-canvas);
+  --surface-content: var(--color-surface);
+  --surface-raised: var(--color-surface-raised);
+  --surface-overlay: var(--color-surface-overlay);
+  --surface-modal: var(--color-surface-modal);
+  --surface-sunken: var(--color-surface-subtle);
+  --text-primary: var(--color-ink);
+  --text-secondary: var(--color-ink-secondary);
+  --text-muted: var(--color-ink-muted);
+  --border-subtle: var(--color-border);
+  --border-strong: var(--color-border-strong);
+  --border-focus: var(--color-focus);
+  --accent-primary: var(--color-brand);
+  --accent-primary-subtle: var(--color-brand-subtle);
+  --accent-indigo: var(--color-ai);
+  --accent-indigo-subtle: var(--color-ai-subtle);
+  --accent-success: var(--color-positive);
+  --accent-success-subtle: var(--color-positive-subtle);
+  --accent-warning: var(--color-attention);
+  --accent-warning-subtle: var(--color-attention-subtle);
+  --accent-danger: var(--color-critical);
+  --accent-danger-subtle: var(--color-critical-subtle);
+
+  /* --- shadcn Dark Mappings --- */
+  --background: var(--color-canvas);
+  --foreground: var(--color-ink);
+  --card: var(--color-surface-raised);
+  --card-foreground: var(--color-ink);
+  --popover: var(--color-surface-overlay);
+  --popover-foreground: var(--color-ink);
+  --primary: var(--color-brand);
+  --primary-foreground: var(--color-ink-inverse);
+  --secondary: var(--color-surface);
+  --secondary-foreground: var(--color-ink);
+  --muted: var(--color-surface-subtle);
+  --muted-foreground: var(--color-ink-secondary);
+  --accent: var(--color-surface);
+  --accent-foreground: var(--color-ink);
+  --destructive: var(--color-critical);
+  --destructive-foreground: var(--color-ink-inverse);
+  --border: var(--color-border);
+  --input: var(--color-border);
+  --ring: var(--color-focus);
+
+  --sidebar: var(--color-surface);
+  --sidebar-foreground: var(--color-ink);
+  --sidebar-primary: var(--color-brand);
+  --sidebar-primary-foreground: var(--color-ink-inverse);
+  --sidebar-accent: var(--color-surface-subtle);
+  --sidebar-accent-foreground: var(--color-ink);
+  --sidebar-border: var(--color-border);
+  --sidebar-ring: var(--color-focus);
+}
+
 @layer base {
   body {
-    background-color: var(--surface-canvas);
-    color: var(--text-primary);
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
     font-family: var(--font-sans);
     transition: background-color var(--duration-standard) var(--ease-lagom),
                 color var(--duration-standard) var(--ease-lagom);
@@ -19,18 +233,16 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
+    color: var(--color-ink);
   }
 
-  /* Accessible focus indicators (Apple HIG & Carbon standard) */
   :focus-visible {
-    outline: 2px solid var(--border-focus);
+    outline: 2px solid var(--color-focus);
     outline-offset: 2px;
   }
 
   * {
-    border-color: var(--border);
-    outline-color: color-mix(in oklch, var(--ring) 50%, transparent);
-    border-radius: var(--radius, 4px);
+    border-color: var(--color-border);
   }
 
   html {
@@ -38,206 +250,136 @@
   }
 }
 
-/* Tactile Surface Classes (WAY 2.0 Calibrated Architectural Layering) */
+/* Reduced Motion Law */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Surface Utility Helpers */
 .surface-card {
-  background-color: var(--surface-raised);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-control, 4px);
-  box-shadow: var(--shadow-subtle);
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
   transition: box-shadow var(--duration-micro) var(--ease-lagom),
               border-color var(--duration-micro) var(--ease-lagom);
 }
 
 .surface-card:hover {
-  box-shadow: var(--shadow-raised);
-  border-color: var(--border-strong);
+  border-color: var(--color-border-strong);
 }
 
-.surface-elevated {
-  background-color: var(--surface-raised);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-control, 4px);
-  box-shadow: var(--shadow-raised);
+.surface-subtle {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
 }
 
-.surface-sunken {
-  background-color: var(--surface-sunken);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-control, 4px);
-}
-
-/* Layer Hierarchy Classes */
-.layer-l0 { background-color: var(--surface-canvas); }
-.layer-l1 { background-color: var(--surface-content); border: 1px solid var(--border-subtle); }
-.layer-l2 { background-color: var(--surface-raised); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-subtle); }
-.layer-l3 { background-color: var(--surface-overlay); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-raised); }
-.layer-l4 { background-color: var(--surface-modal); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-overlay); }
-
-/* Subtle accent text & background utilities */
+/* WAY 3.0 Badge Color Utilities */
 .badge-growth {
-  background-color: var(--accent-success-subtle);
-  color: var(--accent-success);
-  border: 1px solid color-mix(in oklch, var(--accent-success) 30%, transparent);
+  background-color: var(--color-positive-subtle);
+  color: var(--color-positive);
+  border: 1px solid color-mix(in oklch, var(--color-positive) 25%, transparent);
 }
 
 .badge-focus {
-  background-color: var(--accent-warning-subtle);
-  color: var(--accent-warning);
-  border: 1px solid color-mix(in oklch, var(--accent-warning) 30%, transparent);
+  background-color: var(--color-attention-subtle);
+  color: var(--color-attention);
+  border: 1px solid color-mix(in oklch, var(--color-attention) 25%, transparent);
 }
 
 .badge-pathway {
-  background-color: var(--accent-indigo-subtle);
-  color: var(--accent-indigo);
-  border: 1px solid color-mix(in oklch, var(--accent-indigo) 30%, transparent);
+  background-color: var(--color-ai-subtle);
+  color: var(--color-ai);
+  border: 1px solid color-mix(in oklch, var(--color-ai) 25%, transparent);
 }
 
 .badge-primary {
-  background-color: var(--accent-primary-subtle);
-  color: var(--accent-primary);
-  border: 1px solid color-mix(in oklch, var(--accent-primary) 30%, transparent);
+  background-color: var(--color-brand-subtle);
+  color: var(--color-brand);
+  border: 1px solid color-mix(in oklch, var(--color-brand) 25%, transparent);
 }
 
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0.008 326);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0.008 326);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0.008 326);
-  --primary: oklch(0.511 0.096 186.391);
-  --primary-foreground: oklch(0.984 0.014 180.72);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.96 0.003 325.6);
-  --muted-foreground: oklch(0.542 0.034 322.5);
-  --accent: oklch(0.96 0.003 325.6);
-  --accent-foreground: oklch(0.212 0.019 322.12);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0.005 325.62);
-  --input: oklch(0.922 0.005 325.62);
-  --ring: oklch(0.711 0.019 323.02);
-  --chart-1: oklch(0.811 0.111 293.571);
-  --chart-2: oklch(0.606 0.25 292.717);
-  --chart-3: oklch(0.541 0.281 293.009);
-  --chart-4: oklch(0.491 0.27 292.581);
-  --chart-5: oklch(0.432 0.232 292.759);
-  --radius: 0rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0.008 326);
-  --sidebar-primary: oklch(0.6 0.118 184.704);
-  --sidebar-primary-foreground: oklch(0.984 0.014 180.72);
-  --sidebar-accent: oklch(0.96 0.003 325.6);
-  --sidebar-accent-foreground: oklch(0.212 0.019 322.12);
-  --sidebar-border: oklch(0.922 0.005 325.62);
-  --sidebar-ring: oklch(0.711 0.019 323.02);
-
-  /* Bridge WAY design system semantic variables to preset palette */
-  --surface-canvas: var(--background);
-  --surface-raised: var(--card);
-  --surface-overlay: var(--popover);
-  --surface-sunken: var(--muted);
-  --border-subtle: var(--border);
-  --border-strong: color-mix(in oklch, var(--border) 80%, var(--foreground));
-  --border-focus: var(--ring);
-  --text-primary: var(--foreground);
-  --text-secondary: var(--muted-foreground);
-  --text-muted: color-mix(in oklch, var(--muted-foreground) 80%, transparent);
-  --accent-primary: var(--primary);
-  --accent-primary-subtle: color-mix(in oklch, var(--primary) 12%, var(--background));
+.badge-alert {
+  background-color: var(--color-critical-subtle);
+  color: var(--color-critical);
+  border: 1px solid color-mix(in oklch, var(--color-critical) 25%, transparent);
 }
 
-.dark {
-  --background: oklch(0.145 0.008 326);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.212 0.019 322.12);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.212 0.019 322.12);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.437 0.078 188.216);
-  --primary-foreground: oklch(0.984 0.014 180.72);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.263 0.024 320.12);
-  --muted-foreground: oklch(0.711 0.019 323.02);
-  --accent: oklch(0.263 0.024 320.12);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.542 0.034 322.5);
-  --chart-1: oklch(0.811 0.111 293.571);
-  --chart-2: oklch(0.606 0.25 292.717);
-  --chart-3: oklch(0.541 0.281 293.009);
-  --chart-4: oklch(0.491 0.27 292.581);
-  --chart-5: oklch(0.432 0.232 292.759);
-  --sidebar: oklch(0.212 0.019 322.12);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.704 0.14 182.503);
-  --sidebar-primary-foreground: oklch(0.277 0.046 192.524);
-  --sidebar-accent: oklch(0.263 0.024 320.12);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.542 0.034 322.5);
-
-  /* Bridge dark WAY tokens to preset dark palette */
-  --surface-canvas: var(--background);
-  --surface-raised: var(--card);
-  --surface-overlay: var(--popover);
-  --surface-sunken: var(--muted);
-  --border-subtle: var(--border);
-  --border-strong: color-mix(in oklch, var(--border) 60%, var(--foreground));
-  --border-focus: var(--ring);
-  --text-primary: var(--foreground);
-  --text-secondary: var(--muted-foreground);
-  --text-muted: color-mix(in oklch, var(--muted-foreground) 75%, transparent);
-  --accent-primary: var(--primary);
-  --accent-primary-subtle: color-mix(in oklch, var(--primary) 20%, var(--background));
-}
-
+/* Strict WAY 3.0 Tailwind Theme */
 @theme inline {
   --font-sans: 'Inter Variable', sans-serif;
   --font-heading: 'DM Sans Variable', sans-serif;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
+
+  /* Colors */
+  --color-canvas: var(--color-canvas);
+  --color-surface: var(--color-surface);
+  --color-surface-subtle: var(--color-surface-subtle);
+  --color-surface-raised: var(--color-surface-raised);
+  --color-surface-overlay: var(--color-surface-overlay);
+  --color-surface-modal: var(--color-surface-modal);
+
+  --color-ink: var(--color-ink);
+  --color-ink-secondary: var(--color-ink-secondary);
+  --color-ink-muted: var(--color-ink-muted);
+  --color-ink-inverse: var(--color-ink-inverse);
+
+  --color-brand: var(--color-brand);
+  --color-brand-subtle: var(--color-brand-subtle);
+  --color-ai: var(--color-ai);
+  --color-ai-subtle: var(--color-ai-subtle);
+  --color-positive: var(--color-positive);
+  --color-positive-subtle: var(--color-positive-subtle);
+  --color-attention: var(--color-attention);
+  --color-attention-subtle: var(--color-attention-subtle);
+  --color-critical: var(--color-critical);
+  --color-critical-subtle: var(--color-critical-subtle);
+
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+  --color-focus: var(--color-focus);
+
+  /* shadcn compat */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
   --color-ring: var(--ring);
   --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
-  --radius: 0rem;
-  --radius-none: 0rem;
-  --radius-xs: 0rem;
-  --radius-sm: 0rem;
-  --radius-md: 0rem;
-  --radius-lg: 0rem;
-  --radius-xl: 0rem;
-  --radius-2xl: 0rem;
-  --radius-3xl: 0rem;
-  --radius-4xl: 0rem;
-  --radius-full: 0rem;
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Architectural Radius System: 0px, 4px, 8px only */
+  --radius-none: 0px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 8px;
+  --radius-2xl: 8px;
+  --radius-3xl: 8px;
+  --radius-full: 9999px;
 }

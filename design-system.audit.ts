@@ -79,7 +79,11 @@ function auditPsychometricLeaks() {
   const violations: string[] = [];
   const experienceRoutes = [
     path.join(WEB_SRC, 'routes', 'student'),
-    path.join(WEB_SRC, 'routes', 'parent')
+    path.join(WEB_SRC, 'routes', 'parent'),
+    path.join(WEB_SRC, 'routes', '(app)', 'student'),
+    path.join(WEB_SRC, 'routes', '(app)', 'parent'),
+    path.join(WEB_SRC, 'routes', '(app)', 'teacher'),
+    path.join(WEB_SRC, 'routes', '(app)', 'counselor')
   ];
 
   const leakPatterns = [
@@ -122,7 +126,10 @@ function auditPsychometricLeaks() {
 // 4. Audit False Precision (No percentage readiness / alignment like "74% Alignment" or "74% Fit")
 function auditFalsePrecision() {
   const violations: string[] = [];
-  const studentRoutes = path.join(WEB_SRC, 'routes', 'student');
+  const studentDirs = [
+    path.join(WEB_SRC, 'routes', 'student'),
+    path.join(WEB_SRC, 'routes', '(app)', 'student')
+  ];
 
   function scanDir(dir: string) {
     if (!fs.existsSync(dir)) return;
@@ -142,7 +149,9 @@ function auditFalsePrecision() {
     }
   }
 
-  scanDir(studentRoutes);
+  for (const dir of studentDirs) {
+    scanDir(dir);
+  }
 
   results.push({
     category: 'Zero False Precision (Qualitative developmental tiers over percentage fitness)',

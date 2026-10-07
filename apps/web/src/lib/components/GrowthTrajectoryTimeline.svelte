@@ -97,22 +97,22 @@
   }
 </script>
 
-<div class="surface-card p-6 rounded-none border border-(--border-subtle) space-y-6">
+<div class="bg-surface p-6 rounded-sm border border-border space-y-6">
   <!-- Section Title -->
-  <div class="flex items-start justify-between gap-4 border-b border-(--border-subtle) pb-3">
+  <div class="flex items-start justify-between gap-4 border-b border-border pb-3">
     <div>
       <div class="flex items-center gap-2">
-        <TrendingUp class="w-4 h-4 text-(--accent-primary)" />
-        <h3 class="text-lg font-bold text-(--text-primary)">
+        <TrendingUp class="w-4 h-4 text-brand" />
+        <h3 class="text-lg font-bold text-ink">
           Developmental Trajectory Timeline
         </h3>
       </div>
-      <p class="text-xs text-(--text-secondary) mt-1">
+      <p class="text-xs text-ink-secondary mt-1">
         Chronological growth milestones verified by authentic classroom artifacts, adaptive CAT sessions, and project work.
       </p>
     </div>
 
-    <span class="text-xs font-semibold px-2.5 py-1 rounded-none badge-growth shrink-0">
+    <span class="text-xs font-semibold px-2.5 py-1 rounded-sm badge-growth shrink-0">
       Evidence-Anchored
     </span>
   </div>
@@ -120,9 +120,9 @@
   <!-- Interactive Timeline Strip -->
   <div class="relative py-4 px-2">
     <!-- Connecting Horizon Line -->
-    <div class="absolute top-8 left-6 right-6 h-0.5 bg-(--border-subtle)"></div>
+    <div class="absolute top-8 left-6 right-6 h-0.5 bg-border"></div>
     <div
-      class="absolute top-8 left-6 h-0.5 bg-(--accent-primary) transition-all duration-500"
+      class="absolute top-8 left-6 h-0.5 bg-brand transition-all duration-500"
       style="width: {(activeIdx / Math.max(1, milestones.length - 1)) * 92}%;"
     ></div>
 
@@ -135,11 +135,11 @@
         <button
           type="button"
           onclick={() => handleMilestoneClick(i, milestone)}
-          class="flex flex-col items-center group text-center focus:outline-none"
+          class="flex flex-col items-center group text-center focus:outline-none cursor-pointer"
         >
           <!-- Node Dot -->
           <div
-            class="w-8 h-8 rounded-none flex items-center justify-center transition-all duration-300 border-2 {isActive ? 'bg-(--accent-primary) border-(--surface-canvas) ring-4 ring-(--accent-primary)/30 text-white shadow-md scale-110' : isPast ? 'bg-(--surface-raised) border-(--accent-primary) text-(--accent-primary)' : 'bg-(--surface-sunken) border-(--border-subtle) text-(--text-muted)'}"
+            class="w-8 h-8 rounded-sm flex items-center justify-center transition-all duration-300 border-2 {isActive ? 'bg-brand border-canvas ring-4 ring-brand/30 text-white shadow-md scale-110' : isPast ? 'bg-surface-raised border-brand text-brand' : 'bg-surface-subtle border-border text-ink-muted'}"
           >
             {#if isPast}
               <CheckCircle class="w-4 h-4" />
@@ -149,12 +149,12 @@
           </div>
 
           <!-- Date Label -->
-          <span class="text-[10px] font-semibold mt-2 {isActive ? 'text-(--accent-primary)' : 'text-(--text-muted)'}">
+          <span class="text-[10px] font-semibold mt-2 {isActive ? 'text-brand' : 'text-ink-muted'}">
             {milestone.date}
           </span>
 
           <!-- Node Title snippet -->
-          <span class="text-[11px] font-medium max-w-20 sm:max-w-25 truncate mt-0.5 {isActive ? 'text-(--text-primary) font-semibold' : 'text-(--text-secondary)'}">
+          <span class="text-[11px] font-medium max-w-20 sm:max-w-25 truncate mt-0.5 {isActive ? 'text-ink font-semibold' : 'text-ink-secondary'}">
             {milestone.title}
           </span>
         </button>
@@ -163,24 +163,24 @@
   </div>
 
   <!-- Focused Milestone Card -->
-  <div class="p-4 rounded-none bg-(--surface-sunken) border border-(--border-subtle) space-y-3">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-(--border-subtle) pb-2 text-xs">
+  <div class="p-4 rounded-sm bg-surface-subtle border border-border space-y-3">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-2 text-xs">
       <div class="flex items-center gap-2">
-        <span class="px-2 py-0.5 rounded-none font-semibold bg-(--accent-primary-subtle) text-(--accent-primary)">
+        <span class="px-2 py-0.5 rounded-sm font-semibold bg-brand-subtle text-brand">
           {activeMilestone.category}
         </span>
-        <span class="font-bold text-sm text-(--text-primary)">
+        <span class="font-bold text-sm text-ink">
           {activeMilestone.title}
         </span>
       </div>
 
-      <div class="flex items-center gap-3 text-(--text-muted) font-medium">
+      <div class="flex items-center gap-3 text-ink-muted font-medium">
         <span class="flex items-center gap-1">
           <Calendar class="w-3.5 h-3.5" />
           {activeMilestone.date}
         </span>
         {#if activeMilestone.evidenceCode}
-          <span class="font-mono text-[11px] bg-(--surface-raised) px-1.5 py-0.5 rounded-none border border-(--border-subtle)">
+          <span class="font-mono text-[11px] bg-surface-raised px-1.5 py-0.5 rounded-sm border border-border">
             {activeMilestone.evidenceCode}
           </span>
         {/if}
@@ -188,19 +188,19 @@
     </div>
 
     <!-- Growth Note -->
-    <p class="text-sm text-(--text-secondary) leading-relaxed">
+    <p class="text-sm text-ink-secondary leading-relaxed">
       {activeMilestone.growthNote}
     </p>
 
     <!-- Qualitative Horizon & Domain -->
     <div class="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
-      <div class="flex items-center gap-1.5 text-(--text-muted)">
-        <Lightbulb class="w-3.5 h-3.5 text-(--accent-warning)" />
+      <div class="flex items-center gap-1.5 text-ink-muted">
+        <Lightbulb class="w-3.5 h-3.5 text-attention" />
         <span>Demonstrated Level: </span>
-        <span class="font-semibold text-(--text-primary)">{activeMilestone.level}</span>
+        <span class="font-semibold text-ink">{activeMilestone.level}</span>
       </div>
 
-      <span class="text-xs font-medium text-(--accent-primary)">
+      <span class="text-xs font-medium text-brand">
         {activeMilestone.domain}
       </span>
     </div>

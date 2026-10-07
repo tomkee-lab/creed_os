@@ -23,7 +23,7 @@ export const COMPETENCY_BANDS: MetricBand[] = [
     label: 'Developing',
     studentLabel: 'Next Focus',
     parentLabel: 'Developing Foundation',
-    colorClass: 'text-(--accent-warning) bg-(--accent-warning-subtle) border border-(--border-subtle)'
+    colorClass: 'text-attention bg-attention-subtle border border-border'
   },
   {
     min: 2.5,
@@ -31,7 +31,7 @@ export const COMPETENCY_BANDS: MetricBand[] = [
     label: 'Expected',
     studentLabel: 'On Track',
     parentLabel: 'Age Expected',
-    colorClass: 'text-(--accent-primary) bg-(--accent-primary-subtle) border border-(--border-subtle)'
+    colorClass: 'text-brand bg-brand-subtle border border-border'
   },
   {
     min: 3.5,
@@ -39,7 +39,7 @@ export const COMPETENCY_BANDS: MetricBand[] = [
     label: 'Proficient',
     studentLabel: 'Solid Strength',
     parentLabel: 'Strong Foundation',
-    colorClass: 'text-(--accent-success) bg-(--accent-success-subtle) border border-(--border-subtle)'
+    colorClass: 'text-positive bg-positive-subtle border border-border'
   },
   {
     min: 4.3,
@@ -47,7 +47,7 @@ export const COMPETENCY_BANDS: MetricBand[] = [
     label: 'Advanced',
     studentLabel: 'Superpower',
     parentLabel: 'Advanced Demonstrated Capability',
-    colorClass: 'text-(--accent-indigo) bg-(--accent-indigo-subtle) border border-(--border-subtle)'
+    colorClass: 'text-ai bg-ai-subtle border border-border'
   }
 ];
 

@@ -7,18 +7,24 @@ test.describe('Global Layout', () => {
     await page.goto('/');
     await expect(page.locator('header')).toBeVisible();
     await expect(page.getByRole('link', { name: /CREED OS/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Explore CREED/i }).first()).toBeVisible();
   });
 
-  test('mobile nav toggle opens and closes the drawer', async ({ page }) => {
+  test('mobile viewport displays primary action and access links', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    const toggle = page.locator('#mobile-nav-toggle');
-
-    // On desktop viewport, toggle is hidden; test on mobile
     await page.setViewportSize({ width: 375, height: 667 });
-    await expect(toggle).toBeVisible();
-    await toggle.click();
-    await expect(page.getByRole('link', { name: 'Student View', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Explore CREED/i }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: /Sign in/i }).first()).toBeVisible();
+  });
+
+  test('authenticated app shell provides mobile bottom navigation', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto('/student');
+    await page.waitForLoadState('networkidle');
+    await expect(page.getByRole('link', { name: /Today/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Map/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Guide/i })).toBeVisible();
   });
 });
 
@@ -28,36 +34,32 @@ test.describe('Landing Page (/)', () => {
   test('renders editorial product headline', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.getByText(/Measure deeply/i)).toBeVisible();
-    await expect(page.getByText(/Decide with evidence/i)).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(/Understand how/i);
+    await expect(page.getByText(/Assess deeply. Learn personally. Explore freely./i)).toBeVisible();
   });
 
   test('has working navigation cards to all portals', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('link', { name: /Student Experience/i }).first()).toBeVisible();
-    await expect(page.getByRole('link', { name: /Parent Alignment/i }).first()).toBeVisible();
-    await expect(page.getByRole('link', { name: /Teacher Copilot/i }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: /Enter student space/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Enter family space/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Enter teacher space/i })).toBeVisible();
   });
 });
 
 // ── Student Dashboard ─────────────────────────────────────────────────────────
 
 test.describe('Student Dashboard (/student)', () => {
-  test('renders learner name and grade', async ({ page }) => {
+  test('renders learner greeting and next step orientation', async ({ page }) => {
     await page.goto('/student');
-    await expect(page.locator('main').getByText('Anaya Verma')).toBeVisible();
-    await expect(page.locator('main').getByText(/Class 8/i).first()).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(/Good morning/i);
+    await expect(page.getByText(/Your next step is ready/i)).toBeVisible();
   });
 
-  test('renders My Learning & Future Map heading', async ({ page }) => {
+  test('renders Dominant Today Focus and practice action', async ({ page }) => {
     await page.goto('/student');
-    await expect(page.getByRole('heading', { name: /My Learning & Future Map/i })).toBeVisible();
-  });
-
-  test('has diagnostic and Socratic guide action buttons', async ({ page }) => {
-    await page.goto('/student');
-    await expect(page.getByRole('link', { name: /Take Diagnostic Check/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Ask Socratic Guide/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Strengthen proportional reasoning/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Start practice/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /View capabilities/i })).toBeVisible();
   });
 });
 
@@ -96,10 +98,11 @@ test.describe('Pathway Explorer (/student/pathways)', () => {
 // ── Socratic AI Mentor ────────────────────────────────────────────────────────
 
 test.describe('Socratic AI Mentor (/student/mentor)', () => {
-  test('renders the mentor interface with welcome message', async ({ page }) => {
+  test('renders the mentor interface with thinking moves and dialogue', async ({ page }) => {
     await page.goto('/student/mentor');
-    await expect(page.getByText(/Socratic AI Guide/i)).toBeVisible();
-    await expect(page.getByText(/Hello Anaya/i)).toBeVisible();
+    await expect(page.getByText(/Socratic Mentor/i)).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(/Kinematics/i);
+    await expect(page.getByRole('button', { name: /Decompose/i })).toBeVisible();
   });
 
   test('mentor chat API responds with a reply', async ({ request }) => {
@@ -121,81 +124,75 @@ test.describe('Socratic AI Mentor (/student/mentor)', () => {
 // ── Parent Portal ─────────────────────────────────────────────────────────────
 
 test.describe('Parent Portal (/parent)', () => {
-  test('renders parent portal with DPDP verified badge', async ({ page }) => {
+  test('renders parent portal with verified consent notice', async ({ page }) => {
     await page.goto('/parent');
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.getByText(/DPDP Verified Guardian/i)).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(/How is Anaya doing/i);
+    await expect(page.getByText(/Verified Parental Consent Active/i)).toBeVisible();
+    await expect(page.getByText(/Spatial Reasoning/i).first()).toBeVisible();
   });
 });
 
 // ── Teacher Copilot ───────────────────────────────────────────────────────────
 
 test.describe('Teacher Copilot (/teacher)', () => {
-  test('renders class cohort and misconception clusters', async ({ page }) => {
+  test('renders class cohort and priority actions queue', async ({ page }) => {
     await page.goto('/teacher');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.getByText(/Misconception Clusters/i)).toBeVisible();
+    await expect(page.getByText(/Priority Actions/i)).toBeVisible();
+    await expect(page.getByRole('button', { name: /Log observation/i })).toBeVisible();
   });
 });
 
-// ── Counselor Portal ──────────────────────────────────────────────────────────
+// ── Counselor Intelligence Center (/counselor) ────────────────────────────────
 
 test.describe('Counselor Intelligence Center (/counselor)', () => {
-  test('renders the counselor portal', async ({ page }) => {
+  test('renders the counselor caseload and priority cases', async ({ page }) => {
     await page.goto('/counselor');
-    await expect(page.getByRole('heading', { name: /Counselor Guidance/i })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(/Caseload/i);
+    await expect(page.getByRole('heading', { name: /Priority Cases/i })).toBeVisible();
+    await expect(page.getByText(/24 active learners/i)).toBeVisible();
   });
 
-  test('displays active referral count and student stats', async ({ page }) => {
-    await page.goto('/counselor');
-    await expect(page.getByText(/Open Referrals/i)).toBeVisible();
-    await expect(page.getByText(/On Track/i)).toBeVisible();
-  });
-
-  test('referral review opens side panel on click', async ({ page }) => {
+  test('case selection opens right-side inspector panel', async ({ page }) => {
     await page.goto('/counselor');
     await page.waitForLoadState('networkidle');
-    const reviewBtn = page.getByRole('button', { name: /Review Case & Evidence/i }).first();
-    await reviewBtn.click();
-    await expect(page.getByText(/Recommended Counselor Action/i)).toBeVisible();
+    const caseCard = page.getByRole('button', { name: /Anaya Verma/i }).first();
+    await caseCard.click();
+    await expect(page.getByText(/Grounding Evidence Base/i)).toBeVisible();
+    await expect(page.getByText(/Recommended Next Step/i)).toBeVisible();
   });
 });
 
-// ── Admin Intelligence Portal ─────────────────────────────────────────────────
+// ── Admin Intelligence Portal (/admin) ─────────────────────────────────────────
 
 test.describe('Admin Intelligence Portal (/admin)', () => {
-  test('renders the admin portal and school overview', async ({ page }) => {
+  test('renders the admin portal and operational header', async ({ page }) => {
     await page.goto('/admin');
-    await expect(page.getByRole('heading', { name: /Delhi Public International School/i })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(/Operations/i);
+    await expect(page.locator('main').getByText(/Delhi Public International School/i)).toBeVisible();
   });
 
-  test('displays statutory DPDP consent ledger and filters', async ({ page }) => {
+  test('displays high-density DPDP consent ledger table and search filter', async ({ page }) => {
     await page.goto('/admin');
-    await expect(page.getByRole('button', { name: /DPDP Consent Ledger/i })).toBeVisible();
-    await expect(page.getByText('Anaya Verma')).toBeVisible();
-    await expect(page.getByText('Sunita Verma')).toBeVisible();
-  });
-
-  test('switches tabs to staff directory', async ({ page }) => {
-    await page.goto('/admin');
-    await page.waitForLoadState('networkidle');
-    await page.getByRole('button', { name: /Staff Directory/i }).click();
-    await expect(page.getByText('Ms. Priya Nair')).toBeVisible();
+    await expect(page.getByPlaceholder(/Search by learner/i)).toBeVisible();
+    await expect(page.getByText('Anaya Verma').first()).toBeVisible();
+    await expect(page.getByText('Sunita Verma').first()).toBeVisible();
+    await expect(page.getByRole('button', { name: /Export/i })).toBeVisible();
   });
 });
 
-// ── Psychometric & Item Bank Studio ──────────────────────────────────────────
+// ── Psychometric & Item Bank Studio (/studio) ─────────────────────────────────
 
-test.describe('Psychometric & Item Bank Studio (/author)', () => {
-  test('renders the item bank studio and calibration sliders', async ({ page }) => {
+test.describe('Psychometric & Item Bank Studio (/studio)', () => {
+  test('redirects legacy /author to /studio', async ({ page }) => {
     await page.goto('/author');
-    await expect(page.getByRole('heading', { name: /Psychometric Item Bank/i })).toBeVisible();
-    await expect(page.getByText(/3PL IRT Parameters/i)).toBeVisible();
+    await expect(page).toHaveURL(/\/studio/);
   });
 
-  test('displays calibrated item bank with parameters', async ({ page }) => {
-    await page.goto('/author');
-    await expect(page.getByText(/Calibrated Item Bank/i)).toBeVisible();
+  test('renders the item studio and 3PL IRT calibration panel', async ({ page }) => {
+    await page.goto('/studio');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(/ITEM_STUDIO/i);
+    await expect(page.getByText(/CALIBRATION \/\/ 3PL IRT/i)).toBeVisible();
     await expect(page.locator('input[type="range"]').first()).toBeVisible();
   });
 });
@@ -216,6 +213,7 @@ test.describe('CREED OS REST API Contracts (/api/v1)', () => {
     const res = await request.get('/api/v1/learners/3fa85f64-5717-4562-b3fc-2c963f66afa6/evidence');
     expect(res.status()).toBe(200);
     const body = await res.json();
+    expect(body).not.toBeNull();
     expect(body).toHaveProperty('evidenceCount');
     expect(body).toHaveProperty('evidence');
   });
@@ -236,13 +234,33 @@ test.describe('CREED OS REST API Contracts (/api/v1)', () => {
     const res = await request.post('/api/v1/consent/verify', {
       data: {
         learnerId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-        channel: 'DIGILOCKER'
+        channel: 'DIGILOCKER',
+        parentName: 'Sunita Verma',
+        parentContact: 'DL-IND-9021-4820',
+        auditToken: 'DL-AUTH-TOKEN-2026'
       }
     });
     expect(res.status()).toBe(200);
     const body = await res.json();
     expect(body.success).toBe(true);
     expect(body.consent.status).toBe('VERIFIED_ACTIVE');
+  });
+});
+
+// ── Workspace Utility Routes ──────────────────────────────────────────────────
+
+test.describe('Workspace Utility Routes', () => {
+  test('Settings (/settings) renders workspace settings and privacy controls', async ({ page }) => {
+    await page.goto('/settings');
+    await expect(page.locator('h1')).toContainText('Workspace Settings');
+    await expect(page.getByText('Display & Ergonomics')).toBeVisible();
+    await expect(page.getByText('Privacy & Data Sovereignty')).toBeVisible();
+  });
+
+  test('Help (/help) renders documentation and principles', async ({ page }) => {
+    await page.goto('/help');
+    await expect(page.locator('h1')).toContainText('Documentation & Guidance');
+    await expect(page.getByText('Quiet Editorial Intelligence')).toBeVisible();
   });
 });
 

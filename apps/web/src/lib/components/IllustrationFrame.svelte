@@ -35,16 +35,16 @@
 
   const containerInteractive = $derived(
     interactive
-      ? 'group cursor-pointer transition-all duration-200 hover:border-(--border-strong)'
+      ? 'group cursor-pointer transition-all duration-200 hover:border-border-strong'
       : ''
   );
 </script>
 
 <figure
-  class="surface-card rounded-md border border-(--border-subtle) p-2 sm:p-4 bg-(--surface-content) {containerInteractive} {className}"
+  class="rounded-md border border-border p-2 sm:p-4 bg-surface {containerInteractive} {className}"
 >
   <!-- Hairline Passe-Partout Matting & Inner Image Frame (8px Expressive Radius) -->
-  <div class="relative overflow-hidden rounded-sm border border-(--border-subtle) bg-(--surface-raised) {aspectClasses[aspectRatio] || 'aspect-video'}">
+  <div class="relative overflow-hidden rounded-sm border border-border bg-surface-raised {aspectClasses[aspectRatio] || 'aspect-video'}">
     <img
       {src}
       {alt}
@@ -55,7 +55,7 @@
 
     {#if badge}
       <div class="absolute top-2 left-2 z-10">
-        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-sm bg-(--surface-canvas)/90 backdrop-blur-sm border border-(--border-subtle) text-[11px] font-semibold uppercase tracking-wider text-(--text-primary)">
+        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-sm bg-canvas/90 backdrop-blur-sm border border-border text-[11px] font-semibold uppercase tracking-wider text-ink">
           {badge}
         </span>
       </div>
@@ -64,12 +64,12 @@
 
   <!-- Editorial Caption Bar -->
   {#if caption || credit}
-    <figcaption class="pt-2 px-1 pb-0.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-(--text-muted) leading-relaxed">
+    <figcaption class="pt-2 px-1 pb-0.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-ink-muted leading-relaxed">
       {#if caption}
-        <span class="text-(--text-secondary) font-medium">{caption}</span>
+        <span class="text-ink-secondary font-medium">{caption}</span>
       {/if}
       {#if credit}
-        <span class="text-(--text-muted) font-mono tracking-tight shrink-0">{credit}</span>
+        <span class="text-ink-muted font-mono tracking-tight shrink-0">{credit}</span>
       {/if}
     </figcaption>
   {/if}

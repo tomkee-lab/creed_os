@@ -21,11 +21,11 @@
   }: Props = $props();
 
   const variantClasses: Record<CardVariant, string> = {
-    raised: 'surface-card border border-(--border-subtle)',
-    elevated: 'surface-elevated border border-(--border-subtle) shadow-md',
-    sunken: 'bg-(--surface-sunken) border border-(--border-subtle)',
-    canvas: 'bg-(--surface-canvas)',
-    content: 'bg-(--surface-content) border border-(--border-subtle)'
+    raised: 'bg-surface-raised border border-border shadow-xs',
+    elevated: 'bg-surface-raised border border-border shadow-md',
+    sunken: 'bg-surface-subtle border border-border',
+    canvas: 'bg-canvas',
+    content: 'bg-surface border border-border'
   };
 
   const paddingClasses: Record<CardPadding, string> = {
@@ -37,7 +37,7 @@
 
   const interactiveClass = $derived(
     interactive
-      ? 'transition-all duration-200 hover:border-(--border-strong) hover:shadow-sm cursor-pointer'
+      ? 'transition-all duration-200 hover:border-border-strong hover:shadow-sm cursor-pointer'
       : ''
   );
 

@@ -29,11 +29,11 @@
     growth: 'badge-growth',
     focus: 'badge-focus',
     alert: 'badge-alert',
-    neutral: 'bg-(--surface-content) border border-(--border-subtle) text-(--text-secondary)',
-    primary: 'bg-(--accent-primary-subtle) text-(--accent-primary) border border-(--accent-primary)/20',
-    indigo: 'bg-(--accent-indigo-subtle) text-(--accent-indigo) border border-(--accent-indigo)/20',
-    teal: 'bg-(--accent-primary-subtle) text-(--accent-primary) border border-(--accent-primary)/20',
-    success: 'bg-(--accent-success-subtle) text-(--accent-success) border border-(--accent-success)/20'
+    neutral: 'bg-surface border border-border text-ink-secondary',
+    primary: 'bg-brand-subtle text-brand border border-brand/20',
+    indigo: 'bg-ai-subtle text-ai border border-ai/20',
+    teal: 'bg-brand-subtle text-brand border border-brand/20',
+    success: 'bg-positive-subtle text-positive border border-positive/20'
   };
 
   const computedClass = $derived(
