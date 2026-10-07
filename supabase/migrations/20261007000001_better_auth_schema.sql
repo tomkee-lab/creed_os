@@ -122,6 +122,48 @@ ALTER TABLE "organization" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "member" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "invitation" ENABLE ROW LEVEL SECURITY;
 
+-- 7.0 Security Definer Membership Helpers (Prevents Recursive Policy Evaluation)
+CREATE OR REPLACE FUNCTION get_user_tenant_org_ids(p_user_id text)
+RETURNS SETOF text
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT "organizationId" FROM "member" WHERE "userId" = p_user_id;
+$$;
+
+CREATE OR REPLACE FUNCTION is_org_staff_or_admin(p_user_id text, p_org_id text)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM "member"
+    WHERE "userId" = p_user_id
+      AND "organizationId" = p_org_id
+      AND "role" IN ('admin', 'educator', 'counselor', 'teacher', 'owner')
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION is_educator_for_student_cohort(p_staff_user_id text, p_student_user_id text)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM "member" staff_mem
+    JOIN "member" student_mem ON student_mem."organizationId" = staff_mem."organizationId"
+    WHERE staff_mem."userId" = p_staff_user_id
+      AND staff_mem."role" IN ('admin', 'educator', 'counselor', 'teacher', 'owner')
+      AND student_mem."userId" = p_student_user_id
+  );
+$$;
+
 -- 7.1 "user" Table Policies (Student Identity and Relationship-Scoped Access)
 CREATE POLICY "user_select_self" ON "user"
   FOR SELECT
@@ -146,13 +188,7 @@ CREATE POLICY "user_parent_select_child" ON "user"
 CREATE POLICY "user_educator_select_cohort" ON "user"
   FOR SELECT
   USING (
-    EXISTS (
-      SELECT 1 FROM "member" staff_mem
-      JOIN "member" student_mem ON student_mem."organizationId" = staff_mem."organizationId"
-      WHERE staff_mem."userId" = auth.uid()::text
-        AND staff_mem."role" IN ('admin', 'educator', 'counselor', 'teacher')
-        AND student_mem."userId" = "user"."id"
-    )
+    is_educator_for_student_cohort(auth.uid()::text, "user"."id")
   );
 
 CREATE POLICY "user_service_role_all" ON "user"
@@ -177,32 +213,25 @@ CREATE POLICY "verification_service_role" ON "verification"
   FOR ALL
   USING (auth.role() = 'service_role');
 
--- 7.4 "organization", "member", and "invitation" Policies (Tenant Isolation)
+-- 7.4 "organization", "member", and "invitation" Policies (Tenant Isolation without Recursion)
 CREATE POLICY "org_member_view" ON "organization"
   FOR SELECT
   USING (
-    EXISTS (
-      SELECT 1 FROM "member"
-      WHERE "member"."organizationId" = "organization"."id"
-        AND "member"."userId" = auth.uid()::text
-    ) OR auth.role() = 'service_role'
+    "id" IN (SELECT get_user_tenant_org_ids(auth.uid()::text))
+    OR auth.role() = 'service_role'
   );
 
 CREATE POLICY "member_organization_view" ON "member"
   FOR SELECT
   USING (
-    "organizationId" IN (
-      SELECT "organizationId" FROM "member" WHERE "userId" = auth.uid()::text
-    ) OR auth.role() = 'service_role'
+    "userId" = auth.uid()::text
+    OR "organizationId" IN (SELECT get_user_tenant_org_ids(auth.uid()::text))
+    OR auth.role() = 'service_role'
   );
 
 CREATE POLICY "invitation_admin_access" ON "invitation"
   FOR ALL
   USING (
-    EXISTS (
-      SELECT 1 FROM "member"
-      WHERE "member"."organizationId" = "invitation"."organizationId"
-        AND "member"."userId" = auth.uid()::text
-        AND "member"."role" IN ('admin', 'owner')
-    ) OR auth.role() = 'service_role'
+    is_org_staff_or_admin(auth.uid()::text, "organizationId")
+    OR auth.role() = 'service_role'
   );

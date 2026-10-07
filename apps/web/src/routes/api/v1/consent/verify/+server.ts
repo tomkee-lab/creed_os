@@ -4,7 +4,7 @@ import { transitionConsentState, type ConsentRecord, type VerificationChannel } 
 // Import the OTP store and learner-bound hash function from the challenge endpoint
 import { OTP_STORE, hashChallengeKey } from '../challenge/+server';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, cookies, locals }) => {
   try {
     let body: unknown;
     try {
@@ -97,6 +97,19 @@ export const POST: RequestHandler = async ({ request }) => {
       expiresAt: initialRecord.expiresAt,
       auditToken: token
     });
+
+    // Set statutory consent verification cookie so parent session is immediately recognized
+    cookies.set('creed_consent_verified', 'true', {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 365 * 24 * 60 * 60
+    });
+
+    // If an authenticated user session exists with pending parent role, promote to active verified parent
+    if (locals.user && (locals.user.role === 'parent_pending' || !locals.user.role)) {
+      locals.user.role = 'parent';
+    }
 
     return json({
       success: true,

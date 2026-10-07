@@ -2,7 +2,7 @@ import { redirect, error } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 import { coreRepository } from '$lib/server/repository';
 
-export const load: LayoutServerLoad = async ({ locals, url }) => {
+export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
   const currentPath = url.pathname;
   const requestedRole = currentPath.startsWith('/admin')
     ? 'admin'
@@ -29,28 +29,30 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
   }
 
   const userRole = (user as any).role || (user as any).metadata?.role || 'student';
+  const hasVerifiedConsent = cookies.get('creed_consent_verified') === 'true';
+  const effectiveRole = (userRole === 'parent_pending' && hasVerifiedConsent) ? 'parent' : userRole;
 
   // Role access enforcement:
   // Non-privileged users cannot access staff, guardian, or administrative workspaces
-  if (userRole === 'parent_pending' && requestedRole === 'parent') {
+  if (effectiveRole === 'parent_pending' && requestedRole === 'parent') {
     throw redirect(303, '/consent');
   }
 
-  if (userRole.endsWith('_pending')) {
+  if (effectiveRole.endsWith('_pending')) {
     throw error(403, 'Forbidden: Account pending institutional verification. An administrator must approve credentials before accessing workspaces.');
   }
 
   if (!import.meta.env.DEV) {
-    if (requestedRole === 'admin' && userRole !== 'admin') {
+    if (requestedRole === 'admin' && effectiveRole !== 'admin') {
       throw error(403, 'Forbidden: Administrative privilege required');
     }
-    if ((requestedRole === 'teacher' || requestedRole === 'counselor') && !['teacher', 'counselor', 'admin'].includes(userRole)) {
+    if ((requestedRole === 'teacher' || requestedRole === 'counselor') && !['teacher', 'counselor', 'admin'].includes(effectiveRole)) {
       throw error(403, 'Forbidden: Educator or counselor credential required');
     }
-    if (requestedRole === 'studio' && !['studio', 'admin', 'teacher'].includes(userRole)) {
+    if (requestedRole === 'studio' && !['studio', 'admin', 'teacher'].includes(effectiveRole)) {
       throw error(403, 'Forbidden: Item calibration credentials required');
     }
-    if (requestedRole === 'parent' && !['parent', 'admin'].includes(userRole)) {
+    if (requestedRole === 'parent' && !['parent', 'admin'].includes(effectiveRole)) {
       throw error(403, 'Forbidden: Guardian relationship credential required');
     }
   }
@@ -60,8 +62,8 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
   const isStudentOrParentRoute = ['student', 'parent'].includes(requestedRole);
   const isVerifiedAccess =
     import.meta.env.DEV ||
-    (requestedRole === 'student' && userRole === 'student') ||
-    (requestedRole === 'parent' && ['parent', 'admin'].includes(userRole));
+    (requestedRole === 'student' && effectiveRole === 'student') ||
+    (requestedRole === 'parent' && ['parent', 'admin'].includes(effectiveRole));
 
   const scopedLearnerId = (user as any).learnerId || (import.meta.env.DEV ? '3fa85f64-5717-4562-b3fc-2c963f66afa6' : (user as any).id);
 
@@ -77,12 +79,15 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 
   // Cohort analytics scoped strictly to verified educator/admin roles
   const isEducatorOrAdmin = ['teacher', 'counselor', 'admin', 'studio'].includes(requestedRole) &&
-    (import.meta.env.DEV || ['teacher', 'counselor', 'admin', 'studio'].includes(userRole)) &&
-    !userRole.endsWith('_pending');
+    (import.meta.env.DEV || ['teacher', 'counselor', 'admin', 'studio'].includes(effectiveRole)) &&
+    !effectiveRole.endsWith('_pending');
   const cohort = isEducatorOrAdmin ? coreRepository.getClassCohort() : null;
 
   return {
-    user,
+    user: {
+      ...user,
+      role: effectiveRole
+    },
     session: locals.session,
     activeRole: requestedRole,
     learner,

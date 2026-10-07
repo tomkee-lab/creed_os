@@ -29,7 +29,6 @@ const PUBLIC_PREFIXES: string[] = [
   // Public consent challenge & verification APIs (statutory DPDP consent submission)
   '/api/v1/consent/challenge',
   '/api/v1/consent/verify',
-  '/api/v1/consent',
   // Better Auth API (must be fully public)
   '/api/auth',
   // Marketing pages
