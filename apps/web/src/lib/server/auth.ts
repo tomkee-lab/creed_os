@@ -14,10 +14,12 @@ if (isProduction && !secret) {
   throw new Error('FATAL: BETTER_AUTH_SECRET must be configured in production environments.');
 }
 
+const rawApiKey = (env.BETTER_AUTH_API_KEY || process.env.BETTER_AUTH_API_KEY || '').trim();
+const sanitizedApiKey = rawApiKey.replace(/^BETTER_AUTH_API_KEY=+/i, '').trim();
+
 const betterAuthApiKey =
-  env.BETTER_AUTH_API_KEY ||
-  process.env.BETTER_AUTH_API_KEY ||
-  'ba_wa2mt5u0ui89mh5puxri8ewlowkjzbky,ba_duy1mwr0fqra6rg678qf00dbe4f2s6lh';
+  sanitizedApiKey ||
+  'ba_sx2901lbs34pwzujpnmu5n7gfdjf08bq,ba_wa2mt5u0ui89mh5puxri8ewlowkjzbky,ba_duy1mwr0fqra6rg678qf00dbe4f2s6lh';
 
 export const auth = betterAuth({
   appName: 'CREED OS',
