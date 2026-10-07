@@ -274,6 +274,37 @@
   border-radius: var(--radius-sm);
 }
 
+/* WAY 3.0 Badge Color Utilities */
+.badge-growth {
+  background-color: var(--color-positive-subtle);
+  color: var(--color-positive);
+  border: 1px solid color-mix(in oklch, var(--color-positive) 25%, transparent);
+}
+
+.badge-focus {
+  background-color: var(--color-attention-subtle);
+  color: var(--color-attention);
+  border: 1px solid color-mix(in oklch, var(--color-attention) 25%, transparent);
+}
+
+.badge-pathway {
+  background-color: var(--color-ai-subtle);
+  color: var(--color-ai);
+  border: 1px solid color-mix(in oklch, var(--color-ai) 25%, transparent);
+}
+
+.badge-primary {
+  background-color: var(--color-brand-subtle);
+  color: var(--color-brand);
+  border: 1px solid color-mix(in oklch, var(--color-brand) 25%, transparent);
+}
+
+.badge-alert {
+  background-color: var(--color-critical-subtle);
+  color: var(--color-critical);
+  border: 1px solid color-mix(in oklch, var(--color-critical) 25%, transparent);
+}
+
 /* Strict WAY 3.0 Tailwind Theme */
 @theme inline {
   --font-sans: 'Inter Variable', sans-serif;

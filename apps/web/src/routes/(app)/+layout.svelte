@@ -24,7 +24,14 @@
   let isDarkMode = $state(false);
 
   onMount(() => {
-    isDarkMode = document.documentElement.classList.contains('dark');
+    const saved = localStorage.getItem('way_theme');
+    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+      isDarkMode = true;
+    } else {
+      document.documentElement.classList.remove('dark');
+      isDarkMode = false;
+    }
   });
 
   function toggleTheme() {

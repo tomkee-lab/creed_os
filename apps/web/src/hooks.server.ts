@@ -15,7 +15,7 @@ export const handle: Handle = async ({ event, resolve }) => {
       event.locals.user = null;
     }
   } catch (err) {
-    // In dev / uninitialized states, gracefully default to null session
+    console.error(`[auth] Session retrieval failure on ${event.request.method} ${event.url.pathname}:`, err);
     event.locals.session = null;
     event.locals.user = null;
   }

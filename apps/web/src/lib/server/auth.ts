@@ -1,20 +1,21 @@
 import { betterAuth } from 'better-auth';
 import { organization } from 'better-auth/plugins';
-import { dash, sentinel } from '@better-auth/infra';
+import { passkey } from '@better-auth/passkey';
+import { dash } from '@better-auth/infra';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
 import { getRequestEvent } from '$app/server';
 
-const apiKey = process.env.BETTER_AUTH_API_KEY;
-const infraPlugins = [];
-if (apiKey) {
-  infraPlugins.push(dash({ apiKey }));
-  infraPlugins.push(sentinel());
+const isProduction = process.env.NODE_ENV === 'production';
+const secret = process.env.BETTER_AUTH_SECRET;
+
+if (isProduction && !secret) {
+  throw new Error('FATAL: BETTER_AUTH_SECRET must be configured in production environments.');
 }
 
 export const auth = betterAuth({
   appName: 'CREED OS',
   baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:5173',
-  secret: process.env.BETTER_AUTH_SECRET || 'creed-os-local-dev-secret-32-chars-entropy-key',
+  secret: secret || 'creed-os-local-dev-secret-32-chars-entropy-key',
   database: process.env.DATABASE_URL
     ? {
         connectionString: process.env.DATABASE_URL,
@@ -25,9 +26,17 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: false
   },
+  trustedOrigins: [
+    'https://dash.better-auth.com',
+    'http://localhost:5173',
+    'http://localhost:4173'
+  ],
   plugins: [
     organization(),
-    ...infraPlugins,
+    passkey(),
+    dash({
+      apiKey: process.env.BETTER_AUTH_API_KEY
+    }),
     sveltekitCookies(getRequestEvent)
   ]
 });

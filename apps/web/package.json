@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@better-auth/infra": "^0.4.14",
+    "@better-auth/passkey": "^1.7.7",
     "@core-os/ai": "workspace:*",
     "@core-os/assessment": "workspace:*",
     "@core-os/domain": "workspace:*",

@@ -16,6 +16,7 @@
     BookOpen
   } from 'lucide-svelte';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+  import { authClient } from '$lib/auth-client';
 
   let {
     activeRole = 'student',
@@ -30,6 +31,25 @@
     onOpenSearch?: () => void;
     onRoleChange?: (role: 'student' | 'parent' | 'teacher' | 'counselor' | 'admin' | 'studio') => void;
   } = $props();
+
+  async function handleSignOut() {
+    try {
+      await authClient.signOut();
+    } catch (err) {
+      console.error('[auth] Failed to sign out via authClient:', err);
+    } finally {
+      goto('/login');
+    }
+  }
+
+  function handleToggleTheme() {
+    if (onToggleTheme) {
+      onToggleTheme();
+    } else if (typeof document !== 'undefined') {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('way_theme', isDark ? 'dark' : 'light');
+    }
+  }
 
   const currentPath = $derived(page.url.pathname);
 
@@ -122,7 +142,7 @@
   <div class="flex items-center gap-2">
     <!-- Dark Mode Toggle -->
     <button
-      onclick={onToggleTheme}
+      onclick={handleToggleTheme}
       class="p-1.5 rounded-sm text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
       title={isDarkMode ? 'Switch to Mineral White (Light)' : 'Switch to Deep Slate (Dark)'}
       aria-label="Toggle theme mode"
@@ -196,7 +216,7 @@
 
         <DropdownMenu.Separator />
 
-        <DropdownMenu.Item onclick={() => goto('/login')} class="rounded-sm text-xs text-critical cursor-pointer">
+        <DropdownMenu.Item onclick={handleSignOut} class="rounded-sm text-xs text-critical cursor-pointer">
           <LogOut class="w-3.5 h-3.5 mr-2" />
           <span>Sign Out</span>
         </DropdownMenu.Item>

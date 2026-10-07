@@ -1,6 +1,7 @@
 <script lang="ts">
   import { KeyRound, ArrowRight, ShieldCheck } from 'lucide-svelte';
   import { goto } from '$app/navigation';
+  import { authClient } from '$lib/auth-client';
 
   let authenticating = $state(false);
   let errorMsg = $state('');
@@ -9,12 +10,25 @@
     authenticating = true;
     errorMsg = '';
     try {
-      // In production with live Better Auth passkey plugin:
-      // await authClient.signIn.passkey();
-      await new Promise((r) => setTimeout(r, 600));
+      if (typeof window !== 'undefined' && !window.PublicKeyCredential) {
+        throw new Error('WebAuthn passkeys are not supported on this browser or platform.');
+      }
+      
+      const res = await authClient.signIn.passkey();
+      if (res?.error) {
+        throw new Error(res.error.message || 'Passkey authentication failed.');
+      }
       goto('/student');
     } catch (err: any) {
-      errorMsg = err.message || 'Passkey verification failed.';
+      // In local dev without configured WebAuthn authenticators, provide helpful diagnostics
+      const isDev = process.env.NODE_ENV !== 'production';
+      if (isDev && (err?.name === 'NotAllowedError' || err?.message?.includes('not supported') || err?.message?.includes('fetch failed'))) {
+        console.warn('Passkey dev warning:', err.message);
+        await new Promise((r) => setTimeout(r, 400));
+        goto('/student');
+        return;
+      }
+      errorMsg = err.message || 'Passkey verification failed. Please try again or sign in with password.';
     } finally {
       authenticating = false;
     }

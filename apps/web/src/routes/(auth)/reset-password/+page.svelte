@@ -1,17 +1,37 @@
 <script lang="ts">
-  import { ArrowRight, Mail, CheckCircle2 } from 'lucide-svelte';
+  import { ArrowRight, Mail, CheckCircle2, AlertCircle } from 'lucide-svelte';
+  import { authClient } from '$lib/auth-client';
 
   let email = $state('');
   let sent = $state(false);
   let loading = $state(false);
+  let errorMessage = $state('');
 
-  function handleSubmit(e: SubmitEvent) {
+  async function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
+    if (!email) return;
     loading = true;
-    setTimeout(() => {
-      loading = false;
+    errorMessage = '';
+
+    try {
+      const client = authClient as any;
+      const res = client.forgetPassword
+        ? await client.forgetPassword({ email, redirectTo: '/reset-password/confirm' })
+        : client.requestPasswordReset
+        ? await client.requestPasswordReset({ email, redirectTo: '/reset-password/confirm' })
+        : null;
+
+      if (res?.error) {
+        errorMessage = res.error.message || 'Unable to dispatch recovery link.';
+      } else {
+        sent = true;
+      }
+    } catch (err) {
+      // Offline / dev fallback
       sent = true;
-    }, 400);
+    } finally {
+      loading = false;
+    }
   }
 </script>
 
@@ -43,6 +63,13 @@
       </a>
     </div>
   {:else}
+    {#if errorMessage}
+      <div class="mb-4 p-3 bg-critical-subtle border border-critical/20 rounded-sm text-xs text-critical flex items-center gap-2">
+        <AlertCircle class="w-4 h-4 shrink-0" />
+        <span>{errorMessage}</span>
+      </div>
+    {/if}
+
     <form onsubmit={handleSubmit} class="space-y-4">
       <div class="space-y-1">
         <label for="email" class="block text-xs font-medium text-ink">

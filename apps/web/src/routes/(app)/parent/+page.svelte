@@ -51,7 +51,7 @@
   </header>
 
   <!-- 2. DECIDE: The Three Core Insights (Strength / Growing / At Home) -->
-  <section class="space-y-6 pt-4 border-t border-border">
+  <section id="growth" class="space-y-6 pt-4 border-t border-border">
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
       <div class="space-y-1">
         <span class="text-xs font-semibold uppercase tracking-wider text-positive">
@@ -92,7 +92,7 @@
   </section>
 
   <!-- 3. EXPLORE: Shared Horizons -->
-  <section class="p-6 sm:p-8 rounded-sm bg-surface border border-border space-y-4">
+  <section id="horizons" class="p-6 sm:p-8 rounded-sm bg-surface border border-border space-y-4">
     <div class="flex items-center justify-between">
       <span class="text-xs font-semibold uppercase tracking-wider text-brand">
         Shared Horizon
@@ -137,7 +137,7 @@
   </section>
 
   <!-- 4. PROVE: Verified Evidence Summary -->
-  <section class="space-y-4">
+  <section id="evidence" class="space-y-4">
     <div class="flex items-center justify-between">
       <div>
         <h2 class="text-base font-semibold text-ink">
@@ -169,6 +169,25 @@
           </button>
         </div>
       {/each}
+    </div>
+  </section>
+
+  <!-- 5. MESSAGES: School & Counselor Communication -->
+  <section id="messages" class="space-y-4 pt-4 border-t border-border">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-semibold text-ink">
+        Messages & Advisory
+      </h2>
+      <span class="text-xs text-ink-muted">Direct Guidance Channel</span>
+    </div>
+    <div class="p-4 rounded-sm bg-surface border border-border text-xs space-y-2">
+      <div class="flex justify-between font-medium text-ink">
+        <span>Ms. Nair (Science & Robotics Faculty)</span>
+        <span class="text-ink-muted">Yesterday</span>
+      </div>
+      <p class="text-ink-secondary leading-relaxed">
+        {childName} demonstrated exceptional curiosity during our linkage mechanisms lab. We recommend letting her explore the upcoming robotics maker challenge.
+      </p>
     </div>
   </section>
 </div>

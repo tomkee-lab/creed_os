@@ -57,7 +57,7 @@
     }
   }
 
-  function handleSend() {
+  async function handleSend() {
     if (!inputText.trim() || isSending) return;
     const userMsg = inputText.trim();
     inputText = '';
@@ -72,16 +72,46 @@
     isSending = true;
     voiceState = 'thinking';
 
-    setTimeout(() => {
-      isSending = false;
-      voiceState = 'your_turn';
+    try {
+      const history = messages
+        .filter((m) => m.text)
+        .map((m) => ({
+          role: m.role === 'student' ? 'user' : 'assistant',
+          content: m.text
+        }));
+
+      const res = await fetch('/api/v1/ai/mentor/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userMsg,
+          history
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        messages.push({
+          id: `m-${Date.now() + 1}`,
+          role: 'guide',
+          text: data.reply || 'What led you to that reasoning step?',
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+      } else {
+        throw new Error('Mentor service unavailable');
+      }
+    } catch (err) {
+      // Fallback Socratic inquiry prompt
       messages.push({
         id: `m-${Date.now() + 1}`,
         role: 'guide',
-        text: "That connects directly to mechanical advantage. If the output arm travels half the speed, what does that mean for the force it can lift?",
+        text: 'That connects directly to mechanical advantage. If the output arm travels half the speed, what does that mean for the force it can lift?',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       });
-    }, 1200);
+    } finally {
+      isSending = false;
+      voiceState = 'your_turn';
+    }
   }
 </script>
 

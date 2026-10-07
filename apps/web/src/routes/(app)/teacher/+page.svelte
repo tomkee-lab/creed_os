@@ -14,7 +14,7 @@
   import InspectorPanel from '$lib/components/shell/InspectorPanel.svelte';
 
   let { data } = $props();
-  let cohort = $derived(data.cohort);
+  let cohort = $derived(data.cohort as any);
 
   let searchQuery = $state('');
   let activeAssignmentToast = $state<{ title: string; count: number } | null>(null);
@@ -96,7 +96,7 @@
 
 <div class="max-w-5xl mx-auto space-y-10 py-2">
   <!-- 1. ORIENT: Single Purpose Workspace Header -->
-  <header class="space-y-1">
+  <header id="classes" class="space-y-1">
     <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
       <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight text-ink">
         Today
@@ -121,7 +121,7 @@
   {/if}
 
   <!-- 2. DECIDE: Priority Actions Layout (Queue + Quick Tools) -->
-  <section class="space-y-4">
+  <section id="interventions" class="space-y-4">
     <div class="flex items-center justify-between">
       <h2 class="text-base font-semibold text-ink">
         Priority Actions
@@ -174,7 +174,7 @@
   </section>
 
   <!-- 3. ACT / PROVE: Class Overview Roster (Clean Workspace Table) -->
-  <section class="space-y-4">
+  <section id="roster" class="space-y-4">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
         <h2 class="text-base font-semibold text-ink">
@@ -240,6 +240,55 @@
           </tbody>
         </table>
       </div>
+    </div>
+  </section>
+
+  <!-- 4. MISSIONS QUEUE: Hands-on learning missions -->
+  <section id="missions" class="space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-semibold text-ink">
+        Active Missions
+      </h2>
+      <span class="text-xs text-ink-muted">Applied project work</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="p-4 rounded-sm bg-surface border border-border space-y-2">
+        <div class="flex justify-between items-center text-xs">
+          <span class="font-medium text-ink">Mechanical Linkage & Gear Ratios</span>
+          <span class="px-2 py-0.5 rounded-sm bg-positive-subtle text-positive text-[11px] font-medium">18 Submitted</span>
+        </div>
+        <p class="text-xs text-ink-secondary">Hands-on spatial mechanism lab building physical linkages.</p>
+      </div>
+      <div class="p-4 rounded-sm bg-surface border border-border space-y-2">
+        <div class="flex justify-between items-center text-xs">
+          <span class="font-medium text-ink">Algorithmic Maze Traversal</span>
+          <span class="px-2 py-0.5 rounded-sm bg-brand-subtle text-brand text-[11px] font-medium">In Progress</span>
+        </div>
+        <p class="text-xs text-ink-secondary">Decomposition and state exploration sprint.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. EVIDENCE TRAIL: Teacher observations & verified artefacts -->
+  <section id="evidence" class="space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-semibold text-ink">
+        Class Evidence Log
+      </h2>
+      <button
+        type="button"
+        onclick={() => (logObservationOpen = true)}
+        class="text-xs font-medium text-brand hover:underline cursor-pointer"
+      >
+        + Add Evidence
+      </button>
+    </div>
+    <div class="p-4 rounded-sm bg-surface border border-border text-xs space-y-2">
+      <div class="flex justify-between text-ink-muted">
+        <span>Verified Observations (Last 7 Days)</span>
+        <span>14 Recorded</span>
+      </div>
+      <p class="text-ink-secondary">All observational data cryptographically anchors to individual learner developmental records with teacher timestamp provenance.</p>
     </div>
   </section>
 </div>

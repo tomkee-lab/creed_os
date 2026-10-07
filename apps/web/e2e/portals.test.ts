@@ -212,8 +212,8 @@ test.describe('CREED OS REST API Contracts (/api/v1)', () => {
   test('GET /api/v1/learners/:id/evidence returns 200 with provenance', async ({ request }) => {
     const res = await request.get('/api/v1/learners/3fa85f64-5717-4562-b3fc-2c963f66afa6/evidence');
     expect(res.status()).toBe(200);
-    expect(body => body !== null);
     const body = await res.json();
+    expect(body).not.toBeNull();
     expect(body).toHaveProperty('evidenceCount');
     expect(body).toHaveProperty('evidence');
   });
@@ -234,7 +234,10 @@ test.describe('CREED OS REST API Contracts (/api/v1)', () => {
     const res = await request.post('/api/v1/consent/verify', {
       data: {
         learnerId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-        channel: 'DIGILOCKER'
+        channel: 'DIGILOCKER',
+        parentName: 'Sunita Verma',
+        parentContact: 'DL-IND-9021-4820',
+        auditToken: 'DL-AUTH-TOKEN-2026'
       }
     });
     expect(res.status()).toBe(200);

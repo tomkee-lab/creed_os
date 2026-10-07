@@ -87,7 +87,7 @@
   </header>
 
   <!-- 2. DECIDE / ACT: Priority Cases List -->
-  <section class="space-y-4">
+  <section id="priority" class="space-y-4">
     <div class="flex items-center justify-between">
       <h2 class="text-base font-semibold text-ink">
         Priority Cases
@@ -135,6 +135,32 @@
           </div>
         </div>
       {/each}
+    </div>
+  </section>
+
+  <!-- 3. LEARNERS CASELOAD ROSTER -->
+  <section id="learners" class="space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-semibold text-ink">
+        Active Caseload Directory
+      </h2>
+      <span class="text-xs text-ink-muted">24 Tracked Profiles</span>
+    </div>
+    <div class="p-4 rounded-sm bg-surface border border-border text-xs space-y-2">
+      <p class="text-ink-secondary">Developmental profiles monitored for asynchronous growth jumps, ceiling effects, or cross-domain dissonance.</p>
+    </div>
+  </section>
+
+  <!-- 4. CONVERSATIONS & EVIDENCE -->
+  <section id="conversations" class="space-y-4">
+    <div id="evidence" class="flex items-center justify-between">
+      <h2 class="text-base font-semibold text-ink">
+        Tripartite Dialogue Logs & Evidence
+      </h2>
+      <span class="text-xs text-ink-muted">Parent • Learner • Faculty</span>
+    </div>
+    <div class="p-4 rounded-sm bg-surface border border-border text-xs space-y-2">
+      <p class="text-ink-secondary">Synchronized conference notes and empirical psychometric assessments anchoring guidance recommendations.</p>
     </div>
   </section>
 </div>

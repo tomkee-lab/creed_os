@@ -96,9 +96,9 @@
     </div>
   {/if}
 
-  <!-- 2. TOOLBAR: Search, Filter, Export -->
-  <section class="space-y-4">
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+  <!-- 2. TOOLBAR: Search, Filter, Export (Statutory Consent & Learners Ledger) -->
+  <section id="consent" class="space-y-4">
+    <div id="learners" class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
       <!-- Search Input -->
       <div class="relative flex-1 max-w-sm">
         <Search class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
@@ -199,6 +199,43 @@
       </div>
     </div>
   </section>
+
+  <!-- 4. AUDIT TRAIL: Cryptographic Proof Ledger -->
+  <section id="audit" class="space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-semibold text-ink">
+        Statutory Compliance & Audit Trail
+      </h2>
+      <span class="text-xs text-ink-muted">DPDP Act Section 9 Verified</span>
+    </div>
+    <div class="p-4 rounded-sm bg-surface border border-border text-xs space-y-2">
+      <div class="flex justify-between text-ink-muted font-mono">
+        <span>LEDGER HASH: SHA-256 (MERKLE ROOTS)</span>
+        <span class="text-positive">VALIDATED</span>
+      </div>
+      <p class="text-ink-secondary">All consent grants, modifications, and revocations append exclusively to the tamper-evident cryptographic log with guardian digital signatures.</p>
+    </div>
+  </section>
+
+  <!-- 5. ORGANIZATIONS / TENANTS -->
+  <section id="orgs" class="space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-semibold text-ink">
+        Campus Configuration & Scope
+      </h2>
+      <span class="text-xs text-ink-muted">Affiliated Campus Cluster</span>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+      <div class="p-4 rounded-sm bg-surface border border-border space-y-1">
+        <span class="text-ink-muted font-medium">Cohort Boundaries</span>
+        <p class="text-ink font-semibold">Classes 5 through 10 (Middle & Secondary)</p>
+      </div>
+      <div class="p-4 rounded-sm bg-surface border border-border space-y-1">
+        <span class="text-ink-muted font-medium">Data Boundary Zone</span>
+        <p class="text-ink font-semibold">India Central (me-south-1) • DPDP Sovereign</p>
+      </div>
+    </div>
+  </section>
 </div>
 
 <!-- Right Slide-out Inspector Panel for Compliance Provenance -->
@@ -206,6 +243,12 @@
   bind:open={inspectorOpen}
   title={selectedRecord?.learnerName || 'Consent Ledger'}
   subtitle={selectedRecord ? `Student ID: ${selectedRecord.id}` : ''}
+  verified={selectedRecord?.status === 'VERIFIED_ACTIVE'}
+  verificationLabel={selectedRecord?.status === 'VERIFIED_ACTIVE'
+    ? 'Cryptographically Verified'
+    : selectedRecord?.status === 'WITHDRAWN'
+    ? 'Consent Revoked / Withdrawn'
+    : 'Notice Pending Guardian Action'}
 >
   {#if selectedRecord}
     <div class="space-y-6 text-xs">

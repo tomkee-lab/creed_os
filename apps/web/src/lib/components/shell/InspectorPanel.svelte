@@ -7,6 +7,8 @@
     title = 'Record Inspector',
     category = 'Evidence',
     subtitle,
+    verified = false,
+    verificationLabel,
     children,
     footerAction
   }: {
@@ -14,6 +16,8 @@
     title?: string;
     category?: string;
     subtitle?: string;
+    verified?: boolean;
+    verificationLabel?: string;
     children?: Snippet;
     footerAction?: Snippet;
   } = $props();
@@ -69,9 +73,15 @@
 
     <!-- Footer -->
     <div class="p-3 border-t border-border bg-surface flex items-center justify-between shrink-0">
-      <div class="flex items-center gap-1.5 text-[10px] font-mono text-ink-muted">
-        <ShieldCheck class="w-3.5 h-3.5 text-positive" />
-        <span>Cryptographically Verified</span>
+      <div class="flex items-center gap-1.5 text-[10px] font-mono">
+        {#if verified}
+          <ShieldCheck class="w-3.5 h-3.5 text-positive" />
+          <span class="text-positive">{verificationLabel || 'Cryptographically Verified'}</span>
+        {:else if verificationLabel}
+          <span class="text-ink-muted">{verificationLabel}</span>
+        {:else}
+          <span class="text-ink-muted">Record Audit Entry</span>
+        {/if}
       </div>
 
       <div class="flex items-center gap-2">
