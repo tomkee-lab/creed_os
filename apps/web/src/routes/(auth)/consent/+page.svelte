@@ -3,23 +3,52 @@
   import { Shield, CheckCircle2, Lock, ArrowRight, AlertCircle, Phone, UserCheck, KeyRound } from 'lucide-svelte';
 
   let channel = $state<'digilocker' | 'sms'>('sms');
-  let parentName = $state('Sunita Verma');
-  let parentContact = $state('+91 98765 43210');
-  let relationship = $state('Mother & Legal Guardian');
+  let parentName = $state('');
+  let parentContact = $state('');
+  let relationship = $state('');
   let otp = $state('');
   let otpRequested = $state(false);
+  let devOtpHint = $state(''); // Only populated in DEV environments via server response
   let verified = $state(false);
   let loading = $state(false);
   let errorMessage = $state('');
 
-  function handleRequestOtp() {
+  async function handleRequestOtp() {
     if (!parentName.trim() || !parentContact.trim()) {
       errorMessage = 'Please provide guardian legal name and contact identifier.';
       return;
     }
     errorMessage = '';
-    otpRequested = true;
-    otp = '123456'; // Pre-filled default for effortless dev/demo verification
+    loading = true;
+    devOtpHint = '';
+
+    try {
+      const res = await fetch('/api/v1/consent/challenge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          parentName,
+          parentContact,
+          channel: channel === 'sms' ? 'SMS_OTP' : 'DIGILOCKER'
+        })
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        errorMessage = data.error || 'Failed to send OTP. Please try again.';
+        loading = false;
+        return;
+      }
+
+      otpRequested = true;
+      // devOtp is only included in development server responses — never in production
+      devOtpHint = data.devOtp ?? '';
+    } catch (err: any) {
+      errorMessage = err?.message || 'Connection failure while requesting OTP.';
+    } finally {
+      loading = false;
+    }
   }
 
   async function handleConsentSubmit() {
@@ -192,7 +221,9 @@
     <div class="space-y-2 pt-2 border-t border-border">
       <div class="flex items-center justify-between">
         <label for="otp-code" class="block text-xs font-medium text-ink">Enter 6-Digit OTP</label>
-        <span class="text-[10px] font-mono text-ink-muted">Demo OTP: 123456</span>
+        {#if devOtpHint}
+          <span class="text-[10px] font-mono text-attention bg-attention-subtle px-1 rounded-none">[DEV] OTP: {devOtpHint}</span>
+        {/if}
       </div>
       <div class="flex items-center gap-2">
         <input

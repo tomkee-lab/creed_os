@@ -1,6 +1,8 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { transitionConsentState, type ConsentRecord, type VerificationChannel } from '@core-os/domain';
+// Import the OTP store from the challenge endpoint (same server boundary)
+import { OTP_STORE, hashContact } from '../challenge/+server';
 
 export const POST: RequestHandler = async ({ request }) => {
   const body = await request.json().catch(() => ({}));
@@ -13,26 +15,44 @@ export const POST: RequestHandler = async ({ request }) => {
     auditToken
   } = body;
 
-  // Enforce statutory guardian verification requirements under DPDP Act 2023
-  const token = auditToken || otp;
-  if (!parentName && !import.meta.env.DEV) {
+  // Enforce statutory guardian identity fields under DPDP Act 2023
+  if (!parentName?.trim()) {
     return json({ error: 'Guardian full legal name is required for DPDP compliance.' }, { status: 400 });
   }
-
-  if (!parentContact && !import.meta.env.DEV) {
+  if (!parentContact?.trim()) {
     return json({ error: 'Guardian contact identifier (mobile / DigiLocker ID) is required.' }, { status: 400 });
   }
 
-  // Require verification proof token / OTP
-  if (!token || String(token).trim().length < 4) {
+  const token = (otp ?? auditToken ?? '').toString().trim();
+  if (!token || token.length < 4) {
     return json({ error: 'A valid 6-digit OTP or DigiLocker verification token is required.' }, { status: 400 });
   }
+
+  // Verify OTP against server-issued challenge (guardian contact keyed, TTL-gated)
+  const key = await hashContact(parentContact);
+  const stored = OTP_STORE.get(key);
+
+  if (!stored) {
+    return json({ error: 'No OTP challenge found for this contact. Please request a new OTP.' }, { status: 400 });
+  }
+
+  if (Date.now() > stored.expiresAt) {
+    OTP_STORE.delete(key);
+    return json({ error: 'OTP has expired. Please request a new verification code.' }, { status: 400 });
+  }
+
+  if (stored.otp !== token) {
+    return json({ error: 'Invalid OTP. Please check your verification code and try again.' }, { status: 400 });
+  }
+
+  // OTP valid — consume it (single-use)
+  OTP_STORE.delete(key);
 
   const initialRecord: ConsentRecord = {
     id: 'cst_' + crypto.randomUUID().slice(0, 8),
     learnerId,
-    parentName: parentName || 'Verified Guardian',
-    parentContact: parentContact || '+91 98765 43210',
+    parentName: parentName.trim(),
+    parentContact: parentContact.trim(),
     verificationChannel: channel as VerificationChannel,
     status: 'NOTICE_SENT',
     consentVersion: 'v1.2-dpdp-2023',
@@ -48,7 +68,7 @@ export const POST: RequestHandler = async ({ request }) => {
       channel: channel as VerificationChannel,
       verifiedAt: new Date().toISOString(),
       expiresAt: initialRecord.expiresAt,
-      auditToken: String(token)
+      auditToken: token
     });
 
     return json({
