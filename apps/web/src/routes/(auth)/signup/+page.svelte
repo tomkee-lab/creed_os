@@ -26,7 +26,7 @@
 
     try {
       try {
-        const roleToAssign = selectedRole === 'school' ? 'admin' : selectedRole;
+        const roleToAssign = selectedRole === 'school' ? 'institution_pending' : selectedRole;
         const res = await authClient.signUp.email({
           email,
           password,
@@ -43,7 +43,7 @@
       if (selectedRole === 'parent')         goto('/consent');
       else if (selectedRole === 'teacher')   goto('/teacher');
       else if (selectedRole === 'counselor') goto('/counselor');
-      else                                   goto('/admin');
+      else                                   goto('/login?status=pending_approval');
     } catch (err: any) {
       errorMsg = err.message || 'Registration failed. Please check form fields.';
     } finally {
@@ -81,7 +81,8 @@
         <select
           id="role"
           bind:value={selectedRole}
-          class="w-full h-8 pl-2.5 pr-8 rounded-sm bg-surface border border-border text-xs text-ink focus:border-focus outline-none appearance-none cursor-pointer transition-colors"
+          disabled={loading}
+          class="w-full h-8 pl-2.5 pr-8 rounded-sm bg-surface border border-border text-xs text-ink hover:border-border-strong active:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-focus focus-visible:border-focus disabled:opacity-50 disabled:pointer-events-none appearance-none cursor-pointer transition-colors"
         >
           {#each roleOptions as opt}
             <option value={opt.id}>{opt.label}</option>

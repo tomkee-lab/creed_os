@@ -22,6 +22,22 @@ if (!betterAuthApiKey) {
   console.warn('[auth] BETTER_AUTH_API_KEY is not set — Better Auth dashboard monitoring will be disabled.');
 }
 
+/**
+ * Server-authoritative role assignment allowlist.
+ * Maps the client's self-declared role hint to a safe internal role.
+ * Any unrecognized value is demoted to 'student'.
+ *
+ * - 'admin' is NOT in this map — clients can never self-assign admin.
+ * - 'school' → 'institution_pending' (requires admin approval).
+ * - 'student' is the fallback / default.
+ */
+const ROLE_SIGNUP_MAP: Record<string, string> = {
+  parent:    'parent',
+  teacher:   'teacher',
+  counselor: 'counselor',
+  school:    'institution_pending'
+};
+
 export const auth = betterAuth({
   appName: 'CREED OS',
   baseURL: env.BETTER_AUTH_URL || process.env.BETTER_AUTH_URL || 'http://localhost:5173',
@@ -33,6 +49,30 @@ export const auth = betterAuth({
         required: false,
         defaultValue: 'student',
         input: true
+      }
+    }
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          // Server-authoritative role enforcement:
+          // Demote any self-assigned 'admin' or untrusted role.
+          const rawRole = (user as Record<string, unknown>).role as string | undefined;
+          const assignedRole =
+            rawRole === 'school'
+              ? 'institution_pending'
+              : rawRole === 'teacher' || rawRole === 'counselor' || rawRole === 'parent'
+              ? rawRole
+              : 'student';
+
+          return {
+            data: {
+              ...user,
+              role: assignedRole
+            }
+          };
+        }
       }
     }
   },
