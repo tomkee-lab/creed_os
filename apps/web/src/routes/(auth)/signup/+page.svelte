@@ -26,7 +26,16 @@
 
     try {
       try {
-        const roleToAssign = selectedRole === 'school' ? 'institution_pending' : selectedRole;
+        const roleToAssign =
+          selectedRole === 'school'
+            ? 'institution_pending'
+            : selectedRole === 'teacher'
+            ? 'teacher_pending'
+            : selectedRole === 'counselor'
+            ? 'counselor_pending'
+            : selectedRole === 'parent'
+            ? 'parent_pending'
+            : 'student';
         const res = await authClient.signUp.email({
           email,
           password,
@@ -40,10 +49,11 @@
         await new Promise((r) => setTimeout(r, 300));
       }
 
-      if (selectedRole === 'parent')         goto('/consent');
-      else if (selectedRole === 'teacher')   goto('/teacher');
-      else if (selectedRole === 'counselor') goto('/counselor');
-      else                                   goto('/login?status=pending_approval');
+      if (selectedRole === 'parent') {
+        goto('/consent');
+      } else {
+        goto('/login?status=pending_approval');
+      }
     } catch (err: any) {
       errorMsg = err.message || 'Registration failed. Please check form fields.';
     } finally {

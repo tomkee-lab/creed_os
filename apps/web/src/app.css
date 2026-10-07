@@ -108,7 +108,7 @@
    * 0px (--radius-none): Structural & technical surfaces (data tables, assessment frames, console grids)
    * 4px (--radius-sm):   Controls & content surfaces (buttons, inputs, tiles, cards, dialogs)
    * 8px (--radius-md):   Expressive media frames (hero media, editorial features, illustration frames)
-   * PROHIBITED: 12px+ bubbly consumer curves (rounded-lg/xl/2xl/3xl, pill buttons)
+   * PROHIBITED: 12px+ bubbly consumer curves (12px+, 16px+, pill buttons)
    * rounded-sm (4px) and rounded-md (8px) are COMPLIANT by design — not violations.
    */
   --radius-none: 0px;

@@ -116,21 +116,21 @@
           <button
             type="button"
             onclick={() => (statusFilter = 'ALL')}
-            class="px-2.5 py-1 rounded-sm transition-colors {statusFilter === 'ALL' ? 'bg-surface-subtle font-medium text-ink' : 'text-ink-secondary hover:text-ink'}"
+            class="px-2.5 py-1 rounded-sm transition-colors cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand disabled:opacity-50 disabled:pointer-events-none {statusFilter === 'ALL' ? 'bg-surface-subtle font-medium text-ink shadow-xs' : 'text-ink-secondary hover:text-ink hover:bg-surface-subtle/50'}"
           >
             All
           </button>
           <button
             type="button"
             onclick={() => (statusFilter = 'VERIFIED_ACTIVE')}
-            class="px-2.5 py-1 rounded-sm transition-colors {statusFilter === 'VERIFIED_ACTIVE' ? 'bg-surface-subtle font-medium text-ink' : 'text-ink-secondary hover:text-ink'}"
+            class="px-2.5 py-1 rounded-sm transition-colors cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand disabled:opacity-50 disabled:pointer-events-none {statusFilter === 'VERIFIED_ACTIVE' ? 'bg-surface-subtle font-medium text-ink shadow-xs' : 'text-ink-secondary hover:text-ink hover:bg-surface-subtle/50'}"
           >
             Verified
           </button>
           <button
             type="button"
             onclick={() => (statusFilter = 'PENDING_NOTICE')}
-            class="px-2.5 py-1 rounded-sm transition-colors {statusFilter === 'PENDING_NOTICE' ? 'bg-surface-subtle font-medium text-ink' : 'text-ink-secondary hover:text-ink'}"
+            class="px-2.5 py-1 rounded-sm transition-colors cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand disabled:opacity-50 disabled:pointer-events-none {statusFilter === 'PENDING_NOTICE' ? 'bg-surface-subtle font-medium text-ink shadow-xs' : 'text-ink-secondary hover:text-ink hover:bg-surface-subtle/50'}"
           >
             Pending
           </button>
@@ -139,7 +139,7 @@
         <button
           type="button"
           onclick={handleExport}
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-surface hover:bg-surface-subtle border border-border text-xs font-medium text-ink transition-colors cursor-pointer"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-surface hover:bg-surface-subtle active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand disabled:opacity-50 disabled:pointer-events-none border border-border text-xs font-medium text-ink transition-colors cursor-pointer"
         >
           <Download class="w-3.5 h-3.5 text-ink-muted" />
           <span>Export</span>
@@ -187,7 +187,7 @@
                   <button
                     type="button"
                     onclick={() => openInspector(row)}
-                    class="text-xs font-medium text-brand hover:underline cursor-pointer"
+                    class="text-xs font-medium text-brand hover:underline active:opacity-75 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand rounded-xs disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
                   >
                     Inspect
                   </button>
@@ -294,7 +294,7 @@
           <button
             type="button"
             onclick={() => handleResendNotice(selectedRecord.parentName)}
-            class="w-full py-2.5 px-4 rounded-sm bg-brand hover:bg-brand/90 text-white font-medium text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            class="w-full py-2.5 px-4 rounded-sm bg-brand hover:bg-brand/90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand disabled:opacity-50 disabled:pointer-events-none text-white font-medium text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
           >
             <Send class="w-3.5 h-3.5" />
             <span>Resend Guardian Notice</span>

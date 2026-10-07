@@ -32,6 +32,14 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 
   // Role access enforcement:
   // Non-privileged users cannot access staff, guardian, or administrative workspaces
+  if (userRole === 'parent_pending' && requestedRole === 'parent') {
+    throw redirect(303, '/consent');
+  }
+
+  if (userRole.endsWith('_pending')) {
+    throw error(403, 'Forbidden: Account pending institutional verification. An administrator must approve credentials before accessing workspaces.');
+  }
+
   if (!import.meta.env.DEV) {
     if (requestedRole === 'admin' && userRole !== 'admin') {
       throw error(403, 'Forbidden: Administrative privilege required');
@@ -48,23 +56,29 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
   }
 
   // Scope data based on authenticated role and relationship
-  // Minor learner details and evidence are strictly isolated to student and authorized guardian views
+  // Minor learner details and evidence are strictly isolated to verified student and authorized guardian views
   const isStudentOrParentRoute = ['student', 'parent'].includes(requestedRole);
+  const isVerifiedAccess =
+    import.meta.env.DEV ||
+    (requestedRole === 'student' && userRole === 'student') ||
+    (requestedRole === 'parent' && ['parent', 'admin'].includes(userRole));
+
   const scopedLearnerId = (user as any).learnerId || (import.meta.env.DEV ? '3fa85f64-5717-4562-b3fc-2c963f66afa6' : (user as any).id);
 
-  const learner = isStudentOrParentRoute && scopedLearnerId
+  const learner = isStudentOrParentRoute && isVerifiedAccess && scopedLearnerId
     ? coreRepository.getLearnerProfile(scopedLearnerId)
     : null;
-  const evidence = isStudentOrParentRoute && learner
+  const evidence = isStudentOrParentRoute && isVerifiedAccess && learner
     ? coreRepository.getLearnerEvidence(learner.id)
     : null;
-  const pathways = isStudentOrParentRoute
+  const pathways = isStudentOrParentRoute && isVerifiedAccess
     ? coreRepository.getPathways()
     : null;
 
-  // Cohort analytics scoped strictly to educator/admin roles
+  // Cohort analytics scoped strictly to verified educator/admin roles
   const isEducatorOrAdmin = ['teacher', 'counselor', 'admin', 'studio'].includes(requestedRole) &&
-    (import.meta.env.DEV || ['teacher', 'counselor', 'admin', 'studio'].includes(userRole));
+    (import.meta.env.DEV || ['teacher', 'counselor', 'admin', 'studio'].includes(userRole)) &&
+    !userRole.endsWith('_pending');
   const cohort = isEducatorOrAdmin ? coreRepository.getClassCohort() : null;
 
   return {

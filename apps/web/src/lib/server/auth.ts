@@ -56,15 +56,22 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (user) => {
-          // Server-authoritative role enforcement:
-          // Demote any self-assigned 'admin' or untrusted role.
+          // Server-authoritative role enforcement (DPDP Act relationship-scoped access):
+          // Public registrants cannot self-grant immediate staff or guardian access.
+          // Staff and institutions require administrative verification; guardians require verified consent.
           const rawRole = (user as Record<string, unknown>).role as string | undefined;
           const assignedRole =
-            rawRole === 'school'
+            rawRole === 'school' || rawRole === 'institution_pending'
               ? 'institution_pending'
-              : rawRole === 'teacher' || rawRole === 'counselor' || rawRole === 'parent'
-              ? rawRole
-              : 'student';
+            : rawRole === 'teacher' || rawRole === 'teacher_pending'
+              ? 'teacher_pending'
+            : rawRole === 'counselor' || rawRole === 'counselor_pending'
+              ? 'counselor_pending'
+            : rawRole === 'parent' || rawRole === 'parent_pending'
+              ? 'parent_pending'
+            : rawRole === 'student'
+              ? 'student'
+            : 'student';
 
           return {
             data: {

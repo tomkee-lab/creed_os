@@ -110,3 +110,99 @@ CREATE TABLE IF NOT EXISTS "invitation" (
   "expiresAt" TIMESTAMP NOT NULL,
   "inviterId" TEXT NOT NULL REFERENCES "user"("id") ON DELETE CASCADE
 );
+
+-- 7. Row Level Security (RLS) Policies for Better Auth Tables
+-- Enforces DPDP Act relationship-scoped access across student identities, sessions, and memberships
+ALTER TABLE "user" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "session" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "account" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "verification" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "passkey" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "organization" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "member" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "invitation" ENABLE ROW LEVEL SECURITY;
+
+-- 7.1 "user" Table Policies (Student Identity and Relationship-Scoped Access)
+CREATE POLICY "user_select_self" ON "user"
+  FOR SELECT
+  USING (auth.uid()::text = "id");
+
+CREATE POLICY "user_update_self" ON "user"
+  FOR UPDATE
+  USING (auth.uid()::text = "id");
+
+CREATE POLICY "user_parent_select_child" ON "user"
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM parent_learner_links pll
+      JOIN consents c ON c.learner_id = pll.learner_id AND c.guardian_id = pll.parent_id
+      WHERE pll.parent_id = auth.uid()
+        AND pll.learner_id::text = "user"."id"
+        AND c.status = 'verified'
+    )
+  );
+
+CREATE POLICY "user_educator_select_cohort" ON "user"
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM "member" staff_mem
+      JOIN "member" student_mem ON student_mem."organizationId" = staff_mem."organizationId"
+      WHERE staff_mem."userId" = auth.uid()::text
+        AND staff_mem."role" IN ('admin', 'educator', 'counselor', 'teacher')
+        AND student_mem."userId" = "user"."id"
+    )
+  );
+
+CREATE POLICY "user_service_role_all" ON "user"
+  FOR ALL
+  USING (auth.role() = 'service_role');
+
+-- 7.2 "session", "account", and "passkey" Policies (Strictly User-Owned)
+CREATE POLICY "session_owner_access" ON "session"
+  FOR ALL
+  USING (auth.uid()::text = "userId" OR auth.role() = 'service_role');
+
+CREATE POLICY "account_owner_access" ON "account"
+  FOR ALL
+  USING (auth.uid()::text = "userId" OR auth.role() = 'service_role');
+
+CREATE POLICY "passkey_owner_access" ON "passkey"
+  FOR ALL
+  USING (auth.uid()::text = "userId" OR auth.role() = 'service_role');
+
+-- 7.3 "verification" Policy (Service Role Only for Security Tokens)
+CREATE POLICY "verification_service_role" ON "verification"
+  FOR ALL
+  USING (auth.role() = 'service_role');
+
+-- 7.4 "organization", "member", and "invitation" Policies (Tenant Isolation)
+CREATE POLICY "org_member_view" ON "organization"
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM "member"
+      WHERE "member"."organizationId" = "organization"."id"
+        AND "member"."userId" = auth.uid()::text
+    ) OR auth.role() = 'service_role'
+  );
+
+CREATE POLICY "member_organization_view" ON "member"
+  FOR SELECT
+  USING (
+    "organizationId" IN (
+      SELECT "organizationId" FROM "member" WHERE "userId" = auth.uid()::text
+    ) OR auth.role() = 'service_role'
+  );
+
+CREATE POLICY "invitation_admin_access" ON "invitation"
+  FOR ALL
+  USING (
+    EXISTS (
+      SELECT 1 FROM "member"
+      WHERE "member"."organizationId" = "invitation"."organizationId"
+        AND "member"."userId" = auth.uid()::text
+        AND "member"."role" IN ('admin', 'owner')
+    ) OR auth.role() = 'service_role'
+  );

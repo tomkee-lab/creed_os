@@ -39,7 +39,7 @@
       ]
     }
   },
-  "instructions": "CREED OS is an AI-Native Learner Intelligence, Assessment, Learning & Pathway Navigation Platform. Strictly enforce: 1) pnpm exclusively (zero npm/yarn), 2) Deterministic psychometrics (3PL IRT / CAT / BKT, never raw LLMs for scoring), 3) Child safety & DPDP Act compliance (parental consent state machine gating), 4) Svelte 5 runes ($props, $state, $derived) in web apps, 5) WAY Design System zero-radius tactile token discipline (no ad-hoc hex values, no neon glows, 8pt spacing rhythm), 6) Effect pipelines for complex domain workflows.",
+  "instructions": "CREED OS is an AI-Native Learner Intelligence, Assessment, Learning & Pathway Navigation Platform. Strictly enforce: 1) pnpm exclusively (zero npm/yarn), 2) Deterministic psychometrics (3PL IRT / CAT / BKT, never raw LLMs for scoring), 3) Child safety & DPDP Act compliance (parental consent state machine gating), 4) Svelte 5 runes ($props, $state, $derived) in web apps, 5) WAY Design System architectural radius discipline (0px structural, 4px controls/content, 8px expressive; no 12px+ curves, no ad-hoc hex values, no neon glows, 8pt spacing rhythm), 6) Effect pipelines for complex domain workflows.",
   "rules": [
     {
       "id": "pnpm-strict-enforcement",
@@ -70,7 +70,7 @@
     },
     {
       "id": "way-design-system-tokens",
-      "rule": "Adhere strictly to the WAY Design System: use semantic design tokens (--surface-canvas, --surface-raised, --text-primary, --accent-cyan, etc.) in OKLCH. Never use ad-hoc hex codes (#03080E, #38bdf8). Enforce zero rounded corners (rounded-none), strict 8pt spacing rhythm, and no glowing cyber-neon drop shadows.",
+      "rule": "Adhere strictly to the WAY 2.1/3.0 Design System: use semantic design tokens in OKLCH. Never use ad-hoc hex codes. Follow the Architectural Radius System: 0px (rounded-none) for structural/technical surfaces, 4px (rounded-sm) for controls/content surfaces, 8px (rounded-md) for expressive media frames; strictly prohibit 12px+ bubbly curves. Enforce strict 8pt spacing rhythm and no glowing cyber-neon drop shadows.",
       "scope": ["apps/web/src/**", "packages/ui/**"],
       "severity": "medium",
       "enabled": true

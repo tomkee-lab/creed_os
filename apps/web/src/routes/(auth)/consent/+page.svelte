@@ -27,6 +27,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          learnerId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
           parentName,
           parentContact,
           channel: channel === 'sms' ? 'SMS_OTP' : 'DIGILOCKER'

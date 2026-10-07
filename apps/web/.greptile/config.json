@@ -1,7 +1,7 @@
 {
   "strictness": 2,
   "commentTypes": ["syntax", "logic", "style"],
-  "instructions": "This package is the CREED OS web application built with Svelte 5, SvelteKit 2, Tailwind CSS 4, and the WAY Design System. Enforce: 1) Svelte 5 runes ($props, $state, $derived, $effect) exclusively, 2) WAY Design System zero-radius tactile styling (strictly rounded-none, no rounded-md or rounded-lg), 3) Semantic OKLCH tokens only (no ad-hoc hex codes), 4) Strict 8pt spacing rhythm, 5) Full interactive state coverage.",
+  "instructions": "This package is the CREED OS web application built with Svelte 5, SvelteKit 2, Tailwind CSS 4, and the WAY Design System. Enforce: 1) Svelte 5 runes ($props, $state, $derived, $effect) exclusively, 2) WAY 2.1 Architectural Radius System: 0px (rounded-none) for structural/technical surfaces, 4px (rounded-sm) for controls/content surfaces, 8px (rounded-md) for expressive media frames; strictly prohibit 12px+ bubbly curves, 3) Semantic OKLCH tokens only (no ad-hoc hex codes), 4) Strict 8pt spacing rhythm, 5) Full interactive state coverage.",
   "rules": [
     {
       "id": "svelte5-runes-mandatory",
@@ -10,8 +10,8 @@
       "enabled": true
     },
     {
-      "id": "way-zero-radius",
-      "rule": "Enforce zero rounded corners across all components, containers, cards, dialogs, inputs, and buttons. Never use rounded-sm, rounded-md, rounded-lg, or rounded-full unless specifically rendering circular avatars. Use rounded-none.",
+      "id": "way-architectural-radius",
+      "rule": "Adhere strictly to the WAY 2.1 Architectural Radius System: 0px (rounded-none) for structural/technical surfaces (tables, assessment question frames, studio grids), 4px (rounded-sm) for controls and content surfaces (buttons, inputs, cards, dialogs, nav items), and 8px (rounded-md) for expressive media frames. Never use 12px+ bubbly consumer curves (rounded-lg, rounded-xl, rounded-2xl, rounded-3xl, pill buttons) except for circular avatars (rounded-full).",
       "severity": "high",
       "enabled": true
     },
