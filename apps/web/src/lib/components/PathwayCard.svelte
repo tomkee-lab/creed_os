@@ -22,10 +22,10 @@
 
   const matchStatus = $derived(
     studentReadinessScore >= 4.0
-      ? { label: 'Strong Foundation', badgeClass: 'badge-growth', colorClass: 'text-(--accent-success)' }
+      ? { label: 'Strong Foundation', badgeClass: 'badge-growth', colorClass: 'text-positive' }
       : studentReadinessScore >= 3.0
-        ? { label: 'Developing Foundation', badgeClass: 'badge-primary', colorClass: 'text-(--accent-primary)' }
-        : { label: 'Exploration Stage', badgeClass: 'badge-focus', colorClass: 'text-(--accent-warning)' }
+        ? { label: 'Developing Foundation', badgeClass: 'badge-primary', colorClass: 'text-brand' }
+        : { label: 'Exploration Stage', badgeClass: 'badge-focus', colorClass: 'text-attention' }
   );
 
   const demonstratedCount = $derived(
@@ -35,11 +35,11 @@
 
 <div
   class="surface-card rounded-sm overflow-hidden text-left transition-all duration-140 {isSelected
-    ? 'border-(--accent-primary) ring-1 ring-(--accent-primary)'
-    : 'hover:border-(--border-strong)'}"
+    ? 'border-brand ring-1 ring-brand'
+    : 'hover:border-border-strong'}"
 >
   {#if illustrationUrl}
-    <div class="relative aspect-3/2 w-full overflow-hidden border-b border-(--border-subtle) bg-(--surface-sunken)">
+    <div class="relative aspect-3/2 w-full overflow-hidden border-b border-border bg-surface-subtle">
       <img
         src={illustrationUrl}
         alt={illustrationAlt || pathway.title}
@@ -47,7 +47,7 @@
         class="w-full h-full object-cover rounded-none transition-transform duration-280 hover:scale-[1.02]"
       />
       <div class="absolute bottom-2 left-2 z-10">
-        <span class="px-2 py-0.5 rounded-sm bg-(--surface-canvas)/90 backdrop-blur-xs border border-(--border-subtle) text-[10px] font-semibold uppercase tracking-wider text-(--text-primary)">
+        <span class="px-2 py-0.5 rounded-sm bg-canvas/90 backdrop-blur-xs border border-border text-[10px] font-semibold uppercase tracking-wider text-ink">
           {pathway.field.replace('_', ' ')}
         </span>
       </div>
@@ -58,14 +58,14 @@
     <div class="flex items-start justify-between gap-3">
       <div>
         <div class="flex items-center gap-2 mb-1">
-          <span class="text-xs font-semibold uppercase tracking-wider text-(--accent-indigo)">
+          <span class="text-xs font-semibold uppercase tracking-wider text-ai">
             {pathway.field.replace('_', ' ')}
           </span>
           <span class="text-[11px] font-medium px-2 py-0.5 rounded-sm {matchStatus.badgeClass} flex items-center gap-1">
             <Sparkles class="w-2.5 h-2.5" /> {matchStatus.label}
           </span>
         </div>
-        <h3 class="text-base font-bold text-(--text-primary)">
+        <h3 class="text-base font-bold text-ink">
           {pathway.title}
         </h3>
       </div>
@@ -73,21 +73,21 @@
         <span class="text-xs font-semibold {matchStatus.colorClass}">
           {demonstratedCount} / {pathway.requirements?.length ?? 4} Demonstrated
         </span>
-        <span class="text-[10px] text-(--text-muted) block">Prerequisites Met</span>
+        <span class="text-[10px] text-ink-muted block">Prerequisites Met</span>
       </div>
     </div>
 
-    <p class="text-xs text-(--text-secondary) line-clamp-2 leading-relaxed">
+    <p class="text-xs text-ink-secondary line-clamp-2 leading-relaxed">
       {pathway.overview}
     </p>
 
     <!-- Required Competencies Badges -->
     {#if pathway.requirements && pathway.requirements.length > 0}
       <div class="space-y-1.5">
-        <span class="text-[11px] text-(--text-muted) font-medium">Foundational Competencies:</span>
+        <span class="text-[11px] text-ink-muted font-medium">Foundational Competencies:</span>
         <div class="flex flex-wrap gap-1.5">
           {#each pathway.requirements as req}
-            <span class="text-[10px] px-2 py-0.5 rounded-sm bg-(--surface-content) border border-(--border-subtle) text-(--text-secondary)">
+            <span class="text-[10px] px-2 py-0.5 rounded-sm bg-surface border border-border text-ink-secondary">
               {req.competency.replace('_', ' ')}
             </span>
           {/each}
@@ -99,7 +99,7 @@
       <button
         type="button"
         onclick={() => onSelect(pathway)}
-        class="w-full mt-2 py-2 px-3 rounded-sm text-xs font-semibold surface-card hover:bg-(--surface-content) text-(--text-primary) transition-all duration-140 flex items-center justify-center gap-1.5 cursor-pointer"
+        class="w-full mt-2 py-2 px-3 rounded-sm text-xs font-semibold surface-card hover:bg-surface text-ink transition-all duration-140 flex items-center justify-center gap-1.5 cursor-pointer"
       >
         <span>Explore Field & Missions</span>
         <ArrowRight class="w-3.5 h-3.5" />

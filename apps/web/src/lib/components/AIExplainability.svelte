@@ -40,26 +40,26 @@
   <button
     type="button"
     onclick={() => (showExplain = !showExplain)}
-    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm bg-(--accent-indigo-subtle) text-(--accent-indigo) border border-(--accent-indigo)/20 text-[10px] font-medium hover:border-(--accent-indigo)/40 transition-colors cursor-pointer"
+    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm bg-ai-subtle text-ai border border-ai/20 text-[10px] font-medium hover:border-ai/40 transition-colors cursor-pointer"
     title="Click to view AI explainability & provenance"
   >
-    <Sparkles class="w-3 h-3 text-(--accent-indigo)" />
+    <Sparkles class="w-3 h-3 text-ai" />
     <span>{label}</span>
     <Info class="w-2.5 h-2.5 opacity-60 ml-0.5" />
   </button>
 
   {#if showExplain}
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-xs">
-      <div class="surface-card rounded-sm border border-(--border-subtle) max-w-sm w-full p-5 space-y-3 shadow-xl">
-        <div class="flex items-center justify-between border-b border-(--border-subtle) pb-2">
-          <div class="flex items-center gap-1.5 text-xs font-bold text-(--text-primary)">
-            <Sparkles class="w-3.5 h-3.5 text-(--accent-indigo)" />
+      <div class="surface-card rounded-sm border border-border max-w-sm w-full p-5 space-y-3 shadow-xl">
+        <div class="flex items-center justify-between border-b border-border pb-2">
+          <div class="flex items-center gap-1.5 text-xs font-bold text-ink">
+            <Sparkles class="w-3.5 h-3.5 text-ai" />
             <span>AI Reasoning & Provenance</span>
           </div>
           <button
             type="button"
             onclick={() => (showExplain = false)}
-            class="text-(--text-muted) hover:text-(--text-primary) p-1 rounded-sm cursor-pointer"
+            class="text-ink-muted hover:text-ink p-1 rounded-sm cursor-pointer"
           >
             <X class="w-4 h-4" />
           </button>
@@ -67,13 +67,13 @@
 
         <div class="space-y-2 text-xs">
           <div>
-            <strong class="block text-[11px] uppercase text-(--text-muted)">Reasoning Context</strong>
-            <p class="text-(--text-secondary) leading-relaxed mt-0.5">{displayIntent}</p>
+            <strong class="block text-[11px] uppercase text-ink-muted">Reasoning Context</strong>
+            <p class="text-ink-secondary leading-relaxed mt-0.5">{displayIntent}</p>
           </div>
 
           <div>
-            <strong class="block text-[11px] uppercase text-(--text-muted)">Evidence Used</strong>
-            <ul class="list-disc list-inside text-(--text-secondary) space-y-0.5 mt-0.5 text-[11px]">
+            <strong class="block text-[11px] uppercase text-ink-muted">Evidence Used</strong>
+            <ul class="list-disc list-inside text-ink-secondary space-y-0.5 mt-0.5 text-[11px]">
               {#each normalizedEvidence as src}
                 <li>{src}</li>
               {/each}
@@ -82,12 +82,12 @@
 
           {#if limitations}
             <div>
-              <strong class="block text-[11px] uppercase text-(--text-muted)">Limitations</strong>
-              <p class="text-(--text-secondary) leading-relaxed mt-0.5 text-[11px]">{limitations}</p>
+              <strong class="block text-[11px] uppercase text-ink-muted">Limitations</strong>
+              <p class="text-ink-secondary leading-relaxed mt-0.5 text-[11px]">{limitations}</p>
             </div>
           {/if}
 
-          <div class="pt-2 border-t border-(--border-subtle) flex items-center gap-1.5 text-[11px] text-(--accent-success)">
+          <div class="pt-2 border-t border-border flex items-center gap-1.5 text-[11px] text-positive">
             <Shield class="w-3 h-3" />
             <span>DPDP Act Child-Safe Constraints Enforced</span>
           </div>

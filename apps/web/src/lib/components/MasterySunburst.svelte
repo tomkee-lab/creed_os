@@ -7,7 +7,7 @@
     stage: 'Exploring' | 'Forming' | 'Deepening' | 'Mastering';
     progress: number; // 0.0 - 1.0
     evidenceCount: number;
-    color: string; // CSS custom property name like '--accent-primary'
+    color: string; // CSS color string or var
     skills: {
       name: string;
       level: 'Proficient' | 'Advanced' | 'Emerging';
@@ -31,7 +31,7 @@
       stage: 'Mastering',
       progress: 0.88,
       evidenceCount: 14,
-      color: 'var(--accent-primary)',
+      color: 'var(--color-brand)',
       skills: [
         { name: 'Algorithmic Decomposition', level: 'Advanced', evidenceSnippet: 'Solved maze recursion with optimal time complexity' },
         { name: 'State Abstraction', level: 'Proficient', evidenceSnippet: 'Modelled finite automata transitions in robotics sim' },
@@ -46,7 +46,7 @@
       stage: 'Deepening',
       progress: 0.78,
       evidenceCount: 11,
-      color: 'var(--accent-indigo)',
+      color: 'var(--color-ai)',
       skills: [
         { name: 'Proportional Relationships', level: 'Advanced', evidenceSnippet: 'Directly applied scale factors in geometric proofs' },
         { name: 'Probabilistic Inference', level: 'Proficient', evidenceSnippet: 'Calculated Bayesian posteriors in simulation' },
@@ -61,7 +61,7 @@
       stage: 'Mastering',
       progress: 0.92,
       evidenceCount: 16,
-      color: 'var(--accent-teal)',
+      color: 'var(--color-brand)',
       skills: [
         { name: '3D Mental Rotation', level: 'Advanced', evidenceSnippet: 'Flawless 10/10 spatial rotation under timed assessment' },
         { name: 'Kinematic Topology', level: 'Advanced', evidenceSnippet: 'Assembled robotic arm linkages with correct axes' },
@@ -76,7 +76,7 @@
       stage: 'Deepening',
       progress: 0.72,
       evidenceCount: 9,
-      color: 'var(--accent-success)',
+      color: 'var(--color-positive)',
       skills: [
         { name: 'Hypothesis Formulation', level: 'Proficient', evidenceSnippet: 'Formulated testable hypotheses on battery discharge' },
         { name: 'Variable Isolation', level: 'Proficient', evidenceSnippet: 'Controlled ambient temperature during experiments' },
@@ -91,7 +91,7 @@
       stage: 'Forming',
       progress: 0.65,
       evidenceCount: 7,
-      color: 'var(--accent-warning)',
+      color: 'var(--color-attention)',
       skills: [
         { name: 'Error Reflection', level: 'Proficient', evidenceSnippet: 'Identified arithmetic slip before final submission' },
         { name: 'Pacing Calibration', level: 'Emerging', evidenceSnippet: 'Learning to allocate time proportionally across tasks' },
@@ -106,7 +106,7 @@
       stage: 'Deepening',
       progress: 0.82,
       evidenceCount: 12,
-      color: 'var(--accent-cyan)',
+      color: 'var(--color-brand)',
       skills: [
         { name: 'Conditional Syllogisms', level: 'Advanced', evidenceSnippet: 'Validated contrapositive arguments without errors' },
         { name: 'Constraint Satisfaction', level: 'Proficient', evidenceSnippet: 'Solved logic grid puzzles with zero hints' },
@@ -163,22 +163,22 @@
   }
 </script>
 
-<div class="flex flex-col lg:flex-row items-center gap-8 surface-card p-6 rounded-none border border-(--border-subtle)">
+<div class="flex flex-col lg:flex-row items-center gap-8 bg-surface-raised p-6 rounded-none border border-border">
   <!-- 1. Interactive Sunburst Orbit SVG -->
   <div class="relative flex items-center justify-center shrink-0" style="width: {size}px; height: {size}px;">
     <svg width={size} height={size} class="overflow-visible select-none" role="img" aria-label="Developmental Mastery Sunburst Chart">
       <defs>
         <!-- Soft background radial gradient -->
         <radialGradient id="sunburstCore" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="var(--surface-raised)" stop-opacity="0.9" />
-          <stop offset="100%" stop-color="var(--surface-canvas)" stop-opacity="0.95" />
+          <stop offset="0%" stop-color="var(--color-surface-raised)" stop-opacity="0.9" />
+          <stop offset="100%" stop-color="var(--color-canvas)" stop-opacity="0.95" />
         </radialGradient>
       </defs>
 
       <!-- Background guide rings -->
-      <circle cx={center} cy={center} r={innerRadius} class="fill-transparent stroke-(--border-subtle)" stroke-width="1" />
-      <circle cx={center} cy={center} r={midRadius} class="fill-transparent stroke-(--border-subtle)" stroke-width="1" stroke-dasharray="3 3" />
-      <circle cx={center} cy={center} r={maxOuterRadius} class="fill-transparent stroke-(--border-subtle)" stroke-width="1" stroke-dasharray="2 4" />
+      <circle cx={center} cy={center} r={innerRadius} class="fill-transparent stroke-border" stroke-width="1" />
+      <circle cx={center} cy={center} r={midRadius} class="fill-transparent stroke-border" stroke-width="1" stroke-dasharray="3 3" />
+      <circle cx={center} cy={center} r={maxOuterRadius} class="fill-transparent stroke-border" stroke-width="1" stroke-dasharray="2 4" />
 
       <!-- Interactive Outer Sunburst Petals (Variable progress extent) -->
       {#each domains as domain, i}
@@ -246,7 +246,7 @@
         x={center}
         y={center - 10}
         text-anchor="middle"
-        class="text-[10px] font-semibold tracking-wider uppercase fill-(--text-muted) select-none"
+        class="text-[10px] font-semibold tracking-wider uppercase fill-ink-muted select-none"
       >
         {activeDomain.stage}
       </text>
@@ -254,7 +254,7 @@
         x={center}
         y={center + 12}
         text-anchor="middle"
-        class="text-base font-bold fill-(--text-primary) select-none"
+        class="text-base font-bold fill-ink select-none"
       >
         {Math.round(activeDomain.progress * 100)}%
       </text>
@@ -262,7 +262,7 @@
         x={center}
         y={center + 26}
         text-anchor="middle"
-        class="text-[9px] font-medium fill-(--text-secondary) select-none"
+        class="text-[9px] font-medium fill-ink-secondary select-none"
       >
         Mastery Arc
       </text>
@@ -272,51 +272,51 @@
   <!-- 2. Rich Developmental Storytelling Card -->
   <div class="flex-1 space-y-4 w-full">
     <!-- Header with badge & stage -->
-    <div class="flex items-start justify-between gap-4 border-b border-(--border-subtle) pb-3">
+    <div class="flex items-start justify-between gap-4 border-b border-border pb-3">
       <div>
         <div class="flex items-center gap-2">
           <span
             class="w-3 h-3 rounded-none shrink-0"
             style="background-color: {activeDomain.color};"
           ></span>
-          <h3 class="text-lg font-bold text-(--text-primary)">
+          <h3 class="text-lg font-bold text-ink">
             {activeDomain.name}
           </h3>
         </div>
-        <p class="text-xs text-(--text-secondary) mt-1">
-          Developmental Stage: <span class="font-semibold text-(--text-primary)">{activeDomain.stage}</span>
-          • <span class="text-(--text-muted)">{activeDomain.evidenceCount} verified artifacts</span>
+        <p class="text-xs text-ink-secondary mt-1">
+          Developmental Stage: <span class="font-semibold text-ink">{activeDomain.stage}</span>
+          • <span class="text-ink-muted">{activeDomain.evidenceCount} verified artifacts</span>
         </p>
       </div>
 
-      <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-none badge-growth text-xs font-semibold shrink-0">
-        <Sparkles class="w-3.5 h-3.5 text-(--accent-primary)" />
+      <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-none bg-brand-subtle text-brand border border-brand/20 text-xs font-semibold shrink-0">
+        <Sparkles class="w-3.5 h-3.5 text-brand" />
         <span>Growth Horizon</span>
       </div>
     </div>
 
     <!-- Human-first developmental narrative -->
-    <p class="text-sm leading-relaxed text-(--text-secondary)">
+    <p class="text-sm leading-relaxed text-ink-secondary">
       {activeDomain.developmentalNarrative}
     </p>
 
     <!-- Specific Demonstrated Competency Items -->
     <div class="space-y-2">
-      <div class="text-xs font-semibold text-(--text-primary) flex items-center gap-1.5">
-        <Layers class="w-3.5 h-3.5 text-(--accent-primary)" />
+      <div class="text-xs font-semibold text-ink flex items-center gap-1.5">
+        <Layers class="w-3.5 h-3.5 text-brand" />
         <span>Observed Skill Milestones:</span>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {#each activeDomain.skills as skill}
-          <div class="p-2.5 rounded-none bg-(--surface-sunken) border border-(--border-subtle) space-y-1 text-xs">
+          <div class="p-2.5 rounded-none bg-surface-subtle border border-border space-y-1 text-xs">
             <div class="flex items-center justify-between font-medium">
-              <span class="text-(--text-primary)">{skill.name}</span>
-              <span class="text-[10px] px-1.5 py-0.5 rounded-none font-semibold {skill.level === 'Advanced' ? 'bg-(--accent-teal-subtle) text-(--accent-teal)' : skill.level === 'Proficient' ? 'bg-(--accent-primary-subtle) text-(--accent-primary)' : 'bg-(--accent-warning-subtle) text-(--accent-warning)'}">
+              <span class="text-ink">{skill.name}</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded-none font-semibold {skill.level === 'Advanced' ? 'bg-positive-subtle text-positive' : skill.level === 'Proficient' ? 'bg-brand-subtle text-brand' : 'bg-attention-subtle text-attention'}">
                 {skill.level}
               </span>
             </div>
-            <p class="text-[11px] text-(--text-muted) line-clamp-2">
+            <p class="text-[11px] text-ink-muted line-clamp-2">
               "{skill.evidenceSnippet}"
             </p>
           </div>
@@ -325,11 +325,11 @@
     </div>
 
     <!-- Constructive Next Milestone Guidance -->
-    <div class="p-3 rounded-none bg-(--accent-primary-subtle) border border-(--accent-primary)/20 flex items-start gap-2.5 text-xs">
-      <Compass class="w-4 h-4 text-(--accent-primary) shrink-0 mt-0.5" />
+    <div class="p-3 rounded-none bg-brand-subtle border border-brand/20 flex items-start gap-2.5 text-xs">
+      <Compass class="w-4 h-4 text-brand shrink-0 mt-0.5" />
       <div>
-        <span class="font-semibold text-(--text-primary)">Suggested Next Exploration: </span>
-        <span class="text-(--text-secondary)">{activeDomain.nextMilestone}</span>
+        <span class="font-semibold text-ink">Suggested Next Exploration: </span>
+        <span class="text-ink-secondary">{activeDomain.nextMilestone}</span>
       </div>
     </div>
   </div>

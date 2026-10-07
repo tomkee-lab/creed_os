@@ -30,7 +30,7 @@
   }: Props = $props();
 
   const baseClasses =
-    'inline-flex items-center justify-center font-medium transition-all duration-140 rounded-sm select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--border-focus) focus-visible:ring-offset-2 disabled:opacity-40 disabled:pointer-events-none disabled:cursor-not-allowed active:scale-[0.98]';
+    'inline-flex items-center justify-center font-medium transition-all duration-140 rounded-sm select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 disabled:opacity-40 disabled:pointer-events-none disabled:cursor-not-allowed active:scale-[0.98]';
 
   const sizeClasses: Record<ButtonSize, string> = {
     sm: 'text-xs px-3 py-1.5 gap-1.5 min-h-[32px]',
@@ -40,15 +40,15 @@
 
   const variantClasses: Record<ButtonVariant, string> = {
     primary:
-      'bg-(--accent-primary) text-white hover:opacity-90 shadow-sm active:bg-(--accent-primary)/90 font-medium tracking-wide ring-1 ring-(--accent-primary)/25',
+      'bg-brand text-white hover:bg-brand/90 shadow-xs active:bg-brand/95 font-medium tracking-wide',
     secondary:
-      'surface-card text-(--text-primary) hover:bg-(--surface-content) active:bg-(--surface-sunken)',
+      'bg-surface border border-border text-ink hover:bg-surface-subtle active:bg-surface-subtle',
     outline:
-      'border border-(--border-subtle) text-(--text-primary) hover:border-(--border-strong) hover:bg-(--surface-content)/50',
+      'border border-border text-ink hover:border-border-strong hover:bg-surface-subtle',
     ghost:
-      'text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--surface-content)',
+      'text-ink-secondary hover:text-ink hover:bg-surface-subtle',
     danger:
-      'bg-(--accent-danger) text-white hover:opacity-95 shadow-sm'
+      'bg-critical text-white hover:bg-critical/90 shadow-xs'
   };
 
   const computedClass = $derived(

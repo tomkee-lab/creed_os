@@ -53,20 +53,20 @@
     {@const percentage = Math.min(Math.max(((comp.score - 1) / 4) * 100, 10), 100)}
 
     <div
-      class="surface-card rounded-sm border border-(--border-subtle) p-3 sm:p-4 hover:border-(--border-strong) transition-all duration-140 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+      class="surface-card rounded-sm border border-border p-3 sm:p-4 hover:border-border-strong transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
     >
       <!-- Title & Evidence Count -->
       <div class="min-w-0 sm:w-1/3">
         <div class="flex items-center gap-2">
-          <h4 class="text-xs sm:text-sm font-semibold text-(--text-primary) truncate">
+          <h4 class="text-xs sm:text-sm font-semibold text-ink truncate">
             {comp.name}
           </h4>
-          <span class="text-[10px] font-mono text-(--text-muted) shrink-0">
+          <span class="text-[10px] font-mono text-ink-muted shrink-0">
             {comp.evidenceCount} {comp.evidenceCount === 1 ? 'atom' : 'atoms'}
           </span>
         </div>
         {#if comp.focusReason}
-          <p class="text-[11px] text-(--accent-warning) truncate mt-0.5">
+          <p class="text-[11px] text-attention truncate mt-0.5">
             {comp.focusReason}
           </p>
         {/if}
@@ -84,9 +84,9 @@
 
       <!-- Horizontal Bar Metric (True 8pt Rhythm, No Rainbow) -->
       <div class="flex-1 min-w-30 max-w-xs flex items-center gap-2">
-        <div class="flex-1 h-2 rounded-none bg-(--surface-sunken) overflow-hidden border border-(--border-subtle)">
+        <div class="flex-1 h-2 rounded-none bg-surface-subtle overflow-hidden border border-border">
           <div
-            class="h-full rounded-none transition-all duration-200 {comp.score >= 3.5 ? 'bg-(--accent-primary)' : 'bg-(--accent-warning)'}"
+            class="h-full rounded-none transition-all duration-200 {comp.score >= 3.5 ? 'bg-brand' : 'bg-attention'}"
             style="width: {percentage}%"
           ></div>
         </div>
@@ -96,7 +96,7 @@
       <div class="shrink-0 flex items-center justify-end">
         <a
           href="/student/assessment"
-          class="inline-flex items-center gap-1 text-[11px] font-medium text-(--accent-primary) hover:underline"
+          class="inline-flex items-center gap-1 text-[11px] font-medium text-brand hover:underline"
         >
           <span>Evidence Trail</span>
           <ArrowRight class="w-3 h-3" />

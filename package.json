@@ -6,7 +6,7 @@
   "description": "CREED OS: AI-Native Learner Intelligence & Navigation Platform",
   "packageManager": "pnpm@11.25.0",
   "scripts": {
-    "dev": "turbo run dev --parallel",
+    "dev": "turbo run dev",
     "build": "turbo run build",
     "test": "turbo run test",
     "check": "turbo run check",
