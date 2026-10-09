@@ -29,7 +29,7 @@
 
 {#if variant === 'pills'}
   <div
-    class="flex items-center gap-1 p-1 rounded-sm bg-surface border border-border text-xs select-none {className}"
+    class="flex items-center gap-1 p-1 rounded-none bg-surface border border-border text-xs select-none {className}"
     role="region"
     aria-label="Tabs"
   >
@@ -39,11 +39,11 @@
         type="button"
         aria-pressed={isActive}
         onclick={() => selectTab(item.id)}
-        class="px-3.5 py-1.5 rounded-sm font-medium transition-all duration-140 cursor-pointer {isActive ? 'bg-surface-raised text-ink shadow-xs' : 'text-ink-secondary hover:text-ink'}"
+        class="px-3.5 py-1.5 rounded-none font-medium transition-all duration-140 cursor-pointer {isActive ? 'bg-surface-raised text-ink shadow-xs' : 'text-ink-secondary hover:text-ink'}"
       >
         <span>{item.label}</span>
         {#if item.count !== undefined}
-          <span class="ml-1.5 text-[10px] px-1.5 py-0.5 rounded-sm {isActive ? 'bg-surface-subtle text-ink' : 'bg-surface-raised text-ink-muted'}">
+          <span class="ml-1.5 text-[10px] px-1.5 py-0.5 rounded-none {isActive ? 'bg-surface-subtle text-ink' : 'bg-surface-raised text-ink-muted'}">
             {item.count}
           </span>
         {/if}

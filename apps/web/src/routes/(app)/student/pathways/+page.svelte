@@ -1,6 +1,5 @@
 <script lang="ts">
   import {
-    Compass,
     CheckCircle2,
     ArrowRight,
     FlaskConical,
@@ -9,13 +8,16 @@
     ChevronUp,
     ShieldCheck
   } from 'lucide-svelte';
+  import { Icon } from '$lib/components/icons';
   import { getCompetencyDescriptor } from '@core-os/ui';
   import { WaySection } from '$lib/components';
+  import PathwayGraphCanvas from '$lib/components/pathways/PathwayGraphCanvas.svelte';
 
   let { data } = $props();
   let pathways = $derived(data.pathways || []);
   let learner = $derived(data.learner);
 
+  let viewMode = $state<'cards' | 'graph'>('cards');
   let selectedPathwayId = $state<string>('PATH-ROBOTICS');
   let selectedPathway = $derived(
     pathways.find((p) => p.id === selectedPathwayId) || pathways[0]
@@ -64,32 +66,83 @@
 
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
   <!-- 1. EDITORIAL HEADER: 1 title, 1 sentence, no giant walls of text -->
-  <header class="space-y-1 pb-4 border-b border-border">
-    <div class="flex items-center gap-2">
-      <Compass class="w-5 h-5 text-brand" />
-      <h1 class="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
-        Pathway Exploration
-      </h1>
+  <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
+    <div class="space-y-1">
+      <div class="flex items-center gap-2">
+        <Icon icon="ph:compass-bold" class="w-5 h-5 text-mint" />
+        <h1 class="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
+          Pathway Exploration
+        </h1>
+      </div>
+      <p class="text-xs sm:text-sm text-foreground-secondary max-w-2xl leading-relaxed">
+        Experience authentic project missions before choosing academic streams. We highlight alignment, not fixed labels.
+      </p>
     </div>
-    <p class="text-xs sm:text-sm text-ink-secondary max-w-2xl leading-relaxed">
-      Experience authentic project missions before choosing academic streams. We highlight alignment, not fixed labels.
-    </p>
+
+    <!-- Dual-Mode Segmented Control: Cards vs Skill DAG -->
+    <div class="inline-flex items-center p-0.5 rounded-none bg-surface-2 border border-border-subtle shrink-0">
+      <button
+        type="button"
+        onclick={() => (viewMode = 'cards')}
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none text-xs font-medium transition-micro cursor-pointer {viewMode === 'cards'
+          ? 'bg-surface-3 text-foreground shadow-xs font-semibold'
+          : 'text-foreground-secondary hover:text-foreground'}"
+      >
+        <Icon icon="carbon:grid" class="w-3.5 h-3.5" />
+        <span>Cards View</span>
+      </button>
+      <button
+        type="button"
+        onclick={() => (viewMode = 'graph')}
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none text-xs font-medium transition-micro cursor-pointer {viewMode === 'graph'
+          ? 'bg-mint text-mint-foreground shadow-xs font-semibold'
+          : 'text-foreground-secondary hover:text-foreground'}"
+      >
+        <Icon icon="carbon:network-4" class="w-3.5 h-3.5" />
+        <span>Skill DAG View</span>
+      </button>
+    </div>
   </header>
 
+  {#if viewMode === 'graph'}
+    <!-- INTERACTIVE PATHWAY GRAPH CANVAS (@xyflow/svelte) -->
+    <div class="space-y-4">
+      <div class="flex items-center justify-between text-xs text-foreground-secondary">
+        <span>Interactive Prerequisite & Milestone DAG · Pan, zoom, and select a node to view diagnostic requirements</span>
+        <span class="font-mono text-mint text-[11px]">{selectedPathway.title} Selected</span>
+      </div>
+      <PathwayGraphCanvas
+        {pathways}
+        {selectedPathwayId}
+        {learner}
+        onselect={(id) => (selectedPathwayId = id)}
+      />
+    </div>
+  {/if}
+
   <!-- 2. FIELD SELECTOR TILES (Qualitative foundation badges, 4px radius) -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 {viewMode === 'graph' ? 'hidden sm:grid opacity-70' : ''}">
     {#each pathways as p}
       {@const isSelected = selectedPathwayId === p.id}
       <button
         type="button"
         onclick={() => (selectedPathwayId = p.id)}
-        class="text-left p-5 rounded-sm border transition-colors cursor-pointer {isSelected ? 'bg-surface border-brand ring-1 ring-brand' : 'bg-surface hover:bg-surface-subtle border-border'}"
+        class="text-left p-4 rounded-none border transition-colors cursor-pointer {isSelected ? 'bg-surface border-brand ring-1 ring-brand' : 'bg-surface hover:bg-surface-subtle border-border'}"
       >
         <div class="flex items-center justify-between">
-          <span class="text-[11px] font-semibold uppercase tracking-wider text-ai">
-            {p.field.replace('_', ' ')}
-          </span>
-          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-sm {p.id === 'PATH-ROBOTICS' ? 'bg-attention-subtle text-attention' : 'bg-positive-subtle text-positive'} border border-border">
+          <div class="flex items-center gap-1.5">
+            {#if p.id === 'PATH-ROBOTICS'}
+              <Icon icon="tabler:robot" class="w-3.5 h-3.5 text-brand" />
+            {:else if p.id === 'PATH-BIO'}
+              <Icon icon="tabler:plant" class="w-3.5 h-3.5 text-mint" />
+            {:else}
+              <Icon icon="tabler:variable" class="w-3.5 h-3.5 text-violet" />
+            {/if}
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-ai">
+              {p.field.replace('_', ' ')}
+            </span>
+          </div>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-none {p.id === 'PATH-ROBOTICS' ? 'bg-attention-subtle text-attention' : 'bg-positive-subtle text-positive'} border border-border">
             {p.id === 'PATH-ROBOTICS' ? '4 of 6 Demonstrated' : '5 of 6 Demonstrated'}
           </span>
         </div>
@@ -102,7 +155,7 @@
   <!-- 3. FEATURED FIELD EDITORIAL SPREAD -->
   <div class="space-y-10">
     <!-- Hero Visual + Overview (Artwork carries emotion, UI carries information) -->
-    <div class="bg-surface rounded-sm overflow-hidden border border-border">
+    <div class="bg-surface rounded-none overflow-hidden border border-border">
       <div class="grid grid-cols-1 lg:grid-cols-12 items-stretch">
         <div class="lg:col-span-7 relative aspect-video lg:aspect-auto overflow-hidden bg-surface-subtle">
           <img
@@ -112,7 +165,7 @@
             class="w-full h-full object-cover transition-transform duration-280 hover:scale-[1.01]"
           />
           <div class="absolute top-4 left-4">
-            <span class="px-3 py-1 rounded-sm bg-canvas/90 backdrop-blur-xs border border-border text-xs font-semibold uppercase tracking-wider text-ink">
+            <span class="px-3 py-1 rounded-none bg-canvas/90 backdrop-blur-xs border border-border text-xs font-semibold uppercase tracking-wider text-ink">
               {selectedPathway.field.replace('_', ' ')}
             </span>
           </div>
@@ -128,7 +181,7 @@
             </p>
           </div>
 
-          <div class="p-4 rounded-sm bg-surface-subtle border border-border space-y-1">
+          <div class="p-4 rounded-none bg-surface-subtle border border-border space-y-1">
             <span class="text-[10px] font-semibold uppercase tracking-wider text-ink-muted block">
               Curiosity Alignment
             </span>
@@ -149,7 +202,7 @@
       <div class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {#each comparison.requirements.slice(0, 3) as req}
-            <div class="p-4 rounded-sm bg-surface-subtle border border-border space-y-2">
+            <div class="p-4 rounded-none bg-surface-subtle border border-border space-y-2">
               <div class="flex items-center justify-between text-xs">
                 <span class="font-bold text-ink">{req.domainName}</span>
                 <span class="text-[11px] font-semibold {req.delta >= 0 ? 'text-positive' : 'text-attention'}">
@@ -178,7 +231,7 @@
         </div>
 
         {#if showBenchmarkMetadata}
-          <div class="p-5 rounded-sm bg-surface-subtle border border-border space-y-4 animate-in fade-in duration-200">
+          <div class="p-4 rounded-none bg-surface-subtle border border-border space-y-4 animate-in fade-in duration-200">
             <div class="flex items-center justify-between text-xs text-ink-muted border-b border-border pb-2">
               <span>All Pathway Competency Standards</span>
               <span>Normative cohort: Age 13–14 calibrated items</span>
@@ -209,10 +262,10 @@
       subtitle="Complete a miniature 30–45 minute mission to experience the actual thinking required in this field."
     >
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-surface p-6 rounded-sm border border-border flex flex-col justify-between space-y-4">
+        <div class="bg-surface p-6 rounded-none border border-border flex flex-col justify-between space-y-4">
           <div class="space-y-2">
             <div class="flex items-center justify-between text-xs">
-              <span class="px-2 py-0.5 rounded-sm bg-ai-subtle text-ai font-semibold">
+              <span class="px-2 py-0.5 rounded-none bg-ai-subtle text-ai font-semibold">
                 Maker Mission
               </span>
               <span class="text-[11px] text-ink-muted">45 mins</span>
@@ -227,19 +280,19 @@
 
           <div class="pt-3 border-t border-border">
             <a
-              href="/student/mentor"
-              class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-sm bg-brand hover:bg-brand/90 text-white font-medium text-xs sm:text-sm transition-colors shadow-xs cursor-pointer"
+              href="/student/missions/robobridge"
+              class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs sm:text-sm transition-colors shadow-xs cursor-pointer"
             >
               <FlaskConical class="w-4 h-4" />
-              <span>Launch Mission with AI Guide</span>
+              <span>Launch Mission Simulator</span>
             </a>
           </div>
         </div>
 
-        <div class="bg-surface p-6 rounded-sm border border-border flex flex-col justify-between space-y-4">
+        <div class="bg-surface p-6 rounded-none border border-border flex flex-col justify-between space-y-4">
           <div class="space-y-2">
             <div class="flex items-center justify-between text-xs">
-              <span class="px-2 py-0.5 rounded-sm bg-ai-subtle text-ai font-semibold">
+              <span class="px-2 py-0.5 rounded-none bg-ai-subtle text-ai font-semibold">
                 Algorithm Mission
               </span>
               <span class="text-[11px] text-ink-muted">30 mins</span>
@@ -255,7 +308,7 @@
           <div class="pt-3 border-t border-border">
             <a
               href="/student/mentor"
-              class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-sm bg-surface hover:bg-surface-subtle text-ink font-medium text-xs sm:text-sm transition-colors border border-border cursor-pointer"
+              class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-none bg-surface hover:bg-surface-subtle text-ink font-medium text-xs sm:text-sm transition-colors border border-border cursor-pointer"
             >
               <Sparkles class="w-4 h-4 text-ai" />
               <span>Launch Mission with AI Guide</span>
@@ -272,7 +325,7 @@
       subtitle="Mastery in this field can be reached through multiple valid educational pathways."
     >
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-        <div class="p-4 rounded-sm bg-surface-subtle border border-border space-y-1.5">
+        <div class="p-4 rounded-none bg-surface-subtle border border-border space-y-1.5">
           <span class="text-[10px] font-semibold text-ai uppercase block">University Degree</span>
           <h4 class="font-bold text-ink text-sm">B.Tech Mechatronics</h4>
           <p class="text-[11px] text-ink-secondary leading-relaxed">
@@ -280,7 +333,7 @@
           </p>
         </div>
 
-        <div class="p-4 rounded-sm bg-surface-subtle border border-border space-y-1.5">
+        <div class="p-4 rounded-none bg-surface-subtle border border-border space-y-1.5">
           <span class="text-[10px] font-semibold text-brand uppercase block">Applied Diploma</span>
           <h4 class="font-bold text-ink text-sm">Robotics Automation</h4>
           <p class="text-[11px] text-ink-secondary leading-relaxed">
@@ -288,12 +341,145 @@
           </p>
         </div>
 
-        <div class="p-4 rounded-sm bg-surface-subtle border border-border space-y-1.5">
+        <div class="p-4 rounded-none bg-surface-subtle border border-border space-y-1.5">
           <span class="text-[10px] font-semibold text-positive uppercase block">Applied Portfolio</span>
           <h4 class="font-bold text-ink text-sm">Open-Source Robotics</h4>
           <p class="text-[11px] text-ink-secondary leading-relaxed">
             Demonstrated ROS contributions, physical maker build logs, and challenge awards.
           </p>
+        </div>
+      </div>
+    </WaySection>
+
+    <!-- 7. READINESS & NEXT STEPS (Action-First UX & Qualitative Developmental Guidance) -->
+    <WaySection
+      eyebrow="Readiness & Next Steps"
+      title="Your Path Forward"
+      subtitle="Developmental preparation and concrete next actions to build confidence in this field."
+    >
+      <div class="space-y-6">
+        <!-- Readiness Synthesis Card (Level 1 Signal + Level 2 Context) -->
+        <div class="p-6 rounded-none bg-surface border border-border space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
+            <div class="space-y-1">
+              <span class="text-[11px] font-semibold uppercase tracking-wider text-ai">
+                Developmental Readiness
+              </span>
+              <h3 class="text-lg font-bold text-ink">
+                {comparison.metCount >= 5 ? 'Strong Foundation' : comparison.metCount >= 3 ? 'Developing Foundation' : 'Exploration Stage'}
+              </h3>
+              <p class="text-xs text-ink-secondary">
+                {comparison.metCount} of {comparison.totalCount} foundational competencies demonstrated across verified diagnostics and project trials.
+              </p>
+            </div>
+
+            <div class="shrink-0 flex items-center gap-2">
+              <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-none {comparison.metCount >= 4 ? 'bg-positive-subtle text-positive' : 'bg-attention-subtle text-attention'} text-xs font-semibold border border-border">
+                <CheckCircle2 class="w-3.5 h-3.5" />
+                <span>{comparison.metCount >= 4 ? 'Pathway Aligned' : 'Growth Focus Area'}</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Competency Readiness Breakdown -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 rounded-none bg-surface-subtle border border-border space-y-2">
+              <span class="text-[10px] font-semibold text-positive uppercase tracking-wider block">
+                Demonstrated Strengths
+              </span>
+              <ul class="text-xs text-ink space-y-2">
+                {#each comparison.requirements.filter(r => r.delta >= 0) as req}
+                  <li class="flex items-center justify-between">
+                    <span class="font-medium">{req.domainName}</span>
+                    <span class="text-[11px] text-ink-secondary">{req.descriptor}</span>
+                  </li>
+                {/each}
+              </ul>
+            </div>
+
+            <div class="p-4 rounded-none bg-surface-subtle border border-border space-y-2">
+              <span class="text-[10px] font-semibold text-attention uppercase tracking-wider block">
+                Targeted Bridge Focus
+              </span>
+              <ul class="text-xs text-ink space-y-2">
+                {#each comparison.requirements.filter(r => r.delta < 0) as req}
+                  <li class="flex items-center justify-between">
+                    <span class="font-medium">{req.domainName}</span>
+                    <span class="text-[11px] text-attention font-medium">Sprint Focus</span>
+                  </li>
+                {/each}
+                {#if comparison.requirements.filter(r => r.delta < 0).length === 0}
+                  <li class="text-xs text-ink-secondary italic">All prerequisite competencies currently demonstrated.</li>
+                {/if}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Next Actions (Signal -> Context -> Action Primacy) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <!-- Step 1: Micro-practice Sprint -->
+          <div class="p-4 rounded-none bg-surface border border-border flex flex-col justify-between space-y-4">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-brand">Action 1 • Practice</span>
+                <span class="text-[11px] text-ink-muted">20 min</span>
+              </div>
+              <h4 class="text-sm font-bold text-ink">Targeted Foundation Sprint</h4>
+              <p class="text-xs text-ink-secondary leading-relaxed">
+                Strengthen rate equations and kinematic gear calculations in a 20-minute adaptive practice session.
+              </p>
+            </div>
+            <a
+              href="/student/assessment"
+              class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs transition-colors cursor-pointer"
+            >
+              <span>Start Practice Sprint</span>
+              <ArrowRight class="w-3.5 h-3.5" />
+            </a>
+          </div>
+
+          <!-- Step 2: Hands-on Project Mission -->
+          <div class="p-4 rounded-none bg-surface border border-border flex flex-col justify-between space-y-4">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-ai">Action 2 • Authentic Trial</span>
+                <span class="text-[11px] text-ink-muted">45 min</span>
+              </div>
+              <h4 class="text-sm font-bold text-ink">Hands-on Rover Mission</h4>
+              <p class="text-xs text-ink-secondary leading-relaxed">
+                Test mechanical intuition directly by optimizing a rover joint linkage with Socratic guidance.
+              </p>
+            </div>
+            <a
+              href="/student/mentor"
+              class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-none bg-surface-subtle hover:bg-surface-raised text-ink border border-border font-medium text-xs transition-colors cursor-pointer"
+            >
+              <Sparkles class="w-3.5 h-3.5 text-ai" />
+              <span>Launch Guided Mission</span>
+            </a>
+          </div>
+
+          <!-- Step 3: Advisory Alignment -->
+          <div class="p-4 rounded-none bg-surface border border-border flex flex-col justify-between space-y-4">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Action 3 • Guidance</span>
+                <span class="text-[11px] text-ink-muted">Discussion</span>
+              </div>
+              <h4 class="text-sm font-bold text-ink">Family & Counselor Dialogue</h4>
+              <p class="text-xs text-ink-secondary leading-relaxed">
+                Share this pathway exploration with your parents and school counselor to align future elective choices.
+              </p>
+            </div>
+            <a
+              href="/help"
+              class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-none bg-surface-subtle hover:bg-surface-raised text-ink border border-border font-medium text-xs transition-colors cursor-pointer"
+            >
+              <span>View Guidance Resources</span>
+              <ArrowRight class="w-3.5 h-3.5" />
+            </a>
+          </div>
         </div>
       </div>
     </WaySection>

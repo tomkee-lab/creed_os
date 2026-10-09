@@ -1,0 +1,49 @@
+# ==============================================================================
+# QODO REPOSITORY CONFIGURATION — CREED OS
+# Preset: RecallRecommended ("Catch what might slip through")
+# ==============================================================================
+
+version: "2.0"
+
+review:
+  preset: "RecallRecommended"
+  description: "Every check runs on every pull request for a thorough review. Runs Bug detection, Rule violation, Skill insight, Cross-repo conflict, Spec agent, Design gap. Shows every finding, the important ones inline. No automated fixes."
+  
+  checks:
+    bug_detection: true
+    rule_violation: true
+    skill_insight: true
+    cross_repo_conflict: true
+    spec_agent: true
+    design_gap: true
+
+  reporting:
+    summary: true
+    inline_comments: true
+    inline_severity_threshold: "medium" # flags important findings inline
+    auto_fixes: false # No automated fixes; user reviews and fixes
+
+  rules:
+    - name: "strict-package-manager-pnpm"
+      description: "pnpm is strictly required. npm, yarn, and npx are forbidden. Use pnpm dlx."
+      severity: "high"
+
+    - name: "deterministic-scoring-psychometrics"
+      description: "Scores and ability estimates must be deterministic (3PL IRT, BKT). Raw LLMs must never score or classify ability."
+      severity: "high"
+
+    - name: "dpdp-child-safety-consent"
+      description: "Minors aged 10-16 require verified parental consent state machine and relationship-scoped Supabase RLS."
+      severity: "high"
+
+    - name: "svelte-5-runes-only"
+      description: "Components in apps/web must use Svelte 5 runes ($state, $derived, $props). Legacy Svelte 4 syntax is forbidden."
+      severity: "medium"
+
+    - name: "way-design-system-zero-radius"
+      description: "Enforce 0px sharp architectural radius (rounded-none). No bubbly curves, pill buttons, or rounded-lg."
+      severity: "medium"
+
+    - name: "way-typography-monospaced-budget"
+      description: "Headings in DM Sans Variable, body in Inter Variable. Monospace (JetBrains Mono Variable) must not exceed 5% viewport budget."
+      severity: "medium"

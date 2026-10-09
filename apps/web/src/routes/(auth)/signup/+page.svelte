@@ -25,28 +25,26 @@
     errorMsg = '';
 
     try {
-      try {
-        const roleToAssign =
-          selectedRole === 'school'
-            ? 'institution_pending'
-            : selectedRole === 'teacher'
-            ? 'teacher_pending'
-            : selectedRole === 'counselor'
-            ? 'counselor_pending'
-            : selectedRole === 'parent'
-            ? 'parent_pending'
-            : 'student';
-        const res = await authClient.signUp.email({
-          email,
-          password,
-          name: fullName,
-          role: roleToAssign
-        } as any);
-        if (res?.error) throw new Error(res.error.message || 'Registration failed.');
-      } catch (authErr: any) {
-        const msg = (authErr?.message || '').toLowerCase();
-        if (msg.includes('already exists') || msg.includes('weak password')) throw authErr;
-        await new Promise((r) => setTimeout(r, 300));
+      const roleToAssign =
+        selectedRole === 'school'
+          ? 'institution_pending'
+          : selectedRole === 'teacher'
+          ? 'teacher_pending'
+          : selectedRole === 'counselor'
+          ? 'counselor_pending'
+          : selectedRole === 'parent'
+          ? 'parent_pending'
+          : 'student';
+
+      const res = await authClient.signUp.email({
+        email,
+        password,
+        name: fullName,
+        role: roleToAssign
+      } as any);
+
+      if (res?.error) {
+        throw new Error(res.error.message || 'Registration failed.');
       }
 
       if (selectedRole === 'parent') {
@@ -66,7 +64,7 @@
   <title>Create Account — CREED OS</title>
 </svelte:head>
 
-<div class="rounded-sm bg-surface-raised border border-border p-6 sm:p-8 shadow-sm">
+<div class="rounded-none bg-surface-raised border border-border p-6 sm:p-8 shadow-sm">
   <div class="space-y-1.5 mb-6 text-center">
     <h1 class="text-xl font-heading font-semibold text-ink tracking-tight">
       Create your CREED account
@@ -77,7 +75,7 @@
   </div>
 
   {#if errorMsg}
-    <div class="mb-4 p-2.5 rounded-sm bg-critical-subtle border border-critical/20 text-xs text-critical">
+    <div class="mb-4 p-2.5 rounded-none bg-critical-subtle border border-critical/20 text-xs text-critical">
       {errorMsg}
     </div>
   {/if}
@@ -92,7 +90,7 @@
           id="role"
           bind:value={selectedRole}
           disabled={loading}
-          class="w-full h-8 pl-2.5 pr-8 rounded-sm bg-surface border border-border text-xs text-ink hover:border-border-strong active:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-focus focus-visible:border-focus disabled:opacity-50 disabled:pointer-events-none appearance-none cursor-pointer transition-colors"
+          class="w-full h-8 pl-2.5 pr-8 rounded-none bg-surface border border-border text-xs text-ink hover:border-border-strong active:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-focus focus-visible:border-focus disabled:opacity-50 disabled:pointer-events-none appearance-none cursor-pointer transition-colors"
         >
           {#each roleOptions as opt}
             <option value={opt.id}>{opt.label}</option>
@@ -113,9 +111,9 @@
         id="fullName"
         bind:value={fullName}
         type="text"
-        placeholder="Sunita Verma"
+        placeholder="Legal Full Name"
         required
-        class="w-full h-8 px-2.5 rounded-sm bg-surface border border-border text-xs text-ink placeholder:text-ink-muted focus:border-focus outline-none transition-colors"
+        class="w-full h-8 px-2.5 rounded-none bg-surface border border-border text-xs text-ink placeholder:text-ink-muted focus:border-focus outline-none transition-colors"
       />
     </div>
 
@@ -125,9 +123,9 @@
         id="email"
         bind:value={email}
         type="email"
-        placeholder="sunita@family.org"
+        placeholder="name@organization.org"
         required
-        class="w-full h-8 px-2.5 rounded-sm bg-surface border border-border text-xs text-ink placeholder:text-ink-muted focus:border-focus outline-none transition-colors"
+        class="w-full h-8 px-2.5 rounded-none bg-surface border border-border text-xs text-ink placeholder:text-ink-muted focus:border-focus outline-none transition-colors"
       />
     </div>
 
@@ -140,14 +138,14 @@
         placeholder="Minimum 8 characters"
         minlength="8"
         required
-        class="w-full h-8 px-2.5 rounded-sm bg-surface border border-border text-xs text-ink placeholder:text-ink-muted focus:border-focus outline-none transition-colors"
+        class="w-full h-8 px-2.5 rounded-none bg-surface border border-border text-xs text-ink placeholder:text-ink-muted focus:border-focus outline-none transition-colors"
       />
     </div>
 
     <button
       type="submit"
       disabled={loading}
-      class="w-full h-8 rounded-sm bg-brand text-white text-xs font-medium hover:bg-brand/90 shadow-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 mt-2"
+      class="w-full h-8 rounded-none bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 shadow-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 mt-2"
     >
       <span>{loading ? 'Creating...' : 'Continue'}</span>
       <ArrowRight class="w-3.5 h-3.5" />

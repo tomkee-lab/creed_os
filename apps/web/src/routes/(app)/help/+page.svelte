@@ -29,7 +29,7 @@
     subtitle="The foundational ergonomic grammar governing every surface in CREED OS."
   >
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="p-5 bg-surface-raised border border-border rounded-sm space-y-2">
+      <div class="p-5 bg-surface-raised border border-border rounded-none space-y-2">
         <div class="text-xs font-semibold text-brand">Level 1: Signal</div>
         <h3 class="text-sm font-semibold text-ink">What You Must Notice First</h3>
         <p class="text-xs text-ink-secondary leading-relaxed">
@@ -37,7 +37,7 @@
         </p>
       </div>
 
-      <div class="p-5 bg-surface-raised border border-border rounded-sm space-y-2">
+      <div class="p-5 bg-surface-raised border border-border rounded-none space-y-2">
         <div class="text-xs font-semibold text-ai">Level 2: Context</div>
         <h3 class="text-sm font-semibold text-ink">Why It Matters</h3>
         <p class="text-xs text-ink-secondary leading-relaxed">
@@ -45,7 +45,7 @@
         </p>
       </div>
 
-      <div class="p-5 bg-surface-raised border border-border rounded-sm space-y-2">
+      <div class="p-5 bg-surface-raised border border-border rounded-none space-y-2">
         <div class="text-xs font-semibold text-positive">Level 3: Evidence</div>
         <h3 class="text-sm font-semibold text-ink">Tangible Provenance</h3>
         <p class="text-xs text-ink-secondary leading-relaxed">
@@ -61,7 +61,7 @@
     title="Psychometric & Pedagogical Foundations"
     subtitle="Deterministic algorithms, growth mindset, and developmental trajectories."
   >
-    <div class="p-6 bg-surface-raised border border-border rounded-sm space-y-4 text-xs text-ink-secondary">
+    <div class="p-6 bg-surface-raised border border-border rounded-none space-y-4 text-xs text-ink-secondary">
       <div class="space-y-1">
         <h4 class="font-semibold text-ink text-sm">Deterministic Scoring Isolation</h4>
         <p class="leading-relaxed">
@@ -91,23 +91,23 @@
     title="Workspace Keyboard Shortcuts"
     subtitle="Navigate fluently without leaving the keyboard."
   >
-    <div class="p-6 bg-surface-raised border border-border rounded-sm">
+    <div class="p-6 bg-surface-raised border border-border rounded-none">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-        <div class="flex items-center justify-between p-2 rounded-sm bg-surface-subtle border border-border">
+        <div class="flex items-center justify-between p-2 rounded-none bg-surface-subtle border border-border">
           <span class="text-ink">Open Command Palette</span>
-          <kbd class="px-2 py-0.5 rounded-sm bg-surface border border-border font-mono text-[11px] text-ink font-semibold">⌘K / Ctrl+K</kbd>
+          <kbd class="px-2 py-0.5 rounded-none bg-surface border border-border font-mono text-[11px] text-ink font-semibold">⌘K / Ctrl+K</kbd>
         </div>
-        <div class="flex items-center justify-between p-2 rounded-sm bg-surface-subtle border border-border">
+        <div class="flex items-center justify-between p-2 rounded-none bg-surface-subtle border border-border">
           <span class="text-ink">Dismiss Modal / Inspector</span>
-          <kbd class="px-2 py-0.5 rounded-sm bg-surface border border-border font-mono text-[11px] text-ink font-semibold">Escape</kbd>
+          <kbd class="px-2 py-0.5 rounded-none bg-surface border border-border font-mono text-[11px] text-ink font-semibold">Escape</kbd>
         </div>
-        <div class="flex items-center justify-between p-2 rounded-sm bg-surface-subtle border border-border">
+        <div class="flex items-center justify-between p-2 rounded-none bg-surface-subtle border border-border">
           <span class="text-ink">Next Interactive Question</span>
-          <kbd class="px-2 py-0.5 rounded-sm bg-surface border border-border font-mono text-[11px] text-ink font-semibold">Enter</kbd>
+          <kbd class="px-2 py-0.5 rounded-none bg-surface border border-border font-mono text-[11px] text-ink font-semibold">Enter</kbd>
         </div>
-        <div class="flex items-center justify-between p-2 rounded-sm bg-surface-subtle border border-border">
+        <div class="flex items-center justify-between p-2 rounded-none bg-surface-subtle border border-border">
           <span class="text-ink">Toggle Left Sidebar</span>
-          <kbd class="px-2 py-0.5 rounded-sm bg-surface border border-border font-mono text-[11px] text-ink font-semibold">⌘B / Ctrl+B</kbd>
+          <kbd class="px-2 py-0.5 rounded-none bg-surface border border-border font-mono text-[11px] text-ink font-semibold">⌘B / Ctrl+B</kbd>
         </div>
       </div>
     </div>

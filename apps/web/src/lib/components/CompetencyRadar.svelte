@@ -13,8 +13,8 @@
     competencies,
     size = 280,
     showLabels = true,
-    fillColor = 'fill-cyan-500/20',
-    strokeColor = 'stroke-cyan-400'
+    fillColor = 'fill-brand/20',
+    strokeColor = 'stroke-brand'
   }: Props = $props();
 
   const domainKeys: CompetencyDomain[] = [
@@ -77,19 +77,29 @@
 
   // Reference rings at 2.0 (Developing), 3.5 (Proficient), 5.0 (Advanced)
   const rings = [0.4, 0.7, 1.0];
+
+  function ringPolygonPoints(fraction: number): string {
+    return domainKeys
+      .map((_, i) => {
+        const angle = i * angleStep - Math.PI / 2;
+        const x = center + (radius * fraction) * Math.cos(angle);
+        const y = center + (radius * fraction) * Math.sin(angle);
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      })
+      .join(' ');
+  }
 </script>
 
 <div class="relative flex flex-col items-center justify-center">
   <svg width={size} height={size} class="overflow-visible">
-    <!-- Concentric reference grid rings -->
+    <!-- Straight polygonal reference grid rings (Zero Curve Lines) -->
     {#each rings as fraction}
-      <circle
-        cx={center}
-        cy={center}
-        r={radius * fraction}
-        class="fill-transparent stroke-white/10"
+      <polygon
+        points={ringPolygonPoints(fraction)}
+        class="fill-transparent stroke-border"
         stroke-dasharray={fraction < 1.0 ? '3 3' : 'none'}
         stroke-width="1"
+        stroke-linejoin="miter"
       />
     {/each}
 
@@ -100,7 +110,7 @@
         y1={center}
         x2={axis.x}
         y2={axis.y}
-        class="stroke-white/15"
+        class="stroke-border"
         stroke-width="1"
       />
     {/each}
@@ -110,10 +120,10 @@
       points={polygonPoints()}
       class="{fillColor} {strokeColor} transition-all duration-500"
       stroke-width="2"
-      stroke-linejoin="round"
+      stroke-linejoin="miter"
     />
 
-    <!-- Data vertices with score dots -->
+    <!-- Data vertices with sharp technical square markers -->
     {#each axisEndpoints() as axis}
       {@const item = competencies[axis.key]}
       {@const score = item?.score ?? 3.0}
@@ -121,12 +131,13 @@
       {@const angle = domainKeys.indexOf(axis.key) * angleStep - Math.PI / 2}
       {@const dotX = center + r * Math.cos(angle)}
       {@const dotY = center + r * Math.sin(angle)}
-      <circle
-        cx={dotX}
-        cy={dotY}
-        r="4"
-        class="fill-cyan-400 stroke-[oklch(0.130_0.018_250)]"
-        stroke-width="2"
+      <rect
+        x={dotX - 3.5}
+        y={dotY - 3.5}
+        width="7"
+        height="7"
+        class="fill-brand stroke-canvas"
+        stroke-width="1.5"
       />
     {/each}
 
@@ -138,7 +149,7 @@
           y={axis.labelY}
           text-anchor="middle"
           dominant-baseline="middle"
-          class="text-[10px] fill-slate-300 font-medium select-none"
+          class="text-[10px] fill-ink-secondary font-medium select-none"
         >
           {axis.label}
         </text>

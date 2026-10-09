@@ -2,7 +2,7 @@
   import type { Snippet } from 'svelte';
   import { Loader2 } from 'lucide-svelte';
 
-  type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+  type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'ai';
   type ButtonSize = 'sm' | 'md' | 'lg';
 
   interface Props {
@@ -30,7 +30,7 @@
   }: Props = $props();
 
   const baseClasses =
-    'inline-flex items-center justify-center font-medium transition-all duration-140 rounded-sm select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 disabled:opacity-40 disabled:pointer-events-none disabled:cursor-not-allowed active:scale-[0.98]';
+    'inline-flex items-center justify-center font-medium transition-micro active-press rounded-none select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint focus-visible:ring-offset-2 disabled:opacity-40 disabled:pointer-events-none disabled:cursor-not-allowed';
 
   const sizeClasses: Record<ButtonSize, string> = {
     sm: 'text-xs px-3 py-1.5 gap-1.5 min-h-[32px]',
@@ -40,15 +40,17 @@
 
   const variantClasses: Record<ButtonVariant, string> = {
     primary:
-      'bg-brand text-white hover:bg-brand/90 shadow-xs active:bg-brand/95 font-medium tracking-wide',
+      'bg-mint text-mint-foreground hover:bg-mint-hover active:bg-mint-active shadow-xs font-medium tracking-wide',
     secondary:
-      'bg-surface border border-border text-ink hover:bg-surface-subtle active:bg-surface-subtle',
+      'bg-surface-2 border border-border-subtle text-foreground hover:border-border hover:bg-surface-3 active:bg-surface-3',
     outline:
-      'border border-border text-ink hover:border-border-strong hover:bg-surface-subtle',
+      'border border-border text-foreground hover:border-border-strong hover:bg-surface-2',
     ghost:
-      'text-ink-secondary hover:text-ink hover:bg-surface-subtle',
+      'text-foreground-secondary hover:text-foreground hover:bg-surface-2',
     danger:
-      'bg-critical text-white hover:bg-critical/90 shadow-xs'
+      'bg-red text-red-foreground hover:bg-red/90 shadow-xs',
+    ai:
+      'bg-violet text-violet-foreground hover:bg-violet/90 active:bg-violet/95 shadow-xs font-medium tracking-wide'
   };
 
   const computedClass = $derived(

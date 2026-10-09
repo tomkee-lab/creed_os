@@ -1,23 +1,35 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { transitionConsentState, type ConsentRecord } from '@core-os/domain';
+import { resolveLearnerId } from '$lib/server/learnerScope';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
-  // Enforce session requirements for consent withdrawal under DPDP Act 2023
-  if (!locals.session && !import.meta.env.DEV) {
+  // 1. Enforce session requirements for statutory consent withdrawal under DPDP Act 2023
+  if (!locals.session || !locals.user) {
     return json({ error: 'Unauthorized: Active session required to withdraw statutory consent.' }, { status: 401 });
   }
 
+  // 2. Enforce guardian or administrative authorization
+  const user = locals.user;
+  const userRole = (user as any).role || (user as any).metadata?.role || 'student';
+  if (!['parent', 'admin'].includes(userRole)) {
+    return json({ error: 'Forbidden: Only authorized guardians or institutional administrators may withdraw statutory consent.' }, { status: 403 });
+  }
+
   const body = await request.json().catch(() => ({}));
-  const {
-    learnerId = '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-    reason = 'Parent requested statutory deletion under DPDP Act 2023'
-  } = body;
+  const boundLearnerId = resolveLearnerId(user);
+
+  if (userRole === 'parent' && body.learnerId && body.learnerId !== boundLearnerId) {
+    return json({ error: 'Forbidden: Guardians may strictly withdraw statutory consent for their verified child only.' }, { status: 403 });
+  }
+
+  const targetLearnerId = userRole === 'parent' ? boundLearnerId : (body.learnerId || boundLearnerId);
+  const reason = body.reason || 'Parent requested statutory deletion under DPDP Act 2023';
 
   const activeRecord: ConsentRecord = {
     id: 'cst_' + crypto.randomUUID().slice(0, 8),
-    learnerId,
-    parentName: 'Verified Guardian',
+    learnerId: targetLearnerId,
+    parentName: (user as any).name || 'Verified Guardian',
     parentContact: '+91 98765 43210',
     verificationChannel: 'SMS_OTP',
     status: 'VERIFIED_ACTIVE',

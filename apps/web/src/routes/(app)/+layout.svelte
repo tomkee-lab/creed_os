@@ -24,23 +24,53 @@
   let isDarkMode = $state(false);
 
   onMount(() => {
+    // Theme preference
     const saved = localStorage.getItem('way_theme');
-    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.documentElement.classList.add('dark');
-      isDarkMode = true;
-    } else {
+    if (saved === 'light') {
       document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
       isDarkMode = false;
+    } else {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+      isDarkMode = true;
+    }
+
+    // Sidebar collapse state preference
+    const savedSidebar = localStorage.getItem('creed_sidebar_collapsed');
+    if (savedSidebar !== null) {
+      sidebarCollapsed = savedSidebar === 'true';
     }
   });
+
+  function toggleSidebar() {
+    sidebarCollapsed = !sidebarCollapsed;
+    if (browser) {
+      localStorage.setItem('creed_sidebar_collapsed', String(sidebarCollapsed));
+    }
+  }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+      // Don't intercept if user is typing in input or textarea
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        return;
+      }
+      e.preventDefault();
+      toggleSidebar();
+    }
+  }
 
   function toggleTheme() {
     isDarkMode = !isDarkMode;
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
       localStorage.setItem('way_theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
       localStorage.setItem('way_theme', 'light');
     }
   }
@@ -61,7 +91,18 @@
     return activeRoleOverride || 'student';
   });
 
-  function handleRoleChange(newRole: string) {
+  async function handleRoleChange(newRole: string) {
+    if (import.meta.env.DEV) {
+      try {
+        await fetch('/api/auth/dev-switch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: newRole })
+        });
+      } catch (err) {
+        console.error('Failed to sync dev switch session:', err);
+      }
+    }
     activeRoleOverride = newRole as ActiveRole;
     switch (newRole) {
       case 'student':
@@ -86,9 +127,11 @@
   }
 </script>
 
+<svelte:window onkeydown={handleKeydown} />
+
 <!-- ============================================================
      AUTHENTICATED APPLICATION SHELL
-     Sidebar (240px expanded / 68px collapsed) + TopBar + Workspace Grid
+     Sidebar (240px expanded / 64px collapsed) + TopBar + Workspace Grid
      ============================================================ -->
 <div class="flex min-h-screen bg-canvas text-ink">
   <!-- Desktop Collapsible Sidebar -->
@@ -106,6 +149,8 @@
     <TopBar
       activeRole={activeRole}
       isDarkMode={isDarkMode}
+      sidebarCollapsed={sidebarCollapsed}
+      onToggleSidebar={toggleSidebar}
       onToggleTheme={toggleTheme}
       onOpenSearch={() => (commandMenuOpen = true)}
       onRoleChange={handleRoleChange}

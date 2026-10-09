@@ -12,10 +12,13 @@ const WEB_SRC = path.join(ROOT_DIR, 'apps', 'web', 'src');
 
 const results: AuditResult[] = [];
 
-// 1. Audit Prohibited Radii (No 12px+ bubbly curves like rounded-lg, rounded-xl, rounded-2xl, rounded-3xl)
+// 1. Audit Prohibited Radii (Strict 0px sharp geometry: ban all rounded classes except rounded-none)
 function auditRadii() {
   const violations: string[] = [];
-  const bannedPatterns = [/rounded-(?:lg|xl|2xl|3xl)\b/g];
+  const bannedPatterns = [
+    /\brounded-(?:sm|md|lg|xl|2xl|3xl|full|xs|2xs)\b/g,
+    /\brounded\b(?![a-zA-Z0-9_\-])/g
+  ];
 
   function scanDir(dir: string) {
     if (!fs.existsSync(dir)) return;
@@ -30,7 +33,7 @@ function auditRadii() {
           const matches = content.match(pattern);
           if (matches) {
             const rel = path.relative(ROOT_DIR, fullPath);
-            violations.push(`${rel}: Found forbidden bubbly curve '${matches[0]}'`);
+            violations.push(`${rel}: Found forbidden rounded corner '${matches[0]}'`);
           }
         }
       }
@@ -39,7 +42,7 @@ function auditRadii() {
 
   scanDir(WEB_SRC);
   results.push({
-    category: 'Architectural Radius System (0px structural, 4px controls, 8px expressive; no 12px+ bubbly curves)',
+    category: 'Architectural Radius System (Strict 0px structural, control, and expressive geometry; zero curves/radii)',
     passed: violations.length === 0,
     details: violations
   });
@@ -173,11 +176,11 @@ function auditTokenPipeline() {
     if (!content.includes('--radius-structural: 0px')) {
       violations.push('theme.css: Missing --radius-structural: 0px token');
     }
-    if (!content.includes('--radius-control: 4px')) {
-      violations.push('theme.css: Missing --radius-control: 4px token');
+    if (!content.includes('--radius-control: 0px')) {
+      violations.push('theme.css: Missing --radius-control: 0px token');
     }
-    if (!content.includes('--radius-expressive: 8px')) {
-      violations.push('theme.css: Missing --radius-expressive: 8px token');
+    if (!content.includes('--radius-expressive: 0px')) {
+      violations.push('theme.css: Missing --radius-expressive: 0px token');
     }
   }
 

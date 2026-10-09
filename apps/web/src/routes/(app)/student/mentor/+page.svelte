@@ -135,7 +135,7 @@
       </a>
 
       <!-- Restrained AI Status Tag -->
-      <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-ai-subtle text-ai text-xs font-medium">
+      <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-none bg-ai-subtle text-ai text-xs font-medium">
         <Sparkles class="w-3 h-3" />
         <span>Socratic Mentor • Non-judgmental</span>
       </span>
@@ -159,7 +159,7 @@
         <button
           type="button"
           onclick={() => applyThinkingMove(move)}
-          class="px-2.5 py-1 rounded-sm bg-surface hover:bg-surface-subtle border border-border text-xs font-medium text-ink-secondary hover:text-ink transition-colors cursor-pointer"
+          class="px-2.5 py-1 rounded-none bg-surface hover:bg-surface-subtle border border-border text-xs font-medium text-ink-secondary hover:text-ink transition-colors cursor-pointer"
         >
           {move.title}
         </button>
@@ -180,7 +180,7 @@
         </div>
 
         <div
-          class="max-w-[85%] sm:max-w-[75%] p-4 rounded-sm text-sm leading-relaxed {msg.role === 'student' ? 'bg-brand text-white' : 'bg-surface border border-border text-ink'}"
+          class="max-w-[85%] sm:max-w-[75%] p-4 rounded-none text-sm leading-relaxed {msg.role === 'student' ? 'bg-brand text-brand-foreground' : 'bg-surface border border-border text-ink'}"
         >
           {msg.text}
         </div>
@@ -190,8 +190,8 @@
     {#if isSending}
       <div class="flex flex-col items-start space-y-1">
         <span class="text-[11px] font-medium text-ai">Guide</span>
-        <div class="p-4 rounded-sm bg-surface border border-border text-xs text-ink-muted flex items-center gap-2">
-          <div class="w-2 h-2 rounded-full bg-ai animate-ping"></div>
+        <div class="p-4 rounded-none bg-surface border border-border text-xs text-ink-muted flex items-center gap-2">
+          <div class="w-2 h-2 rounded-none bg-ai animate-ping"></div>
           <span>Synthesizing pedagogical scaffold...</span>
         </div>
       </div>
@@ -202,11 +202,11 @@
   <footer class="pt-3 border-t border-border space-y-3">
     <!-- Restrained Voice Status Bar in Chrome -->
     {#if voiceMode}
-      <div class="flex items-center justify-between px-3 py-1.5 rounded-sm bg-surface-subtle border border-border text-xs">
+      <div class="flex items-center justify-between px-3 py-1.5 rounded-none bg-surface-subtle border border-border text-xs">
         <div class="flex items-center gap-2">
           <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-ai opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-ai"></span>
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-none bg-ai opacity-75"></span>
+            <span class="relative inline-flex rounded-none h-2 w-2 bg-ai"></span>
           </span>
           <span class="font-medium text-ink">
             {#if voiceState === 'listening'}
@@ -236,7 +236,7 @@
         type="button"
         onclick={toggleVoice}
         title={voiceMode ? 'Voice active' : 'Enable voice mentor'}
-        class="p-2.5 rounded-sm border transition-colors cursor-pointer {voiceMode ? 'bg-ai-subtle border-ai text-ai' : 'bg-surface border border-border text-ink-secondary hover:text-ink'}"
+        class="p-2.5 rounded-none border transition-colors cursor-pointer {voiceMode ? 'bg-ai-subtle border-ai text-ai' : 'bg-surface border border-border text-ink-secondary hover:text-ink'}"
       >
         {#if voiceMode}
           <Mic class="w-4 h-4" />
@@ -249,13 +249,13 @@
         type="text"
         bind:value={inputText}
         placeholder="Speak or type your reasoning..."
-        class="flex-1 px-4 py-2.5 rounded-sm bg-surface border border-border text-sm text-ink placeholder-ink-muted focus:outline-hidden focus:border-brand transition-colors"
+        class="flex-1 px-4 py-2.5 rounded-none bg-surface border border-border text-sm text-ink placeholder-ink-muted focus:outline-hidden focus:border-brand transition-colors"
       />
 
       <button
         type="submit"
         disabled={!inputText.trim() || isSending}
-        class="px-4 py-2.5 rounded-sm bg-brand hover:bg-brand/90 text-white font-medium text-xs sm:text-sm flex items-center gap-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+        class="px-4 py-2.5 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs sm:text-sm flex items-center gap-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
       >
         <span>Ask</span>
         <Send class="w-3.5 h-3.5" />

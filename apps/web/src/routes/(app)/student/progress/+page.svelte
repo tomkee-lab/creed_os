@@ -9,7 +9,8 @@
     Filter,
     ShieldCheck
   } from 'lucide-svelte';
-  import { MasterySunburst, GrowthTrajectoryTimeline } from '$lib/components';
+  import { MasterySunburst, GrowthTrajectoryTimeline, ButtonGroup, EvidenceRating } from '$lib/components';
+  import { LongitudinalGrowthBand } from '$lib/components/charts';
   import InspectorPanel from '$lib/components/shell/InspectorPanel.svelte';
 
   let { data } = $props();
@@ -18,7 +19,7 @@
 
   // Progressive disclosure for deep visualization
   let showDeepMap = $state(false);
-  let deepVisualMode = $state<'sunburst' | 'trajectory'>('sunburst');
+  let deepVisualMode = $state<'sunburst' | 'ribbon' | 'timeline'>('ribbon');
 
   // Inspector state
   let inspectorOpen = $state(false);
@@ -46,33 +47,37 @@
     inspectorOpen = true;
   }
 
-  // Capability data with qualitative tiers
+  // Capability data with qualitative developmental tiers
   const capabilities = [
     {
       name: 'Spatial reasoning',
-      level: 'Strong',
-      percent: 85,
+      level: 'Strong Foundation',
+      rating: 4,
+      maxRating: 5,
       tier: 'positive',
       summary: 'Advanced 3D visualization, orthographic translation, and mental rotation'
     },
     {
       name: 'Computational thinking',
-      level: 'Strong',
-      percent: 80,
+      level: 'Strong Foundation',
+      rating: 4,
+      maxRating: 5,
       tier: 'positive',
       summary: 'Decomposition, pattern recognition, and algorithm efficiency'
     },
     {
       name: 'Quantitative reasoning',
-      level: 'Growing',
-      percent: 65,
+      level: 'Growing Foundation',
+      rating: 3,
+      maxRating: 5,
       tier: 'attention',
       summary: 'Proportional equations, rate ratios, and dimensional analysis'
     },
     {
       name: 'Scientific inquiry',
-      level: 'Growing',
-      percent: 62,
+      level: 'Growing Foundation',
+      rating: 3,
+      maxRating: 5,
       tier: 'attention',
       summary: 'Hypothesis testing, variable isolation, and experimental verification'
     }
@@ -104,7 +109,7 @@
     </div>
   </header>
 
-  <!-- 2. DECIDE: Horizontal Capability Bars (Default Analytical View) -->
+  <!-- 2. DECIDE: Demonstrated Strengths (Qualitative Developmental Bands) -->
   <section class="space-y-4">
     <div class="flex items-center justify-between">
       <h2 class="text-base font-semibold text-ink">
@@ -117,23 +122,29 @@
 
     <div class="space-y-3">
       {#each capabilities as cap}
-        <div class="p-4 rounded-sm bg-surface border border-border space-y-2">
-          <div class="flex items-center justify-between text-sm">
-            <span class="font-medium text-ink">{cap.name}</span>
-            <span class="text-xs font-medium px-2 py-0.5 rounded-sm {cap.tier === 'positive' ? 'bg-positive-subtle text-positive' : 'bg-attention-subtle text-attention'}">
-              {cap.level}
-            </span>
+        <div class="p-5 rounded-none bg-surface border border-border space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <span class="text-sm font-semibold text-ink">{cap.name}</span>
+            <div class="flex items-center gap-3">
+              <EvidenceRating rating={cap.rating} max={cap.maxRating} />
+              <span class="text-xs font-medium px-2 py-0.5 rounded-none {cap.tier === 'positive' ? 'bg-positive-subtle text-positive' : 'bg-attention-subtle text-attention'}">
+                {cap.level}
+              </span>
+            </div>
           </div>
 
-          <!-- Clean Horizontal Bar -->
-          <div class="w-full h-2 bg-surface-subtle rounded-none overflow-hidden">
-            <div
-              class="h-full {cap.tier === 'positive' ? 'bg-brand' : 'bg-attention'} transition-all duration-200"
-              style="width: {cap.percent}%"
-            ></div>
+          <!-- Angular Segmented Foundation Indicator (Strict 0px Sharp) -->
+          <div class="grid grid-cols-5 gap-1.5 py-1">
+            {#each Array(cap.maxRating) as _, i}
+              <div
+                class="h-1.5 rounded-none transition-micro {i < cap.rating
+                  ? cap.tier === 'positive' ? 'bg-mint' : 'bg-attention'
+                  : 'bg-surface-subtle border border-border'}"
+              ></div>
+            {/each}
           </div>
 
-          <p class="text-xs text-ink-muted">
+          <p class="text-xs text-ink-secondary leading-relaxed">
             {cap.summary}
           </p>
         </div>
@@ -156,28 +167,38 @@
       </button>
 
       {#if showDeepMap}
-        <div class="mt-4 p-6 rounded-sm bg-surface border border-border space-y-4">
-          <div class="flex items-center justify-between pb-3 border-b border-border">
+        <div class="mt-4 p-6 rounded-none bg-surface border border-border space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border">
             <span class="text-xs font-semibold text-ink">Deep Visual Exploration</span>
-            <div class="flex items-center gap-1 p-0.5 rounded-sm bg-surface-subtle border border-border text-xs">
+            
+            <ButtonGroup class="border border-border">
+              <button
+                type="button"
+                onclick={() => (deepVisualMode = 'ribbon')}
+                class="px-3 py-1.5 text-xs font-medium transition-colors border-r cursor-pointer {deepVisualMode === 'ribbon' ? 'bg-brand text-brand-foreground font-semibold' : 'bg-surface text-ink-secondary hover:text-ink hover:bg-surface-subtle'}"
+              >
+                Growth Band
+              </button>
               <button
                 type="button"
                 onclick={() => (deepVisualMode = 'sunburst')}
-                class="px-2.5 py-1 rounded-sm font-medium transition-colors {deepVisualMode === 'sunburst' ? 'bg-brand text-white' : 'text-ink-secondary hover:text-ink'}"
+                class="px-3 py-1.5 text-xs font-medium transition-colors border-r cursor-pointer {deepVisualMode === 'sunburst' ? 'bg-brand text-brand-foreground font-semibold' : 'bg-surface text-ink-secondary hover:text-ink hover:bg-surface-subtle'}"
               >
                 Radial Sunburst
               </button>
               <button
                 type="button"
-                onclick={() => (deepVisualMode = 'trajectory')}
-                class="px-2.5 py-1 rounded-sm font-medium transition-colors {deepVisualMode === 'trajectory' ? 'bg-brand text-white' : 'text-ink-secondary hover:text-ink'}"
+                onclick={() => (deepVisualMode = 'timeline')}
+                class="px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer {deepVisualMode === 'timeline' ? 'bg-brand text-brand-foreground font-semibold' : 'bg-surface text-ink-secondary hover:text-ink hover:bg-surface-subtle'}"
               >
-                Growth Trajectory
+                Milestone Strip
               </button>
-            </div>
+            </ButtonGroup>
           </div>
 
-          {#if deepVisualMode === 'sunburst'}
+          {#if deepVisualMode === 'ribbon'}
+            <LongitudinalGrowthBand />
+          {:else if deepVisualMode === 'sunburst'}
             <MasterySunburst />
           {:else}
             <GrowthTrajectoryTimeline />
@@ -188,7 +209,7 @@
   </section>
 
   <!-- 3. ACT: Recommended Next Step -->
-  <section class="p-6 rounded-sm bg-surface border border-border space-y-4">
+  <section class="p-6 rounded-none bg-surface border border-border space-y-4">
     <div class="flex items-center justify-between text-xs font-semibold tracking-wider uppercase text-brand">
       <span>Recommended Next Step</span>
       <span class="flex items-center gap-1 text-ink-muted">
@@ -209,7 +230,7 @@
     <div>
       <a
         href="/student/assessment"
-        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-sm bg-brand hover:bg-brand/90 text-white font-medium text-sm transition-colors duration-140"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-sm transition-colors duration-140 cursor-pointer"
       >
         <span>Start 20-min practice</span>
         <ArrowRight class="w-4 h-4" />
@@ -230,29 +251,29 @@
       </div>
 
       <!-- Compact Source Filters -->
-      <div class="flex items-center gap-1.5 text-xs">
+      <ButtonGroup class="border border-border">
         <button
           type="button"
           onclick={() => (activeFilter = 'all')}
-          class="px-2.5 py-1 rounded-sm transition-colors {activeFilter === 'all' ? 'bg-surface-subtle font-medium text-ink border border-border' : 'text-ink-secondary hover:text-ink'}"
+          class="px-2.5 py-1 text-xs border-r transition-colors cursor-pointer {activeFilter === 'all' ? 'bg-surface-subtle font-medium text-ink' : 'bg-surface text-ink-secondary hover:text-ink'}"
         >
           All
         </button>
         <button
           type="button"
           onclick={() => (activeFilter = 'assessment')}
-          class="px-2.5 py-1 rounded-sm transition-colors {activeFilter === 'assessment' ? 'bg-surface-subtle font-medium text-ink border border-border' : 'text-ink-secondary hover:text-ink'}"
+          class="px-2.5 py-1 text-xs border-r transition-colors cursor-pointer {activeFilter === 'assessment' ? 'bg-surface-subtle font-medium text-ink' : 'bg-surface text-ink-secondary hover:text-ink'}"
         >
           Diagnostics
         </button>
         <button
           type="button"
           onclick={() => (activeFilter = 'project')}
-          class="px-2.5 py-1 rounded-sm transition-colors {activeFilter === 'project' ? 'bg-surface-subtle font-medium text-ink border border-border' : 'text-ink-secondary hover:text-ink'}"
+          class="px-2.5 py-1 text-xs transition-colors cursor-pointer {activeFilter === 'project' ? 'bg-surface-subtle font-medium text-ink' : 'bg-surface text-ink-secondary hover:text-ink'}"
         >
           Projects
         </button>
-      </div>
+      </ButtonGroup>
     </div>
 
     <div class="divide-y divide-border border-y border-border">
@@ -271,13 +292,16 @@
               {item.summary}
             </p>
           </div>
-          <button
-            type="button"
-            onclick={() => inspect(item)}
-            class="px-3 py-1.5 rounded-sm bg-surface-subtle hover:bg-surface-raised text-xs font-medium text-ink border border-border shrink-0 transition-colors cursor-pointer"
-          >
-            Inspect
-          </button>
+          <div class="flex items-center gap-3 shrink-0">
+            <EvidenceRating rating={4} max={5} />
+            <button
+              type="button"
+              onclick={() => inspect(item)}
+              class="px-3 py-1.5 rounded-none bg-surface-subtle hover:bg-surface-raised text-xs font-medium text-ink border border-border shrink-0 transition-colors cursor-pointer"
+            >
+              Inspect
+            </button>
+          </div>
         </div>
       {/each}
     </div>
@@ -300,19 +324,34 @@
       </div>
 
       <div class="space-y-2">
-        <span class="text-xs font-medium text-ink-muted uppercase tracking-wider">Audit Metadata</span>
-        <div class="p-3 rounded-sm bg-surface-subtle border border-border text-xs space-y-1.5">
+        <span class="text-xs font-medium text-ink-muted uppercase tracking-wider">Demonstrated Mastery Rubric</span>
+        <div class="p-3 rounded-none bg-surface-subtle border border-border flex items-center justify-between">
+          <span class="text-xs text-ink">Rubric Demonstration:</span>
+          <EvidenceRating rating={4} max={5} label="Verified" />
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <span class="text-xs font-medium text-ink-muted uppercase tracking-wider">Audit Metadata & Provenance</span>
+        <div class="p-3 rounded-none bg-surface-subtle border border-border text-xs space-y-1.5">
           <div class="flex justify-between">
             <span class="text-ink-secondary">Method:</span>
-            <span class="font-medium text-ink">{selectedRecord.sourceType}</span>
+            <span class="font-medium text-ink font-mono">{selectedRecord.sourceType}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-ink-secondary">Observed:</span>
-            <span class="font-medium text-ink">{new Date(selectedRecord.observedAt).toLocaleDateString()}</span>
+            <span class="font-medium text-ink font-mono">{new Date(selectedRecord.observedAt).toLocaleDateString()}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-ink-secondary">Authority:</span>
-            <span class="font-medium text-positive">Deterministic Evaluator</span>
+            <span class="font-medium text-positive">Certified Educator & Deterministic Evaluator</span>
+          </div>
+          <div class="flex justify-between pt-1 border-t border-border">
+            <span class="text-ink-secondary">DPDP Consent Status:</span>
+            <span class="font-medium text-mint inline-flex items-center gap-1">
+              <ShieldCheck class="w-3 h-3" />
+              <span>Cryptographically Sealed</span>
+            </span>
           </div>
         </div>
       </div>

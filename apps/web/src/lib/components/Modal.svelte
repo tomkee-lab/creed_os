@@ -45,7 +45,7 @@
 
 {#if open}
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/40 backdrop-blur-xs animate-in fade-in duration-200"
     role="dialog"
     aria-modal="true"
     tabindex="-1"
@@ -62,7 +62,7 @@
 
     <!-- Modal Content (L4 Modal Layer) -->
     <div
-      class="relative w-full {maxWidthClasses[maxWidth]} bg-surface-modal rounded-sm border border-border shadow-2xl overflow-hidden z-10 animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
+      class="relative w-full {maxWidthClasses[maxWidth]} bg-surface-modal rounded-none border border-border shadow-2xl overflow-hidden z-10 animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
     >
       {#if title}
         <div class="px-6 py-4 border-b border-border flex items-center justify-between gap-4">
@@ -80,7 +80,7 @@
           <button
             type="button"
             onclick={handleClose}
-            class="p-1.5 rounded-sm text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
+            class="p-1.5 rounded-none text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
             aria-label="Close dialog"
           >
             <X class="w-4 h-4" />

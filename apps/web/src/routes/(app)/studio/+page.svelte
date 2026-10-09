@@ -2,32 +2,77 @@
   import {
     Search,
     Plus,
-    Save,
     Activity,
     Sliders,
     Layers,
-    CheckCircle2
+    CheckCircle2,
+    AlertCircle
   } from 'lucide-svelte';
   import type { AssessmentItem } from '@core-os/domain';
+  import { exportItemToQti3Xml } from '@core-os/assessment';
+  import IrtCharacteristicCurve from '$lib/components/charts/IrtCharacteristicCurve.svelte';
+  import {
+    Menubar,
+    MenubarMenu,
+    MenubarTrigger,
+    MenubarContent,
+    MenubarItem,
+    MenubarSeparator,
+    MenubarShortcut
+  } from '$lib/components/ui/menubar';
+  import { Icon } from '$lib/components/icons';
+  import { ButtonGroup } from '$lib/components';
+  import { z } from 'zod';
+  import { superForm, defaults } from 'sveltekit-superforms';
+  import { zod4 } from 'sveltekit-superforms/adapters';
 
   let { data } = $props();
 
   let itemBank = $derived<AssessmentItem[]>(data.itemBank || []);
 
-  // Selected or authored item
-  let selectedItemId = $state<string>('item-cat-001');
+  const itemSchema = z.object({
+    id: z.string().default('item-cat-001'),
+    prompt: z
+      .string()
+      .min(15, 'Prompt must be at least 15 characters for psychometric validity'),
+    competency: z.string().default('spatial_reasoning'),
+    gradeBand: z.string().default('Middle Stage (Classes 6–8)'),
+    a: z.number().min(0.2, 'Min discrimination is 0.2').max(2.5, 'Max discrimination is 2.5').default(1.35),
+    b: z.number().min(-3.0, 'Difficulty lower bound is -3.0').max(3.0, 'Difficulty upper bound is +3.0').default(0.50),
+    c: z.number().min(0.0).max(0.4, 'Pseudo-guessing capped at 0.40').default(0.20),
+    correctOptionIndex: z.number().min(0).max(3).default(1)
+  });
 
-  // Authoring form state
-  let promptText = $state(
-    'A cylindrical container of radius 4 cm is half-filled with liquid. When 3 identical metal cubes of side 2 cm are submerged, what is the liquid height rise?'
+  type ItemFormData = Record<string, unknown> & {
+    id: string;
+    prompt: string;
+    competency: string;
+    gradeBand: string;
+    a: number;
+    b: number;
+    c: number;
+    correctOptionIndex: number;
+  };
+
+  const initialFormData: ItemFormData = {
+    id: 'item-cat-001',
+    prompt:
+      'A cylindrical container of radius 4 cm is half-filled with liquid. When 3 identical metal cubes of side 2 cm are submerged, what is the liquid height rise?',
+    competency: 'spatial_reasoning',
+    gradeBand: 'Middle Stage (Classes 6–8)',
+    a: 1.35,
+    b: 0.50,
+    c: 0.20,
+    correctOptionIndex: 1
+  };
+
+  const { form, errors, validateForm } = superForm<ItemFormData>(
+    defaults(initialFormData, zod4(itemSchema as any)) as any,
+    {
+      SPA: true,
+      validators: zod4(itemSchema as any)
+    }
   );
-  let selectedCompetency = $state<string>('spatial_reasoning');
-  let gradeBand = $state<string>('Middle Stage (Classes 6–8)');
-
-  // 3PL IRT Parameters
-  let paramA = $state<number>(1.35); // Discrimination
-  let paramB = $state<number>(0.50); // Difficulty
-  let paramC = $state<number>(0.20); // Guessing
 
   // Options
   let options = $state([
@@ -36,39 +81,111 @@
     { id: 'opt-c', text: '1.20 cm', misconception: 'Added surface area instead of displacement volume' },
     { id: 'opt-d', text: '2.00 cm', misconception: 'Assumed cube side equals direct height change' }
   ]);
-  let correctOptionIndex = $state<number>(1);
 
   let searchQuery = $state('');
   let feedbackMessage = $state<string | null>(null);
 
-  // 3PL Fisher Information calculation
-  function fisherInfo(theta: number, a: number, b: number, c: number): number {
-    const D = 1.7;
-    const expTerm = Math.exp(-D * a * (theta - b));
-    const P = c + (1 - c) / (1 + expTerm);
-    const Q = 1 - P;
-    const dP = (D * a * (1 - c) * expTerm) / Math.pow(1 + expTerm, 2);
-    return Math.pow(dP, 2) / Math.max(0.001, P * Q);
+  function selectItem(item: AssessmentItem) {
+    $form.id = item.id;
+    $form.prompt = item.prompt;
+    if (item.competency) $form.competency = item.competency;
+    if ((item as any).gradeBand) {
+      $form.gradeBand = (item as any).gradeBand;
+    } else if (item.ageBand) {
+      $form.gradeBand = `Ages ${item.ageBand[0]}–${item.ageBand[1]}`;
+    }
+    if (typeof item.irt?.a === 'number') $form.a = item.irt.a;
+    if (typeof item.irt?.b === 'number') $form.b = item.irt.b;
+    if (typeof item.irt?.c === 'number') $form.c = item.irt.c;
+
+    if (item.options && item.options.length) {
+      options = item.options.map(o => ({
+        id: o.id,
+        text: o.text,
+        misconception: (o as any).misconception || ''
+      }));
+      const correctIdx = item.options.findIndex(o => o.id === item.correctOptionId);
+      if (correctIdx !== -1) {
+        $form.correctOptionIndex = correctIdx;
+      }
+    }
   }
 
-  // Curve points across theta in [-3.0, +3.0]
-  const curvePoints = $derived.by(() => {
-    const pts: string[] = [];
-    const step = 0.2;
-    for (let theta = -3.0; theta <= 3.0; theta += step) {
-      const info = fisherInfo(theta, paramA, paramB, paramC);
-      const x = ((theta + 3.0) / 6.0) * 260 + 20;
-      const y = 140 - Math.min(120, info * 40);
-      pts.push(`${x.toFixed(1)},${y.toFixed(1)}`);
-    }
-    return pts.join(' ');
-  });
+  function handleNewItem() {
+    $form.id = `item-cat-${String(Date.now()).slice(-3)}`;
+    $form.prompt = 'Enter a rigorous assessment stimulus with minimum 15 characters for psychometric validity.';
+    $form.a = 1.20;
+    $form.b = 0.00;
+    $form.c = 0.20;
+    $form.correctOptionIndex = 0;
+  }
 
-  function handleSaveItem() {
-    feedbackMessage = 'Item #ITM-804 calibrated and published to item bank.';
+  async function handleSaveItem() {
+    const result = await validateForm();
+    if (result.valid) {
+      feedbackMessage = `Item #${$form.id} calibrated and published to item bank.`;
+      setTimeout(() => {
+        feedbackMessage = null;
+      }, 3500);
+    }
+  }
+
+  function handleExportQti() {
+    const exportOptions = options.length > 0
+      ? options.map((opt, idx) => ({
+          id: opt.id || `opt-${idx + 1}`,
+          text: opt.text || `Option ${idx + 1}`
+        }))
+      : [
+          { id: 'opt-a', text: 'Option A: Diagnostic baseline' },
+          { id: 'opt-b', text: 'Option B: Correct reasoning step' },
+          { id: 'opt-c', text: 'Option C: Common misconception' },
+          { id: 'opt-d', text: 'Option D: Distractor' }
+        ];
+
+    const targetOption = exportOptions[$form.correctOptionIndex] || exportOptions[0];
+    const correctOptionId = targetOption ? targetOption.id : 'opt-b';
+
+    const xml = exportItemToQti3Xml({
+      id: $form.id,
+      code: $form.id,
+      prompt: $form.prompt,
+      competency: $form.competency,
+      options: exportOptions,
+      correctOptionId,
+      irt: { a: $form.a, b: $form.b, c: $form.c }
+    });
+
+    const blob = new Blob([xml], { type: 'application/xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${$form.id || 'item'}.qti3.xml`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    feedbackMessage = `Exported ${$form.id || 'item'}.qti3.xml package`;
     setTimeout(() => {
       feedbackMessage = null;
     }, 3500);
+  }
+
+  function applyPreset(preset: 'foundation' | 'baseline' | 'extension') {
+    if (preset === 'foundation') {
+      $form.a = 1.10;
+      $form.b = -1.20;
+      $form.c = 0.20;
+    } else if (preset === 'baseline') {
+      $form.a = 1.35;
+      $form.b = 0.50;
+      $form.c = 0.20;
+    } else {
+      $form.a = 1.80;
+      $form.b = 1.60;
+      $form.c = 0.15;
+    }
   }
 </script>
 
@@ -98,13 +215,81 @@
       <button
         type="button"
         onclick={handleSaveItem}
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-brand hover:bg-brand/90 text-white text-xs font-mono font-medium transition-colors cursor-pointer"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground text-xs font-mono font-medium transition-colors cursor-pointer"
       >
-        <Save class="w-3.5 h-3.5" />
+        <Icon icon="carbon:save" class="w-3.5 h-3.5" />
         <span>PUBLISH ITEM</span>
       </button>
     </div>
   </header>
+
+  <!-- Bits UI v1 Desktop-Grade Command Menubar -->
+  <Menubar class="w-full">
+    <MenubarMenu>
+      <MenubarTrigger>
+        <Icon icon="carbon:document" class="w-3.5 h-3.5 mr-1.5 text-ink-muted" />
+        Item
+      </MenubarTrigger>
+      <MenubarContent>
+        <MenubarItem onclick={handleNewItem}>
+          New Assessment Item <MenubarShortcut>⌘N</MenubarShortcut>
+        </MenubarItem>
+        <MenubarItem onclick={handleSaveItem}>
+          Save Draft <MenubarShortcut>⌘S</MenubarShortcut>
+        </MenubarItem>
+        <MenubarSeparator />
+        <MenubarItem onclick={handleExportQti}>Export QTI 3.0 XML</MenubarItem>
+        <MenubarItem>Validate Psychometric JSON</MenubarItem>
+      </MenubarContent>
+    </MenubarMenu>
+
+    <MenubarMenu>
+      <MenubarTrigger>
+        <Icon icon="carbon:chart-line-smooth" class="w-3.5 h-3.5 mr-1.5 text-mint" />
+        Psychometrics
+      </MenubarTrigger>
+      <MenubarContent>
+        <MenubarItem onclick={() => ($form.model = '3PL')}>
+          Model: 3-Parameter Logistic (3PL)
+        </MenubarItem>
+        <MenubarItem onclick={() => ($form.model = '2PL')}>
+          Model: 2-Parameter Logistic (2PL)
+        </MenubarItem>
+        <MenubarItem onclick={() => ($form.model = '1PL')}>
+          Model: Rasch (1PL)
+        </MenubarItem>
+        <MenubarSeparator />
+        <MenubarItem>Prior Distribution N(0,1)</MenubarItem>
+        <MenubarItem>Fisher Information Peak Check</MenubarItem>
+      </MenubarContent>
+    </MenubarMenu>
+
+    <MenubarMenu>
+      <MenubarTrigger>
+        <Icon icon="carbon:analytics" class="w-3.5 h-3.5 mr-1.5 text-violet" />
+        Simulation
+      </MenubarTrigger>
+      <MenubarContent>
+        <MenubarItem>Run Monte Carlo CAT Simulation</MenubarItem>
+        <MenubarItem>Item Exposure Rate Telemetry</MenubarItem>
+        <MenubarSeparator />
+        <MenubarItem>Estimate Test Information Curve I(θ)</MenubarItem>
+      </MenubarContent>
+    </MenubarMenu>
+
+    <MenubarMenu>
+      <MenubarTrigger>
+        <Icon icon="carbon:view" class="w-3.5 h-3.5 mr-1.5 text-ink-muted" />
+        View
+      </MenubarTrigger>
+      <MenubarContent>
+        <MenubarItem>Toggle Student Ability Marker</MenubarItem>
+        <MenubarItem>Expand Curve Telemetry Grid</MenubarItem>
+        <MenubarSeparator />
+        <MenubarItem>Split Screen Mobile Preview</MenubarItem>
+      </MenubarContent>
+    </MenubarMenu>
+  </Menubar>
 
   <!-- 3-Pane IDE Layout (Section 39) -->
   <div class="flex-1 grid grid-cols-12 gap-3 min-h-0">
@@ -113,7 +298,11 @@
       <div class="p-3 border-b border-border space-y-2">
         <div class="flex items-center justify-between text-xs font-mono font-semibold text-ink">
           <span>ITEM BANK ({itemBank.length})</span>
-          <button type="button" class="text-brand hover:underline text-[11px] font-mono cursor-pointer">
+          <button
+            type="button"
+            onclick={handleNewItem}
+            class="text-brand hover:underline text-[11px] font-mono cursor-pointer"
+          >
             + NEW
           </button>
         </div>
@@ -132,8 +321,8 @@
         {#each itemBank as item}
           <button
             type="button"
-            onclick={() => (selectedItemId = item.id)}
-            class="w-full text-left p-3 hover:bg-surface-subtle transition-colors block {selectedItemId === item.id ? 'bg-surface-subtle border-l-2 border-l-brand' : ''}"
+            onclick={() => selectItem(item)}
+            class="w-full text-left p-3 hover:bg-surface-subtle transition-colors block {$form.id === item.id ? 'bg-surface-subtle border-l-2 border-l-brand' : ''}"
           >
             <div class="flex items-center justify-between">
               <span class="font-semibold text-ink truncate">{item.id}</span>
@@ -151,17 +340,28 @@
     <main id="authoring" class="col-span-5 rounded-none bg-surface border border-border flex flex-col min-h-0 overflow-y-auto p-4 space-y-4">
       <div class="flex items-center justify-between text-xs font-mono font-semibold text-ink pb-2 border-b border-border">
         <span>AUTHORING SURFACE</span>
-        <span class="text-[11px] text-ink-muted">ID: {selectedItemId}</span>
+        <span class="text-[11px] text-ink-muted">ID: {$form.id}</span>
       </div>
 
       <div class="space-y-1">
-        <label for="prompt-input" class="block text-xs font-mono text-ink-secondary">Stimulus / Question Prompt</label>
+        <div class="flex justify-between items-center text-xs font-mono">
+          <label for="prompt-input" class="text-ink-secondary">Stimulus / Question Prompt</label>
+          <span class="text-[10px] {$form.prompt.length < 15 ? 'text-negative' : 'text-ink-muted'}">
+            {$form.prompt.length} chars (min 15)
+          </span>
+        </div>
         <textarea
           id="prompt-input"
-          bind:value={promptText}
+          bind:value={$form.prompt}
           rows={4}
-          class="w-full p-2.5 rounded-none bg-surface-subtle border border-border text-xs font-sans text-ink leading-relaxed focus:outline-hidden"
+          class="w-full p-2.5 rounded-none bg-surface-subtle border {$errors.prompt ? 'border-negative ring-1 ring-negative/30' : 'border-border'} text-xs font-sans text-ink leading-relaxed focus:outline-hidden"
         ></textarea>
+        {#if $errors.prompt}
+          <span class="text-[11px] font-mono text-negative flex items-center gap-1 mt-0.5">
+            <AlertCircle class="w-3 h-3 shrink-0" />
+            <span>{$errors.prompt}</span>
+          </span>
+        {/if}
       </div>
 
       <div class="grid grid-cols-2 gap-3 text-xs font-mono">
@@ -169,12 +369,13 @@
           <label for="comp-select" class="block text-ink-secondary">Competency</label>
           <select
             id="comp-select"
-            bind:value={selectedCompetency}
+            bind:value={$form.competency}
             class="w-full p-1.5 rounded-none bg-surface-subtle border border-border text-xs text-ink hover:border-border-strong active:bg-surface focus-visible:outline-2 focus-visible:outline-focus focus-visible:border-focus disabled:opacity-50 disabled:pointer-events-none transition-colors cursor-pointer"
           >
             <option value="spatial_reasoning">Spatial Reasoning</option>
             <option value="computational_thinking">Computational Thinking</option>
             <option value="quantitative_reasoning">Quantitative Reasoning</option>
+            <option value="scientific_inquiry">Scientific Inquiry</option>
           </select>
         </div>
 
@@ -182,7 +383,7 @@
           <label for="grade-select" class="block text-ink-secondary">Grade Band</label>
           <select
             id="grade-select"
-            bind:value={gradeBand}
+            bind:value={$form.gradeBand}
             class="w-full p-1.5 rounded-none bg-surface-subtle border border-border text-xs text-ink hover:border-border-strong active:bg-surface focus-visible:outline-2 focus-visible:outline-focus focus-visible:border-focus disabled:opacity-50 disabled:pointer-events-none transition-colors cursor-pointer"
           >
             <option>Middle Stage (Classes 6–8)</option>
@@ -201,8 +402,8 @@
                 <input
                   type="radio"
                   name="correct-option"
-                  checked={correctOptionIndex === idx}
-                  onchange={() => (correctOptionIndex = idx)}
+                  checked={$form.correctOptionIndex === idx}
+                  onchange={() => ($form.correctOptionIndex = idx)}
                   class="text-brand"
                 />
                 <span class="font-semibold text-ink">Option {String.fromCharCode(65 + idx)}</span>
@@ -227,8 +428,41 @@
     <!-- PANE 3: Psychometric Calibration (Col 4) -->
     <aside id="calibration" class="col-span-4 rounded-none bg-surface border border-border flex flex-col min-h-0 overflow-y-auto p-4 space-y-4 font-mono text-xs">
       <div class="flex items-center justify-between font-semibold text-ink pb-2 border-b border-border">
-        <span>CALIBRATION // 3PL IRT</span>
+        <div class="flex items-center gap-1.5">
+          <Icon icon="carbon:sigma" class="w-3.5 h-3.5 text-brand" />
+          <span>CALIBRATION // 3PL IRT</span>
+        </div>
         <span class="text-[11px] text-positive">Converged (EAP)</span>
+      </div>
+
+      <!-- Difficulty Presets -->
+      <div class="space-y-1">
+        <span class="text-ink-muted text-[10px] uppercase tracking-wider">Calibration Presets</span>
+        <div class="flex">
+          <ButtonGroup class="w-full border border-border">
+            <button
+              type="button"
+              onclick={() => applyPreset('foundation')}
+              class="flex-1 py-1 text-[10px] font-mono border-r transition-colors cursor-pointer hover:bg-surface-subtle"
+            >
+              Foundation
+            </button>
+            <button
+              type="button"
+              onclick={() => applyPreset('baseline')}
+              class="flex-1 py-1 text-[10px] font-mono border-r transition-colors cursor-pointer hover:bg-surface-subtle"
+            >
+              Baseline
+            </button>
+            <button
+              type="button"
+              onclick={() => applyPreset('extension')}
+              class="flex-1 py-1 text-[10px] font-mono transition-colors cursor-pointer hover:bg-surface-subtle"
+            >
+              Extension
+            </button>
+          </ButtonGroup>
+        </div>
       </div>
 
       <!-- 3PL Parameter Sliders -->
@@ -236,14 +470,14 @@
         <div class="space-y-1">
           <div class="flex justify-between">
             <span class="text-ink-secondary">a (Discrimination):</span>
-            <span class="font-semibold text-ink">{paramA.toFixed(2)}</span>
+            <span class="font-semibold text-ink">{$form.a.toFixed(2)}</span>
           </div>
           <input
             type="range"
             min="0.2"
             max="2.5"
             step="0.05"
-            bind:value={paramA}
+            bind:value={$form.a}
             class="w-full accent-brand"
           />
         </div>
@@ -251,14 +485,14 @@
         <div class="space-y-1">
           <div class="flex justify-between">
             <span class="text-ink-secondary">b (Difficulty):</span>
-            <span class="font-semibold text-ink">{paramB.toFixed(2)}</span>
+            <span class="font-semibold text-ink">{$form.b.toFixed(2)}</span>
           </div>
           <input
             type="range"
             min="-3.0"
             max="3.0"
             step="0.1"
-            bind:value={paramB}
+            bind:value={$form.b}
             class="w-full accent-brand"
           />
         </div>
@@ -266,46 +500,27 @@
         <div class="space-y-1">
           <div class="flex justify-between">
             <span class="text-ink-secondary">c (Pseudo-guessing):</span>
-            <span class="font-semibold text-ink">{paramC.toFixed(2)}</span>
+            <span class="font-semibold text-ink">{$form.c.toFixed(2)}</span>
           </div>
           <input
             type="range"
             min="0.0"
             max="0.4"
             step="0.05"
-            bind:value={paramC}
+            bind:value={$form.c}
             class="w-full accent-brand"
           />
         </div>
       </div>
 
-      <!-- Fisher Information Curve SVG -->
+      <!-- Interactive 3PL Item Characteristic & Fisher Information Curves (LayerChart) -->
       <div class="space-y-2 pt-3 border-t border-border">
-        <div class="flex justify-between text-[11px]">
-          <span class="text-ink-secondary">Fisher Information I(&theta;)</span>
-          <span class="text-ink-muted">Max Peak @ &theta;={paramB.toFixed(2)}</span>
-        </div>
-
-        <div class="p-2 rounded-none bg-surface-subtle border border-border">
-          <svg viewBox="0 0 300 160" class="w-full h-36">
-            <!-- Grid lines -->
-            <line x1="20" y1="140" x2="280" y2="140" stroke="var(--color-border)" stroke-width="1" />
-            <line x1="150" y1="20" x2="150" y2="140" stroke="var(--color-border)" stroke-dasharray="2,2" stroke-width="1" />
-            
-            <!-- Axis labels -->
-            <text x="20" y="155" fill="var(--color-ink-muted)" font-size="9" font-family="monospace">-3.0</text>
-            <text x="145" y="155" fill="var(--color-ink-muted)" font-size="9" font-family="monospace">0.0</text>
-            <text x="270" y="155" fill="var(--color-ink-muted)" font-size="9" font-family="monospace">+3.0</text>
-
-            <!-- Curve -->
-            <polyline
-              points={curvePoints}
-              fill="none"
-              stroke="var(--color-brand)"
-              stroke-width="2"
-            />
-          </svg>
-        </div>
+        <IrtCharacteristicCurve
+          bind:a={$form.a}
+          bind:b={$form.b}
+          bind:c={$form.c}
+          showControls={false}
+        />
       </div>
 
       <!-- Item Metrics Readout -->

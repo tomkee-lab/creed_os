@@ -140,8 +140,8 @@
   const angleStep = $derived((Math.PI * 2) / n);
   const padAngle = 0.04; // angular gap between sectors
 
-  // Convert polar coordinates to Cartesian path command
-  function arcPath(startAngle: number, endAngle: number, rIn: number, rOut: number): string {
+  // Convert polar coordinates to straight faceted sector path (Zero Curve Lines)
+  function linearSectorPath(startAngle: number, endAngle: number, rIn: number, rOut: number): string {
     const x1 = center + rOut * Math.cos(startAngle);
     const y1 = center + rOut * Math.sin(startAngle);
     const x2 = center + rOut * Math.cos(endAngle);
@@ -152,9 +152,18 @@
     const x4 = center + rIn * Math.cos(startAngle);
     const y4 = center + rIn * Math.sin(startAngle);
 
-    const largeArc = endAngle - startAngle > Math.PI ? 1 : 0;
+    return `M ${x1} ${y1} L ${x2} ${y2} L ${x3} ${y3} L ${x4} ${y4} Z`;
+  }
 
-    return `M ${x1} ${y1} A ${rOut} ${rOut} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${rIn} ${rIn} 0 ${largeArc} 0 ${x4} ${y4} Z`;
+  function guidePolygon(r: number): string {
+    return Array.from({ length: n })
+      .map((_, i) => {
+        const a = i * angleStep - Math.PI / 2;
+        const x = center + r * Math.cos(a);
+        const y = center + r * Math.sin(a);
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      })
+      .join(' ');
   }
 
   function handleSectorClick(idx: number, domain: SunburstDomain) {
@@ -175,12 +184,12 @@
         </radialGradient>
       </defs>
 
-      <!-- Background guide rings -->
-      <circle cx={center} cy={center} r={innerRadius} class="fill-transparent stroke-border" stroke-width="1" />
-      <circle cx={center} cy={center} r={midRadius} class="fill-transparent stroke-border" stroke-width="1" stroke-dasharray="3 3" />
-      <circle cx={center} cy={center} r={maxOuterRadius} class="fill-transparent stroke-border" stroke-width="1" stroke-dasharray="2 4" />
+      <!-- Background straight polygonal guide rings (Zero Curve Lines) -->
+      <polygon points={guidePolygon(innerRadius)} class="fill-transparent stroke-border" stroke-width="1" stroke-linejoin="miter" />
+      <polygon points={guidePolygon(midRadius)} class="fill-transparent stroke-border" stroke-width="1" stroke-dasharray="3 3" stroke-linejoin="miter" />
+      <polygon points={guidePolygon(maxOuterRadius)} class="fill-transparent stroke-border" stroke-width="1" stroke-dasharray="2 4" stroke-linejoin="miter" />
 
-      <!-- Interactive Outer Sunburst Petals (Variable progress extent) -->
+      <!-- Interactive Outer Sunburst Petals (Variable progress extent, straight faceted sectors) -->
       {#each domains as domain, i}
         {@const startAngle = i * angleStep - Math.PI / 2 + padAngle / 2}
         {@const endAngle = (i + 1) * angleStep - Math.PI / 2 - padAngle / 2}
@@ -189,11 +198,12 @@
 
         <!-- Base domain segment (mid ring) -->
         <path
-          d={arcPath(startAngle, endAngle, innerRadius + 4, midRadius - 2)}
+          d={linearSectorPath(startAngle, endAngle, innerRadius + 4, midRadius - 2)}
           fill={domain.color}
           fill-opacity={isSelected ? '0.35' : '0.15'}
           stroke={domain.color}
           stroke-width={isSelected ? '2' : '1'}
+          stroke-linejoin="miter"
           class="cursor-pointer transition-all duration-300 hover:fill-opacity-40"
           onclick={() => handleSectorClick(i, domain)}
           role="button"
@@ -204,11 +214,12 @@
 
         <!-- Progress petal (outer ring extension) -->
         <path
-          d={arcPath(startAngle, endAngle, midRadius, currentOuterRadius)}
+          d={linearSectorPath(startAngle, endAngle, midRadius, currentOuterRadius)}
           fill={domain.color}
           fill-opacity={isSelected ? '0.85' : '0.50'}
           stroke={domain.color}
           stroke-width={isSelected ? '2' : '1'}
+          stroke-linejoin="miter"
           class="cursor-pointer transition-all duration-300 hover:fill-opacity-90"
           onclick={() => handleSectorClick(i, domain)}
           role="button"
@@ -217,27 +228,27 @@
           aria-label="{domain.name} progress: {Math.round(domain.progress * 100)}%"
         />
 
-        <!-- Midpoint indicator icon / dot -->
+        <!-- Midpoint indicator sharp square marker -->
         {@const midAngle = (startAngle + endAngle) / 2}
         {@const dotX = center + (currentOuterRadius + 10) * Math.cos(midAngle)}
         {@const dotY = center + (currentOuterRadius + 10) * Math.sin(midAngle)}
-        <circle
-          cx={dotX}
-          cy={dotY}
-          r={isSelected ? '3.5' : '2'}
+        <rect
+          x={dotX - (isSelected ? 3.5 : 2.5)}
+          y={dotY - (isSelected ? 3.5 : 2.5)}
+          width={isSelected ? 7 : 5}
+          height={isSelected ? 7 : 5}
           fill={domain.color}
           class="transition-all duration-300"
         />
       {/each}
 
-      <!-- Center Orbit Core Hub -->
-      <circle
-        cx={center}
-        cy={center}
-        r={innerRadius - 4}
+      <!-- Center Orbit Core Polygonal Hub -->
+      <polygon
+        points={guidePolygon(innerRadius - 4)}
         fill="url(#sunburstCore)"
         stroke={activeDomain.color}
         stroke-width="2"
+        stroke-linejoin="miter"
         class="transition-all duration-500 shadow-sm"
       />
 

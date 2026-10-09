@@ -1,37 +1,15 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import {
+  OTP_STORE,
+  OTP_TTL_MS,
+  generateOtp,
+  hashChallengeKey
+} from '$lib/server/consent-otp';
+import { verifyAltchaPayload } from '$lib/server/security/altcha';
 
-export interface StoredOtpChallenge {
-  otp: string;
-  expiresAt: number;
-  learnerId: string;
-  parentContact: string;
-}
-
-// In-memory OTP store: challenge hash → { otp, expiresAt, learnerId, parentContact }
-// In production this would be Redis/Supabase-backed with TTL
-const OTP_STORE = new Map<string, StoredOtpChallenge>();
-const OTP_TTL_MS = 5 * 60 * 1000; // 5 minutes
-
-function generateOtp(): string {
-  // Cryptographically random 6-digit OTP
-  const arr = new Uint32Array(1);
-  crypto.getRandomValues(arr);
-  return String(100000 + (arr[0] % 900000));
-}
-
-/**
- * Hash parent contact and learnerId together to bind OTP challenge strictly
- * to the specified learner, preventing unauthorized cross-learner verification.
- */
-async function hashChallengeKey(contact: string, learnerId: string): Promise<string> {
-  const normalized = `${contact.trim().toLowerCase()}::${learnerId.trim().toLowerCase()}`;
-  const encoded = new TextEncoder().encode(normalized);
-  const buffer = await crypto.subtle.digest('SHA-256', encoded);
-  return Array.from(new Uint8Array(buffer))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-}
+// Per-contact rate limiting store: contact -> { count, resetAt }
+const contactRateLimits = new Map<string, { count: number; resetAt: number }>();
 
 /**
  * Dispatch OTP to SMS provider or DigiLocker in production
@@ -150,6 +128,38 @@ export const POST: RequestHandler = async ({ request }) => {
     const sanitizedLearnerId = learnerId.trim();
     const channelStr = typeof channel === 'string' ? channel : 'SMS_OTP';
 
+    const altchaPayload = body && typeof body === 'object' && 'altcha' in body ? body.altcha : null;
+    if (!import.meta.env.DEV || altchaPayload) {
+      if (!altchaPayload || typeof altchaPayload !== 'string') {
+        return json(
+          { error: 'Anti-abuse Proof-of-Work verification required prior to OTP dispatch.' },
+          { status: 400 }
+        );
+      }
+      const isPoWValid = await verifyAltchaPayload(altchaPayload);
+      if (!isPoWValid) {
+        return json(
+          { error: 'Anti-abuse Proof-of-Work verification failed or challenge already consumed.' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Rate limit OTP generation per contact (max 3 dispatches per 5-minute window)
+    const nowMs = Date.now();
+    const rateData = contactRateLimits.get(sanitizedContact);
+    if (rateData && nowMs < rateData.resetAt) {
+      if (rateData.count >= 3) {
+        return json(
+          { error: 'Too Many Requests: Rate limit exceeded. Please wait 5 minutes before requesting another verification code.' },
+          { status: 429 }
+        );
+      }
+      rateData.count += 1;
+    } else {
+      contactRateLimits.set(sanitizedContact, { count: 1, resetAt: nowMs + 5 * 60 * 1000 });
+    }
+
     const isDev = import.meta.env.DEV;
     const smsGatewayKey = process.env.SMS_GATEWAY_API_KEY || process.env.TWILIO_AUTH_TOKEN;
     const digilockerClientId = process.env.DIGILOCKER_CLIENT_ID;
@@ -214,6 +224,3 @@ export const POST: RequestHandler = async ({ request }) => {
     );
   }
 };
-
-// Export OTP_STORE and hashChallengeKey for use by the verify endpoint
-export { OTP_STORE, hashChallengeKey };

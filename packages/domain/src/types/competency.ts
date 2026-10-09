@@ -1,12 +1,15 @@
-export type CompetencyDomain =
-  | 'quantitative_reasoning'
-  | 'spatial_reasoning'
-  | 'logical_deduction'
-  | 'scientific_inquiry'
-  | 'computational_thinking'
-  | 'systems_thinking'
-  | 'creative_problem_solving'
-  | 'metacognition';
+export const COMPETENCY_DOMAINS = [
+  'quantitative_reasoning',
+  'spatial_reasoning',
+  'logical_deduction',
+  'scientific_inquiry',
+  'computational_thinking',
+  'systems_thinking',
+  'creative_problem_solving',
+  'metacognition'
+] as const;
+
+export type CompetencyDomain = (typeof COMPETENCY_DOMAINS)[number];
 
 export interface Competency {
   id: string;

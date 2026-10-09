@@ -1,18 +1,32 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { coreRepository } from '$lib/server/repository';
+import { resolveLearnerId } from '$lib/server/learnerScope';
 
-export const POST: RequestHandler = async ({ params, request }) => {
+export const POST: RequestHandler = async ({ params, request, locals }) => {
+  // 1. Enforce active authentication
+  if (!locals.session || !locals.user) {
+    return json({ error: 'Unauthorized: Active session required' }, { status: 401 });
+  }
+
   const { id: pathwayId } = params;
   const body = await request.json().catch(() => ({}));
-  const learnerId = body.learnerId ?? '3fa85f64-5717-4562-b3fc-2c963f66afa6';
+
+  // 2. Authorize learner relationship
+  const user = locals.user;
+  const userRole = (user as any).role || (user as any).metadata?.role || 'student';
+  const boundLearnerId = resolveLearnerId(user);
+
+  const effectiveLearnerId = ['student', 'parent'].includes(userRole)
+    ? boundLearnerId
+    : (body.learnerId || boundLearnerId);
 
   const pathway = coreRepository.getPathwayById(pathwayId);
   if (!pathway) {
     return json({ error: 'Pathway not found' }, { status: 404 });
   }
 
-  const learner = coreRepository.getLearnerProfile(learnerId);
+  const learner = coreRepository.getLearnerProfile(effectiveLearnerId);
   if (!learner) {
     return json({ error: 'Learner profile not found' }, { status: 404 });
   }

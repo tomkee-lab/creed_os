@@ -35,7 +35,7 @@
   }
 </script>
 
-<div class="surface-card rounded-sm border border-border overflow-hidden transition-all {className}">
+<div class="surface-card rounded-none border border-border overflow-hidden transition-all {className}">
   <!-- Summary Header Row -->
   <button
     type="button"
@@ -45,7 +45,7 @@
     <div class="space-y-0.5">
       <div class="flex items-center gap-2">
         <h4 class="text-sm font-bold text-ink">{title}</h4>
-        <span class="text-[11px] px-2 py-0.5 rounded-sm bg-positive-subtle text-positive font-semibold border border-positive/20">
+        <span class="text-[11px] px-2 py-0.5 rounded-none bg-positive-subtle text-positive font-semibold border border-positive/20">
           {evidenceStrength}
         </span>
       </div>
@@ -76,7 +76,7 @@
       </div>
 
       {#each records as record}
-        <div class="p-3 rounded-sm bg-surface-subtle border border-border space-y-1 text-xs">
+        <div class="p-3 rounded-none bg-surface-subtle border border-border space-y-1 text-xs">
           <div class="flex items-center justify-between">
             <span class="font-bold text-ink">{record.sourceTitle}</span>
             <span class="text-[10px] text-ink-secondary font-mono">

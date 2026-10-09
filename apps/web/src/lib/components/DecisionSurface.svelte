@@ -40,13 +40,13 @@
 </script>
 
 <div
-  class="bg-surface rounded-sm p-6 sm:p-8 border-l-4 border border-border space-y-5 transition-all {signalColors[signalVariant].split(' ')[0]} {className}"
+  class="bg-surface rounded-none p-6 sm:p-8 border-l-4 border border-border space-y-5 transition-all {signalColors[signalVariant].split(' ')[0]} {className}"
 >
   <!-- Level 1: Signal & Context Header -->
   <div class="space-y-2">
     <div class="flex items-center justify-between gap-2">
       <span
-        class="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-sm border border-border {signalColors[signalVariant].split(' ').slice(1).join(' ')}"
+        class="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-none border border-border {signalColors[signalVariant].split(' ').slice(1).join(' ')}"
       >
         {signal}
       </span>
@@ -88,7 +88,7 @@
     {#if actionHref}
       <a
         href={actionHref}
-        class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-sm bg-brand hover:bg-brand/90 text-white font-medium text-xs sm:text-sm transition-colors shadow-xs cursor-pointer"
+        class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs sm:text-sm transition-colors shadow-xs cursor-pointer"
       >
         <span>{actionLabel}</span>
         <ArrowRight class="w-4 h-4" />
@@ -97,7 +97,7 @@
       <button
         type="button"
         onclick={actionOnClick}
-        class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-sm bg-brand hover:bg-brand/90 text-white font-medium text-xs sm:text-sm transition-colors shadow-xs cursor-pointer"
+        class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs sm:text-sm transition-colors shadow-xs cursor-pointer"
       >
         <span>{actionLabel}</span>
         <ArrowRight class="w-4 h-4" />
@@ -107,7 +107,7 @@
 
   <!-- Level 3 Disclosure: Provenance / Diagnostic Rubric -->
   {#if showDisclosure && disclosureBody}
-    <div class="p-4 rounded-sm bg-surface-subtle border border-border text-xs text-ink-secondary leading-relaxed animate-in fade-in duration-200">
+    <div class="p-4 rounded-none bg-surface-subtle border border-border text-xs text-ink-secondary leading-relaxed animate-in fade-in duration-200">
       {disclosureBody}
     </div>
   {/if}

@@ -42,7 +42,7 @@
 
       <InspectorPanel {...args}>
         <div class="space-y-4 text-xs text-ink">
-          <div class="p-3 bg-surface-subtle border border-border rounded-sm">
+          <div class="p-3 bg-surface-subtle border border-border rounded-none">
             <span class="text-[10px] uppercase font-mono text-ink-muted">Evidence Provenance</span>
             <p class="font-medium mt-1">Completed via interactive kinematic simulation build at 14:32 IST.</p>
           </div>

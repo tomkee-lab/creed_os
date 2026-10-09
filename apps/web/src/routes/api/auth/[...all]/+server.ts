@@ -5,6 +5,8 @@ const ALLOWED_ORIGINS = [
   'https://dash.better-auth.com',
   'http://localhost:5173',
   'http://localhost:4173',
+  'https://fibre-paid-manga-pills.trycloudflare.com',
+  'https://decorating-forests-accommodation-seeker.trycloudflare.com',
   'https://locally-departmental-marathon-gbp.trycloudflare.com',
   'https://real-taxes-try.loca.lt'
 ];
@@ -39,7 +41,13 @@ export const OPTIONS: RequestHandler = async ({ request }) => {
 };
 
 export const fallback: RequestHandler = async (event) => {
-  const response = await auth.handler(event.request);
+  let req = event.request;
+  if (event.url.pathname.includes('/api/auth/api/auth/')) {
+    const cleanUrl = event.request.url.replace('/api/auth/api/auth/', '/api/auth/');
+    req = new Request(cleanUrl, event.request);
+  }
+
+  const response = await auth.handler(req);
   const corsHeaders = getCorsHeaders(event.request);
 
   const newHeaders = new Headers(response.headers);

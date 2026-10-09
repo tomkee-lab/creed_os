@@ -97,7 +97,7 @@
   }
 </script>
 
-<div class="bg-surface p-6 rounded-sm border border-border space-y-6">
+<div class="bg-surface p-6 rounded-none border border-border space-y-6">
   <!-- Section Title -->
   <div class="flex items-start justify-between gap-4 border-b border-border pb-3">
     <div>
@@ -112,7 +112,7 @@
       </p>
     </div>
 
-    <span class="text-xs font-semibold px-2.5 py-1 rounded-sm badge-growth shrink-0">
+    <span class="text-xs font-semibold px-2.5 py-1 rounded-none badge-growth shrink-0">
       Evidence-Anchored
     </span>
   </div>
@@ -139,7 +139,7 @@
         >
           <!-- Node Dot -->
           <div
-            class="w-8 h-8 rounded-sm flex items-center justify-center transition-all duration-300 border-2 {isActive ? 'bg-brand border-canvas ring-4 ring-brand/30 text-white shadow-md scale-110' : isPast ? 'bg-surface-raised border-brand text-brand' : 'bg-surface-subtle border-border text-ink-muted'}"
+            class="w-8 h-8 rounded-none flex items-center justify-center transition-all duration-300 border-2 {isActive ? 'bg-brand border-canvas ring-4 ring-brand/30 text-brand-foreground shadow-xs scale-110' : isPast ? 'bg-surface-raised border-brand text-brand' : 'bg-surface-subtle border-border text-ink-muted'}"
           >
             {#if isPast}
               <CheckCircle class="w-4 h-4" />
@@ -163,10 +163,10 @@
   </div>
 
   <!-- Focused Milestone Card -->
-  <div class="p-4 rounded-sm bg-surface-subtle border border-border space-y-3">
+  <div class="p-4 rounded-none bg-surface-subtle border border-border space-y-3">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-2 text-xs">
       <div class="flex items-center gap-2">
-        <span class="px-2 py-0.5 rounded-sm font-semibold bg-brand-subtle text-brand">
+        <span class="px-2 py-0.5 rounded-none font-semibold bg-brand-subtle text-brand">
           {activeMilestone.category}
         </span>
         <span class="font-bold text-sm text-ink">
@@ -180,7 +180,7 @@
           {activeMilestone.date}
         </span>
         {#if activeMilestone.evidenceCode}
-          <span class="font-mono text-[11px] bg-surface-raised px-1.5 py-0.5 rounded-sm border border-border">
+          <span class="font-mono text-[11px] bg-surface-raised px-1.5 py-0.5 rounded-none border border-border">
             {activeMilestone.evidenceCode}
           </span>
         {/if}

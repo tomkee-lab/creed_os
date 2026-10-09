@@ -6,6 +6,23 @@
       "headers": {
         "Authorization": "Bearer ${GREPTILE_API_KEY}"
       }
+    },
+    "flowbite-svelte": {
+      "command": "node",
+      "args": [
+        "${FLOWBITE_MCP_PATH}"
+      ]
+    },
+    "better-auth": {
+      "type": "http",
+      "url": "https://mcp.better-auth.com/mcp"
+    },
+    "qodo-managed-tools": {
+      "type": "http",
+      "url": "https://sdk.qodo.ai/v1/tools/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${QODO_API_KEY}"
+      }
     }
   }
 }

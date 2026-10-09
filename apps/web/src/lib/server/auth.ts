@@ -1,14 +1,31 @@
 import { betterAuth } from 'better-auth';
-import { organization } from 'better-auth/plugins';
+import { organization, emailOTP } from 'better-auth/plugins';
 import { passkey } from '@better-auth/passkey';
 import { dash } from '@better-auth/infra';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
 import { getRequestEvent } from '$app/server';
 
 import { env } from '$env/dynamic/private';
+import pg from 'pg';
+const { Pool } = pg;
 
 const isProduction = process.env.NODE_ENV === 'production';
 const secret = env.BETTER_AUTH_SECRET || process.env.BETTER_AUTH_SECRET;
+
+const databaseUrl = env.DATABASE_URL || process.env.DATABASE_URL;
+let dbPool: pg.Pool | undefined = undefined;
+
+if (databaseUrl) {
+  dbPool = new Pool({
+    connectionString: databaseUrl,
+    connectionTimeoutMillis: 5000,
+    max: 10
+  });
+  // Prevent unhandled error events on idle clients from crashing Node process
+  dbPool.on('error', (err) => {
+    console.warn('[auth:db] Postgres pool idle client warning:', err.message);
+  });
+}
 
 if (isProduction && !secret) {
   throw new Error('FATAL: BETTER_AUTH_SECRET must be configured in production environments.');
@@ -18,8 +35,18 @@ const rawApiKey = (env.BETTER_AUTH_API_KEY || process.env.BETTER_AUTH_API_KEY ||
 // Strip accidental prefix duplication (e.g. 'BETTER_AUTH_API_KEY=ba_...')
 const betterAuthApiKey = rawApiKey.replace(/^BETTER_AUTH_API_KEY=+/i, '').trim();
 
+if (betterAuthApiKey) {
+  process.env.BETTER_AUTH_API_KEY = betterAuthApiKey;
+}
+if (!process.env.BETTER_AUTH_SECRET && secret) {
+  process.env.BETTER_AUTH_SECRET = secret;
+}
+
 if (!betterAuthApiKey) {
   console.warn('[auth] BETTER_AUTH_API_KEY is not set — Better Auth dashboard monitoring will be disabled.');
+} else {
+  console.info('[auth] Active Better Auth API key ends with:', betterAuthApiKey.slice(-6));
+  console.info('[auth] Configured Base URL:', env.BETTER_AUTH_URL || process.env.BETTER_AUTH_URL || 'default localhost');
 }
 
 /**
@@ -38,9 +65,13 @@ const ROLE_SIGNUP_MAP: Record<string, string> = {
   school:    'institution_pending'
 };
 
+const rawBaseUrl = (env.BETTER_AUTH_URL || process.env.BETTER_AUTH_URL || 'http://localhost:5173').trim();
+const cleanBaseUrl = rawBaseUrl.replace(/\/api\/auth\/?$/i, '').replace(/\/+$/, '') || 'http://localhost:5173';
+process.env.BETTER_AUTH_URL = cleanBaseUrl;
+
 export const auth = betterAuth({
   appName: 'CREED OS',
-  baseURL: env.BETTER_AUTH_URL || process.env.BETTER_AUTH_URL || 'http://localhost:5173',
+  baseURL: cleanBaseUrl,
   secret: secret || 'creed-os-local-dev-secret-32-chars-entropy-key',
   user: {
     additionalFields: {
@@ -83,12 +114,7 @@ export const auth = betterAuth({
       }
     }
   },
-  database: (env.DATABASE_URL || process.env.DATABASE_URL)
-    ? {
-        connectionString: (env.DATABASE_URL || process.env.DATABASE_URL)!,
-        provider: 'postgres'
-      }
-    : undefined,
+  database: dbPool,
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false
@@ -97,12 +123,34 @@ export const auth = betterAuth({
     'https://dash.better-auth.com',
     'http://localhost:5173',
     'http://localhost:4173',
+    'https://fibre-paid-manga-pills.trycloudflare.com',
+    'https://decorating-forests-accommodation-seeker.trycloudflare.com',
     'https://locally-departmental-marathon-gbp.trycloudflare.com',
-    'https://real-taxes-try.loca.lt'
+    'https://real-taxes-try.loca.lt',
+    ...(env.BETTER_AUTH_URL ? [env.BETTER_AUTH_URL] : []),
+    ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL] : [])
   ],
   plugins: [
     organization(),
     passkey(),
+    emailOTP({
+      overrideDefaultEmailVerification: true,
+      sendVerificationOnSignUp: true,
+      async sendVerificationOTP({ email, otp, type }) {
+        const maskedEmail = email.replace(/(?<=^.).(?=.*@)/g, '*');
+        if (import.meta.env.DEV || process.env.NODE_ENV !== 'production') {
+          console.log(`[BetterAuth:emailOTP:DEV] Verification OTP for ${email} (${type}): ${otp}`);
+        } else {
+          console.log(`[BetterAuth:emailOTP] Dispatched verification OTP for ${maskedEmail} (type: ${type})`);
+        }
+
+        const resendKey = process.env.RESEND_API_KEY;
+        const smtpHost = process.env.SMTP_HOST;
+        if (!import.meta.env.DEV && !resendKey && !smtpHost) {
+          console.warn('[BetterAuth:emailOTP] Transactional email provider unconfigured outside DEV.');
+        }
+      }
+    }),
     dash({
       apiKey: betterAuthApiKey
     }),

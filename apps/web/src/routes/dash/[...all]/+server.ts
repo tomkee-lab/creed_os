@@ -1,0 +1,65 @@
+import { auth } from '$lib/server/auth';
+import type { RequestHandler } from './$types';
+
+const ALLOWED_ORIGINS = [
+  'https://dash.better-auth.com',
+  'http://localhost:5173',
+  'http://localhost:4173',
+  'https://fibre-paid-manga-pills.trycloudflare.com',
+  'https://decorating-forests-accommodation-seeker.trycloudflare.com',
+  'https://locally-departmental-marathon-gbp.trycloudflare.com',
+  'https://real-taxes-try.loca.lt'
+];
+
+function getCorsHeaders(request: Request): Record<string, string> {
+  const origin = request.headers.get('origin');
+  const allowedOrigin = origin && (
+    ALLOWED_ORIGINS.includes(origin) ||
+    origin.endsWith('.better-auth.com') ||
+    origin.endsWith('.trycloudflare.com')
+  )
+    ? origin
+    : 'https://dash.better-auth.com';
+
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Better-Auth-Client, x-better-auth-api-key, *',
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Max-Age': '86400',
+    'Access-Control-Allow-Private-Network': 'true'
+  };
+}
+
+export const OPTIONS: RequestHandler = async ({ request }) => {
+  return new Response(null, {
+    status: 204,
+    headers: getCorsHeaders(request)
+  });
+};
+
+export const fallback: RequestHandler = async (event) => {
+  // Rewrite /dash/... to /api/auth/dash/... so Better Auth routes handle it transparently
+  const targetUrl = event.request.url.replace('/dash/', '/api/auth/dash/');
+  const req = new Request(targetUrl, event.request);
+
+  const response = await auth.handler(req);
+  const corsHeaders = getCorsHeaders(event.request);
+
+  const newHeaders = new Headers(response.headers);
+  for (const [key, value] of Object.entries(corsHeaders)) {
+    newHeaders.set(key, value);
+  }
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: newHeaders
+  });
+};
+
+export const GET: RequestHandler = fallback;
+export const POST: RequestHandler = fallback;
+export const PUT: RequestHandler = fallback;
+export const DELETE: RequestHandler = fallback;
+export const PATCH: RequestHandler = fallback;

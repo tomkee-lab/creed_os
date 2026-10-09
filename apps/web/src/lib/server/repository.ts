@@ -45,17 +45,17 @@ class LocalCoreRepository {
   private classCohort: ClassCohort;
 
   constructor() {
-    // 1. Initialize Default Learner: Anaya Verma (Age 13, Class 8)
+    // 1. Initialize Baseline Learner Profile
     const defaultLearnerId = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
     const now = new Date().toISOString();
 
     const initialProfile: LearnerProfile = {
       id: defaultLearnerId,
       userId: defaultLearnerId,
-      fullName: 'Anaya Verma',
+      fullName: 'Student Learner',
       age: 13,
       gradeBand: 'Class 8 (Middle Stage)',
-      schoolName: 'Delhi Public International School',
+      schoolName: 'Affiliated Educational Institution',
       avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       activeFocusCompetency: 'quantitative_reasoning',
       competencies: {
@@ -398,7 +398,7 @@ class LocalCoreRepository {
       students: [
         {
           id: defaultLearnerId,
-          name: 'Anaya Verma',
+          name: 'Learner S-0801',
           overallReadiness: 'Advanced STEM / Foundational Math Gap',
           weakestCompetency: 'quantitative_reasoning',
           weakestScore: 2.8,
@@ -407,7 +407,7 @@ class LocalCoreRepository {
         },
         {
           id: 's2',
-          name: 'Rohan Sharma',
+          name: 'Learner S-0802',
           overallReadiness: 'High Quantitative / Emerging Spatial',
           weakestCompetency: 'spatial_reasoning',
           weakestScore: 2.5,
@@ -416,7 +416,7 @@ class LocalCoreRepository {
         },
         {
           id: 's3',
-          name: 'Zoya Khan',
+          name: 'Learner S-0803',
           overallReadiness: 'Strong Critical Thinking / Emerging CT',
           weakestCompetency: 'computational_thinking',
           weakestScore: 2.9,
@@ -425,7 +425,7 @@ class LocalCoreRepository {
         },
         {
           id: 's4',
-          name: 'Devansh Patel',
+          name: 'Learner S-0804',
           overallReadiness: 'Balanced Expected Foundation',
           weakestCompetency: 'scientific_inquiry',
           weakestScore: 3.1,
@@ -457,8 +457,124 @@ class LocalCoreRepository {
   }
 
   // --- Profile Operations ---
-  getLearnerProfile(id: string): LearnerProfile {
-    return this.learnerProfiles.get(id) || this.learnerProfiles.get('3fa85f64-5717-4562-b3fc-2c963f66afa6')!;
+  hasLearner(id: string): boolean {
+    if (!id || typeof id !== 'string') return false;
+    const cleanId = id.trim();
+    return this.learnerProfiles.has(cleanId) || this.classCohort.students.some(s => s.id === cleanId);
+  }
+
+  getLearnerProfile(id: string, authUser?: any): LearnerProfile {
+    const existing = this.learnerProfiles.get(id);
+    if (existing) {
+      if (authUser?.name && authUser.id === existing.userId && existing.fullName === 'Student Learner') {
+        existing.fullName = authUser.name;
+      }
+      return existing;
+    }
+
+    if (authUser && authUser.id === id) {
+      const now = new Date().toISOString();
+      const profile: LearnerProfile = {
+        id: authUser.id,
+        userId: authUser.id,
+        fullName: authUser.name || authUser.email?.split('@')[0] || 'Student Learner',
+        age: 13,
+        gradeBand: 'Class 8 (Middle Stage)',
+        schoolName: 'Affiliated Educational Institution',
+        activeFocusCompetency: 'quantitative_reasoning',
+        competencies: {
+          spatial_reasoning: {
+            competency: 'spatial_reasoning',
+            title: 'Spatial Reasoning',
+            score: 3.5,
+            theta: 0.6,
+            standardError: 0.35,
+            descriptor: 'Proficient',
+            confidence: 0.85,
+            lastAssessedAt: now
+          },
+          computational_thinking: {
+            competency: 'computational_thinking',
+            title: 'Computational Thinking',
+            score: 3.2,
+            theta: 0.3,
+            standardError: 0.4,
+            descriptor: 'Expected',
+            confidence: 0.8,
+            lastAssessedAt: now
+          },
+          logical_deduction: {
+            competency: 'logical_deduction',
+            title: 'Logical Deduction',
+            score: 3.4,
+            theta: 0.5,
+            standardError: 0.38,
+            descriptor: 'Expected',
+            confidence: 0.82,
+            lastAssessedAt: now
+          },
+          scientific_inquiry: {
+            competency: 'scientific_inquiry',
+            title: 'Scientific Inquiry',
+            score: 3.0,
+            theta: 0.0,
+            standardError: 0.45,
+            descriptor: 'Expected',
+            confidence: 0.75,
+            lastAssessedAt: now
+          },
+          quantitative_reasoning: {
+            competency: 'quantitative_reasoning',
+            title: 'Quantitative Reasoning',
+            score: 2.8,
+            theta: -0.2,
+            standardError: 0.42,
+            descriptor: 'Developing',
+            confidence: 0.85,
+            lastAssessedAt: now
+          },
+          systems_thinking: {
+            competency: 'systems_thinking',
+            title: 'Systems Thinking',
+            score: 3.0,
+            theta: 0.0,
+            standardError: 0.45,
+            descriptor: 'Expected',
+            confidence: 0.75,
+            lastAssessedAt: now
+          },
+          creative_problem_solving: {
+            competency: 'creative_problem_solving',
+            title: 'Creative Problem Solving',
+            score: 3.5,
+            theta: 0.6,
+            standardError: 0.35,
+            descriptor: 'Proficient',
+            confidence: 0.85,
+            lastAssessedAt: now
+          },
+          metacognition: {
+            competency: 'metacognition',
+            title: 'Metacognition',
+            score: 3.0,
+            theta: 0.0,
+            standardError: 0.45,
+            descriptor: 'Expected',
+            confidence: 0.75,
+            lastAssessedAt: now
+          }
+        },
+        recentEvidence: [],
+        savedPathways: ['PATH-ROBOTICS', 'PATH-AI-DATA'],
+        mismatchAnalyses: {},
+        completedMissions: [],
+        updatedAt: now
+      };
+      this.learnerProfiles.set(id, profile);
+      return profile;
+    }
+
+    return this.learnerProfiles.get('3fa85f64-5717-4562-b3fc-2c963f66afa6')!;
   }
 
   updateLearnerCompetency(learnerId: string, competency: CompetencyDomain, theta: number, standardError: number) {
@@ -558,8 +674,8 @@ class LocalCoreRepository {
   // --- School Administration & DPDP Consent ---
   getSchoolOverview() {
     return {
-      schoolId: 'SCH-DL-0921',
-      schoolName: 'Delhi Public International School',
+      schoolId: 'SCH-AFF-01',
+      schoolName: 'Affiliated Educational Institution',
       affiliation: 'CBSE & PARAKH National Standards',
       academicYear: '2026–2027',
       totalLearners: 420,
@@ -589,9 +705,9 @@ class LocalCoreRepository {
       {
         id: 'cst-001',
         learnerId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-        learnerName: 'Anaya Verma',
+        learnerName: 'Learner S-0801',
         gradeBand: 'Class 8-A',
-        parentName: 'Sunita Verma',
+        parentName: 'Guardian G-0801',
         parentContact: '+91 98765 43210',
         channel: 'DigiLocker',
         status: 'VERIFIED_ACTIVE',
@@ -603,10 +719,10 @@ class LocalCoreRepository {
       {
         id: 'cst-002',
         learnerId: '9fa11b72-1204-4821-b3fa-110294821102',
-        learnerName: 'Rohan Mehra',
+        learnerName: 'Learner S-0802',
         gradeBand: 'Class 8-A',
-        parentName: 'Deepak Mehra',
-        parentContact: 'deepak.m@example.com',
+        parentName: 'Guardian G-0802',
+        parentContact: 'guardian.02@family.org',
         channel: 'SMS OTP',
         status: 'VERIFIED_ACTIVE',
         consentVersion: 'v1.2-dpdp-2023',
@@ -617,9 +733,9 @@ class LocalCoreRepository {
       {
         id: 'cst-003',
         learnerId: '8ac41d99-3194-4712-a1bb-592817401928',
-        learnerName: 'Zoya Khan',
+        learnerName: 'Learner S-0803',
         gradeBand: 'Class 8-A',
-        parentName: 'Parveen Khan',
+        parentName: 'Guardian G-0803',
         parentContact: '+91 98112 33445',
         channel: 'Email Verification',
         status: 'VERIFIED_ACTIVE',
@@ -631,9 +747,9 @@ class LocalCoreRepository {
       {
         id: 'cst-004',
         learnerId: '7cc12e44-5512-4019-9182-192847102948',
-        learnerName: 'Dev Patel',
+        learnerName: 'Learner S-0804',
         gradeBand: 'Class 8-B',
-        parentName: 'Kishore Patel',
+        parentName: 'Guardian G-0804',
         parentContact: '+91 97234 11223',
         channel: 'SMS OTP',
         status: 'PENDING_NOTICE',
@@ -641,34 +757,6 @@ class LocalCoreRepository {
         verifiedAt: '',
         expiresAt: '2026-10-20T00:00:00Z',
         auditHash: 'dpdp_pending_notice'
-      },
-      {
-        id: 'cst-005',
-        learnerId: '6bb99a11-8823-4102-a819-291847192841',
-        learnerName: 'Mira Nair',
-        gradeBand: 'Class 9-A',
-        parentName: 'Radhika Nair',
-        parentContact: 'radhika.nair@example.com',
-        channel: 'DigiLocker',
-        status: 'VERIFIED_ACTIVE',
-        consentVersion: 'v1.2-dpdp-2023',
-        verifiedAt: '2026-07-29T10:00:00Z',
-        expiresAt: '2027-07-29T10:00:00Z',
-        auditHash: 'dpdp_4d1a9f02'
-      },
-      {
-        id: 'cst-006',
-        learnerId: '5aa22c33-9912-4928-8172-102938471920',
-        learnerName: 'Kabir Sengupta',
-        gradeBand: 'Class 9-B',
-        parentName: 'Arun Sengupta',
-        parentContact: '+91 98301 99887',
-        channel: 'SMS OTP',
-        status: 'WITHDRAWN',
-        consentVersion: 'v1.1-dpdp-2023',
-        verifiedAt: '2026-05-12T08:00:00Z',
-        expiresAt: '2026-09-01T00:00:00Z',
-        auditHash: 'dpdp_frozen_withdrawn'
       }
     ];
   }
@@ -686,8 +774,8 @@ class LocalCoreRepository {
     return [
       {
         id: 'tch-01',
-        name: 'Ms. Priya Nair',
-        email: 'priya.nair@dpis.edu.in',
+        name: 'Faculty Lead — Mathematics',
+        email: 'faculty.math@core-os.app',
         subject: 'STEM Reasoning & Mathematics',
         assignedClasses: ['Class 8-A', 'Class 8-B'],
         totalStudents: 52,
@@ -696,8 +784,8 @@ class LocalCoreRepository {
       },
       {
         id: 'tch-02',
-        name: 'Mr. Arjun Desai',
-        email: 'arjun.desai@dpis.edu.in',
+        name: 'Faculty Lead — Computational Systems',
+        email: 'faculty.computing@core-os.app',
         subject: 'Computational Thinking & Robotics',
         assignedClasses: ['Class 9-A', 'Class 9-B'],
         totalStudents: 56,
@@ -706,8 +794,8 @@ class LocalCoreRepository {
       },
       {
         id: 'tch-03',
-        name: 'Ms. Kavita Reddy',
-        email: 'kavita.reddy@dpis.edu.in',
+        name: 'Faculty Lead — Scientific Inquiry',
+        email: 'faculty.science@core-os.app',
         subject: 'Scientific Inquiry & Physics',
         assignedClasses: ['Class 10-A'],
         totalStudents: 26,
@@ -716,8 +804,8 @@ class LocalCoreRepository {
       },
       {
         id: 'tch-04',
-        name: 'Dr. Suresh Sharma',
-        email: 'suresh.sharma@dpis.edu.in',
+        name: 'Faculty Lead — Foundational Thinking',
+        email: 'faculty.logic@core-os.app',
         subject: 'Foundational Logic & Thinking Skills',
         assignedClasses: ['Class 6-A', 'Class 7-A'],
         totalStudents: 48,

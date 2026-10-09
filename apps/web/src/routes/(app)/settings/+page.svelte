@@ -43,7 +43,7 @@
     title="Display & Ergonomics"
     subtitle="Calibrate visual pacing and vertical density for comfortable working sessions."
   >
-    <div class="p-6 bg-surface-raised border border-border rounded-sm space-y-6">
+    <div class="p-6 bg-surface-raised border border-border rounded-none space-y-6">
       <div>
         <span class="block text-xs font-semibold text-ink mb-2">Interface Density</span>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -55,7 +55,7 @@
             <button
               type="button"
               onclick={() => (density = opt.id as any)}
-              class="p-3 text-left rounded-sm border transition-colors cursor-pointer {density === opt.id
+              class="p-3 text-left rounded-none border transition-colors cursor-pointer {density === opt.id
                 ? 'border-brand bg-brand-subtle/50 text-ink'
                 : 'border-border bg-surface hover:bg-surface-subtle text-ink-secondary'}"
             >
@@ -71,7 +71,7 @@
           <div class="text-xs font-semibold text-ink">Lagom Motion & Animation</div>
           <div class="text-[11px] text-ink-secondary">Enforces calibrated 140ms–280ms easing transitions.</div>
         </div>
-        <span class="text-xs font-mono px-2 py-0.5 rounded-sm bg-surface-subtle border border-border text-ink-muted">
+        <span class="text-xs font-mono px-2 py-0.5 rounded-none bg-surface-subtle border border-border text-ink-muted">
           Active (Standard)
         </span>
       </div>
@@ -83,7 +83,7 @@
     title="Privacy & Data Sovereignty"
     subtitle="Digital Personal Data Protection Act compliance and learner data management."
   >
-    <div class="p-6 bg-surface-raised border border-border rounded-sm space-y-6">
+    <div class="p-6 bg-surface-raised border border-border rounded-none space-y-6">
       <div class="flex items-start justify-between gap-4">
         <div class="space-y-1">
           <div class="flex items-center gap-2">
@@ -94,7 +94,7 @@
             Verified by OTP handshake under DPDP Act 2023 for minor accounts under 18 years.
           </p>
         </div>
-        <span class="text-[11px] font-mono px-2 py-0.5 rounded-sm bg-positive-subtle text-positive border border-positive/20 shrink-0">
+        <span class="text-[11px] font-mono px-2 py-0.5 rounded-none bg-positive-subtle text-positive border border-positive/20 shrink-0">
           COMPLIANT · VERIFIED
         </span>
       </div>
@@ -128,13 +128,13 @@
     title="Socratic Guide Parameters"
     subtitle="Configure the conversational behavior of the AI mentor."
   >
-    <div class="p-6 bg-surface-raised border border-border rounded-sm space-y-4">
+    <div class="p-6 bg-surface-raised border border-border rounded-none space-y-4">
       <div class="flex items-center justify-between">
         <div>
           <div class="text-xs font-semibold text-ink">Pedagogical Guardrails</div>
           <div class="text-[11px] text-ink-secondary">Strictly answers with clarifying questions, never reveals direct answers.</div>
         </div>
-        <span class="text-xs font-mono px-2 py-0.5 rounded-sm bg-brand-subtle text-brand border border-brand/20">
+        <span class="text-xs font-mono px-2 py-0.5 rounded-none bg-brand-subtle text-brand border border-brand/20">
           Enforced
         </span>
       </div>
@@ -144,7 +144,7 @@
           <div class="text-xs font-semibold text-ink">Deterministic Scoring Isolation</div>
           <div class="text-[11px] text-ink-secondary">AI models explain and mentor; psychometric IRT engines score.</div>
         </div>
-        <span class="text-xs font-mono px-2 py-0.5 rounded-sm bg-surface-subtle text-ink-muted border border-border">
+        <span class="text-xs font-mono px-2 py-0.5 rounded-none bg-surface-subtle text-ink-muted border border-border">
           Active
         </span>
       </div>

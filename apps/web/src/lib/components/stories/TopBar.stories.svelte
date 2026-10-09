@@ -30,7 +30,7 @@
     <div class="w-full bg-canvas">
       <TopBar {...args} />
       <div class="p-8 text-ink text-sm">
-        <p class="text-ink-secondary text-xs">TopBar rendered in student context with Anaya Verma profile avatar.</p>
+        <p class="text-ink-secondary text-xs">TopBar rendered in student context with Learner profile avatar.</p>
       </div>
     </div>
   {/snippet}
@@ -41,7 +41,7 @@
     <div class="w-full bg-canvas">
       <TopBar {...args} />
       <div class="p-8 text-ink text-sm">
-        <p class="text-ink-secondary text-xs">TopBar rendered in teacher context with Rajesh K. profile avatar.</p>
+        <p class="text-ink-secondary text-xs">TopBar rendered in teacher context with Educator profile avatar.</p>
       </div>
     </div>
   {/snippet}
@@ -52,7 +52,7 @@
     <div class="w-full bg-canvas">
       <TopBar {...args} />
       <div class="p-8 text-ink text-sm">
-        <p class="text-ink-secondary text-xs">TopBar rendered in counselor context with Dr. Sunita Rao profile avatar.</p>
+        <p class="text-ink-secondary text-xs">TopBar rendered in counselor context with Counselor profile avatar.</p>
       </div>
     </div>
   {/snippet}
@@ -63,7 +63,7 @@
     <div class="w-full bg-canvas">
       <TopBar {...args} />
       <div class="p-8 text-ink text-sm">
-        <p class="text-ink-secondary text-xs">TopBar rendered in admin context with DPIS Administrator profile avatar.</p>
+        <p class="text-ink-secondary text-xs">TopBar rendered in admin context with Administrator profile avatar.</p>
       </div>
     </div>
   {/snippet}

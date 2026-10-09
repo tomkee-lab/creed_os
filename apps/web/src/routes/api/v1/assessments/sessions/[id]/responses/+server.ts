@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { coreRepository } from '$lib/server/repository';
+import { resolveLearnerId } from '$lib/server/learnerScope';
 import {
   evaluateItemResponse,
   estimateThetaEAP,
@@ -8,13 +9,31 @@ import {
 } from '@core-os/assessment';
 import type { ClientAssessmentItem, LearnerEvidence } from '@core-os/domain';
 
-export const POST: RequestHandler = async ({ params, request }) => {
+export const POST: RequestHandler = async ({ params, request, locals }) => {
+  // 1. Enforce active authentication
+  if (!locals.session || !locals.user) {
+    return json({ error: 'Unauthorized: Active session required' }, { status: 401 });
+  }
+
   try {
     const sessionId = params.id;
     const session = coreRepository.getAssessmentSession(sessionId);
 
     if (!session) {
       return json({ error: 'Assessment session not found' }, { status: 404 });
+    }
+
+    // 2. Authorize session ownership (Prevent student response injection into other learners)
+    const user = locals.user;
+    const userRole = (user as any).role || (user as any).metadata?.role || 'student';
+    const boundLearnerId = resolveLearnerId(user);
+
+    if (userRole !== 'student' && userRole !== 'admin') {
+      return json({ error: 'Forbidden: Only the active learner may submit responses to an assessment session.' }, { status: 403 });
+    }
+
+    if (userRole === 'student' && session.learnerId !== boundLearnerId) {
+      return json({ error: 'Forbidden: You cannot submit responses to an assessment session belonging to another learner.' }, { status: 403 });
     }
 
     if (session.status === 'completed') {

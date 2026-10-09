@@ -1,9 +1,37 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { coreRepository } from '$lib/server/repository';
+import { resolveLearnerId } from '$lib/server/learnerScope';
 
-export const GET: RequestHandler = async ({ params }) => {
+export const GET: RequestHandler = async ({ params, locals }) => {
+  // 1. Enforce active authentication
+  if (!locals.session || !locals.user) {
+    return json({ error: 'Unauthorized: Active session required' }, { status: 401 });
+  }
+
   const { id } = params;
+  const user = locals.user;
+  const userRole = (user as any).role || (user as any).metadata?.role || 'student';
+
+  // 2. Relationship-scoped authorization (DPDP Act & Child Privacy)
+  if (userRole.endsWith('_pending')) {
+    return json({ error: 'Forbidden: Account pending verification.' }, { status: 403 });
+  }
+
+  if (!['student', 'parent', 'teacher', 'admin', 'counselor'].includes(userRole)) {
+    return json({ error: 'Forbidden: Unauthorized credential.' }, { status: 403 });
+  }
+
+  const boundLearnerId = resolveLearnerId(user);
+
+  if (userRole === 'student' && id !== boundLearnerId) {
+    return json({ error: 'Forbidden: Students are restricted strictly to their own learner profile.' }, { status: 403 });
+  }
+
+  if (userRole === 'parent' && id !== boundLearnerId) {
+    return json({ error: 'Forbidden: Guardians are restricted to their verified child profile.' }, { status: 403 });
+  }
+
   const learner = coreRepository.getLearnerProfile(id);
 
   if (!learner) {
