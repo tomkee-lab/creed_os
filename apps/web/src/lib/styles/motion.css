@@ -1,0 +1,73 @@
+/* ============================================================
+   CARBON VOLTAGE — Motion System
+   Fast · Subtle · Purposeful · Performance-Conscious
+   ============================================================ */
+
+:root {
+  /* --- Motion Timing Scale --- */
+  --motion-micro: 140ms;       /* 120–180ms: Micro interactions, hovers, clicks */
+  --motion-ui: 200ms;          /* 180–240ms: UI transitions, menus, tabs */
+  --motion-reveal: 500ms;      /* 400–700ms: Content reveal, dialog entrances */
+  --motion-hero: 850ms;        /* 700–1200ms: Hero choreography */
+  --motion-choreography: 1200ms; /* 800–1600ms: Large scroll sequences */
+
+  /* --- Calibrated Easing Functions --- */
+  --ease-power2: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-power3: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-power4: cubic-bezier(0.11, 1, 0.14, 1);
+  --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-lagom: var(--ease-power3);
+
+  /* Legacy bridges */
+  --duration-micro: var(--motion-micro);
+  --duration-standard: var(--motion-ui);
+  --duration-emphasis: var(--motion-reveal);
+}
+
+/* --- Reusable Transition Utility Classes --- */
+.transition-micro {
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: var(--motion-micro);
+  transition-timing-function: var(--ease-lagom);
+}
+
+.transition-ui {
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: var(--motion-ui);
+  transition-timing-function: var(--ease-lagom);
+}
+
+.transition-reveal {
+  transition-property: opacity, transform;
+  transition-duration: var(--motion-reveal);
+  transition-timing-function: var(--ease-expo);
+}
+
+/* Tactile Click / Active State */
+.active-press {
+  transition: transform var(--motion-micro) var(--ease-lagom);
+}
+.active-press:active {
+  transform: scale(0.98);
+}
+
+/* High-Restraint Neon Glow (Only for functional states, <20% opacity) */
+.voltage-glow {
+  box-shadow: 0 0 12px color-mix(in oklch, var(--mint) 18%, transparent);
+}
+
+.ai-glow {
+  box-shadow: 0 0 12px color-mix(in oklch, var(--violet) 18%, transparent);
+}
+
+/* Reduced Motion Override Law */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

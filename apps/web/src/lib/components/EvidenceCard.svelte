@@ -49,11 +49,11 @@
   );
 </script>
 
-<div class="bg-surface border border-border rounded-sm p-4 space-y-3 transition-colors hover:border-border-strong">
+<div class="bg-surface border border-border rounded-none p-4 space-y-3 transition-colors hover:border-border-strong">
   <div class="flex items-start justify-between gap-3">
     <div class="space-y-1">
       <div class="flex items-center gap-2">
-        <span class="text-xs px-2 py-0.5 rounded-sm font-medium {currentSource.badgeClass}">
+        <span class="text-xs px-2 py-0.5 rounded-none font-medium {currentSource.badgeClass}">
           {currentSource.label}
         </span>
         <span class="text-[11px] text-ink-muted flex items-center gap-1 font-mono">

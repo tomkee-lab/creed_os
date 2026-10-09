@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS "session" (
   "ipAddress" TEXT,
   "userAgent" TEXT,
   "userId" TEXT NOT NULL REFERENCES "user"("id") ON DELETE CASCADE,
+  "activeOrganizationId" TEXT,
   "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -69,16 +70,17 @@ CREATE TABLE IF NOT EXISTS "passkey" (
   "name" TEXT,
   "publicKey" TEXT NOT NULL,
   "userId" TEXT NOT NULL REFERENCES "user"("id") ON DELETE CASCADE,
-  "credentialId" TEXT NOT NULL UNIQUE,
+  "credentialID" TEXT NOT NULL UNIQUE,
   "counter" INTEGER NOT NULL DEFAULT 0,
   "deviceType" TEXT NOT NULL,
   "backedUp" BOOLEAN NOT NULL DEFAULT FALSE,
   "transports" TEXT,
+  "aaguid" TEXT,
   "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS "idx_passkey_userId" ON "passkey"("userId");
-CREATE INDEX IF NOT EXISTS "idx_passkey_credentialId" ON "passkey"("credentialId");
+CREATE INDEX IF NOT EXISTS "idx_passkey_credentialID" ON "passkey"("credentialID");
 
 -- 6. Organization plugin tables
 CREATE TABLE IF NOT EXISTS "organization" (
@@ -108,7 +110,8 @@ CREATE TABLE IF NOT EXISTS "invitation" (
   "role" TEXT NOT NULL DEFAULT 'member',
   "status" TEXT NOT NULL DEFAULT 'pending',
   "expiresAt" TIMESTAMP NOT NULL,
-  "inviterId" TEXT NOT NULL REFERENCES "user"("id") ON DELETE CASCADE
+  "inviterId" TEXT NOT NULL REFERENCES "user"("id") ON DELETE CASCADE,
+  "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 7. Row Level Security (RLS) Policies for Better Auth Tables

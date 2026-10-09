@@ -25,7 +25,7 @@
     actionLabel="View Detailed Competency Matrix"
     actionHref="/student/pathways"
   >
-    <div class="p-6 bg-surface-raised rounded-sm border border-border space-y-2">
+    <div class="p-6 bg-surface-raised rounded-none border border-border space-y-2">
       <p class="text-sm text-ink font-medium">Demonstrated competence across 4 core domains.</p>
       <p class="text-xs text-ink-secondary">All observations verified by classroom facilitators.</p>
     </div>
@@ -37,7 +37,7 @@
     title="Recent Assessment Records"
     subtitle="Diagnostic sessions completed over the last 14 days."
   >
-    <div class="p-4 bg-surface-raised rounded-sm border border-border text-xs text-ink-secondary">
+    <div class="p-4 bg-surface-raised rounded-none border border-border text-xs text-ink-secondary">
       3 active continuous assessment points logged.
     </div>
   </WaySection>

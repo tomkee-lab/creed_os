@@ -34,7 +34,7 @@
 </script>
 
 <div
-  class="surface-card rounded-sm overflow-hidden text-left transition-all duration-140 {isSelected
+  class="surface-card rounded-none overflow-hidden text-left transition-all duration-140 {isSelected
     ? 'border-brand ring-1 ring-brand'
     : 'hover:border-border-strong'}"
 >
@@ -47,7 +47,7 @@
         class="w-full h-full object-cover rounded-none transition-transform duration-280 hover:scale-[1.02]"
       />
       <div class="absolute bottom-2 left-2 z-10">
-        <span class="px-2 py-0.5 rounded-sm bg-canvas/90 backdrop-blur-xs border border-border text-[10px] font-semibold uppercase tracking-wider text-ink">
+        <span class="px-2 py-0.5 rounded-none bg-canvas/90 backdrop-blur-xs border border-border text-[10px] font-semibold uppercase tracking-wider text-ink">
           {pathway.field.replace('_', ' ')}
         </span>
       </div>
@@ -61,7 +61,7 @@
           <span class="text-xs font-semibold uppercase tracking-wider text-ai">
             {pathway.field.replace('_', ' ')}
           </span>
-          <span class="text-[11px] font-medium px-2 py-0.5 rounded-sm {matchStatus.badgeClass} flex items-center gap-1">
+          <span class="text-[11px] font-medium px-2 py-0.5 rounded-none {matchStatus.badgeClass} flex items-center gap-1">
             <Sparkles class="w-2.5 h-2.5" /> {matchStatus.label}
           </span>
         </div>
@@ -87,7 +87,7 @@
         <span class="text-[11px] text-ink-muted font-medium">Foundational Competencies:</span>
         <div class="flex flex-wrap gap-1.5">
           {#each pathway.requirements as req}
-            <span class="text-[10px] px-2 py-0.5 rounded-sm bg-surface border border-border text-ink-secondary">
+            <span class="text-[10px] px-2 py-0.5 rounded-none bg-surface border border-border text-ink-secondary">
               {req.competency.replace('_', ' ')}
             </span>
           {/each}
@@ -99,7 +99,7 @@
       <button
         type="button"
         onclick={() => onSelect(pathway)}
-        class="w-full mt-2 py-2 px-3 rounded-sm text-xs font-semibold surface-card hover:bg-surface text-ink transition-all duration-140 flex items-center justify-center gap-1.5 cursor-pointer"
+        class="w-full mt-2 py-2 px-3 rounded-none text-xs font-semibold surface-card hover:bg-surface text-ink transition-all duration-140 flex items-center justify-center gap-1.5 cursor-pointer"
       >
         <span>Explore Field & Missions</span>
         <ArrowRight class="w-3.5 h-3.5" />

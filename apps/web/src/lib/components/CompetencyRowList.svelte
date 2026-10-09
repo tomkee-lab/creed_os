@@ -53,7 +53,7 @@
     {@const percentage = Math.min(Math.max(((comp.score - 1) / 4) * 100, 10), 100)}
 
     <div
-      class="surface-card rounded-sm border border-border p-3 sm:p-4 hover:border-border-strong transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+      class="surface-card rounded-none border border-border p-3 sm:p-4 hover:border-border-strong transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
     >
       <!-- Title & Evidence Count -->
       <div class="min-w-0 sm:w-1/3">

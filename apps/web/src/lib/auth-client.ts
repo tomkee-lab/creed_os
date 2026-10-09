@@ -5,7 +5,9 @@ import { passkeyClient } from '@better-auth/passkey/client';
 export const authClient = createAuthClient({
   baseURL: typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173',
   plugins: [
-    sentinelClient(),
+    sentinelClient({
+      identifyUrl: 'https://kv.better-auth.com/projects/yh5Gtwa3RJxVFDX2SCVc2opaVjI5B0mF'
+    }),
     passkeyClient()
   ]
 });

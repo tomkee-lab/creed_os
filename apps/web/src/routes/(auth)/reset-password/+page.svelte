@@ -39,7 +39,7 @@
   <title>Reset Password — CREED OS</title>
 </svelte:head>
 
-<div class="rounded-sm bg-surface-raised border border-border p-6 sm:p-8 shadow-sm">
+<div class="rounded-none bg-surface-raised border border-border p-6 sm:p-8 shadow-sm">
   <div class="space-y-1.5 mb-6 text-center">
     <h1 class="text-xl font-heading font-semibold text-ink tracking-tight">
       Reset your password
@@ -51,7 +51,7 @@
 
   {#if sent}
     <div class="space-y-4">
-      <div class="p-3 rounded-sm bg-positive-subtle text-positive text-xs flex items-center gap-2">
+      <div class="p-3 rounded-none bg-positive-subtle text-positive text-xs flex items-center gap-2">
         <CheckCircle2 class="w-4 h-4 shrink-0" />
         <span>Recovery link sent to <strong>{email}</strong>. Please check your inbox.</span>
       </div>
@@ -64,7 +64,7 @@
     </div>
   {:else}
     {#if errorMessage}
-      <div class="mb-4 p-3 bg-critical-subtle border border-critical/20 rounded-sm text-xs text-critical flex items-center gap-2">
+      <div class="mb-4 p-3 bg-critical-subtle border border-critical/20 rounded-none text-xs text-critical flex items-center gap-2">
         <AlertCircle class="w-4 h-4 shrink-0" />
         <span>{errorMessage}</span>
       </div>
@@ -82,7 +82,7 @@
             bind:value={email}
             required
             placeholder="you@school.org"
-            class="w-full pl-3 pr-3 py-2 rounded-sm bg-surface border border-border text-xs text-ink placeholder-ink-muted focus:outline-hidden focus:border-brand"
+            class="w-full pl-3 pr-3 py-2 rounded-none bg-surface border border-border text-xs text-ink placeholder-ink-muted focus:outline-hidden focus:border-brand"
           />
         </div>
       </div>
@@ -90,7 +90,7 @@
       <button
         type="submit"
         disabled={loading || !email}
-        class="w-full py-2.5 px-4 rounded-sm bg-brand hover:bg-brand/90 text-white font-medium text-xs flex items-center justify-center gap-1.5 transition-colors disabled:opacity-40 cursor-pointer shadow-xs"
+        class="w-full py-2.5 px-4 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs flex items-center justify-center gap-1.5 transition-colors disabled:opacity-40 cursor-pointer shadow-xs"
       >
         <span>{loading ? 'Sending link...' : 'Send Recovery Link'}</span>
         <ArrowRight class="w-3.5 h-3.5" />

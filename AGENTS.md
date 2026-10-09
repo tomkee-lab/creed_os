@@ -66,3 +66,19 @@
 11. **Lagom Motion Contract:**
     - Motion duration must stay strictly between **140ms and 280ms** (`--duration-micro: 140ms;`, `--duration-standard: 200ms;`, `--duration-emphasis: 280ms;`). Decorative animations are silenced during active assessments.
 12. **State Coverage:** All interactive components must support full 6-state coverage: default, hover, active, focus-visible, disabled, and loading.
+
+## Flowbite-Svelte MCP Server Integration & Architecture Rules
+This workspace integrates the Flowbite-Svelte MCP server (`flowbite-svelte`) to provide comprehensive UI component references and pattern inspiration.
+
+### Available MCP Tools:
+1. `findComponent`: Discover components by name or category (returns documentation paths).
+2. `getComponentList`: Discover available Flowbite-Svelte components across all categories.
+3. `getComponentDoc`: Fetch full documentation, props, events, and usage examples for a component path.
+4. `searchDocs`: Full-text search across documentation for features, form patterns, and layouts.
+
+### Strict CREED OS Implementation Contract:
+- **Reference, not Direct Render:** Flowbite-Svelte serves as structural reference. Rendered components MUST use **Svelte 5 runes (`$state`, `$derived`, `$props`)**, **Bits UI primitives**, and **Tailwind CSS 4**.
+- **Enforce Zero-Radius (`rounded-none`):** Never carry over Flowbite's default `rounded-lg` or `rounded-full` classes. All surfaces, buttons, avatars, and badges must remain strictly 0px sharp.
+- **Enforce Zero-Curves:** All icons, markers, indicators, and charts must use straight angular/polygonal geometry.
+- **Enforce OKLCH Tokens:** Replace generic Flowbite color classes (`gray-500`, `primary-700`, `blue-600`) with CREED OS semantic design tokens (`--surface-canvas`, `--surface-content`, `--text-primary`, `--accent-primary`).
+- **Domain Alignment:** Substitute generic SaaS copy with authentic educational, psychometric, and DPDP-compliant learner intelligence terminology.

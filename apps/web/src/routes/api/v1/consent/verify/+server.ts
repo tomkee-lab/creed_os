@@ -1,8 +1,8 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { transitionConsentState, type ConsentRecord, type VerificationChannel } from '@core-os/domain';
-// Import the OTP store and learner-bound hash function from the challenge endpoint
-import { OTP_STORE, hashChallengeKey } from '../challenge/+server';
+// Import the OTP store and learner-bound hash function from consent-otp helper
+import { OTP_STORE, hashChallengeKey } from '$lib/server/consent-otp';
 
 export const POST: RequestHandler = async ({ request, cookies, locals }) => {
   try {

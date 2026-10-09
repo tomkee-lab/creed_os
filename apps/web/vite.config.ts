@@ -1,9 +1,22 @@
+import { paraglideVitePlugin } from '@inlang/paraglide-js';
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 
+// Prevent abrupt socket disconnects (ECONNRESET, EPIPE) common with tunnels on Windows from crashing Vite
+process.on('uncaughtException', (err: any) => {
+  if (err?.code === 'ECONNRESET' || err?.code === 'EPIPE' || err?.code === 'ETIMEDOUT') {
+    return;
+  }
+  console.error('[vite:uncaughtException]', err);
+});
+
 export default defineConfig({
   plugins: [
+    paraglideVitePlugin({
+      project: './project.inlang',
+      outdir: './src/lib/paraglide'
+    }),
     tailwindcss(),
     sveltekit()
   ],
@@ -18,6 +31,15 @@ export default defineConfig({
     ]
   },
   ssr: {
-    noExternal: ['svelte-sonner']
+    noExternal: [
+      'svelte-sonner',
+      'layerchart',
+      '@xyflow/svelte',
+      '@tanstack/table-core',
+      'sveltekit-superforms',
+      'altcha',
+      'altcha-lib',
+      '@iconify/svelte'
+    ]
   }
 });

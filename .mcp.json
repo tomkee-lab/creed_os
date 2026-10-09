@@ -6,6 +6,16 @@
       "headers": {
         "Authorization": "Bearer ${GREPTILE_API_KEY}"
       }
+    },
+    "flowbite-svelte": {
+      "command": "node",
+      "args": [
+        "C:/Users/rtf70/.gemini/mcp-servers/flowbite-svelte-mcp/build/server.js"
+      ]
+    },
+    "better-auth": {
+      "type": "http",
+      "url": "https://mcp.better-auth.com/mcp"
     }
   }
 }

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "app_title": "CREED OS",
+  "app_tagline": "AI-Native Learner Intelligence & Navigation Platform",
+  "nav_today": "Today",
+  "nav_map": "My Map",
+  "nav_missions": "Missions",
+  "nav_capabilities": "Capabilities",
+  "nav_evidence": "Evidence",
+  "nav_mentor": "Socratic Guide",
+  "nav_settings": "Settings",
+  "nav_help": "Help & Docs",
+  "today_mission_title": "Today's Mission",
+  "today_mission_action": "Start today's mission",
+  "security_pow_verifying": "Verifying Proof-of-Work...",
+  "security_pow_verified": "Verified (PoW: SHA-256)",
+  "security_pow_protected": "Protected by Altcha Proof-of-Work",
+  "dev_band_baseline": "Baseline Formed",
+  "dev_band_developing": "Developing Foundation",
+  "dev_band_advancing": "Advancing Fluency",
+  "dev_band_mastery": "Active Mastery"
+}

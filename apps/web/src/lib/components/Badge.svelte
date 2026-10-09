@@ -18,7 +18,7 @@
     children
   }: Props = $props();
 
-  const baseClasses = 'inline-flex items-center font-medium rounded-sm select-none';
+  const baseClasses = 'inline-flex items-center font-medium rounded-none select-none';
 
   const sizeClasses: Record<BadgeSize, string> = {
     sm: 'text-[11px] px-2 py-0.5 gap-1',

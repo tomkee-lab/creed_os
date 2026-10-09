@@ -42,7 +42,7 @@
   );
 
   const computedClass = $derived(
-    `rounded-sm ${variantClasses[variant]} ${paddingClasses[padding]} ${interactiveClass} ${className}`
+    `rounded-none ${variantClasses[variant]} ${paddingClasses[padding]} ${interactiveClass} ${className}`
   );
 </script>
 

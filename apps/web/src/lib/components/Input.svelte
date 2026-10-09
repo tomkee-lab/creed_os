@@ -66,7 +66,7 @@
       {required}
       {oninput}
       {onchange}
-      class="w-full py-2 {IconComponent ? 'pl-10 pr-4' : 'px-4'} rounded-sm bg-surface-subtle border {error ? 'border-critical' : 'border-border'} text-xs sm:text-sm text-ink placeholder:text-ink-muted transition-all duration-140 focus:outline-none focus:ring-2 {error ? 'focus:ring-critical' : 'focus:ring-brand'} focus:border-transparent disabled:opacity-40 disabled:cursor-not-allowed {className}"
+      class="w-full py-2 {IconComponent ? 'pl-10 pr-4' : 'px-4'} rounded-none bg-surface-subtle border {error ? 'border-critical' : 'border-border'} text-xs sm:text-sm text-ink placeholder:text-ink-muted transition-all duration-140 focus:outline-none focus:ring-2 {error ? 'focus:ring-critical' : 'focus:ring-brand'} focus:border-transparent disabled:opacity-40 disabled:cursor-not-allowed {className}"
     />
   </div>
 

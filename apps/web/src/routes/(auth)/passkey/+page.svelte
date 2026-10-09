@@ -39,8 +39,8 @@
   <title>Passkey Sign In — CREED OS</title>
 </svelte:head>
 
-<div class="rounded-sm bg-surface-raised border border-border p-6 sm:p-8 shadow-sm text-center space-y-6">
-  <div class="w-12 h-12 rounded-sm bg-brand-subtle text-brand mx-auto flex items-center justify-center">
+<div class="rounded-none bg-surface-raised border border-border p-6 sm:p-8 shadow-sm text-center space-y-6">
+  <div class="w-12 h-12 rounded-none bg-brand-subtle text-brand mx-auto flex items-center justify-center">
     <KeyRound class="w-6 h-6" />
   </div>
 
@@ -54,7 +54,7 @@
   </div>
 
   {#if errorMsg}
-    <div class="p-2.5 rounded-sm bg-critical-subtle border border-critical/20 text-xs text-critical">
+    <div class="p-2.5 rounded-none bg-critical-subtle border border-critical/20 text-xs text-critical">
       {errorMsg}
     </div>
   {/if}
@@ -64,7 +64,7 @@
       type="button"
       onclick={handlePasskey}
       disabled={authenticating}
-      class="w-full py-2.5 px-4 rounded-sm bg-brand hover:bg-brand/90 text-white font-medium text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+      class="w-full py-2.5 px-4 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
     >
       <span>{authenticating ? 'Waiting for authenticator...' : 'Authenticate with Passkey'}</span>
       <ArrowRight class="w-3.5 h-3.5" />

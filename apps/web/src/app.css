@@ -4,349 +4,101 @@
 @import "shadcn-svelte/tailwind.css";
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/dm-sans";
+@import "@fontsource-variable/jetbrains-mono";
+@import "./lib/styles/tokens.css";
+@import "./lib/styles/motion.css";
+@import "./lib/styles/utilities.css";
 
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================================
-   WAY 3.0 — Quiet Editorial Workspace Design System
-   Core Architectural Rules:
-   - Single authoritative semantic token hierarchy
-   - L0 Canvas (warm mineral default) -> L1 Surface -> L2 Raised -> L3 Overlay -> L4 Modal
-   - Architectural Radii: 0px (technical), 4px (controls/surfaces), 8px (hero/media)
-   - Motion budget: strictly 140ms–280ms
-   - One purpose per section: Orient, Decide, Explore, Prove, Act
+   CARBON VOLTAGE — Global Base Styles
+   Dark-as-Default · Technical Precision · High-Restraint Neon
    ============================================================ */
 
-:root {
-  /* --- WAY 3.0 Semantic Surfaces (Light Theme: Warm Mineral Palette) --- */
-  --color-canvas: oklch(0.978 0.006 240);          /* L0 Base Canvas (#F5F7FA) */
-  --color-surface: oklch(0.965 0.008 240);         /* L1 Content Well / Section */
-  --color-surface-subtle: oklch(0.950 0.010 240);  /* Inset / Subtle Well */
-  --color-surface-raised: oklch(1.000 0.000 0);    /* L2 Raised Card / Active Tile */
-  --color-surface-overlay: oklch(0.985 0.004 240); /* L3 Popover, Dropdown, Menu */
-  --color-surface-modal: oklch(1.000 0.000 0);     /* L4 Dialog, Focus Sheet */
-
-  /* --- WAY 3.0 Typography & Ink --- */
-  --color-ink: oklch(0.200 0.020 250);            /* Primary Deep Slate #0F172A */
-  --color-ink-secondary: oklch(0.440 0.022 250);  /* Supporting Slate #475569 */
-  --color-ink-muted: oklch(0.580 0.018 250);      /* Caption Muted #64748B */
-  --color-ink-inverse: oklch(0.990 0.002 240);    /* White on Dark */
-
-  /* --- WAY 3.0 Brand & Functional Accents --- */
-  --color-brand: oklch(0.550 0.140 215);          /* Restrained Calm Teal #0891B2 */
-  --color-brand-subtle: oklch(0.960 0.025 215);
-  --color-ai: oklch(0.560 0.150 280);             /* Muted Iris for Explainability */
-  --color-ai-subtle: oklch(0.960 0.025 280);
-  --color-positive: oklch(0.600 0.140 150);       /* Sage Growth */
-  --color-positive-subtle: oklch(0.950 0.030 150);
-  --color-attention: oklch(0.680 0.150 75);       /* Ochre / Attention */
-  --color-attention-subtle: oklch(0.960 0.030 75);
-  --color-critical: oklch(0.580 0.180 25);        /* Controlled Vermilion */
-  --color-critical-subtle: oklch(0.960 0.035 25);
-
-  /* --- Structural Boundaries --- */
-  --color-border: oklch(0.900 0.008 240);         /* Hairline boundary #E2E8F0 */
-  --color-border-strong: oklch(0.810 0.015 240);  /* Interactive border */
-  --color-focus: oklch(0.550 0.140 215);          /* Calm Cyan Focus Ring */
-
-  /* --- Backward-Compatibility Bridges for @core-os/ui --- */
-  --surface-canvas: var(--color-canvas);
-  --surface-content: var(--color-surface);
-  --surface-raised: var(--color-surface-raised);
-  --surface-overlay: var(--color-surface-overlay);
-  --surface-modal: var(--color-surface-modal);
-  --surface-sunken: var(--color-surface-subtle);
-  --text-primary: var(--color-ink);
-  --text-secondary: var(--color-ink-secondary);
-  --text-muted: var(--color-ink-muted);
-  --border-subtle: var(--color-border);
-  --border-strong: var(--color-border-strong);
-  --border-focus: var(--color-focus);
-  --accent-primary: var(--color-brand);
-  --accent-primary-subtle: var(--color-brand-subtle);
-  --accent-indigo: var(--color-ai);
-  --accent-indigo-subtle: var(--color-ai-subtle);
-  --accent-success: var(--color-positive);
-  --accent-success-subtle: var(--color-positive-subtle);
-  --accent-warning: var(--color-attention);
-  --accent-warning-subtle: var(--color-attention-subtle);
-  --accent-danger: var(--color-critical);
-  --accent-danger-subtle: var(--color-critical-subtle);
-
-  /* --- shadcn Primitives Map INTO WAY 3.0 Tokens (Single Source of Truth) --- */
-  --background: var(--color-canvas);
-  --foreground: var(--color-ink);
-  --card: var(--color-surface-raised);
-  --card-foreground: var(--color-ink);
-  --popover: var(--color-surface-overlay);
-  --popover-foreground: var(--color-ink);
-  --primary: var(--color-brand);
-  --primary-foreground: var(--color-ink-inverse);
-  --secondary: var(--color-surface);
-  --secondary-foreground: var(--color-ink);
-  --muted: var(--color-surface-subtle);
-  --muted-foreground: var(--color-ink-secondary);
-  --accent: var(--color-surface);
-  --accent-foreground: var(--color-ink);
-  --destructive: var(--color-critical);
-  --destructive-foreground: var(--color-ink-inverse);
-  --border: var(--color-border);
-  --input: var(--color-border);
-  --ring: var(--color-focus);
-
-  /* Sidebar Tokens */
-  --sidebar: var(--color-surface);
-  --sidebar-foreground: var(--color-ink);
-  --sidebar-primary: var(--color-brand);
-  --sidebar-primary-foreground: var(--color-ink-inverse);
-  --sidebar-accent: var(--color-surface-subtle);
-  --sidebar-accent-foreground: var(--color-ink);
-  --sidebar-border: var(--color-border);
-  --sidebar-ring: var(--color-focus);
-
-  /* Architectural Radius System — WAY 2.1 Compliance
-   * 0px (--radius-none): Structural & technical surfaces (data tables, assessment frames, console grids)
-   * 4px (--radius-sm):   Controls & content surfaces (buttons, inputs, tiles, cards, dialogs)
-   * 8px (--radius-md):   Expressive media frames (hero media, editorial features, illustration frames)
-   * PROHIBITED: 12px+ bubbly consumer curves (12px+, 16px+, pill buttons)
-   * rounded-sm (4px) and rounded-md (8px) are COMPLIANT by design — not violations.
-   */
-  --radius-none: 0px;
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius: 4px;
-
-  /* Spacing Scale (4, 8, 16, 24, 32, 40, 48, 64, 80, 96px) */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-4: 16px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
-  --space-16: 64px;
-  --space-20: 80px;
-  --space-24: 96px;
-
-  /* Motion Budget */
-  --duration-micro: 140ms;
-  --duration-standard: 200ms;
-  --duration-emphasis: 280ms;
-  --ease-lagom: cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.dark {
-  /* --- WAY 3.0 Dark Surfaces (Deep Slate Studio / Nordic Night) --- */
-  --color-canvas: oklch(0.145 0.018 250);          /* L0 Base Slate (#101622) */
-  --color-surface: oklch(0.180 0.020 250);         /* L1 Soft Slate Well (#141D2C) */
-  --color-surface-subtle: oklch(0.120 0.015 250);  /* L0/L1 Inset (#0C111A) */
-  --color-surface-raised: oklch(0.210 0.022 250);  /* L2 Raised Card (#1A2538) */
-  --color-surface-overlay: oklch(0.250 0.025 250); /* L3 Popover (#212E44) */
-  --color-surface-modal: oklch(0.220 0.022 250);   /* L4 Dialog */
-
-  /* --- WAY 3.0 Dark Typography & Ink --- */
-  --color-ink: oklch(0.960 0.005 240);            /* Crisp White #F8FAFC */
-  --color-ink-secondary: oklch(0.700 0.015 240);  /* Soft Slate #94A3B8 */
-  --color-ink-muted: oklch(0.520 0.015 240);      /* Muted Slate #64748B */
-  --color-ink-inverse: oklch(0.145 0.018 250);
-
-  /* --- WAY 3.0 Dark Accents --- */
-  --color-brand: oklch(0.720 0.150 215);          /* Luminous Cyan */
-  --color-brand-subtle: oklch(0.240 0.040 215);
-  --color-ai: oklch(0.720 0.140 280);             /* Muted Iris */
-  --color-ai-subtle: oklch(0.230 0.040 280);
-  --color-positive: oklch(0.700 0.130 150);       /* Sage */
-  --color-positive-subtle: oklch(0.230 0.040 150);
-  --color-attention: oklch(0.750 0.140 75);       /* Ochre */
-  --color-attention-subtle: oklch(0.240 0.040 75);
-  --color-critical: oklch(0.700 0.160 25);        /* Vermilion */
-  --color-critical-subtle: oklch(0.240 0.040 25);
-
-  /* --- Dark Boundaries --- */
-  --color-border: oklch(0.260 0.020 250);         /* Subtle boundary #273448 */
-  --color-border-strong: oklch(0.350 0.030 250);  /* Interactive border #3B4D66 */
-  --color-focus: oklch(0.720 0.150 215);
-
-  /* --- Backward-Compatibility Bridges for Dark --- */
-  --surface-canvas: var(--color-canvas);
-  --surface-content: var(--color-surface);
-  --surface-raised: var(--color-surface-raised);
-  --surface-overlay: var(--color-surface-overlay);
-  --surface-modal: var(--color-surface-modal);
-  --surface-sunken: var(--color-surface-subtle);
-  --text-primary: var(--color-ink);
-  --text-secondary: var(--color-ink-secondary);
-  --text-muted: var(--color-ink-muted);
-  --border-subtle: var(--color-border);
-  --border-strong: var(--color-border-strong);
-  --border-focus: var(--color-focus);
-  --accent-primary: var(--color-brand);
-  --accent-primary-subtle: var(--color-brand-subtle);
-  --accent-indigo: var(--color-ai);
-  --accent-indigo-subtle: var(--color-ai-subtle);
-  --accent-success: var(--color-positive);
-  --accent-success-subtle: var(--color-positive-subtle);
-  --accent-warning: var(--color-attention);
-  --accent-warning-subtle: var(--color-attention-subtle);
-  --accent-danger: var(--color-critical);
-  --accent-danger-subtle: var(--color-critical-subtle);
-
-  /* --- shadcn Dark Mappings --- */
-  --background: var(--color-canvas);
-  --foreground: var(--color-ink);
-  --card: var(--color-surface-raised);
-  --card-foreground: var(--color-ink);
-  --popover: var(--color-surface-overlay);
-  --popover-foreground: var(--color-ink);
-  --primary: var(--color-brand);
-  --primary-foreground: var(--color-ink-inverse);
-  --secondary: var(--color-surface);
-  --secondary-foreground: var(--color-ink);
-  --muted: var(--color-surface-subtle);
-  --muted-foreground: var(--color-ink-secondary);
-  --accent: var(--color-surface);
-  --accent-foreground: var(--color-ink);
-  --destructive: var(--color-critical);
-  --destructive-foreground: var(--color-ink-inverse);
-  --border: var(--color-border);
-  --input: var(--color-border);
-  --ring: var(--color-focus);
-
-  --sidebar: var(--color-surface);
-  --sidebar-foreground: var(--color-ink);
-  --sidebar-primary: var(--color-brand);
-  --sidebar-primary-foreground: var(--color-ink-inverse);
-  --sidebar-accent: var(--color-surface-subtle);
-  --sidebar-accent-foreground: var(--color-ink);
-  --sidebar-border: var(--color-border);
-  --sidebar-ring: var(--color-focus);
-}
-
 @layer base {
-  body {
-    background-color: var(--color-canvas);
-    color: var(--color-ink);
+  html {
     font-family: var(--font-sans);
-    transition: background-color var(--duration-standard) var(--ease-lagom),
-                color var(--duration-standard) var(--ease-lagom);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-optical-sizing: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-optical-sizing: auto;
+    line-height: 1.5;
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color var(--motion-ui) var(--ease-lagom),
+                color var(--motion-ui) var(--ease-lagom);
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
-    color: var(--color-ink);
+    color: var(--foreground);
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  p,
+  .paragraph,
+  [data-slot="card-description"],
+  [data-slot="dialog-description"],
+  [data-slot="sheet-description"],
+  [data-slot="popover-description"],
+  [data-slot="field-description"] {
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    letter-spacing: -0.011em;
+    text-wrap: pretty;
+  }
+
+  code, kbd, samp, pre {
+    font-family: var(--font-mono);
+    letter-spacing: -0.01em;
+  }
+
+  button, input, optgroup, select, textarea {
+    font-family: inherit;
+    letter-spacing: inherit;
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-focus);
+    outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
 
   * {
-    border-color: var(--color-border);
-  }
-
-  html {
-    font-family: var(--font-sans);
+    border-color: var(--border-subtle);
   }
 }
 
-/* Reduced Motion Law */
-@media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
+/* ============================================================
+   CARBON VOLTAGE — Tailwind Theme Directives
+   Exposes all semantic tokens directly into Tailwind CSS 4
+   ============================================================ */
 
-/* Surface Utility Helpers */
-.surface-card {
-  background-color: var(--color-surface-raised);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-  transition: box-shadow var(--duration-micro) var(--ease-lagom),
-              border-color var(--duration-micro) var(--ease-lagom);
-}
-
-.surface-card:hover {
-  border-color: var(--color-border-strong);
-}
-
-.surface-subtle {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-}
-
-/* WAY 3.0 Badge Color Utilities */
-.badge-growth {
-  background-color: var(--color-positive-subtle);
-  color: var(--color-positive);
-  border: 1px solid color-mix(in oklch, var(--color-positive) 25%, transparent);
-}
-
-.badge-focus {
-  background-color: var(--color-attention-subtle);
-  color: var(--color-attention);
-  border: 1px solid color-mix(in oklch, var(--color-attention) 25%, transparent);
-}
-
-.badge-pathway {
-  background-color: var(--color-ai-subtle);
-  color: var(--color-ai);
-  border: 1px solid color-mix(in oklch, var(--color-ai) 25%, transparent);
-}
-
-.badge-primary {
-  background-color: var(--color-brand-subtle);
-  color: var(--color-brand);
-  border: 1px solid color-mix(in oklch, var(--color-brand) 25%, transparent);
-}
-
-.badge-alert {
-  background-color: var(--color-critical-subtle);
-  color: var(--color-critical);
-  border: 1px solid color-mix(in oklch, var(--color-critical) 25%, transparent);
-}
-
-/* Strict WAY 3.0 Tailwind Theme */
 @theme inline {
-  --font-sans: 'Inter Variable', sans-serif;
-  --font-heading: 'DM Sans Variable', sans-serif;
+  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+  --font-heading: 'DM Sans Variable', 'DM Sans', var(--font-sans);
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
 
-  /* Colors */
-  --color-canvas: var(--color-canvas);
-  --color-surface: var(--color-surface);
-  --color-surface-subtle: var(--color-surface-subtle);
-  --color-surface-raised: var(--color-surface-raised);
-  --color-surface-overlay: var(--color-surface-overlay);
-  --color-surface-modal: var(--color-surface-modal);
-
-  --color-ink: var(--color-ink);
-  --color-ink-secondary: var(--color-ink-secondary);
-  --color-ink-muted: var(--color-ink-muted);
-  --color-ink-inverse: var(--color-ink-inverse);
-
-  --color-brand: var(--color-brand);
-  --color-brand-subtle: var(--color-brand-subtle);
-  --color-ai: var(--color-ai);
-  --color-ai-subtle: var(--color-ai-subtle);
-  --color-positive: var(--color-positive);
-  --color-positive-subtle: var(--color-positive-subtle);
-  --color-attention: var(--color-attention);
-  --color-attention-subtle: var(--color-attention-subtle);
-  --color-critical: var(--color-critical);
-  --color-critical-subtle: var(--color-critical-subtle);
-
-  --color-border: var(--color-border);
-  --color-border-strong: var(--color-border-strong);
-  --color-focus: var(--color-focus);
-
-  /* shadcn compat */
+  /* Carbon Surfaces */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-surface-subtle: var(--surface-subtle);
+
+  /* shadcn Primitives */
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -360,9 +112,39 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
-  --color-ring: var(--ring);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
   --color-input: var(--input);
+  --color-ring: var(--ring);
 
+  /* High-Voltage Signature & Functional Accents */
+  --color-mint: var(--mint);
+  --color-mint-foreground: var(--mint-foreground);
+  --color-violet: var(--violet);
+  --color-violet-foreground: var(--violet-foreground);
+  --color-cyan: var(--cyan);
+  --color-cyan-foreground: var(--cyan-foreground);
+  --color-yellow: var(--yellow);
+  --color-yellow-foreground: var(--yellow-foreground);
+  --color-red: var(--red);
+  --color-red-foreground: var(--red-foreground);
+  --color-orange: var(--orange);
+  --color-orange-foreground: var(--orange-foreground);
+
+  /* Semantic State Tokens */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-ai: var(--ai);
+  --color-ai-foreground: var(--ai-foreground);
+  --color-processing: var(--processing);
+  --color-processing-foreground: var(--processing-foreground);
+
+  /* Sidebar */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -372,14 +154,42 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Architectural Radius System: 0px, 4px, 8px only */
+  /* Backward Compatibility Bridges for WAY 2.1 Components */
+  --color-canvas: var(--background);
+  --color-surface-raised: var(--surface-2);
+  --color-surface-overlay: var(--surface-3);
+  --color-surface-modal: var(--surface-2);
+  --color-ink: var(--foreground);
+  --color-ink-secondary: var(--foreground-secondary);
+  --color-ink-muted: var(--foreground-muted);
+  --color-ink-inverse: var(--mint-foreground);
+  --color-brand: var(--mint);
+  --color-brand-foreground: var(--mint-foreground);
+  --color-brand-subtle: var(--mint-subtle);
+  --color-brand-hover: var(--mint-hover);
+  --color-positive: var(--mint);
+  --color-positive-subtle: var(--mint-subtle);
+  --color-attention: var(--yellow);
+  --color-attention-subtle: var(--yellow-subtle);
+  --color-critical: var(--red);
+  --color-critical-subtle: var(--red-subtle);
+
+  /* Radius System (Strict 0px Sharp Technical Precision) */
   --radius-none: 0px;
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius: 4px;
-  --radius-lg: 8px;
-  --radius-xl: 8px;
-  --radius-2xl: 8px;
-  --radius-3xl: 8px;
-  --radius-full: 9999px;
+  --radius-2xs: 0px;
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-full: 0px;
 }
+
+/* Zero Rounded Corners & Curve Lines Contract — 100% Sharp Architectural Precision */
+*,
+*::before,
+*::after {
+  border-radius: 0 !important;
+}
+

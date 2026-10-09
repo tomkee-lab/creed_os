@@ -3,16 +3,11 @@ import type { PageServerLoad } from './$types';
 import { coreRepository } from '$lib/server/repository';
 
 export const load: PageServerLoad = async ({ locals }) => {
-  const user = locals.user ?? (import.meta.env.DEV ? { role: 'admin' } : null);
+  const user = locals.user;
   const role = (user as any)?.role || (user as any)?.metadata?.role;
 
   // Enforce administrative role verification before returning full consent ledger
-  if (role !== 'admin' && !import.meta.env.DEV) {
-    throw error(403, 'Forbidden: Administrative privilege required to view institutional consent ledger');
-  }
-
-  // In development, if an explicit session exists with a non-admin role, strictly enforce 403
-  if (locals.user && ((locals.user as any)?.role || (locals.user as any)?.metadata?.role) !== 'admin') {
+  if (!user || role !== 'admin') {
     throw error(403, 'Forbidden: Administrative privilege required to view institutional consent ledger');
   }
 

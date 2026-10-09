@@ -1,0 +1,251 @@
+/* ============================================================
+   CARBON VOLTAGE — Core OKLCH Design Token Architecture
+   Dark-by-default · Perceptual OKLCH · High-restraint neon · Technical precision
+   Usage ratio:
+   - 90% Carbon/Graphite surfaces
+   - 8% Cool neutral information/typography
+   - 2% High-voltage accent (Performance Mint <2% at rest)
+   ============================================================ */
+
+:root {
+  /* --- 1. Carbon Dark Scale (Application Canvas & Surfaces) --- */
+  --background: oklch(0.135 0.018 255);            /* Application canvas */
+  --surface: oklch(0.165 0.020 255);               /* Primary panels / L1 */
+  --surface-2: oklch(0.195 0.022 255);             /* Elevated cards / L2 */
+  --surface-3: oklch(0.225 0.024 255);             /* Popovers / active surfaces / L3 */
+  --surface-subtle: oklch(0.115 0.015 255);        /* Inset wells / sunken tracks */
+
+  /* --- 2. Structural & Technical Borders --- */
+  --border: oklch(0.285 0.022 255);                /* Structural borders */
+  --border-subtle: oklch(0.225 0.018 255);         /* Low-contrast dividers */
+  --border-strong: oklch(0.360 0.024 255);         /* Interactive / focused border */
+
+  /* --- 3. Cool Neutral Typography & Ink Scale --- */
+  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+  --font-heading: 'DM Sans Variable', 'DM Sans', var(--font-sans);
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+  --foreground: oklch(0.955 0.012 255);            /* Primary text (Crisp graphite white) */
+  --foreground-secondary: oklch(0.760 0.018 255);  /* Secondary supporting text */
+  --foreground-muted: oklch(0.570 0.020 255);      /* Metadata / tertiary text */
+
+  /* --- 4. Primary High-Voltage Accent: Performance Mint --- */
+  /* Active · Success · Execute · Connected · Live · Selected · Primary CTA (<2% at rest) */
+  --mint: oklch(0.820 0.190 165);                  /* Signature Performance Mint */
+  --mint-foreground: oklch(0.135 0.018 255);       /* 12.4:1 AAA contrast on mint */
+  --mint-subtle: color-mix(in oklch, var(--mint) 12%, transparent);
+  --mint-hover: oklch(0.780 0.180 165);
+  --mint-active: oklch(0.740 0.170 165);
+
+  /* --- 5. Secondary Technology Accent: Digital Violet --- */
+  /* AI · Intelligence · Automation · Copilots · Model-related UI · Advanced tooling */
+  --violet: oklch(0.720 0.170 285);                /* Digital Violet */
+  --violet-foreground: oklch(0.955 0.012 255);
+  --violet-subtle: color-mix(in oklch, var(--violet) 12%, transparent);
+  --violet-hover: oklch(0.680 0.165 285);
+
+  /* --- 6. Supporting Technical & Operational State Accents --- */
+  /* Cyan: Network, infrastructure, telemetry, links */
+  --cyan: oklch(0.780 0.140 205);
+  --cyan-foreground: oklch(0.135 0.018 255);
+  --cyan-subtle: color-mix(in oklch, var(--cyan) 12%, transparent);
+
+  /* Electric Yellow: Warning, attention, pending state, elevated risk */
+  --yellow: oklch(0.900 0.170 105);
+  --yellow-foreground: oklch(0.135 0.018 255);
+  --yellow-subtle: color-mix(in oklch, var(--yellow) 12%, transparent);
+
+  /* Signal Red: Destructive actions, errors, failed deployments, outages */
+  --red: oklch(0.680 0.190 25);
+  --red-foreground: oklch(0.955 0.012 255);
+  --red-subtle: color-mix(in oklch, var(--red) 12%, transparent);
+
+  /* Orange: Degraded state, processing, intermediate status */
+  --orange: oklch(0.740 0.170 55);
+  --orange-foreground: oklch(0.135 0.018 255);
+  --orange-subtle: color-mix(in oklch, var(--orange) 12%, transparent);
+
+  /* --- 7. shadcn-svelte Semantic Conventions --- */
+  --card: var(--surface-2);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface-3);
+  --popover-foreground: var(--foreground);
+  --primary: var(--mint);
+  --primary-foreground: var(--mint-foreground);
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--surface);
+  --muted-foreground: var(--foreground-muted);
+  --accent: var(--surface-2);
+  --accent-foreground: var(--foreground);
+  --destructive: var(--red);
+  --destructive-foreground: var(--red-foreground);
+  --input: var(--border);
+  --ring: var(--mint);
+
+  /* --- 8. Carbon Semantic State System --- */
+  --success: var(--mint);
+  --success-foreground: var(--mint-foreground);
+  --warning: var(--yellow);
+  --warning-foreground: var(--yellow-foreground);
+  --info: var(--cyan);
+  --info-foreground: var(--cyan-foreground);
+  --ai: var(--violet);
+  --ai-foreground: var(--violet-foreground);
+  --processing: var(--orange);
+  --processing-foreground: var(--orange-foreground);
+
+  /* --- 9. Sidebar Tokens --- */
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--mint);
+  --sidebar-primary-foreground: var(--mint-foreground);
+  --sidebar-accent: var(--surface-2);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border-subtle);
+  --sidebar-ring: var(--mint);
+
+  /* --- 10. WAY 2.1 / Backward-Compatibility Bridges --- */
+  --color-canvas: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-surface-raised: var(--surface-2);
+  --color-surface-overlay: var(--surface-3);
+  --color-surface-modal: var(--surface-2);
+  --color-ink: var(--foreground);
+  --color-ink-secondary: var(--foreground-secondary);
+  --color-ink-muted: var(--foreground-muted);
+  --color-ink-inverse: var(--mint-foreground);
+  --color-brand: var(--mint);
+  --color-brand-foreground: var(--mint-foreground);
+  --color-brand-subtle: var(--mint-subtle);
+  --color-brand-hover: var(--mint-hover);
+  --color-ai: var(--violet);
+  --color-ai-subtle: var(--violet-subtle);
+  --color-positive: var(--mint);
+  --color-positive-subtle: var(--mint-subtle);
+  --color-attention: var(--yellow);
+  --color-attention-subtle: var(--yellow-subtle);
+  --color-critical: var(--red);
+  --color-critical-subtle: var(--red-subtle);
+  --color-info: var(--cyan);
+  --color-info-subtle: var(--cyan-subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-focus: var(--mint);
+
+  --surface-canvas: var(--background);
+  --surface-content: var(--surface);
+  --surface-raised: var(--surface-2);
+  --surface-overlay: var(--surface-3);
+  --surface-modal: var(--surface-2);
+  --surface-sunken: var(--surface-subtle);
+  --text-primary: var(--foreground);
+  --text-secondary: var(--foreground-secondary);
+  --text-muted: var(--foreground-muted);
+  --border-focus: var(--mint);
+  --accent-primary: var(--mint);
+  --accent-primary-subtle: var(--mint-subtle);
+  --accent-indigo: var(--violet);
+  --accent-indigo-subtle: var(--violet-subtle);
+  --accent-success: var(--mint);
+  --accent-success-subtle: var(--mint-subtle);
+  --accent-warning: var(--yellow);
+  --accent-warning-subtle: var(--yellow-subtle);
+  --accent-danger: var(--red);
+  --accent-danger-subtle: var(--red-subtle);
+
+  /* --- 11. Strict 0px Architectural Radius System --- */
+  --radius-none: 0px;
+  --radius-2xs: 0px;
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-full: 0px;
+
+  /* --- 12. Technical Spacing Scale (Base: 4px) --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* --- 13. Engineered Shadow System --- */
+  --shadow-hairline: 0 1px 2px rgb(0 0 0 / 0.18);
+  --shadow-elevated: 0 8px 30px rgb(0 0 0 / 0.20);
+  --shadow-floating: 0 20px 60px rgb(0 0 0 / 0.25);
+}
+
+/* Dark Mode Overrides (Dark-as-Default baseline) */
+.dark, [data-theme="dark"] {
+  --background: oklch(0.135 0.018 255);
+  --surface: oklch(0.165 0.020 255);
+  --surface-2: oklch(0.195 0.022 255);
+  --surface-3: oklch(0.225 0.024 255);
+  --surface-subtle: oklch(0.115 0.015 255);
+  --border: oklch(0.285 0.022 255);
+  --border-subtle: oklch(0.225 0.018 255);
+  --border-strong: oklch(0.360 0.024 255);
+  --foreground: oklch(0.955 0.012 255);
+  --foreground-secondary: oklch(0.760 0.018 255);
+  --foreground-muted: oklch(0.570 0.020 255);
+}
+
+/* Light Mode: Separate Neutral Precision Theme */
+.light, [data-theme="light"] {
+  --background: oklch(0.978 0.006 240);
+  --surface: oklch(0.965 0.008 240);
+  --surface-2: oklch(1.000 0.000 0);
+  --surface-3: oklch(0.985 0.004 240);
+  --surface-subtle: oklch(0.945 0.010 240);
+  --border: oklch(0.895 0.008 240);
+  --border-subtle: oklch(0.925 0.006 240);
+  --border-strong: oklch(0.800 0.015 240);
+  --foreground: oklch(0.200 0.020 255);
+  --foreground-secondary: oklch(0.440 0.022 255);
+  --foreground-muted: oklch(0.580 0.018 255);
+
+  --mint: oklch(0.520 0.170 165);
+  --mint-foreground: oklch(0.990 0.002 240);
+  --mint-subtle: oklch(0.950 0.030 165);
+  --mint-hover: oklch(0.470 0.165 165);
+
+  --violet: oklch(0.540 0.160 285);
+  --violet-foreground: oklch(0.990 0.002 240);
+  --violet-subtle: oklch(0.950 0.030 285);
+
+  --cyan: oklch(0.540 0.140 205);
+  --cyan-foreground: oklch(0.990 0.002 240);
+  --yellow: oklch(0.680 0.150 75);
+  --yellow-foreground: oklch(0.990 0.002 240);
+  --red: oklch(0.560 0.180 25);
+  --red-foreground: oklch(0.990 0.002 240);
+  --orange: oklch(0.620 0.160 55);
+  --orange-foreground: oklch(0.990 0.002 240);
+
+  --card: var(--surface-2);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface-3);
+  --popover-foreground: var(--foreground);
+  --primary: var(--mint);
+  --primary-foreground: var(--mint-foreground);
+  --secondary: var(--surface);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--surface-subtle);
+  --muted-foreground: var(--foreground-secondary);
+  --accent: var(--surface);
+  --accent-foreground: var(--foreground);
+  --destructive: var(--red);
+  --destructive-foreground: var(--red-foreground);
+  --input: var(--border);
+  --ring: var(--mint);
+}

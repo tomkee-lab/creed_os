@@ -1,46 +1,55 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { page } from '$app/state';
-  import { ArrowRight, Lock, KeyRound, Building2 } from 'lucide-svelte';
-  import { authClient } from '$lib/auth-client';
+  import { Sun, Moon } from 'lucide-svelte';
+  import CreedLogo from '$lib/components/brand/CreedLogo.svelte';
+  import LoginForm from '$lib/components/login-form.svelte';
+  import { onMount } from 'svelte';
+  import { gsap } from 'gsap';
+  import { isReducedMotion } from '$lib/motion/scroll.js';
 
-  let identifier = $state('');
-  let password = $state('');
-  let schoolCode = $state('');
-  let showSchoolLogin = $state(false);
-  let loading = $state(false);
-  let errorMsg = $state('');
+  let isDarkMode = $state(true);
 
-  const nextUrl = $derived(page.url.searchParams.get('next') || '/student');
+  onMount(() => {
+    isDarkMode = document.documentElement.classList.contains('dark');
 
-  async function handleLogin(e: SubmitEvent) {
-    e.preventDefault();
-    loading = true;
-    errorMsg = '';
+    if (!isReducedMotion()) {
+      const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
 
-    try {
-      try {
-        const res = await authClient.signIn.email({
-          email: identifier,
-          password
-        });
-        if (res?.error) {
-          throw new Error(res.error.message || 'Authentication failed. Please verify credentials.');
-        }
-      } catch (authErr: any) {
-        const msg = (authErr?.message || '').toLowerCase();
-        // If explicit bad credentials error, propagate
-        if (msg.includes('credentials') || msg.includes('password') || msg.includes('invalid') || msg.includes('not found')) {
-          throw authErr;
-        }
-        // In local dual-mode development when standalone auth backend is offline, permit dev progression
-        await new Promise((r) => setTimeout(r, 300));
-      }
-      goto(nextUrl);
-    } catch (err: any) {
-      errorMsg = err.message || 'Authentication failed. Please verify credentials.';
-    } finally {
-      loading = false;
+      tl.fromTo(
+        '.login-header-reveal',
+        { opacity: 0, y: -8 },
+        { opacity: 1, y: 0, duration: 0.35 }
+      )
+        .fromTo(
+          '.login-portal-card',
+          { opacity: 0, y: 14, scale: 0.99 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.45 },
+          '-=0.15'
+        )
+        .fromTo(
+          '.login-image-layer',
+          { opacity: 0, scale: 1.03 },
+          { opacity: 1, scale: 1, duration: 0.6 },
+          '-=0.3'
+        )
+        .fromTo(
+          '.login-footer-reveal',
+          { opacity: 0 },
+          { opacity: 1, duration: 0.3 },
+          '-=0.2'
+        );
+    }
+  });
+
+  function toggleTheme() {
+    isDarkMode = !isDarkMode;
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+      localStorage.setItem('way_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+      localStorage.setItem('way_theme', 'light');
     }
   }
 </script>
@@ -49,136 +58,68 @@
   <title>Sign in — CREED OS</title>
 </svelte:head>
 
-<div class="rounded-sm bg-surface-raised border border-border p-6 sm:p-8 shadow-sm">
-  <div class="space-y-1.5 mb-6 text-center">
-    <h1 class="text-xl font-heading font-semibold text-ink tracking-tight">
-      Welcome back.
-    </h1>
-    <p class="text-xs text-ink-secondary">
-      Understand how a learner grows.
-    </p>
-  </div>
-
-  {#if errorMsg}
-    <div class="mb-4 p-2.5 rounded-sm bg-critical-subtle border border-critical/20 text-xs text-critical">
-      {errorMsg}
-    </div>
-  {/if}
-
-  {#if !showSchoolLogin}
-    <form onsubmit={handleLogin} class="space-y-4">
-      <div class="space-y-1">
-        <label for="identifier" class="block text-xs font-medium text-ink">
-          Email or Learner ID
-        </label>
-        <input
-          id="identifier"
-          bind:value={identifier}
-          type="text"
-          placeholder="learner@school.edu or anaya@family.org"
-          required
-          class="w-full h-8 px-2.5 rounded-sm bg-surface border border-border text-xs text-ink placeholder:text-ink-muted focus:border-focus outline-none transition-colors"
-        />
-      </div>
-
-      <div class="space-y-1">
-        <div class="flex items-center justify-between">
-          <label for="password" class="block text-xs font-medium text-ink">
-            Password
-          </label>
-          <a href="/reset-password" class="text-[11px] text-brand hover:underline">
-            Forgot password?
-          </a>
+<div class="min-h-screen flex flex-col justify-between p-3 sm:p-4 lg:p-5 bg-canvas text-ink overflow-x-hidden">
+  <!-- Top Minimal Header (Clean, Symmetrical, Aligned to Portal Width) -->
+  <header class="login-header-reveal flex items-center justify-between max-w-4xl mx-auto w-full py-1">
+    <div class="flex items-center gap-2.5">
+      <a href="/" class="flex items-center gap-2 font-medium group">
+        <div class="flex size-7 items-center justify-center rounded-none bg-brand/10 text-brand border border-brand/20 shadow-xs group-hover:bg-brand group-hover:text-brand-foreground transition-all duration-200">
+          <CreedLogo size={16} />
         </div>
-        <input
-          id="password"
-          bind:value={password}
-          type="password"
-          placeholder="••••••••••••"
-          required
-          class="w-full h-8 px-2.5 rounded-sm bg-surface border border-border text-xs text-ink placeholder:text-ink-muted focus:border-focus outline-none transition-colors"
-        />
-      </div>
-
-      <button
-        type="submit"
-        disabled={loading}
-        class="w-full h-8 rounded-sm bg-brand text-white text-xs font-medium hover:bg-brand/90 shadow-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
-      >
-        <span>{loading ? 'Authenticating...' : 'Sign in'}</span>
-        <ArrowRight class="w-3.5 h-3.5" />
-      </button>
-    </form>
-
-    <div class="relative my-6">
-      <div class="absolute inset-0 flex items-center">
-        <div class="w-full border-t border-border"></div>
-      </div>
-      <div class="relative flex justify-center text-[10px] uppercase font-mono tracking-wider">
-        <span class="bg-surface-raised px-2 text-ink-muted">Or join via school</span>
-      </div>
+        <span class="font-heading font-semibold text-xs tracking-tight text-ink group-hover:text-brand transition-colors duration-200">
+          CREED OS
+        </span>
+      </a>
+      <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-none bg-surface-raised border border-border text-[10px] font-mono text-ink-muted">
+        <span class="w-1 h-1 bg-mint rounded-none"></span>
+        OBSERVATORY v2.1
+      </span>
     </div>
 
     <button
-      onclick={() => (showSchoolLogin = true)}
-      class="w-full h-8 rounded-sm bg-surface border border-border hover:border-border-strong text-xs font-medium text-ink flex items-center justify-center gap-2 transition-colors cursor-pointer"
+      onclick={toggleTheme}
+      class="p-1.5 rounded-none text-ink-muted hover:text-ink hover:bg-surface-subtle transition-all duration-140 cursor-pointer active:scale-95"
+      aria-label="Toggle theme"
     >
-      <Building2 class="w-3.5 h-3.5 text-ink-muted" />
-      <span>Enter with School Code</span>
+      {#if isDarkMode}
+        <Sun class="w-4 h-4 text-attention transition-transform hover:rotate-12 duration-200" />
+      {:else}
+        <Moon class="w-4 h-4 transition-transform hover:-rotate-12 duration-200" />
+      {/if}
     </button>
-  {:else}
-    <form onsubmit={handleLogin} class="space-y-4">
-      <div class="space-y-1">
-        <label for="schoolCode" class="block text-xs font-medium text-ink">
-          School / Learning Space Code
-        </label>
-        <input
-          id="schoolCode"
-          bind:value={schoolCode}
-          type="text"
-          placeholder="e.g. DPIS-8A-2026"
-          required
-          class="w-full h-8 px-2.5 rounded-sm bg-surface border border-border text-xs text-ink placeholder:text-ink-muted focus:border-focus outline-none transition-colors font-mono uppercase"
+  </header>
+
+  <!-- Centered Dual-Pane Architectural Portal (Compact, Symmetrical 50/50 Split) -->
+  <main class="w-full max-w-4xl mx-auto my-auto py-2">
+    <div class="login-portal-card rounded-none bg-surface-raised border border-border shadow-lg overflow-hidden grid md:grid-cols-2 relative transition-all duration-200 hover:border-border-strong">
+      <!-- Left Image Column: Edge-to-Edge of its borders, compact & perfectly proportioned -->
+      <div class="relative w-full h-full min-h-95 md:min-h-115 bg-surface-subtle overflow-hidden select-none border-b md:border-b-0 md:border-r border-border">
+        <img
+          src="/images/illustrations/login_observatory.jpg"
+          alt="CREED OS Learner Intelligence Observatory"
+          class="login-image-layer absolute inset-0 h-full w-full object-cover object-center dark:brightness-[0.94] dark:contrast-[1.02] transition-transform duration-700 ease-out hover:scale-[1.015]"
+          loading="eager"
         />
+        <!-- Subtle corner plate tag -->
+        <div class="absolute top-2.5 left-2.5 z-10">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-none bg-canvas/85 backdrop-blur-xs border border-border/80 text-[10px] font-mono uppercase tracking-wider text-ink font-semibold">
+            <span class="w-1.5 h-1.5 bg-mint rounded-none"></span>
+            EVD-3904 · OBSERVATORY
+          </span>
+        </div>
       </div>
 
-      <div class="space-y-1">
-        <label for="learnerId" class="block text-xs font-medium text-ink">
-          Learner ID or Student Email
-        </label>
-        <input
-          id="learnerId"
-          bind:value={identifier}
-          type="text"
-          placeholder="anaya.v"
-          required
-          class="w-full h-8 px-2.5 rounded-sm bg-surface border border-border text-xs text-ink placeholder:text-ink-muted focus:border-focus outline-none transition-colors"
-        />
+      <!-- Right Form Column: Clean, compact, perfectly matching height -->
+      <div class="flex flex-col justify-center p-6 sm:p-7 bg-surface-raised relative">
+        <!-- Subtle top brand accent hairline -->
+        <div class="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-brand/40 to-transparent"></div>
+        <LoginForm />
       </div>
+    </div>
+  </main>
 
-      <button
-        type="submit"
-        disabled={loading}
-        class="w-full h-8 rounded-sm bg-brand text-white text-xs font-medium hover:bg-brand/90 shadow-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-      >
-        <span>Continue to Classroom</span>
-        <ArrowRight class="w-3.5 h-3.5" />
-      </button>
-
-      <button
-        type="button"
-        onclick={() => (showSchoolLogin = false)}
-        class="w-full text-center text-xs text-ink-muted hover:text-ink transition-colors cursor-pointer pt-2"
-      >
-        ← Back to standard login
-      </button>
-    </form>
-  {/if}
-
-  <div class="mt-6 pt-4 border-t border-border text-center text-xs text-ink-muted">
-    New to CREED?
-    <a href="/signup" class="text-brand font-medium hover:underline ml-1">
-      Create account
-    </a>
-  </div>
+  <!-- Legal & Privacy Sovereignty Sub-Footer (Symmetrically Aligned to Portal Width) -->
+  <footer class="login-footer-reveal max-w-4xl mx-auto w-full text-center text-[11px] font-sans text-ink-muted py-1 transition-colors">
+    DPDP Act 2023 Compliant · Verified Parental Consent Required for Minors under 18
+  </footer>
 </div>

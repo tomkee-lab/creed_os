@@ -43,7 +43,7 @@
     <!-- Header -->
     <div class="h-14 px-4 border-b border-border flex items-center justify-between shrink-0 bg-surface">
       <div class="flex items-center gap-2 min-w-0">
-        <span class="text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded-sm bg-surface-subtle border border-border text-ink-muted">
+        <span class="text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded-none bg-surface-subtle border border-border text-ink-muted">
           {category}
         </span>
         <h2 class="text-xs font-semibold text-ink truncate">
@@ -53,7 +53,7 @@
 
       <button
         onclick={close}
-        class="p-1 rounded-sm text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
+        class="p-1 rounded-none text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
         aria-label="Close inspector"
       >
         <X class="w-4 h-4" />
@@ -87,7 +87,7 @@
       <div class="flex items-center gap-2">
         <button
           onclick={close}
-          class="px-2.5 py-1 text-xs rounded-sm border border-border text-ink-secondary hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
+          class="px-2.5 py-1 text-xs rounded-none border border-border text-ink-secondary hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
         >
           Close
         </button>

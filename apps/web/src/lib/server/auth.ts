@@ -35,8 +35,18 @@ const rawApiKey = (env.BETTER_AUTH_API_KEY || process.env.BETTER_AUTH_API_KEY ||
 // Strip accidental prefix duplication (e.g. 'BETTER_AUTH_API_KEY=ba_...')
 const betterAuthApiKey = rawApiKey.replace(/^BETTER_AUTH_API_KEY=+/i, '').trim();
 
+if (betterAuthApiKey) {
+  process.env.BETTER_AUTH_API_KEY = betterAuthApiKey;
+}
+if (!process.env.BETTER_AUTH_SECRET && secret) {
+  process.env.BETTER_AUTH_SECRET = secret;
+}
+
 if (!betterAuthApiKey) {
   console.warn('[auth] BETTER_AUTH_API_KEY is not set — Better Auth dashboard monitoring will be disabled.');
+} else {
+  console.info('[auth] Active Better Auth API key ends with:', betterAuthApiKey.slice(-6));
+  console.info('[auth] Configured Base URL:', env.BETTER_AUTH_URL || process.env.BETTER_AUTH_URL || 'default localhost');
 }
 
 /**
@@ -55,9 +65,13 @@ const ROLE_SIGNUP_MAP: Record<string, string> = {
   school:    'institution_pending'
 };
 
+const rawBaseUrl = (env.BETTER_AUTH_URL || process.env.BETTER_AUTH_URL || 'http://localhost:5173').trim();
+const cleanBaseUrl = rawBaseUrl.replace(/\/api\/auth\/?$/i, '').replace(/\/+$/, '') || 'http://localhost:5173';
+process.env.BETTER_AUTH_URL = cleanBaseUrl;
+
 export const auth = betterAuth({
   appName: 'CREED OS',
-  baseURL: env.BETTER_AUTH_URL || process.env.BETTER_AUTH_URL || 'http://localhost:5173',
+  baseURL: cleanBaseUrl,
   secret: secret || 'creed-os-local-dev-secret-32-chars-entropy-key',
   user: {
     additionalFields: {
@@ -109,8 +123,12 @@ export const auth = betterAuth({
     'https://dash.better-auth.com',
     'http://localhost:5173',
     'http://localhost:4173',
+    'https://fibre-paid-manga-pills.trycloudflare.com',
+    'https://decorating-forests-accommodation-seeker.trycloudflare.com',
     'https://locally-departmental-marathon-gbp.trycloudflare.com',
-    'https://real-taxes-try.loca.lt'
+    'https://real-taxes-try.loca.lt',
+    ...(env.BETTER_AUTH_URL ? [env.BETTER_AUTH_URL] : []),
+    ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL] : [])
   ],
   plugins: [
     organization(),

@@ -1,7 +1,15 @@
+import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { coreRepository } from '$lib/server/repository';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ locals }) => {
+  const user = locals.user;
+  const role = (user as any)?.role || (user as any)?.metadata?.role;
+
+  if (!user || !['studio', 'admin', 'teacher'].includes(role)) {
+    throw error(403, 'Forbidden: Item calibration credentials required');
+  }
+
   const itemBank = coreRepository.getItemBank();
 
   // Compute item bank psychometric metrics

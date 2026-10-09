@@ -39,26 +39,26 @@
   const isConverged = $derived(standardError <= targetSe || itemsAnswered >= maxItems);
 </script>
 
-<div class="rounded-none border border-white/10 bg-white/5 p-4 space-y-3">
+<div class="rounded-none border border-border bg-surface-raised p-4 space-y-3">
   <div class="flex items-center justify-between">
     <div class="flex items-center gap-2">
-      <div class="p-1.5 rounded-none bg-cyan-500/10 text-cyan-400">
+      <div class="p-1.5 rounded-none bg-brand-subtle text-brand">
         <Activity class="w-4 h-4" />
       </div>
       <div>
-        <h4 class="text-xs font-semibold text-white uppercase tracking-wider">
+        <h4 class="text-xs font-semibold text-ink uppercase tracking-wider">
           CAT Calibration Engine
         </h4>
-        <p class="text-[11px] text-slate-400">
+        <p class="text-[11px] text-ink-muted">
           Real-time 3PL EAP Ability Estimate
         </p>
       </div>
     </div>
     <div class="text-right">
-      <span class="text-xs font-mono font-medium text-cyan-300">
+      <span class="text-xs font-mono font-medium text-brand">
         θ = {theta >= 0 ? '+' : ''}{theta.toFixed(2)}
       </span>
-      <span class="text-[10px] text-slate-400 font-mono block">
+      <span class="text-[10px] text-ink-muted font-mono block">
         ±{standardError.toFixed(2)} SEM
       </span>
     </div>
@@ -66,53 +66,53 @@
 
   <!-- Ability scale visualizer with confidence band -->
   <div class="space-y-1">
-    <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+    <div class="flex justify-between text-[10px] text-ink-muted font-mono">
       <span>Foundational (-3.0)</span>
       <span>Grade Baseline (0.0)</span>
       <span>Advanced (+3.0)</span>
     </div>
-    <div class="relative h-3 bg-black/40 rounded-none overflow-hidden border border-white/10">
+    <div class="relative h-3 bg-surface-subtle rounded-none overflow-hidden border border-border">
       <!-- 95% Confidence Interval band -->
       <div
-        class="absolute top-0 bottom-0 bg-cyan-500/30 rounded-none transition-all duration-300"
+        class="absolute top-0 bottom-0 bg-brand/20 rounded-none transition-all duration-300"
         style="left: {marginLower}%; width: {Math.max(4, marginUpper - marginLower)}%;"
       ></div>
       <!-- Center Theta point -->
       <div
-        class="absolute top-0 bottom-0 w-1.5 bg-cyan-400 rounded-none shadow-[0_0_8px_rgba(34,211,238,0.8)] transition-all duration-300 -translate-x-1/2"
+        class="absolute top-0 bottom-0 w-1.5 bg-brand rounded-none transition-all duration-300 -translate-x-1/2"
         style="left: {normalizedTheta}%;"
       ></div>
     </div>
   </div>
 
   {#if showDetails}
-    <div class="pt-2 border-t border-white/5 grid grid-cols-2 gap-3 text-xs">
+    <div class="pt-2 border-t border-border grid grid-cols-2 gap-3 text-xs">
       <div>
-        <span class="text-slate-400 text-[11px]">Items Administered</span>
+        <span class="text-ink-muted text-[11px]">Items Administered</span>
         <div class="flex items-center gap-2 mt-0.5">
-          <div class="flex-1 h-1.5 bg-black/40 rounded-none overflow-hidden">
+          <div class="flex-1 h-1.5 bg-surface-subtle rounded-none overflow-hidden">
             <div
-              class="h-full bg-cyan-400 transition-all duration-300"
+              class="h-full bg-brand transition-all duration-300"
               style="width: {(itemsAnswered / maxItems) * 100}%;"
             ></div>
           </div>
-          <span class="font-mono text-slate-300 text-[11px]">{itemsAnswered}/{maxItems}</span>
+          <span class="font-mono text-ink-secondary text-[11px]">{itemsAnswered}/{maxItems}</span>
         </div>
       </div>
       <div>
-        <span class="text-slate-400 text-[11px]">Convergence Stability</span>
+        <span class="text-ink-muted text-[11px]">Convergence Stability</span>
         <div class="flex items-center gap-1.5 mt-0.5">
           {#if isConverged}
-            <CheckCircle2 class="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span class="text-emerald-300 text-[11px] font-medium">Standard Error Met</span>
+            <CheckCircle2 class="w-3.5 h-3.5 text-positive shrink-0" />
+            <span class="text-positive text-[11px] font-medium">Standard Error Met</span>
           {:else}
-            <div class="flex-1 h-1.5 bg-black/40 rounded-none overflow-hidden">
+            <div class="flex-1 h-1.5 bg-surface-subtle rounded-none overflow-hidden">
               <div
-                class="h-full bg-amber-400 transition-all duration-300"
+                class="h-full bg-attention transition-all duration-300"
                 style="width: {convergenceRatio * 100}%;"
               ></div>
             </div>
-            <span class="text-amber-300 text-[11px] font-mono">
+            <span class="text-attention text-[11px] font-mono">
               {Math.round(convergenceRatio * 100)}%
             </span>
           {/if}

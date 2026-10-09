@@ -19,7 +19,7 @@
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
     <!-- Family Plan -->
-    <div class="p-8 rounded-sm bg-surface border border-border flex flex-col justify-between space-y-6">
+    <div class="p-8 rounded-none bg-surface border border-border flex flex-col justify-between space-y-6">
       <div class="space-y-4">
         <div class="space-y-1">
           <span class="text-xs font-semibold uppercase tracking-wider text-brand">Family Tier</span>
@@ -49,14 +49,14 @@
 
       <a
         href="/signup"
-        class="w-full text-center py-2.5 px-4 rounded-sm bg-surface-subtle hover:bg-surface-raised border border-border text-xs font-medium text-ink transition-colors cursor-pointer"
+        class="w-full text-center py-2.5 px-4 rounded-none bg-surface-subtle hover:bg-surface-raised border border-border text-xs font-medium text-ink transition-colors cursor-pointer"
       >
         Get Started
       </a>
     </div>
 
     <!-- School / Institutional Plan -->
-    <div class="p-8 rounded-sm bg-surface border border-border flex flex-col justify-between space-y-6 relative">
+    <div class="p-8 rounded-none bg-surface border border-border flex flex-col justify-between space-y-6 relative">
       <div class="space-y-4">
         <div class="space-y-1">
           <span class="text-xs font-semibold uppercase tracking-wider text-brand">Institutions</span>
@@ -86,7 +86,7 @@
 
       <a
         href="/schools"
-        class="w-full text-center py-2.5 px-4 rounded-sm bg-brand hover:bg-brand/90 text-white text-xs font-medium transition-colors shadow-xs cursor-pointer"
+        class="w-full text-center py-2.5 px-4 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground text-xs font-medium transition-colors shadow-xs cursor-pointer"
       >
         Inquire for Your School
       </a>
