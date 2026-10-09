@@ -134,8 +134,21 @@ export const auth = betterAuth({
     organization(),
     passkey(),
     emailOTP({
+      overrideDefaultEmailVerification: true,
+      sendVerificationOnSignUp: true,
       async sendVerificationOTP({ email, otp, type }) {
-        console.log(`[BetterAuth:emailOTP] Dispatched verification OTP for ${email} (type: ${type}): ${otp}`);
+        const maskedEmail = email.replace(/(?<=^.).(?=.*@)/g, '*');
+        if (import.meta.env.DEV || process.env.NODE_ENV !== 'production') {
+          console.log(`[BetterAuth:emailOTP:DEV] Verification OTP for ${email} (${type}): ${otp}`);
+        } else {
+          console.log(`[BetterAuth:emailOTP] Dispatched verification OTP for ${maskedEmail} (type: ${type})`);
+        }
+
+        const resendKey = process.env.RESEND_API_KEY;
+        const smtpHost = process.env.SMTP_HOST;
+        if (!import.meta.env.DEV && !resendKey && !smtpHost) {
+          console.warn('[BetterAuth:emailOTP] Transactional email provider unconfigured outside DEV.');
+        }
       }
     }),
     dash({

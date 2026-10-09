@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
-  import { ArrowRight, KeyRound, AlertCircle, CheckCircle2, Mail } from 'lucide-svelte';
+  import { ArrowRight, KeyRound, AlertCircle, CheckCircle2, RefreshCw } from 'lucide-svelte';
   import { PinInput, PinInputCell } from '$lib/components/ui/pin-input';
   import { Icon } from '$lib/components/icons';
   import { authClient } from '$lib/auth-client';
@@ -9,8 +9,10 @@
   let email = $state('');
   let code = $state('');
   let loading = $state(false);
+  let resending = $state(false);
   let verified = $state(false);
   let errorMessage = $state('');
+  let infoMessage = $state('');
 
   $effect(() => {
     const paramEmail = page.url.searchParams.get('email');
@@ -18,6 +20,34 @@
       email = paramEmail.trim();
     }
   });
+
+  async function handleSendOtp() {
+    if (!email.trim() || !email.includes('@')) {
+      errorMessage = 'Please enter a valid email address first.';
+      return;
+    }
+
+    resending = true;
+    errorMessage = '';
+    infoMessage = '';
+
+    try {
+      const res = await authClient.emailOtp.sendVerificationOtp({
+        email: email.trim(),
+        type: 'email-verification'
+      });
+
+      if (res.error) {
+        errorMessage = res.error.message || 'Failed to dispatch verification code. Please try again.';
+      } else {
+        infoMessage = `Verification code sent to ${email.trim()}. Please check your inbox.`;
+      }
+    } catch (err: any) {
+      errorMessage = err?.message || 'Network error while dispatching code. Please try again.';
+    } finally {
+      resending = false;
+    }
+  }
 
   async function handleVerifyCode() {
     if (!email.trim() || !email.includes('@')) {
@@ -32,6 +62,7 @@
 
     loading = true;
     errorMessage = '';
+    infoMessage = '';
 
     try {
       const res = await authClient.emailOtp.verifyEmail({
@@ -82,6 +113,13 @@
     </div>
   {/if}
 
+  {#if infoMessage}
+    <div class="p-3 bg-brand-subtle border border-brand/20 rounded-none text-xs text-brand flex items-center gap-2">
+      <CheckCircle2 class="w-4 h-4 shrink-0" />
+      <span>{infoMessage}</span>
+    </div>
+  {/if}
+
   {#if verified}
     <div class="p-4 bg-positive-subtle border border-positive/20 rounded-none text-center space-y-2">
       <div class="w-8 h-8 rounded-none bg-positive text-positive-foreground mx-auto flex items-center justify-center">
@@ -92,9 +130,24 @@
   {:else}
     <!-- Email Binding Input -->
     <div class="space-y-1.5">
-      <label for="verify-email" class="block text-xs font-medium text-ink">
-        Account Email Address
-      </label>
+      <div class="flex items-center justify-between">
+        <label for="verify-email" class="block text-xs font-medium text-ink">
+          Account Email Address
+        </label>
+        <button
+          type="button"
+          onclick={handleSendOtp}
+          disabled={resending || loading || !email.trim()}
+          class="text-[11px] text-brand hover:underline font-medium inline-flex items-center gap-1 cursor-pointer disabled:opacity-40"
+        >
+          {#if resending}
+            <RefreshCw class="w-3 h-3 animate-spin" />
+            <span>Sending...</span>
+          {:else}
+            <span>Send / Resend Code</span>
+          {/if}
+        </button>
+      </div>
       <input
         id="verify-email"
         type="email"

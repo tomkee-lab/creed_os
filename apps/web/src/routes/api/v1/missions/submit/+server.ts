@@ -5,7 +5,7 @@ import { resolveLearnerId } from '$lib/server/learnerScope';
 import type { LearnerEvidence } from '@core-os/domain';
 
 const ALLOWED_TRUSS_TYPES = new Set(['warren', 'pratt', 'howe', 'k-truss', 'isometric', 'custom']);
-const ALLOWED_MATERIALS = new Set(['carbon_fiber', 'steel', 'titanium', 'aluminum', 'wood', 'composite']);
+const ALLOWED_MATERIALS = new Set(['carbon', 'carbon_fiber', 'steel', 'titanium', 'aluminum', 'wood', 'composite']);
 
 export const POST: RequestHandler = async ({ request, locals }) => {
   // 1. Enforce active authentication
@@ -47,7 +47,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     }
 
     const sanitizedTruss = String(trussType || '').toLowerCase().trim();
-    const sanitizedMaterial = String(material || '').toLowerCase().trim();
+    const rawMaterial = String(material || '').toLowerCase().trim();
+    const sanitizedMaterial = rawMaterial === 'carbon' ? 'carbon_fiber' : rawMaterial;
 
     if (!ALLOWED_TRUSS_TYPES.has(sanitizedTruss)) {
       return json(

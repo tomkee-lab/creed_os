@@ -155,7 +155,7 @@
           missionId: mission.id,
           missionTitle: mission.title,
           trussType,
-          material,
+          material: material === 'carbon' ? 'carbon_fiber' : material,
           massKg,
           maxLoadKg: maxSupportedLoadKg,
           ratio: strengthToWeightRatio,
