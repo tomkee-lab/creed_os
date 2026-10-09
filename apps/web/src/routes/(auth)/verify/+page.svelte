@@ -1,15 +1,30 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { ArrowRight, KeyRound, AlertCircle, CheckCircle2 } from 'lucide-svelte';
+  import { page } from '$app/state';
+  import { ArrowRight, KeyRound, AlertCircle, CheckCircle2, Mail } from 'lucide-svelte';
   import { PinInput, PinInputCell } from '$lib/components/ui/pin-input';
   import { Icon } from '$lib/components/icons';
+  import { authClient } from '$lib/auth-client';
 
+  let email = $state('');
   let code = $state('');
   let loading = $state(false);
   let verified = $state(false);
   let errorMessage = $state('');
 
+  $effect(() => {
+    const paramEmail = page.url.searchParams.get('email');
+    if (paramEmail && !email) {
+      email = paramEmail.trim();
+    }
+  });
+
   async function handleVerifyCode() {
+    if (!email.trim() || !email.includes('@')) {
+      errorMessage = 'Please provide the valid email address associated with your account.';
+      return;
+    }
+
     if (code.length < 6) {
       errorMessage = 'Please enter all 6 digits of your verification code.';
       return;
@@ -19,38 +34,21 @@
     errorMessage = '';
 
     try {
-      const res = await fetch('/api/auth/email-otp/verify-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ otp: code })
+      const res = await authClient.emailOtp.verifyEmail({
+        email: email.trim(),
+        otp: code.trim()
       });
 
-      if (res.ok) {
+      if (res.error) {
+        errorMessage = res.error.message || 'Verification failed. Please check your 6-digit code.';
+      } else {
         verified = true;
         setTimeout(() => {
           goto('/login');
         }, 900);
-      } else {
-        const data = await res.json().catch(() => ({}));
-        // If endpoint isn't mounted in offline dev mode, provide clear feedback
-        if (res.status === 404 && import.meta.env.DEV) {
-          verified = true;
-          setTimeout(() => {
-            goto('/login');
-          }, 900);
-        } else {
-          errorMessage = data.message || 'Verification failed. Please verify your 6-digit code.';
-        }
       }
     } catch (err: any) {
-      if (import.meta.env.DEV) {
-        verified = true;
-        setTimeout(() => {
-          goto('/login');
-        }, 900);
-      } else {
-        errorMessage = 'Network connection error during verification. Please try again.';
-      }
+      errorMessage = err?.message || 'Network connection error during verification. Please try again.';
     } finally {
       loading = false;
     }
@@ -72,7 +70,7 @@
         Confirm Your Account
       </h1>
       <p class="text-xs text-ink-muted">
-        We sent an authorization link and 6-digit confirmation code to your registered contact.
+        Enter the 6-digit confirmation code dispatched to your registered email contact.
       </p>
     </div>
   </div>
@@ -92,6 +90,22 @@
       <p class="text-xs font-medium text-positive">Credentials verified successfully. Redirecting to sign in...</p>
     </div>
   {:else}
+    <!-- Email Binding Input -->
+    <div class="space-y-1.5">
+      <label for="verify-email" class="block text-xs font-medium text-ink">
+        Account Email Address
+      </label>
+      <input
+        id="verify-email"
+        type="email"
+        bind:value={email}
+        placeholder="learner@institution.edu"
+        disabled={loading || verified}
+        required
+        class="w-full h-9 px-3 py-1.5 text-xs bg-surface border border-border rounded-none text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand disabled:opacity-50"
+      />
+    </div>
+
     <!-- 6-Digit Pin Input -->
     <div class="space-y-3">
       <label for="verify-code" class="block text-xs font-medium text-ink">
@@ -129,7 +143,7 @@
       <button
         type="button"
         onclick={handleVerifyCode}
-        disabled={loading || code.length < 6}
+        disabled={loading || code.length < 6 || !email.trim()}
         class="w-full h-8 rounded-none bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 active:scale-95 focus-visible:outline-2 focus-visible:outline-focus shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
       >
         {#if loading}

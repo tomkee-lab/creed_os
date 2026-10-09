@@ -131,18 +131,28 @@
   }
 
   function handleExportQti() {
+    const exportOptions = options.length > 0
+      ? options.map((opt, idx) => ({
+          id: opt.id || `opt-${idx + 1}`,
+          text: opt.text || `Option ${idx + 1}`
+        }))
+      : [
+          { id: 'opt-a', text: 'Option A: Diagnostic baseline' },
+          { id: 'opt-b', text: 'Option B: Correct reasoning step' },
+          { id: 'opt-c', text: 'Option C: Common misconception' },
+          { id: 'opt-d', text: 'Option D: Distractor' }
+        ];
+
+    const targetOption = exportOptions[$form.correctOptionIndex] || exportOptions[0];
+    const correctOptionId = targetOption ? targetOption.id : 'opt-b';
+
     const xml = exportItemToQti3Xml({
       id: $form.id,
       code: $form.id,
       prompt: $form.prompt,
       competency: $form.competency,
-      options: [
-        { id: 'opt-a', text: 'Option A: Diagnostic baseline' },
-        { id: 'opt-b', text: 'Option B: Correct reasoning step' },
-        { id: 'opt-c', text: 'Option C: Common misconception' },
-        { id: 'opt-d', text: 'Option D: Distractor' }
-      ],
-      correctOptionId: `opt-${['a', 'b', 'c', 'd'][$form.correctOptionIndex] || 'b'}`,
+      options: exportOptions,
+      correctOptionId,
       irt: { a: $form.a, b: $form.b, c: $form.c }
     });
 

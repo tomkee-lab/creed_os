@@ -457,6 +457,12 @@ class LocalCoreRepository {
   }
 
   // --- Profile Operations ---
+  hasLearner(id: string): boolean {
+    if (!id || typeof id !== 'string') return false;
+    const cleanId = id.trim();
+    return this.learnerProfiles.has(cleanId) || this.classCohort.students.some(s => s.id === cleanId);
+  }
+
   getLearnerProfile(id: string, authUser?: any): LearnerProfile {
     const existing = this.learnerProfiles.get(id);
     if (existing) {

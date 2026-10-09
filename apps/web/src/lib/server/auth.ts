@@ -1,5 +1,5 @@
 import { betterAuth } from 'better-auth';
-import { organization } from 'better-auth/plugins';
+import { organization, emailOTP } from 'better-auth/plugins';
 import { passkey } from '@better-auth/passkey';
 import { dash } from '@better-auth/infra';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
@@ -133,6 +133,11 @@ export const auth = betterAuth({
   plugins: [
     organization(),
     passkey(),
+    emailOTP({
+      async sendVerificationOTP({ email, otp, type }) {
+        console.log(`[BetterAuth:emailOTP] Dispatched verification OTP for ${email} (type: ${type}): ${otp}`);
+      }
+    }),
     dash({
       apiKey: betterAuthApiKey
     }),

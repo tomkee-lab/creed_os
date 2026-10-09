@@ -154,8 +154,8 @@
         body: JSON.stringify({
           missionId: mission.id,
           missionTitle: mission.title,
-          trussType: trussConfigs[trussType].name,
-          material: materials[material].name,
+          trussType,
+          material,
           massKg,
           maxLoadKg: maxSupportedLoadKg,
           ratio: strengthToWeightRatio,

@@ -28,6 +28,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     // 2. Authorize learner relationship (Anti-spoofing)
     const user = locals.user;
     const boundLearnerId = resolveLearnerId(user);
+    if (!boundLearnerId) {
+      return json(
+        { error: 'Forbidden: No authorized learner relationship associated with account' },
+        { status: 403 }
+      );
+    }
 
     // 3. Deterministic engineering input validation
     const mass = Number(massKg);
@@ -40,12 +46,23 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       );
     }
 
-    const sanitizedTruss = ALLOWED_TRUSS_TYPES.has(String(trussType).toLowerCase())
-      ? String(trussType).toLowerCase()
-      : 'warren';
-    const sanitizedMaterial = ALLOWED_MATERIALS.has(String(material).toLowerCase())
-      ? String(material).toLowerCase()
-      : 'carbon_fiber';
+    const sanitizedTruss = String(trussType || '').toLowerCase().trim();
+    const sanitizedMaterial = String(material || '').toLowerCase().trim();
+
+    if (!ALLOWED_TRUSS_TYPES.has(sanitizedTruss)) {
+      return json(
+        { error: `Bad Request: Unsupported truss type '${trussType}'. Allowed types: ${Array.from(ALLOWED_TRUSS_TYPES).join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    if (!ALLOWED_MATERIALS.has(sanitizedMaterial)) {
+      return json(
+        { error: `Bad Request: Unsupported material '${material}'. Allowed materials: ${Array.from(ALLOWED_MATERIALS).join(', ')}` },
+        { status: 400 }
+      );
+    }
+
     const sanitizedNotes = typeof learnerNotes === 'string' ? learnerNotes.slice(0, 1000).trim() : '';
 
     // Calculate ratio server-side (ignore client-supplied ratio)

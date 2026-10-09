@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { coreRepository } from '$lib/server/repository';
-import type { LearnerEvidence, CompetencyDomain } from '@core-os/domain';
+import { type LearnerEvidence, type CompetencyDomain, COMPETENCY_DOMAINS } from '@core-os/domain';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
   // 1. Enforce active authentication
@@ -52,30 +52,22 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       );
     }
 
-    const VALID_COMPETENCIES: Set<string> = new Set([
-      'spatial_reasoning',
-      'quantitative_reasoning',
-      'computational_thinking',
-      'logical_deduction',
-      'scientific_inquiry',
-      'creative_ideation',
-      'verbal_reasoning',
-      'metacognition'
-    ]);
-
     const sanitizedCompetency = String(competency || '').trim();
-    if (!VALID_COMPETENCIES.has(sanitizedCompetency)) {
+    if (!COMPETENCY_DOMAINS.includes(sanitizedCompetency as CompetencyDomain)) {
       return json(
-        { error: `Bad Request: Invalid competency domain '${sanitizedCompetency}'` },
+        { error: `Bad Request: Invalid competency domain '${sanitizedCompetency}'. Allowed domains: ${COMPETENCY_DOMAINS.join(', ')}` },
         { status: 400 }
       );
     }
 
-    // Verify learner exists in repository
-    const targetLearner = coreRepository.getLearnerProfile(studentId.trim());
-    if (!targetLearner) {
+    // Verify learner exists in class cohort registry or student roster assigned to teacher
+    const cohort = coreRepository.getClassCohort();
+    const isStudentInCohort = cohort.students.some(s => s.id === studentId.trim());
+    const learnerExists = isStudentInCohort || coreRepository.hasLearner(studentId.trim());
+
+    if (!learnerExists) {
       return json(
-        { error: 'Not Found: Learner profile not found in class cohort registry' },
+        { error: 'Not Found: Learner profile not found in class cohort registry or assigned teacher roster' },
         { status: 404 }
       );
     }

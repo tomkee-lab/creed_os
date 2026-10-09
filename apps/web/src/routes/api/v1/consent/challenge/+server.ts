@@ -8,6 +8,9 @@ import {
 } from '$lib/server/consent-otp';
 import { verifyAltchaPayload } from '$lib/server/security/altcha';
 
+// Per-contact rate limiting store: contact -> { count, resetAt }
+const contactRateLimits = new Map<string, { count: number; resetAt: number }>();
+
 /**
  * Dispatch OTP to SMS provider or DigiLocker in production
  */
@@ -136,10 +139,25 @@ export const POST: RequestHandler = async ({ request }) => {
       const isPoWValid = await verifyAltchaPayload(altchaPayload);
       if (!isPoWValid) {
         return json(
-          { error: 'Anti-abuse Proof-of-Work verification failed or challenge expired.' },
+          { error: 'Anti-abuse Proof-of-Work verification failed or challenge already consumed.' },
           { status: 400 }
         );
       }
+    }
+
+    // Rate limit OTP generation per contact (max 3 dispatches per 5-minute window)
+    const nowMs = Date.now();
+    const rateData = contactRateLimits.get(sanitizedContact);
+    if (rateData && nowMs < rateData.resetAt) {
+      if (rateData.count >= 3) {
+        return json(
+          { error: 'Too Many Requests: Rate limit exceeded. Please wait 5 minutes before requesting another verification code.' },
+          { status: 429 }
+        );
+      }
+      rateData.count += 1;
+    } else {
+      contactRateLimits.set(sanitizedContact, { count: 1, resetAt: nowMs + 5 * 60 * 1000 });
     }
 
     const isDev = import.meta.env.DEV;
