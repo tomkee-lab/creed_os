@@ -31,6 +31,6 @@ jobs:
       - name: Check Qodo Credentials & Run Code Review
         uses: qodo-ai/pr-agent@main
         env:
-          QODO_API_KEY: ${{ secrets['QODO_API_KEY'] }}
+          QODO_API_KEY: ${{ secrets.QODO_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_AGENT_CONFIG_FILE: ".pr_agent.toml"
