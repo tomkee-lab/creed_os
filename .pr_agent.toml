@@ -1,0 +1,88 @@
+# ==============================================================================
+# QODO MERGE & PR-AGENT CONFIGURATION — CREED OS
+# Preset: RecallRecommended ("Catch what might slip through")
+# ==============================================================================
+
+[config]
+model = "gpt-4o"
+fallback_models = ["gpt-4-turbo", "claude-3-5-sonnet-20241022"]
+output_relevant_configurations = true
+publish_output = true
+verbosity_level = 1
+
+[pr_reviewer]
+# --- RecallRecommended Preset Configuration ---
+# Runs: Bug detection, Rule violation, Skill insight, Cross-repo conflict, Spec agent, Design gap
+enable_auto_checks = true
+enable_bug_detection = true
+enable_rule_violation = true
+enable_design_gap = true
+enable_spec_agent = true
+enable_skill_insight = true
+enable_cross_repo_conflict = true
+
+# Presentation: Shows every finding, important ones inline. No automated fixes.
+comments_location_policy = "both"
+inline_comments_severity_threshold = 2
+auto_approve = false
+require_all_thresholds_for_approval = true
+persistent_comment = true
+
+# --- Domain & Architectural Rules for CREED OS ---
+extra_instructions = """
+You are performing a comprehensive code review for CREED OS.
+Preset: RecallRecommended. Apply maximum issue recall across bugs, architectural violations, security risks, and design gaps.
+
+STRICT ARCHITECTURAL INVARIANTS:
+1. Strict Package Management:
+   - 'pnpm' is the ONLY permitted package manager in this repository.
+   - Flag any command, script, workflow, or document using 'npm', 'yarn', or 'npx' (must use 'pnpm dlx').
+   - Flag any introduction of 'package-lock.json' or 'yarn.lock'.
+
+2. Deterministic Psychometrics & Scoring:
+   - Educational tenet: 'Deterministic algorithms score; AI explains; humans decide.'
+   - Psychometric ability estimation (theta), mastery levels, and parameters must be calculated deterministically via Item Response Theory (3PL IRT), Bayesian Knowledge Tracing (BKT), or deterministic rubrics.
+   - LLMs must NEVER directly compute student ability estimates, IQ numbers, or permanent career exclusions. AI only explains and mentors.
+
+3. Child Safety & DPDP Act Data Governance:
+   - Target audience includes minors aged 10-16.
+   - Minor data processing requires verified parental consent transition: DRAFT -> PARENT_INVITED -> PARENT_CONSENT_PENDING -> PARENT_CONSENTED -> ACTIVE.
+   - All Supabase PostgreSQL tables storing student data must have Row Level Security (RLS) enabled with relationship-scoped policies.
+   - Model retention for training must remain strictly disabled.
+
+4. Frontend Architecture (Svelte 5 Runes & Bits UI):
+   - Frontend is built with Svelte 5 runes ($state, $derived, $props, $bindable).
+   - Flag any legacy Svelte 4 syntax (such as 'export let', '$:', or 'createEventDispatcher').
+   - UI primitives must use headless Bits UI + Tailwind CSS 4.
+
+5. WAY 2.1 Master Design System ('Quiet Editorial Intelligence'):
+   - Architectural Radius: Strictly 0px sharp corners ('rounded-none') across all containers, inputs, buttons, cards, avatars, and dialogs. No rounded-lg, rounded-full, or bubbly pill shapes.
+   - Typography Stack:
+     * Headings: DM Sans Variable ('font-heading') with tracking -0.025em.
+     * Body copy & prose: Inter Variable ('font-sans') with tracking -0.011em.
+     * Monospace: JetBrains Mono Variable ('font-mono') strictly <= 5% viewport budget, reserved for numerical data (tabular-nums), codes, and technical badges.
+   - Spacing: Strict 8pt grid (4, 8, 12, 16, 24, 32, 40, 48, 64px). Never arbitrary pixel padding (e.g. p-[13px], gap-[19px]).
+   - Semantic Tokens: OKLCH design tokens only (--surface-canvas, --surface-content, --text-primary, --accent-primary). Never ad-hoc hex codes in markup classes.
+   - Motion: Lagom motion contract 140ms-280ms duration.
+
+6. Domain Error Handling:
+   - Complex domain logic in packages/domain and packages/assessment must use Effect (Data.TaggedError, Effect.gen) rather than raw unconstrained try/catch.
+"""
+
+[review_agent]
+# Reviewer Agentic Behavior
+preset = "RecallRecommended"
+auto_fixes = false
+enable_auto_reviews = true
+comments_location_policy = "both"
+inline_comments_severity_threshold = 2
+include_generated_code_in_review = false
+
+[pr_description]
+publish_description_as_comment = false
+add_custom_labels = true
+
+[pr_code_suggestions]
+# Suggestions are for reviewer inspection only; no automated commits
+auto_commit = false
+commitable_code_suggestions = false
