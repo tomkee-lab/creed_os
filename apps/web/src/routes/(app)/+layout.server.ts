@@ -1,6 +1,7 @@
 import { redirect, error } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 import { coreRepository } from '$lib/server/repository';
+import { resolveLearnerId } from '$lib/server/learnerScope';
 
 export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
   const currentPath = url.pathname;
@@ -11,8 +12,7 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
   }
 
   const userRole = (user as any).role || (user as any).metadata?.role || 'student';
-  const hasVerifiedConsent = cookies.get('creed_consent_verified') === 'true';
-  const effectiveRole = (userRole === 'parent_pending' && hasVerifiedConsent) ? 'parent' : userRole;
+  const effectiveRole = userRole;
 
   const isUtilityRoute = currentPath.startsWith('/settings') || currentPath.startsWith('/help');
   const requestedRole = currentPath.startsWith('/admin')
@@ -62,7 +62,7 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
     (requestedRole === 'student' && ['student', 'parent', 'teacher', 'counselor', 'admin'].includes(effectiveRole)) ||
     (requestedRole === 'parent' && ['parent', 'admin'].includes(effectiveRole));
 
-  const scopedLearnerId = (user as any).learnerId || (['student', 'parent'].includes(effectiveRole) ? (user as any).id || '3fa85f64-5717-4562-b3fc-2c963f66afa6' : (user as any).id);
+  const scopedLearnerId = resolveLearnerId(user);
 
   const learner = isStudentOrParentRoute && isVerifiedAccess && scopedLearnerId
     ? coreRepository.getLearnerProfile(scopedLearnerId, user)

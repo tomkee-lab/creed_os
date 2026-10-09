@@ -460,7 +460,7 @@ class LocalCoreRepository {
   getLearnerProfile(id: string, authUser?: any): LearnerProfile {
     const existing = this.learnerProfiles.get(id);
     if (existing) {
-      if (authUser?.name && existing.fullName === 'Student Learner') {
+      if (authUser?.name && authUser.id === existing.userId && existing.fullName === 'Student Learner') {
         existing.fullName = authUser.name;
       }
       return existing;

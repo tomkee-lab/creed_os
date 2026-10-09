@@ -8,7 +8,16 @@ export interface AltchaChallenge {
   signature: string;
 }
 
-const ALTCHA_HMAC_KEY = process.env.ALTCHA_HMAC_KEY || 'creed-os-authoritative-altcha-key-2026';
+function getAltchaHmacKey(): string {
+  const key = process.env.ALTCHA_HMAC_KEY;
+  if (key && key.trim()) {
+    return key.trim();
+  }
+  if (!import.meta.env.DEV) {
+    throw new Error('FATAL: ALTCHA_HMAC_KEY environment variable is mandatory outside local development.');
+  }
+  return 'creed-os-dev-only-altcha-ephemeral-key';
+}
 
 /**
  * Creates a cryptographically signed Proof-of-Work challenge for client solving.
@@ -17,7 +26,7 @@ const ALTCHA_HMAC_KEY = process.env.ALTCHA_HMAC_KEY || 'creed-os-authoritative-a
 export async function createAltchaChallenge(maxnumber: number = 30000): Promise<AltchaChallenge> {
   const expires = new Date(Date.now() + 5 * 60 * 1000); // 5 minute challenge TTL
   return (await createChallenge({
-    hmacKey: ALTCHA_HMAC_KEY,
+    hmacKey: getAltchaHmacKey(),
     maxnumber,
     expires
   })) as AltchaChallenge;
@@ -32,7 +41,7 @@ export async function verifyAltchaPayload(payload: string): Promise<boolean> {
     return false;
   }
   try {
-    return await verifySolution(payload, ALTCHA_HMAC_KEY, true);
+    return await verifySolution(payload, getAltchaHmacKey(), true);
   } catch {
     return false;
   }

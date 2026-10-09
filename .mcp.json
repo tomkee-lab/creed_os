@@ -10,7 +10,7 @@
     "flowbite-svelte": {
       "command": "node",
       "args": [
-        "C:/Users/rtf70/.gemini/mcp-servers/flowbite-svelte-mcp/build/server.js"
+        "${FLOWBITE_MCP_PATH}"
       ]
     },
     "better-auth": {

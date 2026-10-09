@@ -28,15 +28,17 @@
 
   // Multi-facet filtering with DropdownCheckbox
   let statusItems = $state<DropdownCheckboxItem[]>([
-    { id: 'Developing', label: 'Developing (Needs Attention)', checked: false },
-    { id: 'Emerging', label: 'Emerging', checked: false },
-    { id: 'Strong Foundation', label: 'Strong Foundation', checked: false }
+    { id: 'developing', label: 'Developing (Needs Attention)', checked: false },
+    { id: 'emerging', label: 'Emerging', checked: false },
+    { id: 'strong', label: 'Strong Foundation', checked: false }
   ]);
 
   let competencyItems = $state<DropdownCheckboxItem[]>([
     { id: 'spatial_reasoning', label: 'Spatial Reasoning', checked: false },
-    { id: 'proportional_equations', label: 'Proportional Equations', checked: false },
-    { id: 'algorithmic_decomposition', label: 'Computational Logic', checked: false }
+    { id: 'quantitative_reasoning', label: 'Quantitative Reasoning', checked: false },
+    { id: 'computational_thinking', label: 'Computational Logic', checked: false },
+    { id: 'logical_deduction', label: 'Logical Deduction', checked: false },
+    { id: 'scientific_inquiry', label: 'Scientific Inquiry', checked: false }
   ]);
 
   let selectedStatuses = $derived(statusItems.filter(i => i.checked).map(i => i.id));
@@ -151,7 +153,13 @@
 
       const matchesStatus =
         selectedStatuses.length === 0 ||
-        selectedStatuses.includes(s.overallReadiness);
+        selectedStatuses.some((st) => {
+          const readiness = (s.overallReadiness || '').toLowerCase();
+          if (st === 'developing') return readiness.includes('gap') || (s.weakestScore && s.weakestScore < 2.9);
+          if (st === 'emerging') return readiness.includes('emerging');
+          if (st === 'strong') return readiness.includes('strong') || readiness.includes('advanced') || readiness.includes('balanced');
+          return false;
+        });
 
       const matchesComp =
         selectedCompetencies.length === 0 ||

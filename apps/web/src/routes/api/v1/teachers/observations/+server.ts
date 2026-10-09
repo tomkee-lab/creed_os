@@ -21,12 +21,62 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
   try {
     const body = await request.json();
-    const { studentId, competency, notes, consistencyRating } = body;
+    const { studentId, competency, notes, consistencyRating = 4 } = body;
 
-    if (!studentId || !notes || !notes.trim()) {
+    if (!studentId || typeof studentId !== 'string' || !studentId.trim()) {
       return json(
-        { error: 'Bad Request: studentId and observation notes are required' },
+        { error: 'Bad Request: studentId is required and must be a valid identifier string' },
         { status: 400 }
+      );
+    }
+
+    if (!notes || typeof notes !== 'string' || !notes.trim()) {
+      return json(
+        { error: 'Bad Request: observation notes are required and must be non-empty text' },
+        { status: 400 }
+      );
+    }
+
+    if (notes.trim().length > 2000) {
+      return json(
+        { error: 'Bad Request: observation notes cannot exceed 2000 characters' },
+        { status: 400 }
+      );
+    }
+
+    const rating = Number(consistencyRating);
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      return json(
+        { error: 'Bad Request: consistencyRating must be an integer between 1 and 5' },
+        { status: 400 }
+      );
+    }
+
+    const VALID_COMPETENCIES: Set<string> = new Set([
+      'spatial_reasoning',
+      'quantitative_reasoning',
+      'computational_thinking',
+      'logical_deduction',
+      'scientific_inquiry',
+      'creative_ideation',
+      'verbal_reasoning',
+      'metacognition'
+    ]);
+
+    const sanitizedCompetency = String(competency || '').trim();
+    if (!VALID_COMPETENCIES.has(sanitizedCompetency)) {
+      return json(
+        { error: `Bad Request: Invalid competency domain '${sanitizedCompetency}'` },
+        { status: 400 }
+      );
+    }
+
+    // Verify learner exists in repository
+    const targetLearner = coreRepository.getLearnerProfile(studentId.trim());
+    if (!targetLearner) {
+      return json(
+        { error: 'Not Found: Learner profile not found in class cohort registry' },
+        { status: 404 }
       );
     }
 
@@ -36,16 +86,16 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
     const evidenceRecord: LearnerEvidence = {
       id: evidenceId,
-      learnerId: studentId,
-      competency: (competency as CompetencyDomain) || 'spatial_reasoning',
+      learnerId: studentId.trim(),
+      competency: sanitizedCompetency as CompetencyDomain,
       evidenceType: 'observation_log',
       sourceType: 'teacher_observation',
       sourceTitle: `Classroom Observation — ${educatorName}`,
       summary: notes.trim(),
       observedValue: {
-        scoreFraction: (consistencyRating || 4) / 5,
+        scoreFraction: Number((rating / 5).toFixed(2)),
         rubricCriteria: {
-          consistencyRating: consistencyRating || 4
+          consistencyRating: rating
         },
         qualitativeNotes: `Recorded by ${educatorName} (${(user as any).id || 'staff'}). Notes: ${notes.trim()}`
       },

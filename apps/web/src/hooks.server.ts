@@ -2,16 +2,6 @@ import { auth } from '$lib/server/auth';
 import { redirect, error } from '@sveltejs/kit';
 import type { Handle } from '@sveltejs/kit';
 
-// Prevent abrupt socket disconnects (ECONNRESET, EPIPE) common with tunnels on Windows from crashing Node process
-if (typeof process !== 'undefined') {
-  process.on('uncaughtException', (err: any) => {
-    if (err?.code === 'ECONNRESET' || err?.code === 'EPIPE' || err?.code === 'ETIMEDOUT') {
-      return;
-    }
-    console.error('[server:uncaughtException]', err);
-  });
-}
-
 // ---------------------------------------------------------------------------
 // Route Protection Manifest
 // ---------------------------------------------------------------------------
@@ -92,8 +82,12 @@ export const handle: Handle = async ({ event, resolve }) => {
     if (session) {
       event.locals.session = session.session;
       event.locals.user = session.user;
-    } else if (import.meta.env.DEV && event.cookies.get('creed_dev_session') === 'true') {
-      // In local development, support explicit dev persona cookies
+    } else if (
+      import.meta.env.DEV &&
+      (event.url.hostname === 'localhost' || event.url.hostname === '127.0.0.1') &&
+      event.cookies.get('creed_dev_session') === 'true'
+    ) {
+      // In local development, support explicit dev persona cookies strictly on loopback
       const rawUser = event.cookies.get('creed_dev_user');
       const devRole = event.cookies.get('creed_dev_role') || 'student';
       let parsedUser = null;
@@ -141,14 +135,20 @@ export const handle: Handle = async ({ event, resolve }) => {
   // ── 2. Derive effective role ──────────────────────────────────────────────
   const user = event.locals.user;
   const userRole = (user as any)?.role || (user as any)?.metadata?.role || 'student';
-  const hasVerifiedConsent = event.cookies.get('creed_consent_verified') === 'true';
-  const effectiveRole = (userRole === 'parent_pending' && hasVerifiedConsent) ? 'parent' : userRole;
+  const effectiveRole = userRole;
 
   // ── 3. Authenticated users visiting login or signup ────────────────────────
   if (event.locals.session && (pathname === '/login' || pathname === '/signup')) {
     const nextParam = event.url.searchParams.get('next');
-    if (nextParam && nextParam.startsWith('/')) {
-      throw redirect(303, nextParam);
+    if (nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//') && !nextParam.startsWith('/\\')) {
+      try {
+        const dest = new URL(nextParam, event.url.origin);
+        if (dest.origin === event.url.origin) {
+          throw redirect(303, dest.pathname + dest.search);
+        }
+      } catch (e) {
+        if ((e as any)?.status === 303) throw e;
+      }
     }
     throw redirect(303, getHomeRouteForRole(effectiveRole));
   }

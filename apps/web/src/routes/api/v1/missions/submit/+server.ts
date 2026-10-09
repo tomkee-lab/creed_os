@@ -1,7 +1,11 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { coreRepository } from '$lib/server/repository';
+import { resolveLearnerId } from '$lib/server/learnerScope';
 import type { LearnerEvidence } from '@core-os/domain';
+
+const ALLOWED_TRUSS_TYPES = new Set(['warren', 'pratt', 'howe', 'k-truss', 'isometric', 'custom']);
+const ALLOWED_MATERIALS = new Set(['carbon_fiber', 'steel', 'titanium', 'aluminum', 'wood', 'composite']);
 
 export const POST: RequestHandler = async ({ request, locals }) => {
   // 1. Enforce active authentication
@@ -12,34 +16,50 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   try {
     const body = await request.json();
     const {
-      missionId,
+      missionId = 'robobridge',
       missionTitle,
-      trussType,
-      material,
+      trussType = 'warren',
+      material = 'carbon_fiber',
       massKg,
       maxLoadKg,
-      ratio,
       learnerNotes
     } = body;
 
     // 2. Authorize learner relationship (Anti-spoofing)
     const user = locals.user;
-    const userRole = (user as any).role || (user as any).metadata?.role || 'student';
-    const boundLearnerId =
-      (user as any).learnerId ||
-      (['student', 'parent'].includes(userRole)
-        ? '3fa85f64-5717-4562-b3fc-2c963f66afa6'
-        : (user as any).id);
+    const boundLearnerId = resolveLearnerId(user);
 
-    // 3. Deterministic engineering verification
-    // Requirement: Ratio >= 4.5x and Mass <= 250kg
-    const isValid = Number(ratio) >= 4.5 && Number(massKg) <= 250;
+    // 3. Deterministic engineering input validation
+    const mass = Number(massKg);
+    const maxLoad = Number(maxLoadKg);
+
+    if (!Number.isFinite(mass) || !Number.isFinite(maxLoad) || mass <= 0 || maxLoad <= 0 || mass > 1000) {
+      return json(
+        { error: 'Bad Request: massKg and maxLoadKg must be positive finite numbers within physical bounds.' },
+        { status: 400 }
+      );
+    }
+
+    const sanitizedTruss = ALLOWED_TRUSS_TYPES.has(String(trussType).toLowerCase())
+      ? String(trussType).toLowerCase()
+      : 'warren';
+    const sanitizedMaterial = ALLOWED_MATERIALS.has(String(material).toLowerCase())
+      ? String(material).toLowerCase()
+      : 'carbon_fiber';
+    const sanitizedNotes = typeof learnerNotes === 'string' ? learnerNotes.slice(0, 1000).trim() : '';
+
+    // Calculate ratio server-side (ignore client-supplied ratio)
+    const computedRatio = Number((maxLoad / mass).toFixed(2));
+
+    // Requirement: Strength-to-Weight Ratio >= 4.5x and Total Structural Mass <= 250kg
+    const isValid = computedRatio >= 4.5 && mass <= 250;
 
     if (!isValid) {
       return json(
         {
           success: false,
           verified: false,
+          computedRatio,
           message:
             'Structural criteria not met: Bridge must support at least 4.5x its own mass while staying under 250 kg.'
         },
@@ -58,15 +78,15 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       evidenceType: 'mission_artifact',
       sourceType: 'project_mission',
       sourceTitle: missionTitle || 'RoboBridge Structural Optimization Challenge',
-      summary: `Engineered ${material} ${trussType} truss structure achieving strength-to-weight ratio of ${Number(ratio).toFixed(1)}x across 12m terrain span (Mass: ${massKg} kg, Load: ${maxLoadKg} kg).`,
+      summary: `Engineered ${sanitizedMaterial} ${sanitizedTruss} truss structure achieving strength-to-weight ratio of ${computedRatio}x across 12m terrain span (Mass: ${mass} kg, Load: ${maxLoad} kg).`,
       observedValue: {
-        scoreFraction: Math.min(1.0, Number(ratio) / 5.0),
+        scoreFraction: Math.min(1.0, Math.max(0.0, Number((computedRatio / 5.0).toFixed(2)))),
         rubricCriteria: {
-          strengthToWeightRatio: Number(ratio),
-          massKg: Number(massKg),
-          maxLoadKg: Number(maxLoadKg)
+          strengthToWeightRatio: computedRatio,
+          massKg: mass,
+          maxLoadKg: maxLoad
         },
-        qualitativeNotes: `Truss Architecture: ${trussType}, Material: ${material}. ${learnerNotes || ''}`
+        qualitativeNotes: `Truss Architecture: ${sanitizedTruss}, Material: ${sanitizedMaterial}. ${sanitizedNotes}`
       },
       confidence: 0.92,
       evidenceStrength: 4, // Level 4: Applied Mission Task

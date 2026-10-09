@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { coreRepository } from '$lib/server/repository';
+import { resolveLearnerId } from '$lib/server/learnerScope';
 import {
   evaluateItemResponse,
   estimateThetaEAP,
@@ -25,7 +26,11 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     // 2. Authorize session ownership (Prevent student response injection into other learners)
     const user = locals.user;
     const userRole = (user as any).role || (user as any).metadata?.role || 'student';
-    const boundLearnerId = (user as any).learnerId || (['student', 'parent'].includes(userRole) ? '3fa85f64-5717-4562-b3fc-2c963f66afa6' : (user as any).id);
+    const boundLearnerId = resolveLearnerId(user);
+
+    if (userRole !== 'student' && userRole !== 'admin') {
+      return json({ error: 'Forbidden: Only the active learner may submit responses to an assessment session.' }, { status: 403 });
+    }
 
     if (userRole === 'student' && session.learnerId !== boundLearnerId) {
       return json({ error: 'Forbidden: You cannot submit responses to an assessment session belonging to another learner.' }, { status: 403 });

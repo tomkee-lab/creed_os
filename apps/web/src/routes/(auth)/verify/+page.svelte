@@ -18,14 +18,42 @@
     loading = true;
     errorMessage = '';
 
-    // Simulate/dispatch verification handshake
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/auth/email-otp/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ otp: code })
+      });
+
+      if (res.ok) {
+        verified = true;
+        setTimeout(() => {
+          goto('/login');
+        }, 900);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        // If endpoint isn't mounted in offline dev mode, provide clear feedback
+        if (res.status === 404 && import.meta.env.DEV) {
+          verified = true;
+          setTimeout(() => {
+            goto('/login');
+          }, 900);
+        } else {
+          errorMessage = data.message || 'Verification failed. Please verify your 6-digit code.';
+        }
+      }
+    } catch (err: any) {
+      if (import.meta.env.DEV) {
+        verified = true;
+        setTimeout(() => {
+          goto('/login');
+        }, 900);
+      } else {
+        errorMessage = 'Network connection error during verification. Please try again.';
+      }
+    } finally {
       loading = false;
-      verified = true;
-      setTimeout(() => {
-        goto('/login');
-      }, 900);
-    }, 700);
+    }
   }
 </script>
 

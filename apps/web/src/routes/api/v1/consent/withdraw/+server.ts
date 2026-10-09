@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { transitionConsentState, type ConsentRecord } from '@core-os/domain';
+import { resolveLearnerId } from '$lib/server/learnerScope';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
   // 1. Enforce session requirements for statutory consent withdrawal under DPDP Act 2023
@@ -16,16 +17,18 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   }
 
   const body = await request.json().catch(() => ({}));
-  const boundLearnerId = (user as any).learnerId || (userRole === 'parent' ? '3fa85f64-5717-4562-b3fc-2c963f66afa6' : (user as any).id);
+  const boundLearnerId = resolveLearnerId(user);
 
-  const {
-    learnerId = boundLearnerId,
-    reason = 'Parent requested statutory deletion under DPDP Act 2023'
-  } = body;
+  if (userRole === 'parent' && body.learnerId && body.learnerId !== boundLearnerId) {
+    return json({ error: 'Forbidden: Guardians may strictly withdraw statutory consent for their verified child only.' }, { status: 403 });
+  }
+
+  const targetLearnerId = userRole === 'parent' ? boundLearnerId : (body.learnerId || boundLearnerId);
+  const reason = body.reason || 'Parent requested statutory deletion under DPDP Act 2023';
 
   const activeRecord: ConsentRecord = {
     id: 'cst_' + crypto.randomUUID().slice(0, 8),
-    learnerId,
+    learnerId: targetLearnerId,
     parentName: (user as any).name || 'Verified Guardian',
     parentContact: '+91 98765 43210',
     verificationChannel: 'SMS_OTP',

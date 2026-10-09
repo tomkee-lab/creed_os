@@ -96,6 +96,11 @@ export function exportItemToQti3Xml(item: QtiItemExportOptions): string {
       <qti-value>0.0</qti-value>
     </qti-default-value>
   </qti-outcome-declaration>
+  <qti-outcome-declaration identifier="FEEDBACK" cardinality="single" base-type="identifier">
+    <qti-default-value>
+      <qti-value>NONE</qti-value>
+    </qti-default-value>
+  </qti-outcome-declaration>
 
   <!-- Item Body & Interaction -->
   <qti-item-body>
@@ -124,10 +129,16 @@ ${options
         <qti-set-outcome-value identifier="SCORE">
           <qti-base-value base-type="float">1.0</qti-base-value>
         </qti-set-outcome-value>
+        <qti-set-outcome-value identifier="FEEDBACK">
+          <qti-base-value base-type="identifier">SOLUTION</qti-base-value>
+        </qti-set-outcome-value>
       </qti-response-if>
       <qti-response-else>
         <qti-set-outcome-value identifier="SCORE">
           <qti-base-value base-type="float">0.0</qti-base-value>
+        </qti-set-outcome-value>
+        <qti-set-outcome-value identifier="FEEDBACK">
+          <qti-base-value base-type="identifier">SOLUTION</qti-base-value>
         </qti-set-outcome-value>
       </qti-response-else>
     </qti-response-condition>

@@ -5,10 +5,12 @@ const { Pool } = pg;
 
 const supabaseUrl = env.PUBLIC_SUPABASE_URL || process.env.PUBLIC_SUPABASE_URL || '';
 const supabaseKey =
+  env.SUPABASE_SECRET_KEY ||
+  process.env.SUPABASE_SECRET_KEY ||
   env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  env.PUBLIC_SUPABASE_SECRET_KEY ||
-  process.env.PUBLIC_SUPABASE_SECRET_KEY ||
+  env.SUPABASE_PUBLISHABLE_KEY ||
+  process.env.SUPABASE_PUBLISHABLE_KEY ||
   env.PUBLIC_SUPABASE_ANON_KEY ||
   process.env.PUBLIC_SUPABASE_ANON_KEY ||
   '';

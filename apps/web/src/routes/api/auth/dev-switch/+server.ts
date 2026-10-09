@@ -38,8 +38,8 @@ const PERSONA_MAP: Record<ValidDevRole, { name: string; email: string; learnerId
  * Sets the active dev persona cookie to allow authentic role verification during local development.
  * Disabled completely in production.
  */
-export const POST: RequestHandler = async ({ request, cookies }) => {
-  if (!import.meta.env.DEV) {
+export const POST: RequestHandler = async ({ request, url, cookies }) => {
+  if (!import.meta.env.DEV || (url.hostname !== 'localhost' && url.hostname !== '127.0.0.1')) {
     throw error(404, 'Not found');
   }
 

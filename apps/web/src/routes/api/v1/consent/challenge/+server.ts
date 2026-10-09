@@ -125,8 +125,15 @@ export const POST: RequestHandler = async ({ request }) => {
     const sanitizedLearnerId = learnerId.trim();
     const channelStr = typeof channel === 'string' ? channel : 'SMS_OTP';
 
-    if (body && typeof body === 'object' && 'altcha' in body && body.altcha) {
-      const isPoWValid = await verifyAltchaPayload(String(body.altcha));
+    const altchaPayload = body && typeof body === 'object' && 'altcha' in body ? body.altcha : null;
+    if (!import.meta.env.DEV || altchaPayload) {
+      if (!altchaPayload || typeof altchaPayload !== 'string') {
+        return json(
+          { error: 'Anti-abuse Proof-of-Work verification required prior to OTP dispatch.' },
+          { status: 400 }
+        );
+      }
+      const isPoWValid = await verifyAltchaPayload(altchaPayload);
       if (!isPoWValid) {
         return json(
           { error: 'Anti-abuse Proof-of-Work verification failed or challenge expired.' },

@@ -88,9 +88,27 @@
   function selectItem(item: AssessmentItem) {
     $form.id = item.id;
     $form.prompt = item.prompt;
-    if (item.irt?.a) $form.a = item.irt.a;
-    if (item.irt?.b) $form.b = item.irt.b;
-    if (item.irt?.c) $form.c = item.irt.c;
+    if (item.competency) $form.competency = item.competency;
+    if ((item as any).gradeBand) {
+      $form.gradeBand = (item as any).gradeBand;
+    } else if (item.ageBand) {
+      $form.gradeBand = `Ages ${item.ageBand[0]}–${item.ageBand[1]}`;
+    }
+    if (typeof item.irt?.a === 'number') $form.a = item.irt.a;
+    if (typeof item.irt?.b === 'number') $form.b = item.irt.b;
+    if (typeof item.irt?.c === 'number') $form.c = item.irt.c;
+
+    if (item.options && item.options.length) {
+      options = item.options.map(o => ({
+        id: o.id,
+        text: o.text,
+        misconception: (o as any).misconception || ''
+      }));
+      const correctIdx = item.options.findIndex(o => o.id === item.correctOptionId);
+      if (correctIdx !== -1) {
+        $form.correctOptionIndex = correctIdx;
+      }
+    }
   }
 
   function handleNewItem() {

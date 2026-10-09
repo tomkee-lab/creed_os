@@ -3,13 +3,16 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 
-// Prevent abrupt socket disconnects (ECONNRESET, EPIPE) common with tunnels on Windows from crashing Vite
-process.on('uncaughtException', (err: any) => {
-  if (err?.code === 'ECONNRESET' || err?.code === 'EPIPE' || err?.code === 'ETIMEDOUT') {
-    return;
-  }
-  console.error('[vite:uncaughtException]', err);
-});
+// Prevent abrupt socket disconnects common with tunnels on Windows from silently crashing Vite in dev
+if (process.env.NODE_ENV !== 'production') {
+  process.on('uncaughtException', (err: any) => {
+    if (err?.code === 'ECONNRESET' || err?.code === 'EPIPE' || err?.code === 'ETIMEDOUT') {
+      return;
+    }
+    console.error('[vite:uncaughtException]', err);
+    process.exit(1);
+  });
+}
 
 export default defineConfig({
   plugins: [

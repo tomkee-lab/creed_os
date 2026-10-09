@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { chatWithSocraticMentor } from '@core-os/ai';
 import { coreRepository } from '$lib/server/repository';
+import { resolveLearnerId } from '$lib/server/learnerScope';
 import type { LearnerEvidence } from '@core-os/domain';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
@@ -21,7 +22,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     // 2. Authorize learner relationship (Child privacy / anti-spoofing)
     const user = locals.user;
     const userRole = (user as any).role || (user as any).metadata?.role || 'student';
-    const boundLearnerId = (user as any).learnerId || (['student', 'parent'].includes(userRole) ? '3fa85f64-5717-4562-b3fc-2c963f66afa6' : (user as any).id);
+    const boundLearnerId = resolveLearnerId(user);
 
     // Students and parents are strictly scoped to their own learner
     const effectiveLearnerId = ['student', 'parent'].includes(userRole)
