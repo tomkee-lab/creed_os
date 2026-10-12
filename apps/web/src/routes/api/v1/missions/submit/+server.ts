@@ -44,9 +44,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       const missionTitle = body.missionTitle || 'Autonomous Robotics Kinematics Mission';
 
       // Server verification of mission telemetry and block structure
-      const hasExecutedSteps = (telemetry.timeline?.length || 0) > 0 || telemetry.success === true;
+      const kinematicSteps = telemetry.timeline?.length || 0;
+      const motionSteps = Array.isArray(telemetry.motionPath) ? telemetry.motionPath.length : 0;
+      const executionSteps = Array.isArray(telemetry.executionSteps) ? telemetry.executionSteps.length : 0;
+      const hasExecutedSteps = kinematicSteps > 0 || motionSteps > 0 || executionSteps > 0;
       const hasCodeBlocks = (evaluation.totalBlocks || 0) > 0;
       const isVerified = hasExecutedSteps && hasCodeBlocks;
+      const totalSteps = Math.max(kinematicSteps, motionSteps, executionSteps);
 
       const evidenceRecord: LearnerEvidence = {
         id: evidenceId,
@@ -55,12 +59,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         evidenceType: 'mission_artifact',
         sourceType: 'project_mission',
         sourceTitle: missionTitle,
-        summary: `Orchestrated autonomous mission in ${stage.toUpperCase()} IDE (${evaluation.totalBlocks || 0} AST nodes, ${telemetry.timeline?.length || 0} kinematic steps). Mastery: ${evaluation.developmentalBand || 'Developing'}.`,
+        summary: `Orchestrated autonomous mission in ${stage.toUpperCase()} IDE (${evaluation.totalBlocks || 0} AST nodes, ${totalSteps} kinematic steps). Mastery: ${evaluation.developmentalBand || 'Developing'}.`,
         observedValue: {
           scoreFraction: isVerified ? Math.min(1.0, Math.max(0.3, (evaluation.totalBlocks || 3) / 8)) : 0.4,
           rubricCriteria: {
             totalBlocks: evaluation.totalBlocks || 0,
-            kinematicSteps: telemetry.timeline?.length || 0,
+            kinematicSteps: totalSteps,
             verified: isVerified ? 1 : 0
           },
           qualitativeNotes: `Stage: ${stage}. Developmental band: ${evaluation.developmentalBand || 'Developing'}. Last action: ${telemetry.lastAction || 'Complete'}. Sonar: ${telemetry.distance || 38}cm.`

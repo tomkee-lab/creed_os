@@ -40,17 +40,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       return json({ error: 'Only HTTP and HTTPS protocols are permitted' }, { status: 400 });
     }
 
-    // Scrape the specified URL using Firecrawl with sanitized options
-    const safeOptions = { formats: ['markdown'] as const };
-    const scrapeResult = (await firecrawl.scrapeUrl(url, safeOptions as any)) as any;
-
-    if (scrapeResult.success === false) {
-      return json({ error: 'Failed to scrape the URL', details: scrapeResult.error }, { status: 500 });
-    }
+    // Scrape the specified URL using Firecrawl v2 API
+    const doc = await firecrawl.scrape(url, { formats: ['markdown'] });
 
     return json({
       success: true,
-      data: scrapeResult,
+      data: doc,
     });
   } catch (error: any) {
     console.error('Firecrawl scrape error:', error);

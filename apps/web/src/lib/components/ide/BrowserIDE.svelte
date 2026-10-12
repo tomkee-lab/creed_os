@@ -400,6 +400,7 @@
   let radiationLevel = $state(1.4);
   let samplesCollected = $state(0);
   let solarDeployed = $state(false);
+  let lastExecutionTelemetry = $state<any>(null);
 
   // DOM Container References
   let blocklyContainer = $state<HTMLDivElement>();
@@ -676,18 +677,23 @@
           rubricScore: rubricEval.score,
           rubricPercentage: rubricEval.percentage,
           telemetry: {
+            ...(lastExecutionTelemetry || {}),
             x: roverX,
             y: roverY,
             heading: roverHeading,
             distance: roverDistance,
-            lastAction: telemetryAction
+            lastAction: telemetryAction,
+            timeline: lastExecutionTelemetry?.timeline || (motionPath.length > 0 ? motionPath.map((p, i) => ({ type: 'drive', fromX: p.x1, fromY: p.y1, toX: p.x2, toY: p.y2, action: `Step ${i + 1}` })) : []),
+            motionPath: motionPath,
+            samplesCollected: samplesCollected,
+            battery: batteryLevel
           },
           evaluation: currentEvaluation
         })
       });
 
       const data = await res.json();
-      if (res.ok && data.success) {
+      if (res.ok && data.success && data.verified === true) {
         evidenceSubmitted = true;
         verificationResult = {
           passed: true,
@@ -702,26 +708,19 @@
         }, 5000);
       } else {
         verificationResult = {
-          passed: rubricEval.passed,
-          message: rubricEval.feedback.length > 0 ? `Criteria remaining: ${rubricEval.feedback.slice(0, 2).join('; ')}` : (data.message || data.error || 'Check mission requirements.'),
+          passed: false,
+          message: data.message || (rubricEval.feedback.length > 0 ? `Criteria remaining: ${rubricEval.feedback.slice(0, 2).join('; ')}` : (data.error || 'Execution timeline steps and code blocks required for verification.')),
           score: rubricEval.percentage
         };
         addMissionLog(`Verification notice: ${verificationResult.message}`, 'info');
       }
     } catch (e: any) {
-      const localEval = evaluateMissionRubric(activeMissionId, currentEvaluation, {
-        x: roverX,
-        y: roverY,
-        batteryLevel,
-        hasCollided: false,
-        samplesCollected
-      });
       verificationResult = {
-        passed: localEval.passed,
-        message: localEval.passed ? `Local Rubric Passed (${localEval.percentage}%). Mastery recorded.` : `Criteria remaining: ${localEval.feedback.slice(0, 2).join('; ')}`,
-        score: localEval.percentage
+        passed: false,
+        message: `Network verification error: ${e?.message || 'Server could not be reached to verify evidence.'}`,
+        score: 0
       };
-      addMissionLog(`Local verification: ${verificationResult.message}`, localEval.passed ? 'success' : 'info');
+      addMissionLog(`Verification error: ${verificationResult.message}`, 'error');
     } finally {
       isSubmittingEvidence = false;
     }
@@ -1239,6 +1238,7 @@
         }
 
         if (success && telemetry) {
+          lastExecutionTelemetry = telemetry;
           if (telemetry.timeline && telemetry.timeline.length > 0) {
             await playKinematicTimeline(telemetry.timeline, telemetry);
           } else {

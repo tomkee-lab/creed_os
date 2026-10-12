@@ -39,7 +39,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     // Limit batch size to 5 URLs to respect rate limits
     const targetUrls = urls.slice(0, 5);
     const results = [];
-    const safeOptions = { formats: ['markdown'] as const };
 
     for (const url of targetUrls) {
       try {
@@ -54,12 +53,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
           continue;
         }
 
-        const scrapeResult = (await firecrawl.scrapeUrl(url, safeOptions as any)) as any;
+        const doc = await firecrawl.scrape(url, { formats: ['markdown'] });
         results.push({
           url,
-          success: scrapeResult.success !== false,
-          markdown: scrapeResult.markdown || scrapeResult.data?.markdown || '',
-          metadata: scrapeResult.metadata || scrapeResult.data?.metadata || {}
+          success: true,
+          markdown: doc.markdown || '',
+          metadata: doc.metadata || {}
         });
       } catch (err: any) {
         results.push({
