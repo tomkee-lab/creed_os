@@ -86,7 +86,7 @@ export const handle: Handle = async ({ event, resolve }) => {
       import.meta.env.DEV &&
       (event.url.hostname === 'localhost' || event.url.hostname === '127.0.0.1') &&
       (event.cookies.get('creed_dev_session') === 'true' ||
-        (event.cookies.get('creed_dev_session') === undefined &&
+        (process.env.CREED_DEV_AUTOLOGIN === 'true' &&
           !pathname.startsWith('/login') &&
           !pathname.startsWith('/signup') &&
           !pathname.startsWith('/api/auth')))

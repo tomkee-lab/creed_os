@@ -139,11 +139,10 @@
         content: m.text
       }));
 
-      const res = await fetch('/api/v1/ai/mentor/chat?sandbox=true', {
+      const res = await fetch('/api/v1/ai/mentor/chat', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'x-sandbox-mode': 'true'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           message: userText,

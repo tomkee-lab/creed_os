@@ -6,6 +6,10 @@ import { calculateFisherInformation } from '@core-os/assessment';
 import type { AssessmentItem } from '@core-os/domain';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
+  if (!locals.session || !locals.user) {
+    return json({ error: 'Unauthorized: Active session required' }, { status: 401 });
+  }
+
   try {
     const body = await request.json().catch(() => ({}));
     const {
@@ -65,8 +69,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
           id: item.id,
           code: item.code,
           prompt: item.prompt,
-          competency: item.competency,
-          irt: item.irt
+          competency: item.competency
         },
         fisherInformation: Math.round(fisherInfo * 1000) / 1000
       };

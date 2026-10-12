@@ -88,13 +88,22 @@ export function calculateKolmogorovSmirnov(
   const ne = Math.sqrt((n1 * n2) / (n1 + n2));
   const lambda = (ne + 0.12 + 0.11 / ne) * maxDiff;
 
-  // Approximate p-value using first 6 terms of the Kolmogorov distribution series
-  let pValue = 0;
-  for (let j = 1; j <= 6; j++) {
-    const sign = j % 2 === 1 ? 1 : -1;
-    pValue += 2 * sign * Math.exp(-2 * j * j * lambda * lambda);
+  // Kolmogorov distribution p-value (Numerical Recipes probks)
+  let pValue: number;
+  if (lambda < 0.27) {
+    pValue = 1.0;
+  } else if (lambda > 3.0) {
+    pValue = 0.0;
+  } else {
+    let sum = 0;
+    for (let j = 1; j <= 100; j++) {
+      const sign = j % 2 === 1 ? 1 : -1;
+      const term = 2 * sign * Math.exp(-2 * j * j * lambda * lambda);
+      sum += term;
+      if (Math.abs(term) < 1e-8) break;
+    }
+    pValue = Math.max(0, Math.min(1, sum));
   }
-  pValue = Math.max(0, Math.min(1, pValue));
 
   const isSignificant = pValue < 0.05;
   const mean1 = sample1.reduce((a, b) => a + b, 0) / n1;

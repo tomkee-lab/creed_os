@@ -28,25 +28,37 @@ function getFiles(dir: string, extensions: string[]): string[] {
   return files;
 }
 
-// 1. Audit Prohibited Radii (Align with AGENTS.md: permit 0px rounded-none, 4px rounded-sm, 8px rounded-md; ban 12px+ bubbly curves)
+// 1. Audit Prohibited Radii (Align with AGENTS.md: permit 0px rounded-none, 4px rounded-sm, 8px rounded-md; ban 12px+ bubbly curves and pill buttons/containers)
 function auditRadii() {
   const violations: string[] = [];
-  const bannedPatterns = [/\brounded-(?:lg|xl|2xl|3xl)\b/g];
+  const bannedPatterns = [/\brounded-(?:lg|xl|2xl|3xl)\b/g, /\brounded-full\b/g];
   const allFiles = getFiles(WEB_SRC, ['.svelte', '.css']);
 
   for (const file of allFiles) {
     const content = fs.readFileSync(file, 'utf-8');
-    for (const pattern of bannedPatterns) {
-      const matches = content.match(pattern);
-      if (matches) {
-        const rel = path.relative(ROOT_DIR, file);
-        violations.push(`${rel}: Found forbidden rounded corner '${matches[0]}'`);
+    const lines = content.split('\n');
+    lines.forEach((line, idx) => {
+      // Narrow exemptions for true circular mechanical simulation gears or loading spinner rings
+      const isExempt =
+        line.includes('animate-spin') ||
+        line.includes('allowed-circle') ||
+        line.includes('gear');
+
+      for (const pattern of bannedPatterns) {
+        const matches = line.match(pattern);
+        if (matches) {
+          for (const match of matches) {
+            if (match === 'rounded-full' && isExempt) continue;
+            const rel = path.relative(ROOT_DIR, file);
+            violations.push(`${rel}:${idx + 1}: Found forbidden rounded corner '${match}'`);
+          }
+        }
       }
-    }
+    });
   }
 
   results.push({
-    category: 'Architectural Radius System (WAY 2.1: 0px structural, 4px controls, 8px expressive; zero 12px+ curves)',
+    category: 'Architectural Radius System (WAY 2.1: 0px structural, 4px controls, 8px expressive; zero 12px+ curves, zero pill/full curves on controls & indicators)',
     passed: violations.length === 0,
     details: violations
   });

@@ -11,17 +11,10 @@ import {
 } from '@core-os/assessment';
 import type { ClientAssessmentItem, LearnerEvidence } from '@core-os/domain';
 
-export const POST: RequestHandler = async ({ params, request, locals, url }) => {
-  // 1. Enforce active authentication (with safe development / sandbox bypass)
-  const isSandbox =
-    process.env.NODE_ENV !== 'production' ||
-    request.headers.get('x-sandbox-mode') === 'true' ||
-    url.searchParams.get('sandbox') === 'true';
-
+export const POST: RequestHandler = async ({ params, request, locals }) => {
+  // 1. Enforce active authentication
   if (!locals.session || !locals.user) {
-    if (!isSandbox) {
-      return json({ error: 'Unauthorized: Active session required' }, { status: 401 });
-    }
+    return json({ error: 'Unauthorized: Active session required' }, { status: 401 });
   }
 
   try {
@@ -33,15 +26,15 @@ export const POST: RequestHandler = async ({ params, request, locals, url }) => 
     }
 
     // 2. Authorize session ownership (Prevent student response injection into other learners)
-    const user = locals.user || { id: 'usr_student', role: 'student' };
+    const user = locals.user;
     const userRole = (user as any).role || (user as any).metadata?.role || 'student';
-    const boundLearnerId = locals.user ? resolveLearnerId(user) : session.learnerId;
+    const boundLearnerId = resolveLearnerId(user);
 
     if (userRole !== 'student' && userRole !== 'admin') {
-      return json({ error: 'Forbidden: Only the active learner may submit responses to an assessment session.' }, { status: 403 });
+      return json({ error: 'Forbidden: Only the active learner or admin may submit responses to an assessment session.' }, { status: 403 });
     }
 
-    if (userRole === 'student' && session.learnerId !== boundLearnerId && !isSandbox) {
+    if (userRole === 'student' && (!boundLearnerId || session.learnerId !== boundLearnerId)) {
       return json({ error: 'Forbidden: You cannot submit responses to an assessment session belonging to another learner.' }, { status: 403 });
     }
 
@@ -132,10 +125,11 @@ export const POST: RequestHandler = async ({ params, request, locals, url }) => 
 
     // 7. Adaptive Next-Item Selection
     const pool = coreRepository.getItemsByDomain(session.domain);
-    const isBenchmark = pool.length >= 25;
-    const maxItems = isBenchmark ? 30 : 8;
-    const minItems = isBenchmark ? 10 : 4;
-    const targetSE = isBenchmark ? 0.22 : 0.38;
+    const isBenchmark = session.mode === 'benchmark';
+    const isRapid = session.mode === 'rapid';
+    const maxItems = isBenchmark ? 30 : (isRapid ? 8 : 12);
+    const minItems = isBenchmark ? 10 : (isRapid ? 4 : 5);
+    const targetSE = isBenchmark ? 0.22 : (isRapid ? 0.38 : 0.32);
 
     const selection = selectNextAdaptiveItem(
       pool,

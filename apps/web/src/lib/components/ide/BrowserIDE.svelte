@@ -267,6 +267,8 @@
     });
   });
 
+  let executionWatchdog: any = null;
+
   // Execution Control & Workspace Ergonomics
   function stopExecution() {
     isExecuting = false;
@@ -275,6 +277,19 @@
     isDancing = false;
     isJumping = false;
     speechBubbleText = null;
+    if (executionWatchdog) {
+      clearTimeout(executionWatchdog);
+      executionWatchdog = null;
+    }
+    if (pyodideWorker) {
+      try {
+        pyodideWorker.terminate();
+        pyodideWorker = null;
+        initWorker();
+      } catch (err) {
+        console.warn('Pyodide worker restart error:', err);
+      }
+    }
     addMissionLog('Mission execution halted by user.', 'info');
     if (terminal) {
       writeToTerminal('\r\n\x1b[33m[Execution Halted]\x1b[0m\r\n$ ');
@@ -1205,6 +1220,10 @@
     try {
       pyodideWorker = new Worker('/workers/pyodide.worker.js');
       pyodideWorker.onmessage = async (event) => {
+        if (executionWatchdog) {
+          clearTimeout(executionWatchdog);
+          executionWatchdog = null;
+        }
         const { success, result, stdOut, error, telemetry } = event.data;
 
         if (terminal) {
@@ -1682,6 +1701,13 @@
     }
 
     if (pyodideWorker) {
+      if (executionWatchdog) clearTimeout(executionWatchdog);
+      executionWatchdog = setTimeout(() => {
+        if (isExecuting) {
+          addMissionLog('Execution timed out after 15s (unbounded loop detected). Halting execution.', 'error');
+          stopExecution();
+        }
+      }, 15000);
       pyodideWorker.postMessage({ id: Date.now(), code: activeCode });
     } else {
       stepRoverSimulation(activeCode);
@@ -2073,7 +2099,7 @@
     <div class="flex items-center gap-1.5 shrink-0">
       <!-- Autosave Status Indicator -->
       <div class="hidden xl:flex items-center gap-1 text-[11px] font-mono text-ink-muted mr-1" title="Autosave status">
-        <span class="size-1.5 rounded-full {cloudSyncStatus === 'saved' ? 'bg-mint' : cloudSyncStatus === 'saving' ? 'bg-brand animate-pulse' : 'bg-amber-500'}"></span>
+        <span class="size-1.5 rounded-none {cloudSyncStatus === 'saved' ? 'bg-mint' : cloudSyncStatus === 'saving' ? 'bg-brand animate-pulse' : 'bg-amber-500'}"></span>
         <span>{cloudSyncStatus === 'saved' ? 'Saved' : cloudSyncStatus === 'saving' ? 'Saving...' : 'Offline'}</span>
       </div>
 
@@ -2438,7 +2464,7 @@
             <span>🔌</span>
             <span class="hidden sm:inline">Hardware</span>
             {#if hardwareStreamState.isConnected}
-              <span class="size-1.5 rounded-full bg-mint animate-pulse"></span>
+              <span class="size-1.5 rounded-none bg-mint animate-pulse"></span>
             {/if}
           </button>
         </div>
@@ -2918,7 +2944,7 @@
                 <div class="mt-1 pt-1.5 border-t border-border/50 flex flex-col gap-1">
                   {#each dim.evidenceItems as item}
                     <span class="text-[10px] font-mono text-ink-secondary flex items-center gap-1.5">
-                      <span class="size-1 rounded-full bg-mint"></span>
+                      <span class="size-1 rounded-none bg-mint"></span>
                       {item}
                     </span>
                   {/each}

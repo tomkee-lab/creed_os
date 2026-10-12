@@ -6,9 +6,10 @@ import * as path from 'path';
 import { fileURLToPath } from 'url';
 
 // Configure the NVIDIA AI proxy via standard OpenAI provider configuration
+const nvidiaApiKey = process.env.NVIDIA_API_KEY;
 const nvidia = createOpenAI({
   baseURL: 'https://integrate.api.nvidia.com/v1',
-  apiKey: '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',
+  apiKey: nvidiaApiKey || 'missing_nvidia_key',
   compatibility: 'compatible'
 });
 
@@ -25,6 +26,10 @@ async function ensureDir() {
 
 async function normalizeRubrics() {
   await ensureDir();
+  if (!nvidiaApiKey) {
+    console.warn('⚠️ NVIDIA_API_KEY environment variable is not configured. Please set NVIDIA_API_KEY before running rubric normalization.');
+    return;
+  }
   console.log('🚀 Starting LLM Data Normalization with NVIDIA Mistral Large 3...');
 
   try {

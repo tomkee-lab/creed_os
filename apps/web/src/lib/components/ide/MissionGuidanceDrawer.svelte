@@ -246,9 +246,9 @@
           >
             <span class="truncate w-full">{step.phase}</span>
             {#if completedPrimmSteps.includes(i)}
-              <span class="size-1.5 rounded-full bg-emerald-500"></span>
+              <span class="size-1.5 rounded-none bg-emerald-500"></span>
             {:else}
-              <span class="size-1.5 rounded-full bg-border"></span>
+              <span class="size-1.5 rounded-none bg-border"></span>
             {/if}
           </button>
         {/each}

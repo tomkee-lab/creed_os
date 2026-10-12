@@ -7,19 +7,46 @@ import type { LearnerEvidence } from '@core-os/domain';
 const ALLOWED_TRUSS_TYPES = new Set(['warren', 'pratt', 'howe', 'k-truss', 'isometric', 'custom']);
 const ALLOWED_MATERIALS = new Set(['carbon', 'carbon_fiber', 'steel', 'titanium', 'aluminum', 'wood', 'composite']);
 
+const ALLOWED_COMPETENCIES = new Set([
+  'computational_thinking',
+  'stem_reasoning',
+  'scientific_inquiry',
+  'spatial_reasoning',
+  'metacognition',
+  'language_literacy'
+]);
+
 export const POST: RequestHandler = async ({ request, locals }) => {
+  // 1. Enforce active authentication
+  if (!locals.session || !locals.user) {
+    return json({ error: 'Unauthorized: Active session required' }, { status: 401 });
+  }
+
+  // 2. Authorize learner relationship (Anti-spoofing)
+  const boundLearnerId = resolveLearnerId(locals.user);
+  if (!boundLearnerId) {
+    return json(
+      { error: 'Forbidden: No authorized learner relationship associated with account' },
+      { status: 403 }
+    );
+  }
+
   try {
     const body = await request.json();
 
     // Support Robotics IDE Mission Submissions
     if (body.missionType === 'robotics' || body.telemetry) {
-      const boundLearnerId = (locals.user && resolveLearnerId(locals.user)) || '3fa85f64-5717-4562-b3fc-2c963f66afa6';
       const evidenceId = crypto.randomUUID();
       const now = new Date().toISOString();
       const telemetry = body.telemetry || {};
       const evaluation = body.evaluation || {};
       const stage = body.stage || 'primary';
       const missionTitle = body.missionTitle || 'Autonomous Robotics Kinematics Mission';
+
+      // Server verification of mission telemetry and block structure
+      const hasExecutedSteps = (telemetry.timeline?.length || 0) > 0 || telemetry.success === true;
+      const hasCodeBlocks = (evaluation.totalBlocks || 0) > 0;
+      const isVerified = hasExecutedSteps && hasCodeBlocks;
 
       const evidenceRecord: LearnerEvidence = {
         id: evidenceId,
@@ -30,18 +57,17 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         sourceTitle: missionTitle,
         summary: `Orchestrated autonomous mission in ${stage.toUpperCase()} IDE (${evaluation.totalBlocks || 0} AST nodes, ${telemetry.timeline?.length || 0} kinematic steps). Mastery: ${evaluation.developmentalBand || 'Developing'}.`,
         observedValue: {
-          scoreFraction: Math.min(1.0, Math.max(0.3, (evaluation.totalBlocks || 3) / 8)),
+          scoreFraction: isVerified ? Math.min(1.0, Math.max(0.3, (evaluation.totalBlocks || 3) / 8)) : 0.4,
           rubricCriteria: {
-            stage,
             totalBlocks: evaluation.totalBlocks || 0,
             kinematicSteps: telemetry.timeline?.length || 0,
-            developmentalBand: evaluation.developmentalBand || 'Developing'
+            verified: isVerified ? 1 : 0
           },
-          qualitativeNotes: `Last action: ${telemetry.lastAction || 'Complete'}. Sonar: ${telemetry.distance || 38}cm.`
+          qualitativeNotes: `Stage: ${stage}. Developmental band: ${evaluation.developmentalBand || 'Developing'}. Last action: ${telemetry.lastAction || 'Complete'}. Sonar: ${telemetry.distance || 38}cm.`
         },
-        confidence: 0.94,
-        evidenceStrength: 4, // Level 4: Applied Mission Task
-        status: 'validated',
+        confidence: isVerified ? 0.94 : 0.70,
+        evidenceStrength: isVerified ? 4 : 2, // Level 4 when verified
+        status: isVerified ? 'validated' : 'candidate',
         visibility: 'learner_only',
         observedAt: now,
         createdAt: now
@@ -51,20 +77,33 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
       return json({
         success: true,
-        verified: true,
+        verified: isVerified,
         evidence: evidenceRecord,
-        message: 'Robotics mission verified! Level 4 applied competency evidence recorded in your growth profile.'
+        message: isVerified
+          ? 'Robotics mission verified! Level 4 applied competency evidence recorded in your growth profile.'
+          : 'Robotics mission recorded as pending review.'
       });
     }
 
     // Support Generalized STEM Simulation Submissions (Grid Rover, Gear Train, Telemetry, Winch, Vision, PID)
     if (body.missionType === 'stem_simulation' || body.solution) {
-      const boundLearnerId = (locals.user && resolveLearnerId(locals.user)) || '3fa85f64-5717-4562-b3fc-2c963f66afa6';
       const evidenceId = crypto.randomUUID();
       const now = new Date().toISOString();
       const solution = body.solution || {};
       const missionTitle = body.missionTitle || 'Applied STEM Engineering Challenge';
-      const competency = body.competency || 'computational_thinking';
+      const requestedCompetency = String(body.competency || 'computational_thinking');
+      const competency = ALLOWED_COMPETENCIES.has(requestedCompetency) ? requestedCompetency : 'computational_thinking';
+
+      // Verify solution pass status server-side
+      const isVerified = Boolean(
+        solution.rubricResults?.verified ||
+        solution.rubricResults?.passed ||
+        solution.verified ||
+        solution.passed ||
+        (solution.summary && solution.summary.includes('Passed'))
+      );
+
+      const passRate = Number(solution.rubricResults?.passRate) || (isVerified ? 1.0 : 0.5);
 
       const evidenceRecord: LearnerEvidence = {
         id: evidenceId,
@@ -75,13 +114,16 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         sourceTitle: missionTitle,
         summary: `Validated engineering solution for ${missionTitle}. Performance: ${solution.summary || '100% specification verified'}.`,
         observedValue: {
-          scoreFraction: 1.0,
-          rubricCriteria: solution.rubricResults || { passed: true },
+          scoreFraction: isVerified ? Math.min(1.0, Math.max(0.5, passRate)) : 0.4,
+          rubricCriteria: {
+            passRate: isVerified ? passRate : 0,
+            verified: isVerified ? 1 : 0
+          },
           qualitativeNotes: body.learnerNotes || 'Verified deterministic simulator output.'
         },
-        confidence: 0.95,
-        evidenceStrength: 4, // Level 4: Applied Mission Task
-        status: 'validated',
+        confidence: isVerified ? 0.95 : 0.70,
+        evidenceStrength: isVerified ? 4 : 2, // Level 4 when verified
+        status: isVerified ? 'validated' : 'candidate',
         visibility: 'learner_only',
         observedAt: now,
         createdAt: now
@@ -91,15 +133,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
       return json({
         success: true,
-        verified: true,
+        verified: isVerified,
         evidence: evidenceRecord,
-        message: 'Engineering mission verified! Level 4 applied competency evidence recorded in your growth profile.'
+        message: isVerified
+          ? 'Engineering mission verified! Level 4 applied competency evidence recorded in your growth profile.'
+          : 'Engineering mission recorded as pending verification.'
       });
-    }
-
-    // 1. Enforce active authentication for standard structural missions
-    if (!locals.session || !locals.user) {
-      return json({ error: 'Unauthorized: Active session required' }, { status: 401 });
     }
 
     const {
@@ -111,16 +150,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       maxLoadKg,
       learnerNotes
     } = body;
-
-    // 2. Authorize learner relationship (Anti-spoofing)
-    const user = locals.user;
-    const boundLearnerId = resolveLearnerId(user);
-    if (!boundLearnerId) {
-      return json(
-        { error: 'Forbidden: No authorized learner relationship associated with account' },
-        { status: 403 }
-      );
-    }
 
     // 3. Deterministic engineering input validation
     const mass = Number(massKg);

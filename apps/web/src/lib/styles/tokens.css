@@ -201,6 +201,51 @@
   --foreground: oklch(0.955 0.012 255);
   --foreground-secondary: oklch(0.760 0.018 255);
   --foreground-muted: oklch(0.570 0.020 255);
+
+  /* Dark-Mode Calibrated Accents (High luminance on dark backgrounds) */
+  --mint: oklch(0.865 0.195 165);
+  --mint-foreground: oklch(0.120 0.025 255);
+  --mint-subtle: oklch(0.220 0.050 165);
+  --mint-hover: oklch(0.890 0.180 165);
+  --mint-active: oklch(0.840 0.200 165);
+
+  --violet: oklch(0.780 0.170 285);
+  --violet-foreground: oklch(0.120 0.025 255);
+  --violet-subtle: oklch(0.230 0.045 285);
+  --violet-hover: oklch(0.820 0.160 285);
+
+  --cyan: oklch(0.800 0.150 205);
+  --cyan-foreground: oklch(0.120 0.025 255);
+  --cyan-subtle: oklch(0.220 0.040 205);
+
+  --yellow: oklch(0.880 0.160 85);
+  --yellow-foreground: oklch(0.120 0.025 255);
+  --yellow-subtle: oklch(0.240 0.050 85);
+
+  --red: oklch(0.700 0.200 25);
+  --red-foreground: oklch(0.990 0.002 240);
+  --red-subtle: oklch(0.230 0.050 25);
+
+  --orange: oklch(0.780 0.180 55);
+  --orange-foreground: oklch(0.120 0.025 255);
+  --orange-subtle: oklch(0.240 0.050 55);
+
+  --card: var(--surface-2);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface-3);
+  --popover-foreground: var(--foreground);
+  --primary: var(--mint);
+  --primary-foreground: var(--mint-foreground);
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--surface-subtle);
+  --muted-foreground: var(--foreground-muted);
+  --accent: var(--surface-2);
+  --accent-foreground: var(--foreground);
+  --destructive: var(--red);
+  --destructive-foreground: var(--red-foreground);
+  --input: var(--border);
+  --ring: var(--mint);
 }
 
 /* Light Mode: Separate Neutral Precision Theme */

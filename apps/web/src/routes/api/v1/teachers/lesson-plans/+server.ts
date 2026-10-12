@@ -2,16 +2,35 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { coreRepository, type DifferentiatedLessonPlan } from '$lib/server/repository';
 
-export const GET: RequestHandler = async () => {
+export const GET: RequestHandler = async ({ locals }) => {
+  if (!locals.session || !locals.user) {
+    return json({ error: 'Unauthorized: Active session required' }, { status: 401 });
+  }
+
+  const role = (locals.user as any).role || (locals.user as any).metadata?.role;
+  if (!['teacher', 'counselor', 'admin'].includes(role)) {
+    return json({ error: 'Forbidden: Educator access required' }, { status: 403 });
+  }
+
   const plans = coreRepository.getLessonPlans();
   return json({ lessonPlans: plans });
 };
 
 export const POST: RequestHandler = async ({ request, locals }) => {
+  if (!locals.session || !locals.user) {
+    return json({ error: 'Unauthorized: Active session required' }, { status: 401 });
+  }
+
+  const role = (locals.user as any).role || (locals.user as any).metadata?.role;
+  if (!['teacher', 'counselor', 'admin'].includes(role)) {
+    return json({ error: 'Forbidden: Educator access required' }, { status: 403 });
+  }
+
   try {
     const body = await request.json();
+    const serverGeneratedId = `LP-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
     const newPlan: DifferentiatedLessonPlan = {
-      id: body.id || `LP-${Date.now().toString(36).toUpperCase()}`,
+      id: serverGeneratedId,
       title: body.title || 'Untitled Differentiated Lesson',
       subject: body.subject || 'STEM Reasoning',
       targetGrade: body.targetGrade || 'Class 8 / Middle Stage',

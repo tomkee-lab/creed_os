@@ -457,7 +457,7 @@
             <!-- GEAR TRAIN SIMULATOR -->
             <div class="flex items-center justify-center gap-6 py-6 w-full">
               <div class="flex flex-col items-center space-y-2">
-                <div class="w-24 h-24 rounded-full border-4 border-dashed border-indigo-400 flex items-center justify-center bg-indigo-500/10">
+                <div class="w-24 h-24 rounded-full border-4 border-dashed border-indigo-400 flex items-center justify-center bg-indigo-500/10"> <!-- allowed-circle: gear wheel -->
                   <span class="font-mono font-bold text-xs">{gearATeeth}T</span>
                 </div>
                 <span class="text-[11px] text-muted">Driving Gear (CW)</span>
@@ -467,7 +467,7 @@
               <span class="text-lg font-bold text-muted">⇄</span>
 
               <div class="flex flex-col items-center space-y-2">
-                <div class="w-36 h-36 rounded-full border-4 border-dashed border-emerald-400 flex items-center justify-center bg-emerald-500/10">
+                <div class="w-36 h-36 rounded-full border-4 border-dashed border-emerald-400 flex items-center justify-center bg-emerald-500/10"> <!-- allowed-circle: gear wheel -->
                   <span class="font-mono font-bold text-xs">{gearBTeeth}T</span>
                 </div>
                 <span class="text-[11px] text-muted">Driven Gear (CCW)</span>

@@ -459,7 +459,7 @@ export const ROBOTICS_BENCHMARK_ITEMS: AssessmentItem[] = [
   },
   // Item 20: Algorithmic Big-O Complexity of Sorting Sensor Data (CSTA 3B-AP-10)
   {
-    id: 'ITEM-ROB-010',
+    id: 'ITEM-ROB-020',
     competency: 'computational_thinking',
     skillId: 'SKILL-ROB-BIG-O-SORTING',
     code: 'ROB-020',

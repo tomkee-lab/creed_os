@@ -168,7 +168,7 @@ export class HardwareTelemetryBridge {
    * Stream active OLED visor emotion byte packet to micro:bit V2 / ESP32
    */
   public async sendEmotion(emotion: string): Promise<boolean> {
-    const clean = emotion.replace('Image.', '').trim().toUpperCase();
+    const clean = emotion.replace('Image.', '').trim().toUpperCase().replace(/[\r\n\x00-\x1f]/g, '');
     return this.sendRaw(`EMOTION:${clean}`);
   }
 
@@ -176,28 +176,33 @@ export class HardwareTelemetryBridge {
    * Stream physical motion command (jump, dance, drive, turn)
    */
   public async sendMotion(action: 'jump' | 'dance' | 'drive' | 'turn', params: any = {}): Promise<boolean> {
-    return this.sendRaw(`MOTION:${action.toUpperCase()}:${JSON.stringify(params)}`);
+    const cleanAction = action.replace(/[^A-Za-z0-9_-]/g, '').toUpperCase();
+    const cleanParams = JSON.stringify(params).replace(/[\r\n\x00-\x1f]/g, '');
+    return this.sendRaw(`MOTION:${cleanAction}:${cleanParams}`);
   }
 
   /**
    * Stream spoken dialogue or speech text
    */
   public async sendSpeech(text: string, voice: string = 'ROBOT'): Promise<boolean> {
-    return this.sendRaw(`SPEECH:${voice.toUpperCase()}:${text}`);
+    const cleanVoice = voice.replace(/[^A-Za-z0-9_-]/g, '').toUpperCase();
+    const cleanText = text.replace(/[\r\n\x00-\x1f]/g, ' ').trim();
+    return this.sendRaw(`SPEECH:${cleanVoice}:${cleanText}`);
   }
 
   /**
    * Broadcast synchronized choreography cue to multi-robot group
    */
   public async sendChoreographyCue(cue: string): Promise<boolean> {
-    return this.sendRaw(`CUE:${cue.toUpperCase()}`);
+    const cleanCue = cue.replace(/[^A-Za-z0-9_-]/g, '').toUpperCase();
+    return this.sendRaw(`CUE:${cleanCue}`);
   }
 
   /**
    * Stream 5x5 LED pixel bitmap downstream to physical micro:bit display
    */
   public async send5x5Bitmap(grid: number[][]): Promise<boolean> {
-    const flat = grid.map((r) => r.join('')).join('');
+    const flat = grid.map((r) => r.join('')).join('').replace(/[^0-9]/g, '');
     return this.sendRaw(`BITMAP:${flat}`);
   }
 

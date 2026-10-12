@@ -5,17 +5,10 @@ import { coreRepository } from '$lib/server/repository';
 import { resolveLearnerId } from '$lib/server/learnerScope';
 import type { LearnerEvidence } from '@core-os/domain';
 
-export const POST: RequestHandler = async ({ request, locals, url }) => {
-  // 1. Enforce active authentication (with safe development / sandbox bypass)
-  const isSandbox =
-    process.env.NODE_ENV !== 'production' ||
-    request.headers.get('x-sandbox-mode') === 'true' ||
-    url.searchParams.get('sandbox') === 'true';
-
+export const POST: RequestHandler = async ({ request, locals }) => {
+  // 1. Enforce active authentication
   if (!locals.session || !locals.user) {
-    if (!isSandbox) {
-      return json({ error: 'Unauthorized: Active session required' }, { status: 401 });
-    }
+    return json({ error: 'Unauthorized: Active session required' }, { status: 401 });
   }
 
   try {
@@ -27,14 +20,22 @@ export const POST: RequestHandler = async ({ request, locals, url }) => {
     }
 
     // 2. Authorize learner relationship (Child privacy / anti-spoofing)
-    const user = locals.user || { id: 'sandbox-evaluator', role: 'student' };
+    const user = locals.user;
     const userRole = (user as any).role || (user as any).metadata?.role || 'student';
-    const boundLearnerId = locals.user ? resolveLearnerId(user) : 'sandbox-learner-001';
+    const boundLearnerId = resolveLearnerId(user);
+
+    if (['student', 'parent'].includes(userRole) && !boundLearnerId) {
+      return json({ error: 'Forbidden: No learner profile bound to this account' }, { status: 403 });
+    }
 
     // Students and parents are strictly scoped to their own learner
     const effectiveLearnerId = ['student', 'parent'].includes(userRole)
-      ? boundLearnerId
+      ? boundLearnerId!
       : (learnerId || boundLearnerId);
+
+    if (!effectiveLearnerId) {
+      return json({ error: 'Forbidden: Valid learner ID required' }, { status: 403 });
+    }
 
     const mentorResponse = await chatWithSocraticMentor(message, history);
 

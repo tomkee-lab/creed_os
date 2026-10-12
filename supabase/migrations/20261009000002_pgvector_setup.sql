@@ -8,9 +8,9 @@ CREATE EXTENSION IF NOT EXISTS vector;
 ALTER TABLE competencies ADD COLUMN IF NOT EXISTS embedding vector(1536);
 ALTER TABLE skills ADD COLUMN IF NOT EXISTS embedding vector(1536);
 
--- 3. Create HNSW indexes for fast semantic search (L2 distance)
-CREATE INDEX IF NOT EXISTS competencies_embedding_idx ON competencies USING hnsw (embedding vector_l2_ops);
-CREATE INDEX IF NOT EXISTS skills_embedding_idx ON skills USING hnsw (embedding vector_l2_ops);
+-- 3. Create HNSW indexes for fast semantic search (Cosine distance)
+CREATE INDEX IF NOT EXISTS competencies_embedding_idx ON competencies USING hnsw (embedding vector_cosine_ops);
+CREATE INDEX IF NOT EXISTS skills_embedding_idx ON skills USING hnsw (embedding vector_cosine_ops);
 
 -- 4. Create an RPC function for semantic search of skills
 CREATE OR REPLACE FUNCTION match_skills (
@@ -19,8 +19,8 @@ CREATE OR REPLACE FUNCTION match_skills (
   match_count int
 )
 RETURNS TABLE (
-  id text,
-  competency_id text,
+  id uuid,
+  competency_id uuid,
   code text,
   title text,
   description text,

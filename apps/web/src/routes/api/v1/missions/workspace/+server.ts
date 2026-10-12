@@ -4,13 +4,15 @@ import { coreRepository } from '$lib/server/repository';
 import { resolveLearnerId } from '$lib/server/learnerScope';
 
 export const GET: RequestHandler = async ({ url, locals }) => {
+  if (!locals.session && !locals.user) {
+    return json({ error: 'Unauthorized: Active session required' }, { status: 401 });
+  }
+
   const missionId = url.searchParams.get('missionId') || 'robotics_default';
-  
-  // Resolve learner or development/guest fallback
-  let learnerId = 'guest_learner';
-  if (locals.user) {
-    const bound = resolveLearnerId(locals.user);
-    if (bound) learnerId = bound;
+  const learnerId = (locals.user && resolveLearnerId(locals.user)) || locals.user?.id || locals.session?.id;
+
+  if (!learnerId) {
+    return json({ error: 'Unauthorized: Valid account identifier required' }, { status: 401 });
   }
 
   const key = `${learnerId}:${missionId}`;
@@ -30,6 +32,15 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 };
 
 export const POST: RequestHandler = async ({ request, locals }) => {
+  if (!locals.session && !locals.user) {
+    return json({ error: 'Unauthorized: Active session required' }, { status: 401 });
+  }
+
+  const learnerId = (locals.user && resolveLearnerId(locals.user)) || locals.user?.id || locals.session?.id;
+  if (!learnerId) {
+    return json({ error: 'Unauthorized: Valid account identifier required' }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const {
@@ -39,12 +50,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       code = '',
       evaluation = null
     } = body;
-
-    let learnerId = 'guest_learner';
-    if (locals.user) {
-      const bound = resolveLearnerId(locals.user);
-      if (bound) learnerId = bound;
-    }
 
     const key = `${learnerId}:${missionId}`;
     const saved = coreRepository.saveWorkspace(key, {

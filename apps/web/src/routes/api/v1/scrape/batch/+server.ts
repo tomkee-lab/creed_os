@@ -14,10 +14,23 @@ export interface BatchScrapePayload {
 }
 
 export const POST: RequestHandler = async ({ request, locals }) => {
-  // Enforce session or admin / teacher authorization if available
+  // Enforce staff/admin authorization to prevent API quota drainage
+  if (!locals.session || !locals.user) {
+    return json({ error: 'Unauthorized: Active session required' }, { status: 401 });
+  }
+
+  const role = (locals.user as any).role || (locals.user as any).metadata?.role;
+  if (!['admin', 'teacher', 'counselor'].includes(role)) {
+    return json({ error: 'Forbidden: Ingestion scraping requires educator or admin authorization.' }, { status: 403 });
+  }
+
+  if (!env.FIRECRAWL_API_KEY) {
+    return json({ error: 'Firecrawl service is not configured on this instance' }, { status: 503 });
+  }
+
   try {
-    const body = (await request.json()) as BatchScrapePayload;
-    const { urls, options = { formats: ['markdown'] } } = body;
+    const body = (await request.json().catch(() => ({}))) as BatchScrapePayload;
+    const { urls } = body;
 
     if (!urls || !Array.isArray(urls) || urls.length === 0) {
       return json({ error: 'At least one URL is required in "urls" array.' }, { status: 400 });
@@ -26,10 +39,22 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     // Limit batch size to 5 URLs to respect rate limits
     const targetUrls = urls.slice(0, 5);
     const results = [];
+    const safeOptions = { formats: ['markdown'] as const };
 
     for (const url of targetUrls) {
       try {
-        const scrapeResult = (await firecrawl.scrapeUrl(url, options as any)) as any;
+        if (!url || typeof url !== 'string') {
+          results.push({ url, success: false, error: 'Invalid URL string' });
+          continue;
+        }
+
+        const parsed = new URL(url);
+        if (!['http:', 'https:'].includes(parsed.protocol)) {
+          results.push({ url, success: false, error: 'Only HTTP and HTTPS protocols allowed' });
+          continue;
+        }
+
+        const scrapeResult = (await firecrawl.scrapeUrl(url, safeOptions as any)) as any;
         results.push({
           url,
           success: scrapeResult.success !== false,

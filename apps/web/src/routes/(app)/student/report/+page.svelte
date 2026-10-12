@@ -421,5 +421,22 @@
         </a>
       </div>
     </div>
+  {:else}
+    <div class="p-12 text-center bg-surface border border-border rounded-sm space-y-4">
+      <Compass class="w-10 h-10 mx-auto text-muted" />
+      <div class="space-y-1">
+        <h3 class="text-base font-semibold text-foreground">No Benchmark Assessment Completed Yet</h3>
+        <p class="text-sm text-muted max-w-md mx-auto">
+          Complete an adaptive diagnostic in this domain to generate an international benchmark report and personalized developmental roadmap.
+        </p>
+      </div>
+      <a
+        href="/student/assessment"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-foreground text-background text-xs font-medium rounded-sm hover:opacity-90 transition-opacity"
+      >
+        <span>Launch Adaptive Assessment</span>
+        <ArrowRight class="w-3.5 h-3.5" />
+      </a>
+    </div>
   {/if}
 </div>

@@ -276,5 +276,22 @@
         </a>
       </div>
     </div>
+  {:else}
+    <div class="p-12 text-center bg-surface border border-border rounded-sm space-y-4">
+      <Compass class="w-10 h-10 mx-auto text-muted" />
+      <div class="space-y-1">
+        <h3 class="text-base font-semibold text-foreground">No Diagnostic Benchmark Reported Yet</h3>
+        <p class="text-sm text-muted max-w-md mx-auto">
+          When your student completes a benchmark assessment in this domain, their international percentile rank, growth insights, and recommended home activities will appear here.
+        </p>
+      </div>
+      <a
+        href="/student/assessment"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-foreground text-background text-xs font-medium rounded-sm hover:opacity-90 transition-opacity"
+      >
+        <span>Encourage Assessment Diagnostic</span>
+        <ArrowRight class="w-3.5 h-3.5" />
+      </a>
+    </div>
   {/if}
 </div>

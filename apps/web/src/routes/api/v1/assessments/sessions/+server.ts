@@ -5,43 +5,53 @@ import { resolveLearnerId } from '$lib/server/learnerScope';
 import { selectNextAdaptiveItem } from '@core-os/assessment';
 import type { ClientAssessmentItem } from '@core-os/domain';
 
-export const POST: RequestHandler = async ({ request, locals, url }) => {
-  // 1. Enforce active authentication (with safe development / sandbox bypass)
-  const isSandbox =
-    process.env.NODE_ENV !== 'production' ||
-    request.headers.get('x-sandbox-mode') === 'true' ||
-    url.searchParams.get('sandbox') === 'true';
-
+export const POST: RequestHandler = async ({ request, locals }) => {
+  // 1. Enforce active authentication
   if (!locals.session || !locals.user) {
-    if (!isSandbox) {
-      return json({ error: 'Unauthorized: Active session required' }, { status: 401 });
-    }
+    return json({ error: 'Unauthorized: Active session required' }, { status: 401 });
   }
 
   try {
     const body = await request.json().catch(() => ({}));
-    const user = locals.user || { id: 'usr_student', role: 'student' };
+    const user = locals.user;
     const userRole = (user as any).role || (user as any).metadata?.role || 'student';
-    const boundLearnerId = locals.user ? resolveLearnerId(user) : (body.learnerId || '3fa85f64-5717-4562-b3fc-2c963f66afa6');
+    const boundLearnerId = resolveLearnerId(user);
 
     // 2. Authorize learner relationship (Child privacy)
+    if (['student', 'parent'].includes(userRole) && !boundLearnerId) {
+      return json({ error: 'Forbidden: No learner profile bound to this account' }, { status: 403 });
+    }
+
     const effectiveLearnerId = ['student', 'parent'].includes(userRole)
-      ? boundLearnerId
+      ? boundLearnerId!
       : (body.learnerId || boundLearnerId);
 
-    const domain = body.domain || 'stem';
-    const isBenchmarkMode = body.mode === 'benchmark' || body.benchmark === true;
-    const maxItems = isBenchmarkMode ? 30 : 8;
-    const minItems = isBenchmarkMode ? 10 : 4;
+    if (!effectiveLearnerId) {
+      return json({ error: 'Bad Request: Valid learner ID required' }, { status: 400 });
+    }
 
-    const session = coreRepository.createAssessmentSession(effectiveLearnerId, domain);
+    const domain = body.domain || 'stem';
+    const mode: 'rapid' | 'benchmark' | 'diagnostic' =
+      body.mode === 'rapid'
+        ? 'rapid'
+        : (body.mode === 'benchmark' || body.benchmark === true)
+        ? 'benchmark'
+        : 'diagnostic';
+
+    const isBenchmarkMode = mode === 'benchmark';
+    const isRapidMode = mode === 'rapid';
+    const maxItems = isBenchmarkMode ? 30 : (isRapidMode ? 8 : 12);
+    const minItems = isBenchmarkMode ? 10 : (isRapidMode ? 4 : 5);
+    const targetSE = isBenchmarkMode ? 0.22 : (isRapidMode ? 0.38 : 0.32);
+
+    const session = coreRepository.createAssessmentSession(effectiveLearnerId, domain, mode);
     const pool = coreRepository.getItemsByDomain(domain);
 
     // Select initial item at θ = 0.0
     const selection = selectNextAdaptiveItem(
       pool,
       { currentTheta: 0.0, administeredItemIds: [] },
-      { minItems, maxItems, targetSE: isBenchmarkMode ? 0.22 : 0.35, currentSE: 1.0 }
+      { minItems, maxItems, targetSE, currentSE: 1.0 }
     );
 
     if (!selection.selectedItem) {

@@ -506,7 +506,7 @@
       {#if activeActionText}
         <div class="absolute bottom-2 left-2 right-2 bg-surface/95 backdrop-blur-xs border border-brand/40 px-3 py-1 rounded-sm shadow-md flex items-center justify-between text-brand text-[10px] font-mono font-bold select-none pointer-events-none z-10 animate-in fade-in-0 duration-150">
           <div class="flex items-center gap-1.5 truncate">
-            <span class="inline-block size-1.5 rounded-full bg-brand animate-ping shrink-0"></span>
+            <span class="inline-block size-1.5 rounded-none bg-brand animate-ping shrink-0"></span>
             <span class="truncate">{activeActionText}</span>
           </div>
           <span class="text-[9px] text-ink-muted shrink-0 font-normal">X:{Math.round(roverX)} Y:{Math.round(roverY)} {roverHeading}°</span>

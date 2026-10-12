@@ -1280,12 +1280,17 @@ class LocalCoreRepository {
     return this.itemBank.find((i) => i.id === id);
   }
 
-  createAssessmentSession(learnerId: string, domain: string = 'stem_reasoning'): AssessmentSession {
+  createAssessmentSession(
+    learnerId: string,
+    domain: string = 'stem_reasoning',
+    mode: 'rapid' | 'benchmark' | 'diagnostic' = 'diagnostic'
+  ): AssessmentSession {
     const sessionId = crypto.randomUUID();
     const session: AssessmentSession = {
       id: sessionId,
       learnerId,
       domain,
+      mode,
       status: 'in_progress',
       currentTheta: 0.0,
       standardError: 1.0,
@@ -1503,13 +1508,13 @@ class LocalCoreRepository {
 
   // --- Multi-Domain Global Benchmark Reports ---
   getBenchmarkReports(learnerId: string): GlobalBenchmarkReport[] {
-    return this.benchmarkReports.get(learnerId) || this.benchmarkReports.get('3fa85f64-5717-4562-b3fc-2c963f66afa6') || [];
+    return this.benchmarkReports.get(learnerId) || [];
   }
 
   getBenchmarkReport(learnerId: string, domain?: BenchmarkDomain): GlobalBenchmarkReport | undefined {
     const list = this.getBenchmarkReports(learnerId);
     if (!domain) return list[0];
-    return list.find((r) => r.domain === domain) || list[0];
+    return list.find((r) => r.domain === domain);
   }
 
   saveBenchmarkReport(learnerId: string, report: GlobalBenchmarkReport): void {

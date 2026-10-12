@@ -837,6 +837,8 @@ robot.last_action = "running"
 robot.sound_events = []
 robot.speech_events = []
 robot.timeline = []
+robot.samples_collected = []
+robot.pen_trails = []
 
 def _kinematic_sleep(seconds):
     dur = float(seconds)
