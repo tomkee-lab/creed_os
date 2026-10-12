@@ -87,7 +87,7 @@
       <div class="flex items-center gap-2">
         <button
           onclick={close}
-          class="px-2.5 py-1 text-xs rounded-none border border-border text-ink-secondary hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
+          class="px-3 py-1 text-xs rounded-none border border-border text-ink-secondary hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
         >
           Close
         </button>

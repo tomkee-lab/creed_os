@@ -85,7 +85,11 @@ export const handle: Handle = async ({ event, resolve }) => {
     } else if (
       import.meta.env.DEV &&
       (event.url.hostname === 'localhost' || event.url.hostname === '127.0.0.1') &&
-      event.cookies.get('creed_dev_session') === 'true'
+      (event.cookies.get('creed_dev_session') === 'true' ||
+        (event.cookies.get('creed_dev_session') === undefined &&
+          !pathname.startsWith('/login') &&
+          !pathname.startsWith('/signup') &&
+          !pathname.startsWith('/api/auth')))
     ) {
       // In local development, support explicit dev persona cookies strictly on loopback
       const rawUser = event.cookies.get('creed_dev_user');

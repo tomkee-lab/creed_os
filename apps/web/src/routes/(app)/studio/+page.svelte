@@ -307,7 +307,7 @@
           </button>
         </div>
         <div class="relative">
-          <Search class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-muted" />
+          <Search class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
           <input
             type="text"
             bind:value={searchQuery}
@@ -354,7 +354,7 @@
           id="prompt-input"
           bind:value={$form.prompt}
           rows={4}
-          class="w-full p-2.5 rounded-none bg-surface-subtle border {$errors.prompt ? 'border-negative ring-1 ring-negative/30' : 'border-border'} text-xs font-sans text-ink leading-relaxed focus:outline-hidden"
+          class="w-full p-2 rounded-none bg-surface-subtle border {$errors.prompt ? 'border-negative ring-1 ring-negative/30' : 'border-border'} text-xs font-sans text-ink leading-relaxed focus:outline-hidden"
         ></textarea>
         {#if $errors.prompt}
           <span class="text-[11px] font-mono text-negative flex items-center gap-1 mt-0.5">
@@ -397,7 +397,7 @@
         <span class="text-xs font-mono font-semibold text-ink block">Distractors & Diagnostic Misconceptions</span>
         <div class="space-y-2">
           {#each options as opt, idx}
-            <div class="p-2.5 rounded-none bg-surface-subtle border border-border space-y-1.5 text-xs font-mono">
+            <div class="p-2 rounded-none bg-surface-subtle border border-border space-y-1.5 text-xs font-mono">
               <div class="flex items-center gap-2">
                 <input
                   type="radio"

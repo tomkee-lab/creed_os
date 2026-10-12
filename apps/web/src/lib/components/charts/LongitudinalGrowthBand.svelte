@@ -242,7 +242,7 @@
       <button
         type="button"
         onclick={() => handleSelect(pt)}
-        class="text-left p-2.5 rounded-none border transition-all cursor-pointer {isSelected ? 'bg-surface-3 border-mint ring-1 ring-mint/30' : 'bg-surface-subtle border-border-subtle hover:bg-surface-3'}"
+        class="text-left p-2 rounded-none border transition-all cursor-pointer {isSelected ? 'bg-surface-3 border-mint ring-1 ring-mint/30' : 'bg-surface-subtle border-border-subtle hover:bg-surface-3'}"
       >
         <div class="flex items-center justify-between text-[10px] font-mono">
           <span class="{isSelected ? 'text-mint font-semibold' : 'text-foreground-muted'}">{pt.month}</span>

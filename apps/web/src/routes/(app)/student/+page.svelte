@@ -100,7 +100,7 @@
     <div class="flex flex-wrap items-center justify-between gap-4 pt-1">
       <a
         href="/student/assessment"
-        class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-sm transition-colors duration-140 shadow-xs cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand"
+        class="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-sm transition-colors duration-140 shadow-xs cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand"
       >
         <span>Start practice</span>
         <ArrowRight class="w-4 h-4" />
@@ -298,7 +298,7 @@
         </div>
         <a
           href="/student/missions/robobridge"
-          class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs transition-colors shadow-xs cursor-pointer"
+          class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs transition-colors shadow-xs cursor-pointer"
         >
           <span>Launch Mission Simulator</span>
           <ArrowRight class="w-3.5 h-3.5" />
@@ -322,7 +322,7 @@
         </div>
         <a
           href="/student/mentor"
-          class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-none bg-surface-subtle hover:bg-surface-raised border border-border text-ink font-medium text-xs transition-colors cursor-pointer"
+          class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-none bg-surface-subtle hover:bg-surface-raised border border-border text-ink font-medium text-xs transition-colors cursor-pointer"
         >
           <span>Launch Socratic Mentor</span>
           <ArrowRight class="w-3.5 h-3.5 text-ink-muted" />

@@ -83,7 +83,7 @@
           role="menuitemcheckbox"
           aria-checked={item.checked}
           onclick={() => toggleItem(item.id)}
-          class="w-full flex items-start gap-2.5 p-2 rounded-none text-left transition-micro cursor-pointer {item.checked
+          class="w-full flex items-start gap-2 p-2 rounded-none text-left transition-micro cursor-pointer {item.checked
             ? 'bg-surface-raised text-ink'
             : 'text-ink-secondary hover:bg-surface-subtle hover:text-ink'}"
         >

@@ -119,7 +119,7 @@
     </div>
 
     {#if isPendingApproval}
-      <div class="p-2.5 rounded-none bg-brand-subtle border border-brand/20 text-xs text-brand space-y-1 text-left">
+      <div class="p-2 rounded-none bg-brand-subtle border border-brand/20 text-xs text-brand space-y-1 text-left">
         <div class="font-medium flex items-center gap-1.5">
           <Icon icon="carbon:information" class="w-3.5 h-3.5" />
           <span>Registration Under Institutional Review</span>
@@ -149,13 +149,13 @@
           id="role-select-{id}"
           value={selectedRole}
           onchange={handleRoleChange}
-          class="w-full h-8 pl-2.5 pr-8 rounded-none bg-surface border border-border text-xs text-ink hover:border-border-strong focus:border-focus outline-none transition-colors appearance-none cursor-pointer"
+          class="w-full h-8 pl-2 pr-8 rounded-none bg-surface border border-border text-xs text-ink hover:border-border-strong focus:border-focus outline-none transition-colors appearance-none cursor-pointer"
         >
           {#each ROLES as r}
             <option value={r.value}>{r.label}</option>
           {/each}
         </select>
-        <ChevronDown class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink-muted group-hover:text-ink transition-colors" />
+        <ChevronDown class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink-muted group-hover:text-ink transition-colors" />
       </div>
     </Field>
 

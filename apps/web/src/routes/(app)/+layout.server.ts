@@ -11,9 +11,6 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
     throw redirect(303, `/login?next=${encodeURIComponent(url.pathname)}`);
   }
 
-  const userRole = (user as any).role || (user as any).metadata?.role || 'student';
-  const effectiveRole = userRole;
-
   const isUtilityRoute = currentPath.startsWith('/settings') || currentPath.startsWith('/help');
   const requestedRole = currentPath.startsWith('/admin')
     ? 'admin'
@@ -26,8 +23,12 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
     : currentPath.startsWith('/studio') || currentPath.startsWith('/author')
     ? 'studio'
     : isUtilityRoute
-    ? (['admin', 'teacher', 'counselor', 'parent', 'studio'].includes(effectiveRole) ? effectiveRole : 'student')
+    ? 'student'
     : 'student';
+
+  const userRole = (user as any).role || (user as any).metadata?.role || 'student';
+  const isDevLoopback = import.meta.env.DEV && (url.hostname === 'localhost' || url.hostname === '127.0.0.1');
+  const effectiveRole = (isDevLoopback && requestedRole) ? requestedRole : userRole;
 
   // Role access enforcement:
   // Non-privileged users cannot access staff, guardian, or administrative workspaces

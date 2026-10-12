@@ -9,7 +9,7 @@
 </script>
 
 <div
-  class="relative px-3 py-2.5 rounded-none min-w-47.5 transition-micro border select-none {selected
+  class="relative px-3 py-2 rounded-none min-w-47.5 transition-micro border select-none {selected
     ? 'bg-surface-3 border-mint shadow-xs'
     : 'bg-surface border-border-subtle hover:border-border'}"
 >

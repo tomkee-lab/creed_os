@@ -16,7 +16,7 @@
 
 <header class="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-border">
   <div class="space-y-1 max-w-2xl">
-    <div class="flex items-center gap-2.5">
+    <div class="flex items-center gap-2">
       <h1 class="text-2xl sm:text-[28px] font-heading font-semibold text-ink tracking-tight leading-tight">
         {title}
       </h1>

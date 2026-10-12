@@ -82,3 +82,25 @@ export function calculateStandardError(theta: number, itemsParams: IrtParams[]):
   if (testInfo <= 0.0001) return 1.5; // Baseline prior standard error
   return 1 / Math.sqrt(testInfo);
 }
+
+/**
+ * Normalized Response Time (NRT-IRT) calculation.
+ * Compares observed deliberation time against item baseline using log-normal distribution.
+ * Differentiates rapid guessing (< -1.2 z-score) from productive struggle and fatigue (> 1.2 z-score).
+ */
+export function calculateNormalizedResponseTime(
+  observedSeconds: number,
+  expectedBaselineSeconds: number = 30
+): { zTime: number; engagementState: 'rapid_guess' | 'deliberate_flow' | 'prolonged_hesitation' } {
+  const logRatio = Math.log(Math.max(1, observedSeconds)) - Math.log(expectedBaselineSeconds);
+  const zTime = Math.max(-3, Math.min(3, Math.round(logRatio * 100) / 100));
+
+  let engagementState: 'rapid_guess' | 'deliberate_flow' | 'prolonged_hesitation' = 'deliberate_flow';
+  if (zTime < -1.2) {
+    engagementState = 'rapid_guess';
+  } else if (zTime > 1.2) {
+    engagementState = 'prolonged_hesitation';
+  }
+
+  return { zTime, engagementState };
+}

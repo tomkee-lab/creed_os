@@ -198,7 +198,7 @@
         type="button"
         onclick={() => (channel = 'sms')}
         disabled={verified || otpRequested}
-        class="p-2.5 rounded-none border text-left transition-colors cursor-pointer hover:border-border-strong active:scale-95 focus-visible:outline-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-60 {channel === 'sms'
+        class="p-2 rounded-none border text-left transition-colors cursor-pointer hover:border-border-strong active:scale-95 focus-visible:outline-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-60 {channel === 'sms'
           ? 'border-brand bg-brand-subtle/30 font-medium'
           : 'border-border bg-surface'}"
       >
@@ -210,7 +210,7 @@
         type="button"
         onclick={() => (channel = 'digilocker')}
         disabled={verified || otpRequested}
-        class="p-2.5 rounded-none border text-left transition-colors cursor-pointer hover:border-border-strong active:scale-95 focus-visible:outline-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-60 {channel === 'digilocker'
+        class="p-2 rounded-none border text-left transition-colors cursor-pointer hover:border-border-strong active:scale-95 focus-visible:outline-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-60 {channel === 'digilocker'
           ? 'border-brand bg-brand-subtle/30 font-medium'
           : 'border-border bg-surface'}"
       >

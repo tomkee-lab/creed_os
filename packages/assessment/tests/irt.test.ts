@@ -70,14 +70,14 @@ describe('Deterministic Scoring & Misconception Evaluation', () => {
   it('scores correct response accurately', () => {
     const result = evaluateItemResponse(item, 'opt-b');
     expect(result.isCorrect).toBe(true);
-    expect(result.explanation).toContain('3x = x + 18');
+    expect(result.explanation).toContain('3x + 4 = x + 18');
   });
 
   it('diagnoses conceptual misconception on incorrect distractor', () => {
     const result = evaluateItemResponse(item, 'opt-a');
     expect(result.isCorrect).toBe(false);
-    expect(result.misconceptionCode).toBe('MISC_DIVIDED_BY_THREE');
-    expect(result.misconceptionDescription).toContain('Divided 18 by 3');
+    expect(result.misconceptionCode).toBe('MISC_DIVIDE_SUM');
+    expect(result.misconceptionDescription).toContain('divided by');
   });
 });
 

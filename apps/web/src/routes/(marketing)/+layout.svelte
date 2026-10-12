@@ -100,7 +100,7 @@
   >
     <div class="max-w-7xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
       <!-- Logo — Hover: brand accent glow + spring scale -->
-      <a href="/" class="flex items-center gap-2.5 group">
+      <a href="/" class="flex items-center gap-2 group">
         <div class="logo-mark w-8 h-8 rounded-none bg-brand/10 text-brand border border-brand/20 flex items-center justify-center shadow-xs">
           <CreedLogo size={20} class="transition-transform group-hover:scale-105" />
         </div>
@@ -145,7 +145,7 @@
       </nav>
 
       <!-- Right Action Buttons -->
-      <div class="flex items-center gap-2.5">
+      <div class="flex items-center gap-2">
         <!-- Theme Toggle — Celestial Rotation -->
         <button
           onclick={toggleTheme}
@@ -195,7 +195,7 @@
             <a
               {href}
               onclick={() => mobileMenuOpen = false}
-              class="mobile-nav-link px-3 py-2.5 rounded-none text-sm font-medium text-ink-secondary flex items-center justify-between"
+              class="mobile-nav-link px-3 py-2 rounded-none text-sm font-medium text-ink-secondary flex items-center justify-between"
               class:is-active={isActive(href)}
               aria-current={isActive(href) ? 'page' : undefined}
             >
@@ -209,7 +209,7 @@
             <a
               href="/login"
               onclick={() => mobileMenuOpen = false}
-              class="mobile-cta-link flex items-center justify-between px-3.5 py-2.5 rounded-none bg-brand text-brand-foreground text-sm font-semibold shadow-xs"
+              class="mobile-cta-link flex items-center justify-between px-3.5 py-2 rounded-none bg-brand text-brand-foreground text-sm font-semibold shadow-xs"
             >
               <span>Access Workspace</span>
               <ArrowRight class="w-4 h-4" />
@@ -235,7 +235,7 @@
       <div class="grid grid-cols-2 md:grid-cols-5 gap-8 text-ink-secondary">
         <!-- Col 1: Identity & Statutory -->
         <div class="col-span-2 space-y-4">
-          <div class="flex items-center gap-2.5 group">
+          <div class="flex items-center gap-2 group">
             <div class="logo-mark w-7 h-7 rounded-none bg-brand/10 text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
               <CreedLogo size={18} />
             </div>

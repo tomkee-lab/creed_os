@@ -51,7 +51,7 @@
     </div>
   </div>
 
-  <div class="p-3.5 rounded-none border border-border bg-surface-subtle flex items-start gap-2.5">
+  <div class="p-3.5 rounded-none border border-border bg-surface-subtle flex items-start gap-2">
     <Sparkles class="w-4 h-4 text-brand shrink-0 mt-0.5" />
     <div class="text-xs text-ink-secondary">
       <span class="font-semibold text-ink">Recommended Consensus Action: </span>

@@ -227,7 +227,7 @@
           type="button"
           onclick={() => table.previousPage()}
           disabled={!canPreviousPage}
-          class="inline-flex items-center gap-1 px-2.5 py-1 rounded-none border border-border bg-surface hover:bg-surface-subtle disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+          class="inline-flex items-center gap-1 px-3 py-1 rounded-none border border-border bg-surface hover:bg-surface-subtle disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
         >
           <ChevronLeft class="w-3.5 h-3.5" />
           <span>Prev</span>
@@ -237,7 +237,7 @@
           type="button"
           onclick={() => table.nextPage()}
           disabled={!canNextPage}
-          class="inline-flex items-center gap-1 px-2.5 py-1 rounded-none border border-border bg-surface hover:bg-surface-subtle disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+          class="inline-flex items-center gap-1 px-3 py-1 rounded-none border border-border bg-surface hover:bg-surface-subtle disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
         >
           <span>Next</span>
           <ChevronRight class="w-3.5 h-3.5" />

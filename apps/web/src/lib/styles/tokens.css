@@ -8,61 +8,61 @@
    ============================================================ */
 
 :root {
-  /* --- 1. Carbon Dark Scale (Application Canvas & Surfaces) --- */
-  --background: oklch(0.135 0.018 255);            /* Application canvas */
-  --surface: oklch(0.165 0.020 255);               /* Primary panels / L1 */
-  --surface-2: oklch(0.195 0.022 255);             /* Elevated cards / L2 */
-  --surface-3: oklch(0.225 0.024 255);             /* Popovers / active surfaces / L3 */
-  --surface-subtle: oklch(0.115 0.015 255);        /* Inset wells / sunken tracks */
+  /* --- 1. Mineral Light Scale (Application Canvas & Surfaces) --- */
+  --background: oklch(0.978 0.006 240);            /* Mineral Light application canvas */
+  --surface: oklch(0.965 0.008 240);               /* Primary panels / L1 */
+  --surface-2: oklch(1.000 0.000 0);               /* Elevated cards / L2 */
+  --surface-3: oklch(0.985 0.004 240);             /* Popovers / active surfaces / L3 */
+  --surface-subtle: oklch(0.945 0.010 240);        /* Inset wells / sunken tracks */
 
   /* --- 2. Structural & Technical Borders --- */
-  --border: oklch(0.285 0.022 255);                /* Structural borders */
-  --border-subtle: oklch(0.225 0.018 255);         /* Low-contrast dividers */
-  --border-strong: oklch(0.360 0.024 255);         /* Interactive / focused border */
+  --border: oklch(0.895 0.008 240);                /* Structural borders */
+  --border-subtle: oklch(0.925 0.006 240);         /* Low-contrast dividers */
+  --border-strong: oklch(0.800 0.015 240);         /* Interactive / focused border */
 
   /* --- 3. Cool Neutral Typography & Ink Scale --- */
   --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
   --font-heading: 'DM Sans Variable', 'DM Sans', var(--font-sans);
   --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
-  --foreground: oklch(0.955 0.012 255);            /* Primary text (Crisp graphite white) */
-  --foreground-secondary: oklch(0.760 0.018 255);  /* Secondary supporting text */
-  --foreground-muted: oklch(0.570 0.020 255);      /* Metadata / tertiary text */
+  --foreground: oklch(0.200 0.020 255);            /* Primary text (Crisp graphite ink) */
+  --foreground-secondary: oklch(0.440 0.022 255);  /* Secondary supporting text */
+  --foreground-muted: oklch(0.580 0.018 255);      /* Metadata / tertiary text */
 
   /* --- 4. Primary High-Voltage Accent: Performance Mint --- */
   /* Active · Success · Execute · Connected · Live · Selected · Primary CTA (<2% at rest) */
-  --mint: oklch(0.820 0.190 165);                  /* Signature Performance Mint */
-  --mint-foreground: oklch(0.135 0.018 255);       /* 12.4:1 AAA contrast on mint */
-  --mint-subtle: color-mix(in oklch, var(--mint) 12%, transparent);
-  --mint-hover: oklch(0.780 0.180 165);
-  --mint-active: oklch(0.740 0.170 165);
+  --mint: oklch(0.520 0.170 165);                  /* Signature Performance Mint */
+  --mint-foreground: oklch(0.990 0.002 240);       /* AAA contrast on light mint */
+  --mint-subtle: oklch(0.950 0.030 165);
+  --mint-hover: oklch(0.470 0.165 165);
+  --mint-active: oklch(0.430 0.160 165);
 
   /* --- 5. Secondary Technology Accent: Digital Violet --- */
   /* AI · Intelligence · Automation · Copilots · Model-related UI · Advanced tooling */
-  --violet: oklch(0.720 0.170 285);                /* Digital Violet */
-  --violet-foreground: oklch(0.955 0.012 255);
-  --violet-subtle: color-mix(in oklch, var(--violet) 12%, transparent);
-  --violet-hover: oklch(0.680 0.165 285);
+  --violet: oklch(0.540 0.160 285);                /* Digital Violet */
+  --violet-foreground: oklch(0.990 0.002 240);
+  --violet-subtle: oklch(0.950 0.030 285);
+  --violet-hover: oklch(0.490 0.155 285);
 
   /* --- 6. Supporting Technical & Operational State Accents --- */
   /* Cyan: Network, infrastructure, telemetry, links */
-  --cyan: oklch(0.780 0.140 205);
-  --cyan-foreground: oklch(0.135 0.018 255);
-  --cyan-subtle: color-mix(in oklch, var(--cyan) 12%, transparent);
+  --cyan: oklch(0.540 0.140 205);
+  --cyan-foreground: oklch(0.990 0.002 240);
+  --cyan-subtle: oklch(0.950 0.025 205);
 
   /* Electric Yellow: Warning, attention, pending state, elevated risk */
-  --yellow: oklch(0.900 0.170 105);
-  --yellow-foreground: oklch(0.135 0.018 255);
-  --yellow-subtle: color-mix(in oklch, var(--yellow) 12%, transparent);
+  --yellow: oklch(0.680 0.150 75);
+  --yellow-foreground: oklch(0.990 0.002 240);
+  --yellow-subtle: oklch(0.960 0.030 75);
 
   /* Signal Red: Destructive actions, errors, failed deployments, outages */
-  --red: oklch(0.680 0.190 25);
-  --red-foreground: oklch(0.955 0.012 255);
-  --red-subtle: color-mix(in oklch, var(--red) 12%, transparent);
+  --red: oklch(0.560 0.180 25);
+  --red-foreground: oklch(0.990 0.002 240);
+  --red-subtle: oklch(0.960 0.030 25);
 
   /* Orange: Degraded state, processing, intermediate status */
-  --orange: oklch(0.740 0.170 55);
-  --orange-foreground: oklch(0.135 0.018 255);
-  --orange-subtle: color-mix(in oklch, var(--orange) 12%, transparent);
+  --orange: oklch(0.620 0.160 55);
+  --orange-foreground: oklch(0.990 0.002 240);
+  --orange-subtle: oklch(0.960 0.030 55);
 
   /* --- 7. shadcn-svelte Semantic Conventions --- */
   --card: var(--surface-2);
@@ -154,16 +154,19 @@
   --accent-danger: var(--red);
   --accent-danger-subtle: var(--red-subtle);
 
-  /* --- 11. Strict 0px Architectural Radius System --- */
+  /* --- 11. Restrained Architectural Radius System (4px Controls, 6px Popovers, 8px Panels) --- */
   --radius-none: 0px;
-  --radius-2xs: 0px;
-  --radius-xs: 0px;
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-full: 0px;
+  --radius-2xs: 2px;
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-full: 9999px;
+  --radius-control: 4px;
+  --radius-popover: 6px;
+  --radius-panel: 8px;
 
   /* --- 12. Technical Spacing Scale (Base: 4px) --- */
   --space-1: 4px;

@@ -146,7 +146,7 @@
   <!-- Center: Spotlight Search Trigger (Cmd+K / Ctrl+K) -->
   <button
     onclick={onOpenSearch}
-    class="hidden md:flex items-center justify-between w-64 lg:w-80 px-2.5 py-1 rounded-none bg-surface-subtle border border-border text-xs text-ink-muted hover:border-border-strong hover:text-ink transition-all duration-140 group cursor-pointer active:scale-[0.99]"
+    class="hidden md:flex items-center justify-between w-64 lg:w-80 px-3 py-1 rounded-none bg-surface-subtle border border-border text-xs text-ink-muted hover:border-border-strong hover:text-ink transition-all duration-140 group cursor-pointer active:scale-[0.99]"
     aria-label="Open spotlight search"
   >
     <div class="flex items-center gap-2">
@@ -187,7 +187,7 @@
 
       <DropdownMenu.Content align="end" class="w-64 rounded-none p-1 shadow-md bg-surface-overlay border border-border">
         <!-- Profile Header In Menu -->
-        <div class="px-2.5 py-2 border-b border-border mb-1">
+        <div class="px-3 py-2 border-b border-border mb-1">
           <p class="text-xs font-semibold text-ink">{userProfile.name}</p>
           <p class="text-[11px] text-ink-secondary">{userProfile.descriptor}</p>
         </div>
@@ -210,7 +210,7 @@
         <!-- Contextual / Developer Workspace Switcher -->
         {#if import.meta.env.DEV}
           <DropdownMenu.Separator />
-          <div class="px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-ink-muted flex items-center gap-1.5">
+          <div class="px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-ink-muted flex items-center gap-1.5">
             <Wrench class="w-3 h-3" />
             <span>Dev Role Switcher</span>
           </div>

@@ -37,7 +37,7 @@
 <div class="min-h-screen bg-canvas text-ink flex flex-col justify-between p-4 sm:p-8">
   <!-- Minimal Top Header -->
   <header class="max-w-4xl mx-auto w-full flex items-center justify-between pb-8">
-    <a href="/" class="flex items-center gap-2.5 group">
+    <a href="/" class="flex items-center gap-2 group">
       <div class="w-8 h-8 rounded-none bg-brand/10 text-brand border border-brand/20 flex items-center justify-center shadow-xs group-hover:bg-brand group-hover:text-brand-foreground transition-all">
         <CreedLogo size={18} class="transition-transform group-hover:scale-105" />
       </div>

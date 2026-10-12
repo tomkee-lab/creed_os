@@ -52,7 +52,7 @@
     {#if badge}
       <div class="absolute top-3 left-3 z-10">
         <span
-          class="px-2.5 py-1 rounded-none bg-canvas/90 backdrop-blur-xs border border-border text-[10px] font-semibold uppercase tracking-wider text-ink"
+          class="px-3 py-1 rounded-none bg-canvas/90 backdrop-blur-xs border border-border text-[10px] font-semibold uppercase tracking-wider text-ink"
         >
           {badge}
         </span>
@@ -91,7 +91,7 @@
 
       <a
         href={actionHref}
-        class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs sm:text-sm transition-colors shadow-xs cursor-pointer"
+        class="inline-flex items-center gap-1.5 px-5 py-2 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs sm:text-sm transition-colors shadow-xs cursor-pointer"
       >
         <span>{actionLabel}</span>
         <ArrowRight class="w-3.5 h-3.5" />

@@ -75,7 +75,7 @@
   </div>
 
   {#if errorMsg}
-    <div class="mb-4 p-2.5 rounded-none bg-critical-subtle border border-critical/20 text-xs text-critical">
+    <div class="mb-4 p-2 rounded-none bg-critical-subtle border border-critical/20 text-xs text-critical">
       {errorMsg}
     </div>
   {/if}
@@ -90,7 +90,7 @@
           id="role"
           bind:value={selectedRole}
           disabled={loading}
-          class="w-full h-8 pl-2.5 pr-8 rounded-none bg-surface border border-border text-xs text-ink hover:border-border-strong active:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-focus focus-visible:border-focus disabled:opacity-50 disabled:pointer-events-none appearance-none cursor-pointer transition-colors"
+          class="w-full h-8 pl-2 pr-8 rounded-none bg-surface border border-border text-xs text-ink hover:border-border-strong active:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-focus focus-visible:border-focus disabled:opacity-50 disabled:pointer-events-none appearance-none cursor-pointer transition-colors"
         >
           {#each roleOptions as opt}
             <option value={opt.id}>{opt.label}</option>
@@ -113,7 +113,7 @@
         type="text"
         placeholder="Legal Full Name"
         required
-        class="w-full h-8 px-2.5 rounded-none bg-surface border border-border text-xs text-ink placeholder:text-ink-muted focus:border-focus outline-none transition-colors"
+        class="w-full h-8 px-3 rounded-none bg-surface border border-border text-xs text-ink placeholder:text-ink-muted focus:border-focus outline-none transition-colors"
       />
     </div>
 
@@ -125,7 +125,7 @@
         type="email"
         placeholder="name@organization.org"
         required
-        class="w-full h-8 px-2.5 rounded-none bg-surface border border-border text-xs text-ink placeholder:text-ink-muted focus:border-focus outline-none transition-colors"
+        class="w-full h-8 px-3 rounded-none bg-surface border border-border text-xs text-ink placeholder:text-ink-muted focus:border-focus outline-none transition-colors"
       />
     </div>
 
@@ -138,7 +138,7 @@
         placeholder="Minimum 8 characters"
         minlength="8"
         required
-        class="w-full h-8 px-2.5 rounded-none bg-surface border border-border text-xs text-ink placeholder:text-ink-muted focus:border-focus outline-none transition-colors"
+        class="w-full h-8 px-3 rounded-none bg-surface border border-border text-xs text-ink placeholder:text-ink-muted focus:border-focus outline-none transition-colors"
       />
     </div>
 

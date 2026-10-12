@@ -88,7 +88,7 @@
     {#if actionHref}
       <a
         href={actionHref}
-        class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs sm:text-sm transition-colors shadow-xs cursor-pointer"
+        class="inline-flex items-center justify-center gap-2 px-6 py-2 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs sm:text-sm transition-colors shadow-xs cursor-pointer"
       >
         <span>{actionLabel}</span>
         <ArrowRight class="w-4 h-4" />
@@ -97,7 +97,7 @@
       <button
         type="button"
         onclick={actionOnClick}
-        class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs sm:text-sm transition-colors shadow-xs cursor-pointer"
+        class="inline-flex items-center justify-center gap-2 px-6 py-2 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs sm:text-sm transition-colors shadow-xs cursor-pointer"
       >
         <span>{actionLabel}</span>
         <ArrowRight class="w-4 h-4" />

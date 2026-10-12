@@ -27,7 +27,7 @@
           <p class="text-xs text-ink-secondary">Lifelong learner record owned by the student & guardian.</p>
         </div>
 
-        <ul class="space-y-2.5 text-xs text-ink-secondary">
+        <ul class="space-y-2 text-xs text-ink-secondary">
           <li class="flex items-center gap-2">
             <Check class="w-3.5 h-3.5 text-positive shrink-0" />
             <span>Complete Learner Observatory profile</span>
@@ -49,7 +49,7 @@
 
       <a
         href="/signup"
-        class="w-full text-center py-2.5 px-4 rounded-none bg-surface-subtle hover:bg-surface-raised border border-border text-xs font-medium text-ink transition-colors cursor-pointer"
+        class="w-full text-center py-2 px-4 rounded-none bg-surface-subtle hover:bg-surface-raised border border-border text-xs font-medium text-ink transition-colors cursor-pointer"
       >
         Get Started
       </a>
@@ -64,7 +64,7 @@
           <p class="text-xs text-ink-secondary">For classrooms, counselors, and administrative leaders.</p>
         </div>
 
-        <ul class="space-y-2.5 text-xs text-ink-secondary">
+        <ul class="space-y-2 text-xs text-ink-secondary">
           <li class="flex items-center gap-2">
             <Check class="w-3.5 h-3.5 text-positive shrink-0" />
             <span>High-density Teacher Action Workspace</span>
@@ -86,7 +86,7 @@
 
       <a
         href="/schools"
-        class="w-full text-center py-2.5 px-4 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground text-xs font-medium transition-colors shadow-xs cursor-pointer"
+        class="w-full text-center py-2 px-4 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground text-xs font-medium transition-colors shadow-xs cursor-pointer"
       >
         Inquire for Your School
       </a>
