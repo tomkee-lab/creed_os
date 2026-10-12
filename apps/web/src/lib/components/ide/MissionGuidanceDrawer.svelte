@@ -395,7 +395,7 @@
         </button>
       </div>
 
-      <div class="flex-1 overflow-y-auto p-4 min-h-[380px]">
+      <div class="flex-1 overflow-y-auto p-4 min-h-95">
         <SocraticVoiceMentor
           initialTopic={`Mission ${mission.level}: ${mission.title} (${mission.cstaStandard})`}
         />

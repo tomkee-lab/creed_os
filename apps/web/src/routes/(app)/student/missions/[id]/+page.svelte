@@ -395,7 +395,7 @@
         </div>
 
         <!-- SIMULATOR CONTAINER -->
-        <div class="w-full min-h-[300px] bg-surface-raised border border-border rounded-sm p-4 flex flex-col items-center justify-center relative overflow-hidden">
+        <div class="w-full min-h-75 bg-surface-raised border border-border rounded-sm p-4 flex flex-col items-center justify-center relative overflow-hidden">
           {#if mission.simulatorType === 'truss'}
             <!-- TRUSS SVG CANVAS -->
             <svg viewBox="0 0 600 240" class="w-full h-56">
@@ -657,7 +657,7 @@
               </button>
             </div>
 
-            <div class="p-2 bg-surface-raised border border-border rounded-sm space-y-1 min-h-[50px]">
+            <div class="p-2 bg-surface-raised border border-border rounded-sm space-y-1 min-h-12.5">
               <span class="text-[10px] font-mono text-muted uppercase font-semibold">Active Sequence ({roverCommands.length}/12):</span>
               <p class="font-mono text-xs text-foreground">{roverCommands.join(' → ') || 'No commands queued.'}</p>
             </div>

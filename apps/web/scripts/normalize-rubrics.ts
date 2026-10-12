@@ -9,8 +9,7 @@ import { fileURLToPath } from 'url';
 const nvidiaApiKey = process.env.NVIDIA_API_KEY;
 const nvidia = createOpenAI({
   baseURL: 'https://integrate.api.nvidia.com/v1',
-  apiKey: nvidiaApiKey || 'missing_nvidia_key',
-  compatibility: 'compatible'
+  apiKey: nvidiaApiKey || 'missing_nvidia_key'
 });
 
 const RAW_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '../data/raw-rubrics');
