@@ -90,7 +90,7 @@
       <button
         type="submit"
         disabled={loading || !email}
-        class="w-full py-2.5 px-4 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs flex items-center justify-center gap-1.5 transition-colors disabled:opacity-40 cursor-pointer shadow-xs"
+        class="w-full py-2 px-4 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs flex items-center justify-center gap-1.5 transition-colors disabled:opacity-40 cursor-pointer shadow-xs"
       >
         <span>{loading ? 'Sending link...' : 'Send Recovery Link'}</span>
         <ArrowRight class="w-3.5 h-3.5" />

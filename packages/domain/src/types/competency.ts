@@ -6,6 +6,8 @@ export const COMPETENCY_DOMAINS = [
   'computational_thinking',
   'systems_thinking',
   'creative_problem_solving',
+  'verbal_reasoning',
+  'language_literacy',
   'metacognition'
 ] as const;
 

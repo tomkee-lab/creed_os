@@ -26,14 +26,19 @@
   onMount(() => {
     // Theme preference
     const saved = localStorage.getItem('way_theme');
-    if (saved === 'light') {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-      isDarkMode = false;
-    } else {
+    const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+    const shouldBeDark = saved === 'dark' || (saved === null && prefersDark);
+
+    if (shouldBeDark) {
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light');
+      document.documentElement.setAttribute('data-theme', 'dark');
       isDarkMode = true;
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+      document.documentElement.setAttribute('data-theme', 'light');
+      isDarkMode = false;
     }
 
     // Sidebar collapse state preference
@@ -67,10 +72,12 @@
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light');
+      document.documentElement.setAttribute('data-theme', 'dark');
       localStorage.setItem('way_theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
       document.documentElement.classList.add('light');
+      document.documentElement.setAttribute('data-theme', 'light');
       localStorage.setItem('way_theme', 'light');
     }
   }

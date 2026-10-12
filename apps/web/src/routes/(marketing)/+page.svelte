@@ -161,41 +161,64 @@
 
   let drawerOpen = $state(false);
 
-  // Leadership Team Data
-  const councilMembers = [
+  // Arra Core Team Architecture & Governance Testimonials (Flowbite Blocks Pattern · Creed OS Builders)
+  interface TeamTestimonial {
+    id: string;
+    domain: string;
+    pillarLabel: string;
+    quote: string;
+    name: string;
+    role: string;
+    affiliation: string;
+    avatar: string;
+    provenanceCode: string;
+    technicalFocus: string;
+  }
+
+  const teamTestimonials: TeamTestimonial[] = [
     {
-      name: 'Dr. Aarav Mehta',
-      role: 'Chief Psychometrician & IRT Lead',
-      bio: 'Former NCERT & ETS assessment fellow; author of discrete CAT calibration models for middle-school developmental bands.',
-      domain: 'Item Response Theory (3PL)',
-      provenance: 'ETS / NCERT Research Fellow',
-      code: 'PSY-IRT-01'
+      id: 'systems',
+      domain: 'Deterministic IRT & Core Systems',
+      pillarLabel: '01 · Systems Architecture',
+      quote:
+        'We engineered Creed OS around a non-negotiable rule: deterministic scoring before AI inference. Psychometric ability is computed through pure 3-parameter IRT algorithms, while Gemini is reserved strictly for patient, step-by-step Socratic dialogue. No hallucinations, no black-box scoring.',
+      name: 'Tom Th',
+      role: 'Core Systems Architect & Lead Engineer',
+      affiliation: 'Arra Core Team',
+      avatar: '/images/avatars/tom_th.svg',
+      provenanceCode: 'ARRA-CORE-SYS · Lead Architect',
+      technicalFocus: 'Item Response Theory & CAT Engine'
     },
     {
-      name: 'Dr. Elena Rostova',
-      role: 'Cognitive Science & Dialogue Architect',
-      bio: 'Pioneered Socratic cognitive scaffolding; specializes in adolescent inquiry without performance anxiety.',
-      domain: 'Socratic Voice Scaffolding',
-      provenance: 'Max Planck Cognitive Lab',
-      code: 'COG-SOC-04'
+      id: 'cognitive',
+      domain: 'Socratic Dialogue & Cognitive Architecture',
+      pillarLabel: '02 · Socratic Mentorship',
+      quote:
+        'Adolescent inquiry collapses the moment children feel evaluated or judged. We built the Socratic mentorship pipeline to treat mistakes as hypotheses rather than deficits—giving students a calm space to verbalize counterfactual reasoning without test anxiety.',
+      name: 'Kennedy M',
+      role: 'Cognitive Architecture & Psychometrics Lead',
+      affiliation: 'Arra Core Team',
+      avatar: '/images/avatars/kennedy_m.svg',
+      provenanceCode: 'ARRA-CORE-COG · Cognitive Systems',
+      technicalFocus: 'Inquiry Scaffolding & Metacognitive Reasoning'
     },
     {
-      name: 'Marcus Vance',
-      role: 'Principal Privacy & Systems Engineer',
-      bio: 'Architect of relationship-scoped RLS policies, DPDP verifiable parental consent state machines, and zero-knowledge audits.',
-      domain: 'DPDP Security & Cryptography',
-      provenance: 'CERN / OWASP Privacy SIG',
-      code: 'SEC-DPDP-09'
-    },
-    {
-      name: 'Dr. Aditi Sen',
-      role: 'Head of Learner Experience & Child Safety',
-      bio: 'Classroom curriculum designer; focuses on eliminating high-stakes test pressure in favor of continuous evidence capture.',
-      domain: 'Pedagogical Safety & WAY System',
-      provenance: 'Stanford Learning Design',
-      code: 'PED-EXP-12'
+      id: 'design',
+      domain: 'WAY 2.1 Design & Privacy Sovereignty',
+      pillarLabel: '03 · Quiet Editorial Design',
+      quote:
+        'We rejected the hyper-gamified reward loops and neon distractions that exhaust young learners. Creed OS is designed with quiet editorial restraint, strict 0px architectural geometry, and DPDP-compliant consent workflows that treat learners and families with dignity.',
+      name: 'Melody Ning',
+      role: 'Design Systems & Product Interaction Lead',
+      affiliation: 'Arra Core Team',
+      avatar: '/images/avatars/melody_ning.svg',
+      provenanceCode: 'ARRA-CORE-UI · Interaction Design',
+      technicalFocus: 'WAY 2.1 Design System & Child Privacy'
     }
   ];
+
+  let activeTeamIndex = $state(0);
+  const activeTeamMember = $derived(teamTestimonials[activeTeamIndex]);
 
   onMount(() => {
     if (isReducedMotion()) return;
@@ -241,7 +264,7 @@
   <!-- Centered Hero Stack (Comfortable Reading Measure) -->
   <div class="w-full max-w-3xl mx-auto px-4 sm:px-6 space-y-6 my-auto relative z-10">
     <!-- Editorial Kicker Badge -->
-    <div class="hero-reveal inline-flex items-center gap-2 px-2.5 py-0.5 rounded-none bg-surface/90 backdrop-blur-xs border border-border text-[11px] font-mono text-ink-secondary shadow-xs">
+    <div class="hero-reveal inline-flex items-center gap-2 px-3 py-0.5 rounded-none bg-surface/90 backdrop-blur-xs border border-border text-[11px] font-mono text-ink-secondary shadow-xs">
       <span class="w-1.5 h-1.5 rounded-none bg-mint animate-pulse"></span>
       <span class="tracking-wide">AI-NATIVE LEARNER INTELLIGENCE</span>
     </div>
@@ -269,14 +292,14 @@
       <a
         href="/login"
         use:magneticHover
-        class="inline-flex items-center gap-2 px-4.5 py-2 sm:px-5 sm:py-2.5 rounded-none bg-mint hover:bg-mint-hover text-mint-foreground font-medium text-xs sm:text-sm transition-micro shadow-xs cursor-pointer active-press"
+        class="inline-flex items-center gap-2 px-4.5 py-2 sm:px-5 sm:py-2 rounded-none bg-mint hover:bg-mint-hover text-mint-foreground font-medium text-xs sm:text-sm transition-micro shadow-xs cursor-pointer active-press"
       >
         <span>Access Workspace</span>
         <ArrowRight class="w-3.5 h-3.5" />
       </a>
       <a
         href="#observatory"
-        class="inline-flex items-center gap-2 px-4.5 py-2 sm:px-5 sm:py-2.5 rounded-none bg-surface/90 hover:bg-surface-subtle text-foreground border border-border font-medium text-xs sm:text-sm transition-micro cursor-pointer active-press shadow-xs"
+        class="inline-flex items-center gap-2 px-4.5 py-2 sm:px-5 sm:py-2 rounded-none bg-surface/90 hover:bg-surface-subtle text-foreground border border-border font-medium text-xs sm:text-sm transition-micro cursor-pointer active-press shadow-xs"
       >
         <span>See how it works</span>
         <ChevronDown class="w-3.5 h-3.5 text-ink-muted" />
@@ -510,7 +533,7 @@
         <!-- Linear Motion Progress Indicator -->
         <div class="h-1 bg-surface-subtle w-full border border-border overflow-hidden">
           <div
-            class="h-full bg-mint transition-all duration-300 ease-out"
+            class="h-full bg-mint transition-all duration-200 ease-out"
             style="width: {journeyProgressPercent}%;"
           ></div>
         </div>
@@ -534,7 +557,7 @@
         <!-- All 4 Phases Completed Stage Banner & Final Synthesis View -->
         <div class="p-5 rounded-none bg-mint-subtle border border-mint/40 space-y-4 animate-in fade-in duration-200">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-mint/20 pb-3">
-            <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-2">
               <div class="size-8 rounded-none bg-mint text-mint-foreground flex items-center justify-center font-bold shadow-xs">
                 <CheckCircle2 class="size-5 stroke-[2.5]" />
               </div>
@@ -551,7 +574,7 @@
               </div>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-xs px-2.5 py-1 rounded-none bg-mint text-mint-foreground font-semibold">
+              <span class="text-xs px-3 py-1 rounded-none bg-mint text-mint-foreground font-semibold">
                 4 / 4 Modalities Demonstrated
               </span>
             </div>
@@ -559,7 +582,7 @@
 
           <!-- 4 Phases Grid Readout -->
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs">
-            <div class="p-2.5 bg-surface border border-border space-y-1">
+            <div class="p-2 bg-surface border border-border space-y-1">
               <div class="flex items-center justify-between text-[10px] text-ink-muted">
                 <span>01. Baseline CAT</span>
                 <Check class="size-3 text-mint stroke-[2.5]" />
@@ -568,7 +591,7 @@
               <span class="text-[10px] text-mint block">3PL Converged</span>
             </div>
 
-            <div class="p-2.5 bg-surface border border-border space-y-1">
+            <div class="p-2 bg-surface border border-border space-y-1">
               <div class="flex items-center justify-between text-[10px] text-ink-muted">
                 <span>02. Maker Linkage</span>
                 <Check class="size-3 text-mint stroke-[2.5]" />
@@ -577,7 +600,7 @@
               <span class="text-[10px] text-mint block">4-Bar Meshed</span>
             </div>
 
-            <div class="p-2.5 bg-surface border border-border space-y-1">
+            <div class="p-2 bg-surface border border-border space-y-1">
               <div class="flex items-center justify-between text-[10px] text-ink-muted">
                 <span>03. Socratic Inquiry</span>
                 <Check class="size-3 text-mint stroke-[2.5]" />
@@ -586,7 +609,7 @@
               <span class="text-[10px] text-mint block">High Precision</span>
             </div>
 
-            <div class="p-2.5 bg-surface border border-border space-y-1">
+            <div class="p-2 bg-surface border border-border space-y-1">
               <div class="flex items-center justify-between text-[10px] text-ink-muted">
                 <span>04. Synthesis</span>
                 <Check class="size-3 text-mint stroke-[2.5]" />
@@ -930,51 +953,108 @@
   </section>
 
   <!-- ============================================================
-       7. RESEARCH & PSYCHOMETRIC COUNCIL (Team & Governance)
+       7. ARRA CORE TEAM & GOVERNANCE (Flowbite Testimonial Pattern)
        ============================================================ -->
-  <section use:revealOnScroll={{ stagger: 0.06 }} class="space-y-12 pt-8 border-t border-border-subtle">
+  <section
+    use:revealOnScroll={{ stagger: 0.06 }}
+    class="space-y-8 pt-12 pb-6 border-t border-border-subtle"
+    aria-label="Arra Core Team and Governance"
+  >
+    <!-- Section Header (Signal + Context) -->
     <div data-reveal-item class="text-center max-w-xl mx-auto space-y-2">
       <span class="text-xs font-mono font-medium text-mint tracking-wider uppercase">
-        06 · Scientific Governance
+        06 · Core Engineering & Governance
       </span>
-      <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-ink">
-        Multidisciplinary research council.
+      <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-ink font-heading">
+        Built with quiet discipline by the Arra Core team.
       </h2>
-      <p class="text-sm text-ink-secondary">
-        Cognitive scientists, psychometricians, and child safety engineers shaping ethical AI intelligence.
+      <p class="text-sm text-ink-secondary leading-relaxed">
+        Systems architects, cognitive engineers, and product designers building Creed OS from first principles.
       </p>
     </div>
 
-    <!-- 4 Members Technical Cards (Strict 0px Sharp) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {#each councilMembers as member}
-        <div data-reveal-item class="council-card p-6 rounded-none bg-surface border border-border space-y-4">
-          <div class="flex items-start justify-between gap-4">
-            <div class="flex items-center gap-3">
-              <!-- Square Avatar Technical Badge -->
-              <div class="council-badge size-10 rounded-none bg-surface-subtle border border-border flex items-center justify-center font-mono text-xs font-bold text-mint shrink-0 shadow-2xs">
-                {member.name.split(' ').map((n) => n[0]).join('')}
-              </div>
-              <div>
-                <h3 class="text-sm font-semibold text-ink">{member.name}</h3>
-                <span class="text-xs text-brand block">{member.role}</span>
-              </div>
-            </div>
-            <span class="font-mono text-[10px] bg-surface-subtle border border-border px-2 py-0.5 text-ink-muted">
-              {member.code}
-            </span>
-          </div>
-
-          <p class="text-xs text-ink-secondary leading-relaxed">
-            {member.bio}
-          </p>
-
-          <div class="pt-2 border-t border-border flex items-center justify-between text-[11px] text-ink-muted">
-            <span>Specialization: <strong class="text-ink font-medium">{member.domain}</strong></span>
-            <span class="font-mono text-[10px]">{member.provenance}</span>
-          </div>
-        </div>
+    <!-- Governance Pillar Switcher (Zero-Radius Discipline) -->
+    <div data-reveal-item class="flex flex-wrap items-center justify-center gap-2 max-w-2xl mx-auto">
+      {#each teamTestimonials as member, idx}
+        <button
+          type="button"
+          onclick={() => { activeTeamIndex = idx; }}
+          class="px-3 py-1.5 text-xs font-mono transition-micro rounded-none border cursor-pointer {activeTeamIndex === idx
+            ? 'bg-mint/10 border-mint text-mint font-semibold shadow-2xs'
+            : 'bg-surface border-border text-ink-muted hover:text-ink hover:border-border-strong'}"
+          aria-pressed={activeTeamIndex === idx}
+        >
+          {member.pillarLabel}
+        </button>
       {/each}
+    </div>
+
+    <!-- Flowbite-Svelte Blocks Testimonial Structure (Restrained OKLCH & 0px Sharp) -->
+    <div
+      data-reveal-item
+      class="testimonial-card max-w-4xl mx-auto p-8 sm:p-12 rounded-none bg-surface border border-border text-center space-y-6 shadow-xs relative overflow-hidden"
+    >
+      <!-- Architectural Accent Geometry -->
+      <div class="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-mint/40 pointer-events-none"></div>
+      <div class="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-mint/40 pointer-events-none"></div>
+      <div class="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-mint/40 pointer-events-none"></div>
+      <div class="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-mint/40 pointer-events-none"></div>
+
+      <!-- Prominent Quotes Icon (Flowbite Testimonial Icon Pattern) -->
+      <div class="flex justify-center" aria-hidden="true">
+        <svg
+          class="h-8 w-8 sm:h-10 sm:w-10 text-mint/60"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z"/>
+        </svg>
+      </div>
+
+      <!-- Semantic Figure Container for Testimonial & Figcaption Attribution -->
+      <figure class="space-y-6">
+        <!-- Blockquote Statement -->
+        <blockquote class="max-w-3xl mx-auto">
+          <p class="text-lg sm:text-xl md:text-2xl font-heading font-medium text-ink leading-relaxed tracking-tight text-balance">
+            "{activeTeamMember.quote}"
+          </p>
+        </blockquote>
+
+        <!-- Flowbite Footer Snippet: 0px Avatar & Divided Attribution -->
+        <figcaption class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+          <!-- Square 0px Avatar (Zero-Radius Rule) -->
+          <img
+            class="h-10 w-10 sm:h-12 sm:w-12 rounded-none border border-border object-cover shadow-2xs shrink-0"
+            src={activeTeamMember.avatar}
+            alt="{activeTeamMember.name} portrait"
+            width="48"
+            height="48"
+            loading="lazy"
+          />
+
+          <!-- Divided Metadata (divide-x-2) -->
+          <div class="flex items-center divide-x-2 divide-border text-left">
+            <div class="pr-3.5 font-semibold text-sm sm:text-base text-ink">
+              {activeTeamMember.name}
+            </div>
+            <div class="pl-3.5 text-xs sm:text-sm text-ink-muted">
+              <span class="text-ink-secondary font-medium">{activeTeamMember.role}</span>
+              <span class="hidden sm:inline text-ink-muted"> · {activeTeamMember.affiliation}</span>
+            </div>
+          </div>
+        </figcaption>
+      </figure>
+
+      <!-- Provenance Footnote -->
+      <div class="pt-3 border-t border-border-subtle flex flex-wrap items-center justify-between gap-2 text-[11px] text-ink-muted">
+        <span class="font-mono text-ink-muted">
+          Pillar: <strong class="text-ink font-medium">{activeTeamMember.technicalFocus}</strong>
+        </span>
+        <span class="font-mono text-[10px] bg-surface-subtle border border-border px-2 py-0.5 text-mint">
+          {activeTeamMember.provenanceCode}
+        </span>
+      </div>
     </div>
   </section>
 
@@ -1004,14 +1084,14 @@
             <a
               href="/schools"
               use:magneticHover
-              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-none bg-mint hover:bg-mint-hover text-mint-foreground font-medium text-xs sm:text-sm transition-micro shadow-xs cursor-pointer active-press"
+              class="inline-flex items-center gap-2 px-5 py-2 rounded-none bg-mint hover:bg-mint-hover text-mint-foreground font-medium text-xs sm:text-sm transition-micro shadow-xs cursor-pointer active-press"
             >
               <span>Request District Pilot</span>
               <ArrowRight class="w-3.5 h-3.5" />
             </a>
             <a
               href="/studio"
-              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-none bg-surface-subtle hover:bg-surface-raised text-ink border border-border font-medium text-xs sm:text-sm transition-micro cursor-pointer shadow-xs active-press"
+              class="inline-flex items-center gap-2 px-5 py-2 rounded-none bg-surface-subtle hover:bg-surface-raised text-ink border border-border font-medium text-xs sm:text-sm transition-micro cursor-pointer shadow-xs active-press"
             >
               <span>Explore Item Studio</span>
               <Sliders class="w-3.5 h-3.5 text-ink-muted" />
@@ -1125,33 +1205,16 @@
     transform: translateX(3px);
   }
 
-  /* --- Scientific Council Cards --- */
-  .council-card {
+  /* --- Scientific Governance Testimonial Card --- */
+  .testimonial-card {
     transition:
-      transform var(--duration-standard, 200ms) var(--ease-lagom, cubic-bezier(0.16, 1, 0.3, 1)),
-      border-color var(--duration-standard, 200ms) ease,
-      box-shadow var(--duration-standard, 200ms) ease;
+      border-color var(--duration-standard, 200ms) var(--ease-lagom, cubic-bezier(0.16, 1, 0.3, 1)),
+      box-shadow var(--duration-standard, 200ms) var(--ease-lagom, cubic-bezier(0.16, 1, 0.3, 1));
   }
 
-  .council-card:hover {
-    transform: translateY(-2px);
-    border-color: color-mix(in oklch, var(--color-brand) 35%, var(--color-border));
-    box-shadow: 0 4px 16px rgb(0 0 0 / 0.06);
-  }
-
-  .council-badge {
-    transition:
-      background-color var(--duration-micro, 140ms) ease,
-      border-color var(--duration-micro, 140ms) ease,
-      color var(--duration-micro, 140ms) ease,
-      transform var(--duration-standard, 200ms) var(--ease-lagom, cubic-bezier(0.16, 1, 0.3, 1));
-  }
-
-  .council-card:hover .council-badge {
-    background-color: color-mix(in oklch, var(--color-brand) 15%, transparent);
-    border-color: var(--color-brand);
-    color: var(--color-brand);
-    transform: scale(1.05);
+  .testimonial-card:hover {
+    border-color: color-mix(in oklch, var(--color-mint) 35%, var(--color-border));
+    box-shadow: 0 4px 20px rgb(0 0 0 / 0.04);
   }
 
   /* --- Ambient Pulse Animation for Enterprise Banner --- */
@@ -1185,8 +1248,7 @@
     .studio-frame,
     .moment-card,
     .moment-arrow,
-    .council-card,
-    .council-badge,
+    .testimonial-card,
     .ambient-vector,
     :global(.active-press:active) {
       transition: none !important;

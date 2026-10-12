@@ -6,7 +6,62 @@ import type {
   AssessmentItem,
   CompetencyDomain
 } from '@core-os/domain';
-import { CALIBRATED_ITEM_BANK } from '@core-os/assessment';
+import {
+  CALIBRATED_ITEM_BANK,
+  STEM_BENCHMARK_ITEMS,
+  ENGLISH_BENCHMARK_ITEMS,
+  ROBOTICS_BENCHMARK_ITEMS,
+  getBenchmarkItemsByDomain,
+  generateGlobalBenchmarkReport,
+  type GlobalBenchmarkReport,
+  type BenchmarkDomain
+} from '@core-os/assessment';
+
+export interface DifferentiatedLessonPlan {
+  id: string;
+  title: string;
+  subject: 'STEM Reasoning' | 'English Literacy' | 'Autonomous Robotics';
+  targetGrade: string;
+  durationMinutes: number;
+  alignedStandards: string[];
+  targetedMisconception: {
+    tag: string;
+    label: string;
+    diagnosis: string;
+  };
+  pedagogicalFramework: 'PRIMM' | 'CRA (Concrete-Representational-Abstract)' | 'Productive Struggle Scaffolding';
+  tier1Remediation: {
+    tierTitle: string;
+    studentTarget: string;
+    scaffoldStrategy: string;
+    tactileActivity: string;
+    checkQuestion: string;
+  };
+  tier2Core: {
+    tierTitle: string;
+    studentTarget: string;
+    collaborativeTask: string;
+    evidenceCheckpoint: string;
+  };
+  tier3Extension: {
+    tierTitle: string;
+    studentTarget: string;
+    inquiryChallenge: string;
+    evaluationRubric: string;
+  };
+  teacherFacilitatorNotes: string[];
+  createdAt: string;
+}
+
+export interface PedagogicalPlaybook {
+  id: string;
+  frameworkName: string;
+  tagline: string;
+  domain: 'STEM' | 'English' | 'Robotics' | 'Universal';
+  corePrinciples: Array<{ principle: string; explanation: string }>;
+  classroomImplementationSteps: Array<{ step: number; title: string; teacherAction: string; studentAction: string }>;
+  misconceptionInterventions: Array<{ misconception: string; whatNotToDo: string; recommendedIntervention: string }>;
+}
 
 export interface TeacherStudentSummary {
   id: string;
@@ -32,6 +87,209 @@ export interface ClassCohort {
   }>;
 }
 
+export interface StemMission {
+  id: string;
+  title: string;
+  code: string;
+  domain: CompetencyDomain;
+  domainTitle: string;
+  stage: 'preparatory' | 'middle' | 'secondary';
+  stageLabel: string;
+  targetGrades: string;
+  estimatedMinutes: number;
+  difficulty: 'Foundational' | 'Intermediate' | 'Advanced' | 'Olympiad';
+  brief: string;
+  pedagogicalObjective: string;
+  simulatorType: 'truss' | 'grid_rover' | 'gear_train' | 'sensor_telemetry' | 'obstacle_avoidance' | 'winch_lift' | 'cv_vision' | 'pid_control';
+  alignedStandards: string[];
+  prerequisites: string[];
+  starterCode?: string;
+  rubricCriteria: Array<{
+    criterion: string;
+    target: string;
+    importance: 'Primary' | 'Mandatory' | 'Safety Margin' | 'Excellence';
+  }>;
+}
+
+export const STEM_MISSIONS: StemMission[] = [
+  {
+    id: 'robobridge',
+    title: 'RoboBridge Structural Optimization Challenge',
+    code: 'MISSION-STRUCT-01',
+    domain: 'spatial_reasoning',
+    domainTitle: 'Spatial Reasoning & Statics',
+    stage: 'middle',
+    stageLabel: 'Middle Stage (Classes 6–8)',
+    targetGrades: 'Classes 6–8',
+    estimatedMinutes: 20,
+    difficulty: 'Intermediate',
+    brief: 'An autonomous planetary exploration rover needs to cross a 12-meter terrain chasm. Design an optimal bridge truss that withstands a 1,200kg test load with minimal structural mass and minimal center-span deflection.',
+    pedagogicalObjective: 'Understand vector tension and compression distribution across Warren, Pratt, and Howe truss configurations.',
+    simulatorType: 'truss',
+    alignedStandards: ['PISA Science Level 5', 'TIMSS Physics Statics', 'NEP 2020 Experiential Learning'],
+    prerequisites: ['Basic geometric trigonometry', 'Static force equilibrium'],
+    rubricCriteria: [
+      { criterion: 'Strength-to-Weight Ratio', target: '≥ 4.5x load capacity', importance: 'Primary' },
+      { criterion: 'Structural Mass Ceiling', target: '≤ 250 kg total mass', importance: 'Mandatory' },
+      { criterion: 'Center-Span Deflection', target: '< 18 mm under full test load', importance: 'Safety Margin' }
+    ]
+  },
+  {
+    id: 'climate-sensor',
+    title: 'Urban Heat Island Pattern Discovery',
+    code: 'MISSION-DATA-01',
+    domain: 'computational_thinking',
+    domainTitle: 'Computational Thinking & Telemetry',
+    stage: 'middle',
+    stageLabel: 'Middle Stage (Classes 6–8)',
+    targetGrades: 'Classes 6–8',
+    estimatedMinutes: 20,
+    difficulty: 'Intermediate',
+    brief: 'Analyze 10,000 spatial telemetry temperature feeds from urban sensors, filter high-frequency noise artifacts, compensate for thermal drift, and isolate microclimate heat anomalies with 95% statistical confidence.',
+    pedagogicalObjective: 'Master data cleaning, moving average signal filtering, and statistical confidence intervals on real-world IoT telemetry.',
+    simulatorType: 'sensor_telemetry',
+    alignedStandards: ['CSTA 2-DA-08', 'CBSE AI Curriculum Code 417', 'OECD Data Literacy'],
+    prerequisites: ['Mean and standard deviation', 'Basic threshold logic'],
+    rubricCriteria: [
+      { criterion: 'Data Cleaning Completeness', target: 'Eliminate 100% sensor drift artifacts', importance: 'Primary' },
+      { criterion: 'Statistical Confidence', target: '≥ 95% Confidence Interval on delta-T', importance: 'Mandatory' },
+      { criterion: 'False Positive Rejection', target: '< 2% spurious heat warnings', importance: 'Safety Margin' }
+    ]
+  },
+  {
+    id: 'mars-rover-pathfinder',
+    title: 'Mars Surface 2D Grid Sonar Pathfinder',
+    code: 'MISSION-ROBOT-01',
+    domain: 'computational_thinking',
+    domainTitle: 'Algorithmic Thinking & Navigation',
+    stage: 'preparatory',
+    stageLabel: 'Preparatory Stage (Classes 3–5)',
+    targetGrades: 'Classes 3–5',
+    estimatedMinutes: 15,
+    difficulty: 'Foundational',
+    brief: 'A planetary rover must traverse an uncharted 5x5 Martian terrain grid avoiding craters. Program the exact sequence of motion commands [MOVE FORWARD, TURN RIGHT 90°, TURN LEFT 90°] to reach the landing base with zero collisions.',
+    pedagogicalObjective: 'Build mental models of sequential algorithmic decomposition, orientation frames of reference, and coordinate mapping.',
+    simulatorType: 'grid_rover',
+    alignedStandards: ['CBSE Circular Acad-15/2026 CT Framework', 'CSTA 1A-AP-10', 'FLL Explore Rubric'],
+    prerequisites: ['Cardinal directions', 'Basic 2D grid coordinates'],
+    rubricCriteria: [
+      { criterion: 'Navigation Accuracy', target: '100% destination reach without crater collisions', importance: 'Primary' },
+      { criterion: 'Step Efficiency', target: 'Optimal path within ≤ 8 command steps', importance: 'Excellence' },
+      { criterion: 'Orientation Invariance', target: 'Zero rotational direction inversions', importance: 'Mandatory' }
+    ]
+  },
+  {
+    id: 'gear-train-mechanics',
+    title: 'Gear Train Mechanical Advantage & Torque Transmission',
+    code: 'MISSION-MECH-01',
+    domain: 'quantitative_reasoning',
+    domainTitle: 'Quantitative Reasoning & Kinematics',
+    stage: 'preparatory',
+    stageLabel: 'Preparatory Stage (Classes 3–5)',
+    targetGrades: 'Classes 3–5',
+    estimatedMinutes: 15,
+    difficulty: 'Foundational',
+    brief: 'A rover drive axle requires maximum climbing torque. Connect a driving gear with driven gears to calculate the final angular velocity, rotational direction, and mechanical advantage required to scale a 25° incline.',
+    pedagogicalObjective: 'Understand the reciprocal relationship between angular speed (RPM) and torque via integer tooth ratios.',
+    simulatorType: 'gear_train',
+    alignedStandards: ['FLL SPIKE Prime Kinematics', 'TIMSS Science Physical Forces', 'VEX IQ Mechanical Foundation'],
+    prerequisites: ['Integer multiplication and division', 'Rotational clockwise/counter-clockwise sense'],
+    rubricCriteria: [
+      { criterion: 'Gear Ratio Precision', target: 'Exact calculation of speed reduction ratio', importance: 'Primary' },
+      { criterion: 'Rotation Direction State', target: 'Correct parity for multi-gear mesh', importance: 'Mandatory' },
+      { criterion: 'Torque Balance Verification', target: 'Demonstrate conservation of mechanical power', importance: 'Safety Margin' }
+    ]
+  },
+  {
+    id: 'sonar-autonomous-rover',
+    title: 'Autonomous Rover Obstacle Avoidance & Sensor Feedback',
+    code: 'MISSION-ROBOT-02',
+    domain: 'computational_thinking',
+    domainTitle: 'Sensor Feedback & Autonomous Systems',
+    stage: 'middle',
+    stageLabel: 'Middle Stage (Classes 6–8)',
+    targetGrades: 'Classes 6–8',
+    estimatedMinutes: 25,
+    difficulty: 'Intermediate',
+    brief: 'Equip an autonomous rover with ultrasonic range-finding to navigate a dynamic proving ground. Overcome the classic corner trap flaw by implementing multi-directional scanning and state-machine recovery.',
+    pedagogicalObjective: 'Replace naive single-direction reactive loops with finite-state machine (FSM) scanning and proportional speed tapering.',
+    simulatorType: 'obstacle_avoidance',
+    alignedStandards: ['WRO RoboMission Junior', 'CSTA 2-CS-02', 'FLL Challenge Autonomous Rubric'],
+    prerequisites: ['Conditional branching (if/else)', 'Sensor threshold polling'],
+    rubricCriteria: [
+      { criterion: 'Corner Trap Evasion', target: '100% escape from 90° concave corners', importance: 'Primary' },
+      { criterion: 'Continuous Drive Speed', target: 'Maintain average velocity ≥ 45 cm/s', importance: 'Mandatory' },
+      { criterion: 'Sensor Deadzone Margin', target: 'Zero collisions within 5cm ultrasonic blind spot', importance: 'Safety Margin' }
+    ]
+  },
+  {
+    id: 'frc-winch-kinematics',
+    title: 'Vertical Winch Kinematics & Motor Holding Torque',
+    code: 'MISSION-PHYS-01',
+    domain: 'quantitative_reasoning',
+    domainTitle: 'Applied Physics & Mechanical Statics',
+    stage: 'secondary',
+    stageLabel: 'Secondary Stage (Classes 9–12)',
+    targetGrades: 'Classes 9–12',
+    estimatedMinutes: 25,
+    difficulty: 'Advanced',
+    brief: 'A 120-pound FIRST Robotics Competition (FRC) robot must hold its position on a vertical climb chain. Calculate the minimum motor holding torque required at varying spool drum radii, incorporating planetary gear reduction ratios.',
+    pedagogicalObjective: 'Synthesize rotational torque tau = r x F, gearhead mechanical efficiency, and motor stall current curves.',
+    simulatorType: 'winch_lift',
+    alignedStandards: ['FRC Engineering Principles', 'AP Physics 1 Rotational Dynamics', 'CBSE Class 11 Mechanics'],
+    prerequisites: ['Rotational equilibrium', 'Vector cross products', 'Gravitational weight'],
+    rubricCriteria: [
+      { criterion: 'Torque Calculation Accuracy', target: 'Exact minimum holding torque tau >= r * F_g', importance: 'Primary' },
+      { criterion: 'Planetary Stage Optimization', target: 'Select optimal reduction ratio (e.g. 25:1)', importance: 'Mandatory' },
+      { criterion: 'Safety Factor Headroom', target: '≥ 1.5x factor of safety above stall torque', importance: 'Safety Margin' }
+    ]
+  },
+  {
+    id: 'cv-element-tracker',
+    title: 'Computer Vision Color Segmentation & HSV Thresholding',
+    code: 'MISSION-AI-01',
+    domain: 'computational_thinking',
+    domainTitle: 'Applied AI & Computer Vision',
+    stage: 'secondary',
+    stageLabel: 'Secondary Stage (Classes 9–12)',
+    targetGrades: 'Classes 9–12',
+    estimatedMinutes: 25,
+    difficulty: 'Advanced',
+    brief: 'Develop a computer vision pipeline to detect yellow game pieces on an autonomous robotics competition field under fluctuating ambient lighting. Convert RGB/BGR frames to HSV to isolate illumination from chrominance.',
+    pedagogicalObjective: 'Understand color space geometry, hue angle invariance, and binary mask contour filtering in automated perception.',
+    simulatorType: 'cv_vision',
+    alignedStandards: ['WRO Future Engineers Vision Rubric', 'CBSE AI Subject Code 417/843', 'CSTA 3A-AP-16'],
+    prerequisites: ['Array matrix representation', 'Color spaces (RGB vs HSV)'],
+    rubricCriteria: [
+      { criterion: 'Lighting Invariance', target: 'Consistent detection under 200–1200 lux variation', importance: 'Primary' },
+      { criterion: 'Bounding Box IOU', target: 'Intersection-over-Union ≥ 0.85 on target element', importance: 'Mandatory' },
+      { criterion: 'Inference Latency', target: '< 15 ms per frame pipeline latency', importance: 'Excellence' }
+    ]
+  },
+  {
+    id: 'closed-loop-pid',
+    title: 'Closed-Loop PID Heading & Variable Ballast Stabilizer',
+    code: 'MISSION-CTRL-01',
+    domain: 'quantitative_reasoning',
+    domainTitle: 'Control Systems & Closed-Loop Dynamics',
+    stage: 'secondary',
+    stageLabel: 'Secondary Stage (Classes 9–12)',
+    targetGrades: 'Classes 9–12',
+    estimatedMinutes: 30,
+    difficulty: 'Olympiad',
+    brief: 'Tune the Proportional, Integral, and Derivative gains of an autonomous underwater robot ballast system. Eliminate steady-state depth drift and dampen resonant oscillations during sudden hydrodynamic turbulence.',
+    pedagogicalObjective: 'Analyze error signals, steady-state offset (Kp), cumulative bias (Ki), and rate-of-change damping (Kd).',
+    simulatorType: 'pid_control',
+    alignedStandards: ['IEEE Robotics Automation TC-PEBRAS', 'WRO RoboMission Senior', 'University Engineering Bridging'],
+    prerequisites: ['Differential calculus / rate of change', 'Closed-loop feedback concepts'],
+    rubricCriteria: [
+      { criterion: 'Overshoot Damping', target: 'Maximum overshoot < 8% of step setpoint', importance: 'Primary' },
+      { criterion: 'Settling Time', target: 'Step response settles within ± 2% in < 2.5s', importance: 'Mandatory' },
+      { criterion: 'Steady-State Error', target: 'e_ss = 0 via integral action without windup', importance: 'Excellence' }
+    ]
+  }
+];
+
 /**
  * Resilient In-Memory & Dual-Mode Local Repository for Core_OS.
  * Provides rich deterministic data out-of-the-box with zero setup required.
@@ -43,6 +301,10 @@ class LocalCoreRepository {
   private itemBank: AssessmentItem[] = [...CALIBRATED_ITEM_BANK];
   private pathways: Pathway[] = [];
   private classCohort: ClassCohort;
+  private benchmarkReports: Map<string, GlobalBenchmarkReport[]> = new Map();
+  private lessonPlans: DifferentiatedLessonPlan[] = [];
+  private playbooks: PedagogicalPlaybook[] = [];
+  private missions: StemMission[] = [...STEM_MISSIONS];
 
   constructor() {
     // 1. Initialize Baseline Learner Profile
@@ -137,6 +399,26 @@ class LocalCoreRepository {
           standardError: 0.40,
           descriptor: 'Expected',
           confidence: 0.79,
+          lastAssessedAt: now
+        },
+        verbal_reasoning: {
+          competency: 'verbal_reasoning',
+          title: 'Verbal Reasoning',
+          score: 3.5,
+          theta: 0.52,
+          standardError: 0.35,
+          descriptor: 'Proficient',
+          confidence: 0.84,
+          lastAssessedAt: now
+        },
+        language_literacy: {
+          competency: 'language_literacy',
+          title: 'Language & Literacy',
+          score: 3.6,
+          theta: 0.58,
+          standardError: 0.34,
+          descriptor: 'Proficient',
+          confidence: 0.85,
           lastAssessedAt: now
         }
       },
@@ -454,6 +736,349 @@ class LocalCoreRepository {
         }
       ]
     };
+
+    // 5. Initialize Seed Multi-Domain Global Benchmark Reports for Student
+    const stemReport = generateGlobalBenchmarkReport(
+      'stem',
+      0.65,
+      0.28,
+      [
+        { itemId: 'stem_001', selectedOptionId: 'opt_b', isCorrect: true },
+        { itemId: 'stem_002', selectedOptionId: 'opt_c', isCorrect: false, misconceptionTag: 'formula_inversion' },
+        { itemId: 'stem_003', selectedOptionId: 'opt_c', isCorrect: true },
+        { itemId: 'stem_004', selectedOptionId: 'opt_b', isCorrect: false, misconceptionTag: 'volume_neglect' },
+        { itemId: 'stem_005', selectedOptionId: 'opt_a', isCorrect: true },
+        { itemId: 'stem_006', selectedOptionId: 'opt_b', isCorrect: true },
+        { itemId: 'stem_007', selectedOptionId: 'opt_a', isCorrect: false, misconceptionTag: 'limiting_reagent_blindness' },
+        { itemId: 'stem_008', selectedOptionId: 'opt_d', isCorrect: true },
+        { itemId: 'stem_009', selectedOptionId: 'opt_a', isCorrect: true },
+        { itemId: 'stem_010', selectedOptionId: 'opt_b', isCorrect: true }
+      ],
+      STEM_BENCHMARK_ITEMS
+    );
+
+    const englishReport = generateGlobalBenchmarkReport(
+      'english',
+      0.52,
+      0.31,
+      [
+        { itemId: 'eng_001', selectedOptionId: 'opt_c', isCorrect: true },
+        { itemId: 'eng_002', selectedOptionId: 'opt_a', isCorrect: false, misconceptionTag: 'proximity_agreement' },
+        { itemId: 'eng_003', selectedOptionId: 'opt_b', isCorrect: true },
+        { itemId: 'eng_004', selectedOptionId: 'opt_c', isCorrect: true },
+        { itemId: 'eng_005', selectedOptionId: 'opt_b', isCorrect: false, misconceptionTag: 'literal_idiom' },
+        { itemId: 'eng_006', selectedOptionId: 'opt_d', isCorrect: true },
+        { itemId: 'eng_007', selectedOptionId: 'opt_a', isCorrect: true },
+        { itemId: 'eng_008', selectedOptionId: 'opt_c', isCorrect: false, misconceptionTag: 'correlation_causation' },
+        { itemId: 'eng_009', selectedOptionId: 'opt_a', isCorrect: true },
+        { itemId: 'eng_010', selectedOptionId: 'opt_c', isCorrect: true }
+      ],
+      ENGLISH_BENCHMARK_ITEMS
+    );
+
+    const roboticsReport = generateGlobalBenchmarkReport(
+      'robotics',
+      1.15,
+      0.24,
+      [
+        { itemId: 'rob_001', selectedOptionId: 'opt_b', isCorrect: true },
+        { itemId: 'rob_002', selectedOptionId: 'opt_c', isCorrect: true },
+        { itemId: 'rob_003', selectedOptionId: 'opt_a', isCorrect: false, misconceptionTag: 'sensor_delay_blindness' },
+        { itemId: 'rob_004', selectedOptionId: 'opt_b', isCorrect: true },
+        { itemId: 'rob_005', selectedOptionId: 'opt_b', isCorrect: false, misconceptionTag: 'bang_bang_hunting' },
+        { itemId: 'rob_006', selectedOptionId: 'opt_c', isCorrect: true },
+        { itemId: 'rob_007', selectedOptionId: 'opt_a', isCorrect: true },
+        { itemId: 'rob_008', selectedOptionId: 'opt_c', isCorrect: true },
+        { itemId: 'rob_009', selectedOptionId: 'opt_b', isCorrect: true },
+        { itemId: 'rob_010', selectedOptionId: 'opt_c', isCorrect: true }
+      ],
+      ROBOTICS_BENCHMARK_ITEMS
+    );
+
+    this.benchmarkReports.set(defaultLearnerId, [stemReport, englishReport, roboticsReport]);
+
+    // 6. Initialize Seed Differentiated Lesson Plans for Teachers
+    this.lessonPlans = [
+      {
+        id: 'LP-STEM-01',
+        title: 'Archimedes Buoyancy & Displaced Fluid Mechanics',
+        subject: 'STEM Reasoning',
+        targetGrade: 'Class 8 / Middle Stage',
+        durationMinutes: 45,
+        alignedStandards: ['PISA Science Level 5', 'TIMSS Physics Grade 8', 'NEP 2020 Experiential Science'],
+        targetedMisconception: {
+          tag: 'volume_neglect',
+          label: 'Mass-Weight vs. Displaced Fluid Volume Confusion',
+          diagnosis: '7 students in cohort incorrectly believe heavier submerged objects always experience greater buoyant forces regardless of volume.'
+        },
+        pedagogicalFramework: 'CRA (Concrete-Representational-Abstract)',
+        tier1Remediation: {
+          tierTitle: 'Tier 1: Tactile Immersion & Physical Overflow Cans',
+          studentTarget: 'Students who struggled with Archimedes questions (score < 450 PISA equivalent)',
+          scaffoldStrategy: 'Physical water displacement measurement with Eureka overflow cans before any algebraic formula is presented.',
+          tactileActivity: 'Submerge equal-volume aluminum and lead cylinders in water. Directly weigh the overflowing water on digital balance scales to prove both displace identical water mass.',
+          checkQuestion: 'If an aluminum block and lead block have identical 50 cm³ volume, which one displaces more water when completely submerged?'
+        },
+        tier2Core: {
+          tierTitle: 'Tier 2: Dual-Force Vector Modeling & Free Body Diagrams',
+          studentTarget: 'Students on grade level (PISA 450 - 580 equivalent)',
+          collaborativeTask: 'Pairs construct scale vector force diagrams balancing downward gravity force (F_g = m*g) against upward buoyant force (F_b = rho * V * g) in varying fluid densities (saltwater vs freshwater vs oil).',
+          evidenceCheckpoint: 'Accurately predict apparent weight reduction of a submerged mass in 1.2 g/cm³ brine solution.'
+        },
+        tier3Extension: {
+          tierTitle: 'Tier 3: Variable Ballast Submarine Simulation & Hydrostatic Pressure',
+          studentTarget: 'Advanced students (PISA > 580 equivalent)',
+          inquiryChallenge: 'Design a closed-loop pneumatic ballast system algorithm that calculates required air volume displacement to achieve neutral buoyancy at 10m depth under varying water temperatures.',
+          evaluationRubric: 'Algorithmic efficiency, integration of water compressibility, and explicit temperature-density correction factor.'
+        },
+        teacherFacilitatorNotes: [
+          'Strictly avoid giving the algebraic formula F_b = rho*V*g in the first 15 minutes. Let students observe overflow mass first.',
+          'Allow 140-second productive struggle pause before intervening when students ponder why lead feels lighter underwater.',
+          'Check off Tier 1 mastery individually before allowing movement to mathematical abstractions.'
+        ],
+        createdAt: now
+      },
+      {
+        id: 'LP-ENG-01',
+        title: 'Syntactic Distance & Modifying Clauses in Academic Prose',
+        subject: 'English Literacy',
+        targetGrade: 'Class 8 / Middle Stage',
+        durationMinutes: 40,
+        alignedStandards: ['CEFR B2 Vantage Reading', 'Lexile 1050L Academic Complexity', 'Common Core ELA.L.8.1'],
+        targetedMisconception: {
+          tag: 'proximity_agreement',
+          label: 'Proximity Agreement Error in Complex Sentences',
+          diagnosis: '9 students in cohort mistakenly match verb conjugation with the nearest plural noun inside intervening prepositional clauses.'
+        },
+        pedagogicalFramework: 'PRIMM',
+        tier1Remediation: {
+          tierTitle: 'Tier 1: Parenthetical Clause Scratch-Out Method',
+          studentTarget: 'Students struggling with subject-verb concord across long modifier chains',
+          scaffoldStrategy: 'Visual color-coded bracketing: cross out everything between opening preposition and closing modifier to leave bare Subject + Verb skeleton.',
+          tactileActivity: 'Physical sentence-strip editing: physically cut out intervening prepositional phrases with scissors, leaving subject directly adjacent to predicate.',
+          checkQuestion: 'In "The discovery of ancient Martian lakebeds [suggest / suggests] water flowed", what is the true grammatical subject?'
+        },
+        tier2Core: {
+          tierTitle: 'Tier 2: Sentence Expanding & Inversion Transformations',
+          studentTarget: 'Students developing fluency with academic subordinate clauses',
+          collaborativeTask: 'Peer editing carousel: students expand simple sentences by inserting prepositional, participial, and appositive modifiers, verifying subject-predicate concord at each expansion step.',
+          evidenceCheckpoint: 'Draft 3 complex compound sentences with at least two intervening clauses without concord errors.'
+        },
+        tier3Extension: {
+          tierTitle: 'Tier 3: Rhetorical Voice & Subjunctive Mood in Scientific Synthesis',
+          studentTarget: 'Advanced students demonstrating CEFR C1 readiness',
+          inquiryChallenge: 'Analyze excerpt from Charles Darwin or Rachel Carson: deconstruct how syntactic inversion and subjunctive clauses heighten rhetorical tension.',
+          evaluationRubric: 'Depth of grammatical dissection, identification of auto-antonyms (contranyms), and stylistic replication.'
+        },
+        teacherFacilitatorNotes: [
+          'Emphasize that the ear can deceive when nouns are distant: grammar requires structural parsing, not auditory guessing.',
+          'Have students read the stripped sentence aloud without the bracketed prepositional phrase.',
+          'Encourage peer verification before teacher review.'
+        ],
+        createdAt: now
+      },
+      {
+        id: 'LP-ROB-01',
+        title: 'Autonomous Closed-Loop Feedback & Proportional Steering',
+        subject: 'Autonomous Robotics',
+        targetGrade: 'Class 8-9 / Secondary Stage',
+        durationMinutes: 60,
+        alignedStandards: ['CSTA Level 3A Physical Computing', 'WRO RoboMission Junior Standard', 'IEEE Control Systems Fundamentals'],
+        targetedMisconception: {
+          tag: 'bang_bang_hunting',
+          label: 'Binary On/Off Bang-Bang Hunting vs. Smooth Proportional Attenuation',
+          diagnosis: '12 students configured autonomous line follower with discrete if(left) turn_hard_right else turn_hard_left, causing violent oscillations and track de-railing.'
+        },
+        pedagogicalFramework: 'PRIMM',
+        tier1Remediation: {
+          tierTitle: 'Tier 1: Live Oscilloscope & Motor Slew-Rate Visualization',
+          studentTarget: 'Students with jittery or erratic robot vehicle trajectories',
+          scaffoldStrategy: 'PRIMM Predict & Run: have students predict vehicle path with bang-bang control at 80% motor speed, then run live telemetry to see oscillations.',
+          tactileActivity: 'Hand-steer a physical miniature vehicle along a wavy track while wearing blinders that only allow hard-left or hard-right steering. Feel the jerkiness compared to proportional steering.',
+          checkQuestion: 'Why does increasing robot forward velocity make bang-bang steering oscillate out of control even faster?'
+        },
+        tier2Core: {
+          tierTitle: 'Tier 2: Proportional Error Formula Implementation (Kp Gain Tuning)',
+          studentTarget: 'Students implementing closed-loop feedback algorithms',
+          collaborativeTask: 'Formulate error = light_sensor_value - target_setpoint, steering_correction = Kp * error. Empirically calibrate Kp from 0.1 to 1.5 in the simulator to find critical damping.',
+          evidenceCheckpoint: 'Robot completes 3 laps of standard WRO figure-8 track with zero wheel line crossings.'
+        },
+        tier3Extension: {
+          tierTitle: 'Tier 3: PD Control with Derivative Dampening & Low-Pass Filtering',
+          studentTarget: 'Advanced students targeting competitive WRO national division',
+          inquiryChallenge: 'Incorporate derivative term Kd * (error - last_error) / dt to predict upcoming sharp hairpin turns and actively brake outer wheel before overshoot occurs.',
+          evaluationRubric: 'Telemetry stability curve, absence of limit cycles, and lap time reduction under 8.5 seconds.'
+        },
+        teacherFacilitatorNotes: [
+          'Do not reveal the Kp formula immediately. Let students experience the violent oscillation (Productive Struggle).',
+          'Use the live IDE telemetry chart to graph error vs time in real time.',
+          'Encourage students to record their Kp trials in a systematic engineering logbook.'
+        ],
+        createdAt: now
+      }
+    ];
+
+    // 7. Initialize Seed Pedagogical Guidance Playbooks
+    this.playbooks = [
+      {
+        id: 'PLAY-PRIMM',
+        frameworkName: 'PRIMM Pedagogy Framework',
+        tagline: 'Predict → Run → Investigate → Modify → Make for Algorithmic & Robotic Thinking',
+        domain: 'Robotics',
+        corePrinciples: [
+          {
+            principle: 'Never start from a blank screen',
+            explanation: 'Beginners experience cognitive overload when asked to write algorithms from scratch. Providing working baseline code lowers entry barriers.'
+          },
+          {
+            principle: 'Predict before executing',
+            explanation: 'Forcing students to predict sensor or variable outputs triggers active mental model construction before code runs.'
+          },
+          {
+            principle: 'Modify incrementally',
+            explanation: 'Changing one variable at a time establishes clear cause-and-effect relations in physical systems.'
+          }
+        ],
+        classroomImplementationSteps: [
+          {
+            step: 1,
+            title: 'Predict (5 mins)',
+            teacherAction: 'Display 6 lines of sensor loop code on projector. Ask students to write expected robot behavior on individual whiteboard.',
+            studentAction: 'Annotate code lines and write deterministic prediction before touching hardware.'
+          },
+          {
+            step: 2,
+            title: 'Run (5 mins)',
+            teacherAction: 'Trigger hardware execution without modifying parameters.',
+            studentAction: 'Observe robot behavior; note discrepancies between prediction and reality.'
+          },
+          {
+            step: 3,
+            title: 'Investigate (10 mins)',
+            teacherAction: 'Facilitate guided questions: "What line triggered that reverse pivot?"',
+            studentAction: 'Add telemetry print statements to trace variable state transitions.'
+          },
+          {
+            step: 4,
+            title: 'Modify (15 mins)',
+            teacherAction: 'Introduce constraint challenge: "Make it turn 20% tighter without losing traction."',
+            studentAction: 'Tweak thresholds and test iteratively on the competition mat.'
+          },
+          {
+            step: 5,
+            title: 'Make (25 mins)',
+            teacherAction: 'Step back to observer role; log student evidence of autonomous problem-solving.',
+            studentAction: 'Apply the mastered pattern to a novel mission obstacle.'
+          }
+        ],
+        misconceptionInterventions: [
+          {
+            misconception: 'Bang-bang control jitter on line follower',
+            whatNotToDo: 'Telling student "Just multiply error by 0.3".',
+            recommendedIntervention: 'Have student inspect the oscilloscope wave. Ask: "Is the steering ever driving straight, or is it only 100% left and 100% right?"'
+          },
+          {
+            misconception: 'Blocking delay loops freezing sensor reading',
+            whatNotToDo: 'Rewriting code for the student.',
+            recommendedIntervention: 'Simulate the loop on paper: "While the robot is sleeping for 500ms, does the distance sensor see the wall coming?"'
+          }
+        ]
+      },
+      {
+        id: 'PLAY-CRA',
+        frameworkName: 'Concrete-Representational-Abstract (CRA)',
+        tagline: 'Grounded Physical Modeling before Mathematical Abstraction in STEM',
+        domain: 'STEM',
+        corePrinciples: [
+          {
+            principle: 'Concrete Touch First',
+            explanation: 'Physical manipulation of objects builds intuitive spatial-physical representations that abstract symbols cannot convey.'
+          },
+          {
+            principle: 'Representational Schematics Second',
+            explanation: 'Translating physical observations into diagrams and vectors bridges experiential reality into mathematics.'
+          },
+          {
+            principle: 'Abstract Equations Last',
+            explanation: 'Symbolic formulas (F = m*a, rho = m/V) should only be codified after students have observed and diagrammed the phenomenon.'
+          }
+        ],
+        classroomImplementationSteps: [
+          {
+            step: 1,
+            title: 'Concrete Stage (15 mins)',
+            teacherAction: 'Distribute physical overflow beakers, brass weights, and digital balances.',
+            studentAction: 'Submerge objects, measure displaced fluid mass, record empirical data table.'
+          },
+          {
+            step: 2,
+            title: 'Representational Stage (15 mins)',
+            teacherAction: 'Guide free-body force diagramming on grid paper.',
+            studentAction: 'Draw arrows with lengths proportional to measured forces.'
+          },
+          {
+            step: 3,
+            title: 'Abstract Stage (15 mins)',
+            teacherAction: 'Introduce algebraic formalization F_b = rho * V * g.',
+            studentAction: 'Substitute measured values into equation to verify empirical match.'
+          }
+        ],
+        misconceptionInterventions: [
+          {
+            misconception: 'Heavier objects always experience greater buoyancy',
+            whatNotToDo: 'Writing Archimedes equation on board and pointing to V.',
+            recommendedIntervention: 'Submerge identical-volume aluminum and lead blocks. Have student weigh both displaced beakers on the scale.'
+          }
+        ]
+      },
+      {
+        id: 'PLAY-STRUGGLE',
+        frameworkName: 'Productive Struggle Scaffolding Policy',
+        tagline: 'Nordic Lagom Guidance: Cultivating Cognitive Tenacity without Learned Helplessness',
+        domain: 'Universal',
+        corePrinciples: [
+          {
+            principle: 'The 140-Second Silence Rule',
+            explanation: 'When a student gets stuck, teachers must observe silently for at least 140 seconds before offering any cue. Premature intervention robs the student of neural consolidation.'
+          },
+          {
+            principle: 'Socratic Prompting over Solutions',
+            explanation: 'Never answer "What should I do?". Respond with "What did the robot telemetry tell you happened at second 3?"'
+          },
+          {
+            principle: 'Normalize Debugging as Core Practice',
+            explanation: 'Errors are not defects; they are diagnostic telemetry indicating which hypothesis requires updating.'
+          }
+        ],
+        classroomImplementationSteps: [
+          {
+            step: 1,
+            title: 'Observe & Diagnose (0-140s)',
+            teacherAction: 'Stand back, observe student screen and facial cues without speaking.',
+            studentAction: 'Reread error log, test hypothesis, inspect inputs.'
+          },
+          {
+            step: 2,
+            title: 'Level 1 Cue: Clarify the Goal',
+            teacherAction: 'Ask: "What was the exact output you were expecting here?"',
+            studentAction: 'State explicit expected vs actual output.'
+          },
+          {
+            step: 3,
+            title: 'Level 2 Cue: Narrow the Search Space',
+            teacherAction: 'Ask: "Between lines 12 and 24, where is the state being modified?"',
+            studentAction: 'Focus attention on specific logic block.'
+          }
+        ],
+        misconceptionInterventions: [
+          {
+            misconception: '"I am not good at coding/math"',
+            whatNotToDo: 'Reassuring with "It is okay, this is hard for everyone".',
+            recommendedIntervention: '"Your logic up to step 3 was completely correct. Step 4 is just an unexpected test case. What input caused it?"'
+          }
+        ]
+      }
+    ];
   }
 
   // --- Profile Operations ---
@@ -562,6 +1187,26 @@ class LocalCoreRepository {
             descriptor: 'Expected',
             confidence: 0.75,
             lastAssessedAt: now
+          },
+          verbal_reasoning: {
+            competency: 'verbal_reasoning',
+            title: 'Verbal Reasoning',
+            score: 3.2,
+            theta: 0.2,
+            standardError: 0.42,
+            descriptor: 'Expected',
+            confidence: 0.78,
+            lastAssessedAt: now
+          },
+          language_literacy: {
+            competency: 'language_literacy',
+            title: 'Language & Literacy',
+            score: 3.3,
+            theta: 0.3,
+            standardError: 0.40,
+            descriptor: 'Expected',
+            confidence: 0.80,
+            lastAssessedAt: now
           }
         },
         recentEvidence: [],
@@ -627,16 +1272,25 @@ class LocalCoreRepository {
     return this.itemBank;
   }
 
+  getItemsByDomain(domain: string): AssessmentItem[] {
+    return getBenchmarkItemsByDomain(domain as any);
+  }
+
   getItemById(id: string): AssessmentItem | undefined {
     return this.itemBank.find((i) => i.id === id);
   }
 
-  createAssessmentSession(learnerId: string, domain: string = 'stem_reasoning'): AssessmentSession {
+  createAssessmentSession(
+    learnerId: string,
+    domain: string = 'stem_reasoning',
+    mode: 'rapid' | 'benchmark' | 'diagnostic' = 'diagnostic'
+  ): AssessmentSession {
     const sessionId = crypto.randomUUID();
     const session: AssessmentSession = {
       id: sessionId,
       learnerId,
       domain,
+      mode,
       status: 'in_progress',
       currentTheta: 0.0,
       standardError: 1.0,
@@ -850,6 +1504,73 @@ class LocalCoreRepository {
         readinessIndex: 3.4
       }
     ];
+  }
+
+  // --- Multi-Domain Global Benchmark Reports ---
+  getBenchmarkReports(learnerId: string): GlobalBenchmarkReport[] {
+    return this.benchmarkReports.get(learnerId) || [];
+  }
+
+  getBenchmarkReport(learnerId: string, domain?: BenchmarkDomain): GlobalBenchmarkReport | undefined {
+    const list = this.getBenchmarkReports(learnerId);
+    if (!domain) return list[0];
+    return list.find((r) => r.domain === domain);
+  }
+
+  saveBenchmarkReport(learnerId: string, report: GlobalBenchmarkReport): void {
+    const existing = this.benchmarkReports.get(learnerId) || [];
+    const filtered = existing.filter((r) => r.domain !== report.domain);
+    filtered.unshift(report);
+    this.benchmarkReports.set(learnerId, filtered);
+  }
+
+  // --- Teacher Lesson Plan Studio & Guidance Operations ---
+  getLessonPlans(): DifferentiatedLessonPlan[] {
+    return this.lessonPlans;
+  }
+
+  getLessonPlanById(id: string): DifferentiatedLessonPlan | undefined {
+    return this.lessonPlans.find((lp) => lp.id === id);
+  }
+
+  saveLessonPlan(plan: DifferentiatedLessonPlan): DifferentiatedLessonPlan {
+    const existingIndex = this.lessonPlans.findIndex((lp) => lp.id === plan.id);
+    if (existingIndex >= 0) {
+      this.lessonPlans[existingIndex] = plan;
+    } else {
+      this.lessonPlans.unshift(plan);
+    }
+    return plan;
+  }
+
+  getTeacherGuidancePlaybooks(): PedagogicalPlaybook[] {
+    return this.playbooks;
+  }
+
+  // --- STEM & Robotics Applied Missions Operations ---
+  getMissions(stage?: string, domain?: string): StemMission[] {
+    return this.missions.filter((m) => {
+      const matchStage = !stage || stage === 'all' || m.stage === stage;
+      const matchDomain = !domain || domain === 'all' || m.domain === domain;
+      return matchStage && matchDomain;
+    });
+  }
+
+  getMissionById(id: string): StemMission | undefined {
+    return this.missions.find((m) => m.id === id);
+  }
+
+  // Robotics & Visual IDE Workspace Persistence
+  private workspaceStore: Map<string, { workspace: any; stage: string; code: string; evaluation: any; updatedAt: string }> = new Map();
+
+  saveWorkspace(key: string, data: { workspace: any; stage: string; code: string; evaluation: any }) {
+    const entry = { ...data, updatedAt: new Date().toISOString() };
+    this.workspaceStore.set(key, entry);
+    return entry;
+  }
+
+  getWorkspace(key: string) {
+    return this.workspaceStore.get(key) || null;
   }
 }
 

@@ -84,7 +84,7 @@
       tabindex="-1"
     >
       <!-- Search Input Header -->
-      <div class="flex items-center gap-2.5 px-3.5 py-3 border-b border-border bg-surface">
+      <div class="flex items-center gap-2 px-3.5 py-3 border-b border-border bg-surface">
         <Search class="w-4 h-4 text-ink-muted shrink-0" />
         <input
           bind:value={searchQuery}
@@ -115,7 +115,7 @@
           {#each filteredItems as item}
             <button
               onclick={() => selectItem(item.href)}
-              class="w-full text-left px-2.5 py-2 rounded-none text-xs hover:bg-surface-subtle flex items-center justify-between gap-3 group transition-colors cursor-pointer"
+              class="w-full text-left px-3 py-2 rounded-none text-xs hover:bg-surface-subtle flex items-center justify-between gap-3 group transition-colors cursor-pointer"
             >
               <div class="flex flex-col min-w-0">
                 <div class="flex items-center gap-2">

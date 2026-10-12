@@ -230,7 +230,7 @@
     <div>
       <a
         href="/student/assessment"
-        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-sm transition-colors duration-140 cursor-pointer"
+        class="inline-flex items-center gap-2 px-5 py-2 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-sm transition-colors duration-140 cursor-pointer"
       >
         <span>Start 20-min practice</span>
         <ArrowRight class="w-4 h-4" />
@@ -255,21 +255,21 @@
         <button
           type="button"
           onclick={() => (activeFilter = 'all')}
-          class="px-2.5 py-1 text-xs border-r transition-colors cursor-pointer {activeFilter === 'all' ? 'bg-surface-subtle font-medium text-ink' : 'bg-surface text-ink-secondary hover:text-ink'}"
+          class="px-3 py-1 text-xs border-r transition-colors cursor-pointer {activeFilter === 'all' ? 'bg-surface-subtle font-medium text-ink' : 'bg-surface text-ink-secondary hover:text-ink'}"
         >
           All
         </button>
         <button
           type="button"
           onclick={() => (activeFilter = 'assessment')}
-          class="px-2.5 py-1 text-xs border-r transition-colors cursor-pointer {activeFilter === 'assessment' ? 'bg-surface-subtle font-medium text-ink' : 'bg-surface text-ink-secondary hover:text-ink'}"
+          class="px-3 py-1 text-xs border-r transition-colors cursor-pointer {activeFilter === 'assessment' ? 'bg-surface-subtle font-medium text-ink' : 'bg-surface text-ink-secondary hover:text-ink'}"
         >
           Diagnostics
         </button>
         <button
           type="button"
           onclick={() => (activeFilter = 'project')}
-          class="px-2.5 py-1 text-xs transition-colors cursor-pointer {activeFilter === 'project' ? 'bg-surface-subtle font-medium text-ink' : 'bg-surface text-ink-secondary hover:text-ink'}"
+          class="px-3 py-1 text-xs transition-colors cursor-pointer {activeFilter === 'project' ? 'bg-surface-subtle font-medium text-ink' : 'bg-surface text-ink-secondary hover:text-ink'}"
         >
           Projects
         </button>

@@ -61,7 +61,7 @@
 <div class="min-h-screen flex flex-col justify-between p-3 sm:p-4 lg:p-5 bg-canvas text-ink overflow-x-hidden">
   <!-- Top Minimal Header (Clean, Symmetrical, Aligned to Portal Width) -->
   <header class="login-header-reveal flex items-center justify-between max-w-4xl mx-auto w-full py-1">
-    <div class="flex items-center gap-2.5">
+    <div class="flex items-center gap-2">
       <a href="/" class="flex items-center gap-2 font-medium group">
         <div class="flex size-7 items-center justify-center rounded-none bg-brand/10 text-brand border border-brand/20 shadow-xs group-hover:bg-brand group-hover:text-brand-foreground transition-all duration-200">
           <CreedLogo size={16} />
@@ -97,11 +97,11 @@
         <img
           src="/images/illustrations/login_observatory.jpg"
           alt="CREED OS Learner Intelligence Observatory"
-          class="login-image-layer absolute inset-0 h-full w-full object-cover object-center dark:brightness-[0.94] dark:contrast-[1.02] transition-transform duration-700 ease-out hover:scale-[1.015]"
+          class="login-image-layer absolute inset-0 h-full w-full object-cover object-center dark:brightness-[0.94] dark:contrast-[1.02] transition-transform duration-200 ease-out hover:scale-[1.015]"
           loading="eager"
         />
         <!-- Subtle corner plate tag -->
-        <div class="absolute top-2.5 left-2.5 z-10">
+        <div class="absolute top-2 left-2 z-10">
           <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-none bg-canvas/85 backdrop-blur-xs border border-border/80 text-[10px] font-mono uppercase tracking-wider text-ink font-semibold">
             <span class="w-1.5 h-1.5 bg-mint rounded-none"></span>
             EVD-3904 · OBSERVATORY

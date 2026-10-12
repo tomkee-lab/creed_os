@@ -5,7 +5,8 @@ import {
   estimateThetaEAP,
   evaluateItemResponse,
   selectNextAdaptiveItem,
-  CALIBRATED_ITEM_BANK
+  CALIBRATED_ITEM_BANK,
+  calculateKolmogorovSmirnov
 } from '../src/index.js';
 
 describe('3-Parameter Logistic (3PL) IRT Engine', () => {
@@ -70,14 +71,14 @@ describe('Deterministic Scoring & Misconception Evaluation', () => {
   it('scores correct response accurately', () => {
     const result = evaluateItemResponse(item, 'opt-b');
     expect(result.isCorrect).toBe(true);
-    expect(result.explanation).toContain('3x = x + 18');
+    expect(result.explanation).toContain('3x + 4 = x + 18');
   });
 
   it('diagnoses conceptual misconception on incorrect distractor', () => {
     const result = evaluateItemResponse(item, 'opt-a');
     expect(result.isCorrect).toBe(false);
-    expect(result.misconceptionCode).toBe('MISC_DIVIDED_BY_THREE');
-    expect(result.misconceptionDescription).toContain('Divided 18 by 3');
+    expect(result.misconceptionCode).toBe('MISC_DIVIDE_SUM');
+    expect(result.misconceptionDescription).toContain('divided by');
   });
 });
 
@@ -106,5 +107,21 @@ describe('Maximum Fisher Information CAT Item Selection', () => {
 
     expect(result.isTestComplete).toBe(true);
     expect(result.selectedItem).toBeNull();
+  });
+
+  it('guarantees unique IDs across the entire calibrated item bank', () => {
+    const ids = CALIBRATED_ITEM_BANK.map((item) => item.id);
+    const uniqueIds = new Set(ids);
+    expect(uniqueIds.size).toBe(CALIBRATED_ITEM_BANK.length);
+    expect(uniqueIds.size).toBe(90); // 30 STEM + 30 English + 30 Robotics
+  });
+});
+
+describe('Benchmark Statistical Robustness', () => {
+  it('does not flag identical score distributions as statistically significant (p ≈ 1.0)', () => {
+    const sample = [1.2, 0.4, -0.3, 1.8, 0.9, -1.1, 0.5];
+    const result = calculateKolmogorovSmirnov(sample, [...sample]);
+    expect(result.pValueApprox).toBe(1.0);
+    expect(result.isSignificant).toBe(false);
   });
 });

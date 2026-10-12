@@ -5,7 +5,9 @@ import { resolveLearnerId } from '$lib/server/learnerScope';
 import {
   evaluateItemResponse,
   estimateThetaEAP,
-  selectNextAdaptiveItem
+  selectNextAdaptiveItem,
+  generateGlobalBenchmarkReport,
+  type BenchmarkDomain
 } from '@core-os/assessment';
 import type { ClientAssessmentItem, LearnerEvidence } from '@core-os/domain';
 
@@ -29,10 +31,10 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     const boundLearnerId = resolveLearnerId(user);
 
     if (userRole !== 'student' && userRole !== 'admin') {
-      return json({ error: 'Forbidden: Only the active learner may submit responses to an assessment session.' }, { status: 403 });
+      return json({ error: 'Forbidden: Only the active learner or admin may submit responses to an assessment session.' }, { status: 403 });
     }
 
-    if (userRole === 'student' && session.learnerId !== boundLearnerId) {
+    if (userRole === 'student' && (!boundLearnerId || session.learnerId !== boundLearnerId)) {
       return json({ error: 'Forbidden: You cannot submit responses to an assessment session belonging to another learner.' }, { status: 403 });
     }
 
@@ -122,7 +124,13 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     coreRepository.addEvidence(newEvidence);
 
     // 7. Adaptive Next-Item Selection
-    const pool = coreRepository.getItemBank();
+    const pool = coreRepository.getItemsByDomain(session.domain);
+    const isBenchmark = session.mode === 'benchmark';
+    const isRapid = session.mode === 'rapid';
+    const maxItems = isBenchmark ? 30 : (isRapid ? 8 : 12);
+    const minItems = isBenchmark ? 10 : (isRapid ? 4 : 5);
+    const targetSE = isBenchmark ? 0.22 : (isRapid ? 0.38 : 0.32);
+
     const selection = selectNextAdaptiveItem(
       pool,
       {
@@ -130,9 +138,9 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
         administeredItemIds: session.administeredItemIds
       },
       {
-        minItems: 4,
-        maxItems: 8,
-        targetSE: 0.38,
+        minItems,
+        maxItems,
+        targetSE,
         currentSE: eapResult.standardError
       }
     );
@@ -141,6 +149,28 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
       session.status = 'completed';
       session.completedAt = new Date().toISOString();
       coreRepository.saveAssessmentSession(session);
+
+      const domainKey: BenchmarkDomain =
+        session.domain === 'english' || session.domain === 'language_literacy'
+          ? 'english'
+          : session.domain === 'robotics' || session.domain === 'computational_thinking'
+          ? 'robotics'
+          : 'stem';
+
+      const benchmarkReport = generateGlobalBenchmarkReport(
+        domainKey,
+        eapResult.theta,
+        eapResult.standardError,
+        session.history.map((h) => ({
+          itemId: h.itemId,
+          selectedOptionId: h.selectedOptionId,
+          isCorrect: h.isCorrect,
+          misconceptionTag: h.misconceptionCode
+        })),
+        pool
+      );
+
+      coreRepository.saveBenchmarkReport(session.learnerId, benchmarkReport);
 
       return json({
         sessionId: session.id,
@@ -157,7 +187,8 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
           finalTheta: eapResult.theta,
           finalStandardError: eapResult.standardError,
           itemsCount: session.itemsAnswered,
-          evidenceGeneratedId: newEvidence.id
+          evidenceGeneratedId: newEvidence.id,
+          benchmarkReport
         }
       });
     }

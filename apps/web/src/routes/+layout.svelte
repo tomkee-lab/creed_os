@@ -11,12 +11,17 @@
   onMount(() => {
     hydrated = true;
     const savedTheme = localStorage.getItem('way_theme');
-    if (savedTheme === 'light') {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-    } else {
+    const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+    const shouldBeDark = savedTheme === 'dark' || (savedTheme === null && prefersDark);
+
+    if (shouldBeDark) {
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light');
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+      document.documentElement.setAttribute('data-theme', 'light');
     }
   });
 </script>
@@ -26,7 +31,5 @@
     {@render children?.()}
   </TooltipProvider>
 
-  {#if browser}
-    <Toaster richColors position="bottom-right" />
-  {/if}
+  <Toaster richColors position="bottom-right" />
 </div>

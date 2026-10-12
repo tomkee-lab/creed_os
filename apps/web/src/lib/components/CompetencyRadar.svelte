@@ -34,7 +34,9 @@
     scientific_inquiry: 'Scientific',
     metacognition: 'Metacognition',
     systems_thinking: 'Systems',
-    creative_problem_solving: 'Creative'
+    creative_problem_solving: 'Creative',
+    verbal_reasoning: 'Verbal',
+    language_literacy: 'Literacy'
   };
 
   const center = $derived(size / 2);
@@ -118,7 +120,7 @@
     <!-- Learner ability polygon -->
     <polygon
       points={polygonPoints()}
-      class="{fillColor} {strokeColor} transition-all duration-500"
+      class="{fillColor} {strokeColor} transition-all duration-200"
       stroke-width="2"
       stroke-linejoin="miter"
     />

@@ -8,3 +8,4 @@ export * from './schemas/index.js';
 export * from './consent.js';
 export * from './workflows/assessment_pipeline.js';
 export * from './workflows/mismatch_pipeline.js';
+export * from './workflows/pathway.js';

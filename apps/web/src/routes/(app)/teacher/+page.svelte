@@ -327,7 +327,7 @@
               placeholder="Filter learners..."
               class="w-full pl-8 pr-8 py-1.5 rounded-none bg-surface border border-border text-xs text-ink placeholder-ink-muted focus:outline-hidden focus:border-brand"
             />
-            <div class="absolute right-2.5 top-1/2 -translate-y-1/2 hidden sm:block">
+            <div class="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:block">
               <Kbd class="text-[9px] px-1 py-0.5">/</Kbd>
             </div>
           </div>
@@ -505,7 +505,7 @@
     <button
       type="submit"
       disabled={!observationText.trim()}
-      class="w-full py-2.5 px-4 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs transition-colors disabled:opacity-40 cursor-pointer"
+      class="w-full py-2 px-4 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs transition-colors disabled:opacity-40 cursor-pointer"
     >
       Save Observation
     </button>

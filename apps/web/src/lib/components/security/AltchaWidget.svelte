@@ -90,7 +90,7 @@
   class="p-3 rounded-none bg-surface-subtle border border-border flex items-center justify-between gap-3 text-xs font-mono {className}"
   data-testid="altcha-widget"
 >
-  <div class="flex items-center gap-2.5 min-w-0">
+  <div class="flex items-center gap-2 min-w-0">
     {#if status === 'verified'}
       <CheckCircle2 class="w-4 h-4 text-positive shrink-0" />
       <div class="flex flex-col min-w-0">
@@ -136,7 +136,7 @@
       <button
         type="button"
         onclick={startVerification}
-        class="px-2.5 py-1 rounded-none bg-surface hover:bg-surface-raised border border-border hover:border-brand text-xs font-mono font-medium text-ink transition-colors cursor-pointer"
+        class="px-3 py-1 rounded-none bg-surface hover:bg-surface-raised border border-border hover:border-brand text-xs font-mono font-medium text-ink transition-colors cursor-pointer"
       >
         Verify
       </button>

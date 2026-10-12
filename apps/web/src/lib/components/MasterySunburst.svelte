@@ -204,7 +204,7 @@
           stroke={domain.color}
           stroke-width={isSelected ? '2' : '1'}
           stroke-linejoin="miter"
-          class="cursor-pointer transition-all duration-300 hover:fill-opacity-40"
+          class="cursor-pointer transition-all duration-200 hover:fill-opacity-40"
           onclick={() => handleSectorClick(i, domain)}
           role="button"
           tabindex="0"
@@ -220,7 +220,7 @@
           stroke={domain.color}
           stroke-width={isSelected ? '2' : '1'}
           stroke-linejoin="miter"
-          class="cursor-pointer transition-all duration-300 hover:fill-opacity-90"
+          class="cursor-pointer transition-all duration-200 hover:fill-opacity-90"
           onclick={() => handleSectorClick(i, domain)}
           role="button"
           tabindex="0"
@@ -238,7 +238,7 @@
           width={isSelected ? 7 : 5}
           height={isSelected ? 7 : 5}
           fill={domain.color}
-          class="transition-all duration-300"
+          class="transition-all duration-200"
         />
       {/each}
 
@@ -249,7 +249,7 @@
         stroke={activeDomain.color}
         stroke-width="2"
         stroke-linejoin="miter"
-        class="transition-all duration-500 shadow-sm"
+        class="transition-all duration-200 shadow-sm"
       />
 
       <!-- Text inside Center Hub -->
@@ -300,7 +300,7 @@
         </p>
       </div>
 
-      <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-none bg-brand-subtle text-brand border border-brand/20 text-xs font-semibold shrink-0">
+      <div class="flex items-center gap-1.5 px-3 py-1 rounded-none bg-brand-subtle text-brand border border-brand/20 text-xs font-semibold shrink-0">
         <Sparkles class="w-3.5 h-3.5 text-brand" />
         <span>Growth Horizon</span>
       </div>
@@ -320,7 +320,7 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {#each activeDomain.skills as skill}
-          <div class="p-2.5 rounded-none bg-surface-subtle border border-border space-y-1 text-xs">
+          <div class="p-2 rounded-none bg-surface-subtle border border-border space-y-1 text-xs">
             <div class="flex items-center justify-between font-medium">
               <span class="text-ink">{skill.name}</span>
               <span class="text-[10px] px-1.5 py-0.5 rounded-none font-semibold {skill.level === 'Advanced' ? 'bg-positive-subtle text-positive' : skill.level === 'Proficient' ? 'bg-brand-subtle text-brand' : 'bg-attention-subtle text-attention'}">
@@ -336,7 +336,7 @@
     </div>
 
     <!-- Constructive Next Milestone Guidance -->
-    <div class="p-3 rounded-none bg-brand-subtle border border-brand/20 flex items-start gap-2.5 text-xs">
+    <div class="p-3 rounded-none bg-brand-subtle border border-brand/20 flex items-start gap-2 text-xs">
       <Compass class="w-4 h-4 text-brand shrink-0 mt-0.5" />
       <div>
         <span class="font-semibold text-ink">Suggested Next Exploration: </span>

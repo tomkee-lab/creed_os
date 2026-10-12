@@ -23,6 +23,14 @@ export default defineConfig({
     tailwindcss(),
     sveltekit()
   ],
+  optimizeDeps: {
+    include: [
+      'jszip',
+      'altcha-lib/v1',
+      '@xterm/xterm',
+      'monaco-editor'
+    ]
+  },
   server: {
     port: 5173,
     host: true,

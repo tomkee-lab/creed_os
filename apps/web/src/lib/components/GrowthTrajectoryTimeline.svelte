@@ -112,7 +112,7 @@
       </p>
     </div>
 
-    <span class="text-xs font-semibold px-2.5 py-1 rounded-none badge-growth shrink-0">
+    <span class="text-xs font-semibold px-3 py-1 rounded-none badge-growth shrink-0">
       Evidence-Anchored
     </span>
   </div>
@@ -122,7 +122,7 @@
     <!-- Connecting Horizon Line -->
     <div class="absolute top-8 left-6 right-6 h-0.5 bg-border"></div>
     <div
-      class="absolute top-8 left-6 h-0.5 bg-brand transition-all duration-500"
+      class="absolute top-8 left-6 h-0.5 bg-brand transition-all duration-200"
       style="width: {(activeIdx / Math.max(1, milestones.length - 1)) * 92}%;"
     ></div>
 
@@ -139,7 +139,7 @@
         >
           <!-- Node Dot -->
           <div
-            class="w-8 h-8 rounded-none flex items-center justify-center transition-all duration-300 border-2 {isActive ? 'bg-brand border-canvas ring-4 ring-brand/30 text-brand-foreground shadow-xs scale-110' : isPast ? 'bg-surface-raised border-brand text-brand' : 'bg-surface-subtle border-border text-ink-muted'}"
+            class="w-8 h-8 rounded-none flex items-center justify-center transition-all duration-200 border-2 {isActive ? 'bg-brand border-canvas ring-4 ring-brand/30 text-brand-foreground shadow-xs scale-110' : isPast ? 'bg-surface-raised border-brand text-brand' : 'bg-surface-subtle border-border text-ink-muted'}"
           >
             {#if isPast}
               <CheckCircle class="w-4 h-4" />

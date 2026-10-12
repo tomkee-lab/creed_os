@@ -40,7 +40,7 @@
     {/if}
   </div>
 
-  <div class="mt-2.5 pt-2 border-t border-border-subtle/80 flex items-center justify-between text-[11px]">
+  <div class="mt-2 pt-2 border-t border-border-subtle/80 flex items-center justify-between text-[11px]">
     <span class="text-foreground-secondary text-[10px]">Foundations</span>
     <span class="font-mono text-[10px] tabular-nums {data.metCount >= data.totalCount ? 'text-mint font-medium' : 'text-foreground'}">
       {data.metCount} / {data.totalCount} demonstrated

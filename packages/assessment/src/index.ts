@@ -5,3 +5,4 @@ export * from './scoring/evaluator.js';
 export * from './items/bank.js';
 export * from './bkt.js';
 export * from './export/qti.js';
+export * from './benchmarks/index.js';

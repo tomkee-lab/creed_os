@@ -60,6 +60,7 @@ export interface AssessmentSession {
   learnerId: string;
   organizationId?: string;
   domain: string;
+  mode?: 'rapid' | 'benchmark' | 'diagnostic';
   status: 'initialized' | 'in_progress' | 'completed' | 'paused' | 'abandoned';
   currentTheta: number;
   standardError: number;

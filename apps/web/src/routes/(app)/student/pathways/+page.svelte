@@ -12,6 +12,7 @@
   import { getCompetencyDescriptor } from '@core-os/ui';
   import { WaySection } from '$lib/components';
   import PathwayGraphCanvas from '$lib/components/pathways/PathwayGraphCanvas.svelte';
+  import ConstructiveMismatchCalculator from '$lib/components/pathway/ConstructiveMismatchCalculator.svelte';
 
   let { data } = $props();
   let pathways = $derived(data.pathways || []);
@@ -281,7 +282,7 @@
           <div class="pt-3 border-t border-border">
             <a
               href="/student/missions/robobridge"
-              class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs sm:text-sm transition-colors shadow-xs cursor-pointer"
+              class="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs sm:text-sm transition-colors shadow-xs cursor-pointer"
             >
               <FlaskConical class="w-4 h-4" />
               <span>Launch Mission Simulator</span>
@@ -308,7 +309,7 @@
           <div class="pt-3 border-t border-border">
             <a
               href="/student/mentor"
-              class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-none bg-surface hover:bg-surface-subtle text-ink font-medium text-xs sm:text-sm transition-colors border border-border cursor-pointer"
+              class="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-none bg-surface hover:bg-surface-subtle text-ink font-medium text-xs sm:text-sm transition-colors border border-border cursor-pointer"
             >
               <Sparkles class="w-4 h-4 text-ai" />
               <span>Launch Mission with AI Guide</span>
@@ -351,7 +352,18 @@
       </div>
     </WaySection>
 
-    <!-- 7. READINESS & NEXT STEPS (Action-First UX & Qualitative Developmental Guidance) -->
+    <!-- 7. CONSTRUCTIVE MISMATCH & SUBJECT-BASED BANDING SIMULATION -->
+    <WaySection
+      eyebrow="Subject-Based Banding Simulation"
+      title="Constructive Mismatch Evaluation"
+      subtitle="Simulate Singapore Full SBB G1/G2/G3 band transitions and Vygotskian Zone of Proximal Development logits."
+    >
+      <div class="border border-border bg-surface">
+        <ConstructiveMismatchCalculator />
+      </div>
+    </WaySection>
+
+    <!-- 8. READINESS & NEXT STEPS (Action-First UX & Qualitative Developmental Guidance) -->
     <WaySection
       eyebrow="Readiness & Next Steps"
       title="Your Path Forward"

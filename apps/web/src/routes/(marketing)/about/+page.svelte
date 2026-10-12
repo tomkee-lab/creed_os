@@ -47,7 +47,7 @@
   <section class="text-center pt-8 border-t border-border">
     <a
       href="/"
-      class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-none bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 transition-colors"
+      class="inline-flex items-center gap-1.5 px-5 py-2 rounded-none bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 transition-colors"
     >
       <span>Back to Homepage</span>
       <ArrowRight class="w-3.5 h-3.5" />

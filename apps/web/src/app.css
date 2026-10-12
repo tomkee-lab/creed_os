@@ -33,7 +33,7 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     font-optical-sizing: auto;
     line-height: 1.5;
-    letter-spacing: -0.011em;
+    letter-spacing: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition: background-color var(--motion-ui) var(--ease-lagom),
@@ -43,7 +43,7 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
     color: var(--foreground);
-    letter-spacing: -0.025em;
+    letter-spacing: -0.015em;
     text-wrap: balance;
   }
 
@@ -56,13 +56,14 @@
   [data-slot="field-description"] {
     font-family: var(--font-sans);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-    letter-spacing: -0.011em;
+    letter-spacing: normal;
+    line-height: 1.6;
     text-wrap: pretty;
   }
 
   code, kbd, samp, pre {
     font-family: var(--font-mono);
-    letter-spacing: -0.01em;
+    letter-spacing: normal;
   }
 
   button, input, optgroup, select, textarea {
@@ -73,10 +74,6 @@
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
-  }
-
-  * {
-    border-color: var(--border-subtle);
   }
 }
 
@@ -174,22 +171,43 @@
   --color-critical: var(--red);
   --color-critical-subtle: var(--red-subtle);
 
-  /* Radius System (Strict 0px Sharp Technical Precision) */
+  /* Architectural Radius System (Restrained Semantics: 4px Controls, 6px Popovers, 8px Panels) */
   --radius-none: 0px;
-  --radius-2xs: 0px;
-  --radius-xs: 0px;
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-full: 0px;
+  --radius-2xs: 2px;
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-full: 9999px;
+  --radius-control: 4px;
+  --radius-popover: 6px;
+  --radius-panel: 8px;
 }
 
-/* Zero Rounded Corners & Curve Lines Contract — 100% Sharp Architectural Precision */
-*,
-*::before,
-*::after {
-  border-radius: 0 !important;
+/* Restrained Blockly SVG Scrollbars & Canvas Styling */
+/* stylelint-disable selector-class-pattern */
+.blocklyScrollbarHandle {
+  fill: var(--border-strong) !important;
+  rx: 3px !important;
+  ry: 3px !important;
+  opacity: 0.45;
+  transition: opacity 150ms ease;
 }
+
+.blocklyScrollbarHandle:hover {
+  opacity: 0.85;
+}
+
+.blocklyScrollbarBackground {
+  fill: transparent !important;
+}
+
+.blocklyTrash,
+.blocklyZoom {
+  display: none !important;
+}
+/* stylelint-enable selector-class-pattern */
+
 

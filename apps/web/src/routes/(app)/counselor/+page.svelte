@@ -280,7 +280,7 @@
         <button
           type="button"
           onclick={handleSchedule}
-          class="w-full py-2.5 px-4 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs transition-colors cursor-pointer"
+          class="w-full py-2 px-4 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs transition-colors cursor-pointer"
         >
           Schedule Check-in
         </button>

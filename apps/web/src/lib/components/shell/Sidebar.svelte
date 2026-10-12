@@ -21,7 +21,8 @@
     Lock,
     FolderKanban,
     Wrench,
-    CheckCircle2
+    CheckCircle2,
+    TerminalSquare
   } from 'lucide-svelte';
   import CreedLogo from '$lib/components/brand/CreedLogo.svelte';
 
@@ -58,8 +59,11 @@
       case 'student':
         return [
           { label: 'Today', href: '/student', icon: Compass },
+          { label: 'Robotics IDE', href: '/ide', icon: TerminalSquare },
+          { label: 'Benchmark (30Q)', href: '/student/assessment', icon: Sparkles, badge: 'New' },
+          { label: 'Diagnostic Report', href: '/student/report', icon: FileText },
           { label: 'My Map', href: '/student/pathways', icon: Layers },
-          { label: 'Missions', href: '/student#missions', icon: Target },
+          { label: 'Missions Hub', href: '/student/missions', icon: Target, badge: '8 Labs' },
           { label: 'Capabilities', href: '/student/progress', icon: Activity },
           { label: 'Evidence', href: '/student/progress#evidence', icon: CheckCircle2 },
           { label: 'Socratic Guide', href: '/student/mentor', icon: BrainCircuit }
@@ -67,18 +71,23 @@
       case 'parent':
         return [
           { label: 'Overview', href: '/parent', icon: Compass },
+          { label: 'Growth Report', href: '/parent/report', icon: FileText, badge: 'Global' },
           { label: 'Growth', href: '/parent#growth', icon: Activity },
           { label: 'Shared Horizons', href: '/parent#horizons', icon: Layers },
-          { label: 'Evidence', href: '/parent#evidence', icon: FileText },
+          { label: 'Evidence', href: '/parent#evidence', icon: CheckCircle2 },
           { label: 'Messages', href: '/parent#messages', icon: Users }
         ];
       case 'teacher':
         return [
           { label: 'Today', href: '/teacher', icon: Compass },
+          { label: 'Robotics IDE', href: '/ide', icon: TerminalSquare },
+          { label: 'Global Benchmarks', href: '/teacher/benchmarks', icon: Sparkles, badge: '30Q' },
+          { label: 'Lesson Plan Studio', href: '/teacher/lesson-plans', icon: BookOpen },
+          { label: 'Pedagogy Guidance', href: '/teacher/guidance', icon: BrainCircuit },
           { label: 'Classes', href: '/teacher#classes', icon: Users },
           { label: 'Learners', href: '/teacher#roster', icon: GraduationCap },
-          { label: 'Interventions', href: '/teacher#interventions', icon: Sparkles, badge: '3' },
-          { label: 'Missions', href: '/teacher#missions', icon: Target },
+          { label: 'Interventions', href: '/teacher#interventions', icon: Layers, badge: '3' },
+          { label: 'Missions Hub', href: '/student/missions', icon: Target },
           { label: 'Evidence', href: '/teacher#evidence', icon: FileText }
         ];
       case 'counselor':
@@ -101,6 +110,7 @@
       case 'studio':
         return [
           { label: 'Item Bank', href: '/studio', icon: FolderKanban },
+          { label: 'Robotics IDE', href: '/ide', icon: TerminalSquare },
           { label: 'Authoring', href: '/studio#authoring', icon: Wrench },
           { label: 'Calibration', href: '/studio#calibration', icon: Activity }
         ];
@@ -151,7 +161,7 @@
       </button>
     {:else}
       <!-- Expanded: Full Brand Lockup + Collapse Action -->
-      <a href="/" class="flex items-center gap-2.5 overflow-hidden group min-w-0">
+      <a href="/" class="flex items-center gap-2 overflow-hidden group min-w-0">
         <div
           class="w-8 h-8 rounded-none bg-brand/10 text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs group-hover:bg-brand group-hover:text-brand-foreground transition-all"
         >
@@ -224,7 +234,7 @@
         <!-- Expanded: Full row label with badge -->
         <a
           href={item.href}
-          class="flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs transition-all duration-140 hover:translate-x-0.5 active:scale-[0.99] group relative {active
+          class="flex items-center gap-2 px-3 py-1.5 rounded-none text-xs transition-all duration-140 hover:translate-x-0.5 active:scale-[0.99] group relative {active
             ? 'bg-surface-raised text-ink font-medium shadow-xs border border-border'
             : 'text-ink-secondary hover:text-ink hover:bg-surface-subtle/70'}"
         >
@@ -292,14 +302,14 @@
       <!-- Expanded: Full row links -->
       <a
         href="/settings"
-        class="flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs text-ink-secondary hover:text-ink hover:bg-surface-subtle/70 transition-all duration-140 hover:translate-x-0.5 active:scale-[0.99]"
+        class="flex items-center gap-2 px-3 py-1.5 rounded-none text-xs text-ink-secondary hover:text-ink hover:bg-surface-subtle/70 transition-all duration-140 hover:translate-x-0.5 active:scale-[0.99]"
       >
         <Settings class="w-4 h-4 shrink-0 text-ink-muted" />
         <span>Settings</span>
       </a>
       <a
         href="/help"
-        class="flex items-center gap-2.5 px-2.5 py-1.5 rounded-none text-xs text-ink-secondary hover:text-ink hover:bg-surface-subtle/70 transition-all duration-140 hover:translate-x-0.5 active:scale-[0.99]"
+        class="flex items-center gap-2 px-3 py-1.5 rounded-none text-xs text-ink-secondary hover:text-ink hover:bg-surface-subtle/70 transition-all duration-140 hover:translate-x-0.5 active:scale-[0.99]"
       >
         <HelpCircle class="w-4 h-4 shrink-0 text-ink-muted" />
         <span>Help & Docs</span>
@@ -307,10 +317,10 @@
       <button
         type="button"
         onclick={toggleCollapse}
-        class="flex items-center justify-between w-full px-2.5 py-1.5 rounded-none text-xs text-ink-muted hover:text-ink hover:bg-surface-subtle/70 transition-all duration-140 active:scale-[0.99] cursor-pointer mt-1 pt-2 border-t border-border/60 group"
+        class="flex items-center justify-between w-full px-3 py-1.5 rounded-none text-xs text-ink-muted hover:text-ink hover:bg-surface-subtle/70 transition-all duration-140 active:scale-[0.99] cursor-pointer mt-1 pt-2 border-t border-border/60 group"
         aria-label="Collapse sidebar (⌘B)"
       >
-        <span class="flex items-center gap-2.5">
+        <span class="flex items-center gap-2">
           <ChevronLeft class="w-4 h-4 shrink-0 transition-transform duration-140 group-hover:-translate-x-0.5" />
           <span>Collapse</span>
         </span>

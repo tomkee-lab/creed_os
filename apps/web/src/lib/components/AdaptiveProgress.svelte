@@ -74,12 +74,12 @@
     <div class="relative h-3 bg-surface-subtle rounded-none overflow-hidden border border-border">
       <!-- 95% Confidence Interval band -->
       <div
-        class="absolute top-0 bottom-0 bg-brand/20 rounded-none transition-all duration-300"
+        class="absolute top-0 bottom-0 bg-brand/20 rounded-none transition-all duration-200"
         style="left: {marginLower}%; width: {Math.max(4, marginUpper - marginLower)}%;"
       ></div>
       <!-- Center Theta point -->
       <div
-        class="absolute top-0 bottom-0 w-1.5 bg-brand rounded-none transition-all duration-300 -translate-x-1/2"
+        class="absolute top-0 bottom-0 w-1.5 bg-brand rounded-none transition-all duration-200 -translate-x-1/2"
         style="left: {normalizedTheta}%;"
       ></div>
     </div>
@@ -92,7 +92,7 @@
         <div class="flex items-center gap-2 mt-0.5">
           <div class="flex-1 h-1.5 bg-surface-subtle rounded-none overflow-hidden">
             <div
-              class="h-full bg-brand transition-all duration-300"
+              class="h-full bg-brand transition-all duration-200"
               style="width: {(itemsAnswered / maxItems) * 100}%;"
             ></div>
           </div>
@@ -108,7 +108,7 @@
           {:else}
             <div class="flex-1 h-1.5 bg-surface-subtle rounded-none overflow-hidden">
               <div
-                class="h-full bg-attention transition-all duration-300"
+                class="h-full bg-attention transition-all duration-200"
                 style="width: {convergenceRatio * 100}%;"
               ></div>
             </div>

@@ -95,7 +95,7 @@
     </div>
 
     <!-- Thin KPI Layer (Section 38: not giant cards, just thin metadata) -->
-    <div class="flex flex-wrap items-center gap-6 py-2.5 px-4 rounded-none bg-surface border border-border text-xs">
+    <div class="flex flex-wrap items-center gap-6 py-2 px-4 rounded-none bg-surface border border-border text-xs">
       <div class="flex items-center gap-2">
         <span class="font-semibold text-ink">420</span>
         <span class="text-ink-muted">learners enrolled</span>
@@ -152,21 +152,21 @@
       <button
         type="button"
         onclick={() => (statusFilter = 'ALL')}
-        class="px-2.5 py-1 rounded-none transition-colors cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand disabled:opacity-50 disabled:pointer-events-none {statusFilter === 'ALL' ? 'bg-surface-subtle font-medium text-ink shadow-xs' : 'text-ink-secondary hover:text-ink hover:bg-surface-subtle/50'}"
+        class="px-3 py-1 rounded-none transition-colors cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand disabled:opacity-50 disabled:pointer-events-none {statusFilter === 'ALL' ? 'bg-surface-subtle font-medium text-ink shadow-xs' : 'text-ink-secondary hover:text-ink hover:bg-surface-subtle/50'}"
       >
         All
       </button>
       <button
         type="button"
         onclick={() => (statusFilter = 'VERIFIED_ACTIVE')}
-        class="px-2.5 py-1 rounded-none transition-colors cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand disabled:opacity-50 disabled:pointer-events-none {statusFilter === 'VERIFIED_ACTIVE' ? 'bg-surface-subtle font-medium text-ink shadow-xs' : 'text-ink-secondary hover:text-ink hover:bg-surface-subtle/50'}"
+        class="px-3 py-1 rounded-none transition-colors cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand disabled:opacity-50 disabled:pointer-events-none {statusFilter === 'VERIFIED_ACTIVE' ? 'bg-surface-subtle font-medium text-ink shadow-xs' : 'text-ink-secondary hover:text-ink hover:bg-surface-subtle/50'}"
       >
         Verified
       </button>
       <button
         type="button"
         onclick={() => (statusFilter = 'PENDING_NOTICE')}
-        class="px-2.5 py-1 rounded-none transition-colors cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand disabled:opacity-50 disabled:pointer-events-none {statusFilter === 'PENDING_NOTICE' ? 'bg-surface-subtle font-medium text-ink shadow-xs' : 'text-ink-secondary hover:text-ink hover:bg-surface-subtle/50'}"
+        class="px-3 py-1 rounded-none transition-colors cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand disabled:opacity-50 disabled:pointer-events-none {statusFilter === 'PENDING_NOTICE' ? 'bg-surface-subtle font-medium text-ink shadow-xs' : 'text-ink-secondary hover:text-ink hover:bg-surface-subtle/50'}"
       >
         Pending
       </button>
@@ -290,7 +290,7 @@
           <button
             type="button"
             onclick={() => handleResendNotice(selectedRecord.parentName)}
-            class="w-full py-2.5 px-4 rounded-none bg-brand hover:bg-brand/90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand disabled:opacity-50 disabled:pointer-events-none text-brand-foreground font-medium text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            class="w-full py-2 px-4 rounded-none bg-brand hover:bg-brand/90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand disabled:opacity-50 disabled:pointer-events-none text-brand-foreground font-medium text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
           >
             <Send class="w-3.5 h-3.5" />
             <span>Resend Guardian Notice</span>

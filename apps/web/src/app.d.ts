@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 import type { Session, User } from '$lib/server/auth';
 
 declare module 'd3-scale';

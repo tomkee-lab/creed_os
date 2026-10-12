@@ -1,0 +1,7 @@
+{
+  "name": "ponytail",
+  "version": "4.8.4",
+  "description": "Lazy senior dev mode. Forces minimal, clean, YAGNI-compliant code, standard library primacy, and anti-overengineering review for CREED OS.",
+  "author": "Dietrich Gebert",
+  "repository": "https://github.com/DietrichGebert/ponytail"
+}

@@ -24,10 +24,18 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     const userRole = (user as any).role || (user as any).metadata?.role || 'student';
     const boundLearnerId = resolveLearnerId(user);
 
+    if (['student', 'parent'].includes(userRole) && !boundLearnerId) {
+      return json({ error: 'Forbidden: No learner profile bound to this account' }, { status: 403 });
+    }
+
     // Students and parents are strictly scoped to their own learner
     const effectiveLearnerId = ['student', 'parent'].includes(userRole)
-      ? boundLearnerId
+      ? boundLearnerId!
       : (learnerId || boundLearnerId);
+
+    if (!effectiveLearnerId) {
+      return json({ error: 'Forbidden: Valid learner ID required' }, { status: 403 });
+    }
 
     const mentorResponse = await chatWithSocraticMentor(message, history);
 

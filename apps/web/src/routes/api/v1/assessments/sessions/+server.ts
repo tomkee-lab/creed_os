@@ -18,20 +18,40 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     const boundLearnerId = resolveLearnerId(user);
 
     // 2. Authorize learner relationship (Child privacy)
+    if (['student', 'parent'].includes(userRole) && !boundLearnerId) {
+      return json({ error: 'Forbidden: No learner profile bound to this account' }, { status: 403 });
+    }
+
     const effectiveLearnerId = ['student', 'parent'].includes(userRole)
-      ? boundLearnerId
+      ? boundLearnerId!
       : (body.learnerId || boundLearnerId);
 
-    const domain = body.domain || 'stem_reasoning';
+    if (!effectiveLearnerId) {
+      return json({ error: 'Bad Request: Valid learner ID required' }, { status: 400 });
+    }
 
-    const session = coreRepository.createAssessmentSession(effectiveLearnerId, domain);
-    const pool = coreRepository.getItemBank();
+    const domain = body.domain || 'stem';
+    const mode: 'rapid' | 'benchmark' | 'diagnostic' =
+      body.mode === 'rapid'
+        ? 'rapid'
+        : (body.mode === 'benchmark' || body.benchmark === true)
+        ? 'benchmark'
+        : 'diagnostic';
+
+    const isBenchmarkMode = mode === 'benchmark';
+    const isRapidMode = mode === 'rapid';
+    const maxItems = isBenchmarkMode ? 30 : (isRapidMode ? 8 : 12);
+    const minItems = isBenchmarkMode ? 10 : (isRapidMode ? 4 : 5);
+    const targetSE = isBenchmarkMode ? 0.22 : (isRapidMode ? 0.38 : 0.32);
+
+    const session = coreRepository.createAssessmentSession(effectiveLearnerId, domain, mode);
+    const pool = coreRepository.getItemsByDomain(domain);
 
     // Select initial item at θ = 0.0
     const selection = selectNextAdaptiveItem(
       pool,
       { currentTheta: 0.0, administeredItemIds: [] },
-      { minItems: 4, maxItems: 8, targetSE: 0.35, currentSE: 1.0 }
+      { minItems, maxItems, targetSE, currentSE: 1.0 }
     );
 
     if (!selection.selectedItem) {

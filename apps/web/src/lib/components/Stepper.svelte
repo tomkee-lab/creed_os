@@ -85,7 +85,7 @@
         <!-- Connecting Line -->
         {#if !isLast}
           <div
-            class="flex-1 h-px mx-3 transition-colors duration-300 {completed || stepNum < current
+            class="flex-1 h-px mx-3 transition-colors duration-200 {completed || stepNum < current
               ? 'bg-mint'
               : 'bg-border'}"
           ></div>
