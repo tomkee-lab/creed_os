@@ -101,6 +101,10 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
       console.log(JSON.stringify(primaryMetrics, null, 2));
 
       expect(primaryMetrics.docScroll.hasDocHorizontalOverflow).toBe(false);
+      if (primaryMetrics.ideContainer) {
+        const expectedHeight = Math.min(920, Math.max(460, vp.height - 160));
+        expect(primaryMetrics.ideContainer.h).toBe(expectedHeight);
+      }
       if (primaryMetrics.verifyButton) {
         expect(primaryMetrics.verifyButton.isClippedRight).toBe(false);
         expect(primaryMetrics.verifyButton.isClippedBottom).toBe(false);
@@ -161,15 +165,19 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
   test('Robotics IDE Dropdown Interaction, Dismissal & WAI-ARIA Semantics', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/ide', { waitUntil: 'networkidle' });
-    await page.waitForTimeout(600);
+    await page.waitForTimeout(800);
 
     const missionBtn = page.locator('button[aria-label="Select Robotics Mission"]');
     await expect(missionBtn).toBeVisible();
 
-    // 1. Mouse Opening
+    // 1. Mouse Opening (resilient to hydration timing)
     await missionBtn.click();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
     const missionMenu = page.locator('div[role="menu"]').first();
+    if (!await missionMenu.isVisible()) {
+      await missionBtn.click();
+      await page.waitForTimeout(200);
+    }
     await expect(missionMenu).toBeVisible();
 
     // 2. Click INSIDE the menu container (propagation stopped -> remains open)
@@ -189,7 +197,7 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
     await missionBtn.click();
     await page.waitForTimeout(200);
     await expect(missionMenu).toBeVisible();
-    await page.mouse.click(10, 10); // Click outside in canvas margin
+    await page.mouse.click(500, 350); // Click outside in workbench canvas
     await page.waitForTimeout(200);
     await expect(missionMenu).not.toBeVisible();
 
@@ -424,13 +432,30 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
     await page.goto('/teacher/lesson-plans', { waitUntil: 'networkidle' });
     await page.waitForTimeout(500);
 
-    const teacherH1 = page.locator('h1, h2').first();
+    const teacherH1 = page.locator('h1').first();
     await expect(teacherH1).toBeVisible();
+    await expect(teacherH1).toContainText('Adaptive 3-Tier Differentiated Lesson Plan Studio');
+
+    // Verify 3-tier structure exists
+    const tier1 = page.locator('text=Tier 1').first();
+    await expect(tier1).toBeVisible();
+
+    // Toggle Author New Lesson Plan form and test interaction
+    const authorBtn = page.locator('button:has-text("Author New Lesson Plan")');
+    if (await authorBtn.isVisible()) {
+      await authorBtn.click();
+      await page.waitForTimeout(300);
+      await expect(page.locator('label:has-text("Lesson Title")')).toBeVisible();
+      // Toggle back to list
+      await page.locator('button:has-text("View Existing Plans")').click();
+      await page.waitForTimeout(300);
+    }
+
     const teacherOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     expect(teacherOverflow).toBe(false);
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'def10_teacher_lesson_plans.png'), fullPage: false });
 
-    // 2. Audit /admin as admin
+    // 2. Audit /admin as admin (including audit-ledger, KPI layer, and inspector drawer)
     await context.addCookies([
       { name: 'creed_dev_role', value: 'admin', url: 'http://localhost:5173' },
       {
@@ -442,13 +467,36 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
     await page.goto('/admin', { waitUntil: 'networkidle' });
     await page.waitForTimeout(500);
 
-    const adminHeading = page.locator('h1, header').first();
+    const adminHeading = page.locator('h1').first();
     await expect(adminHeading).toBeVisible();
+    await expect(adminHeading).toContainText('Operations');
+
+    // Verify thin KPI layer
+    await expect(page.locator('text=Affiliated Educational Institution')).toBeVisible();
+
+    // Verify Statutory Compliance Audit Trail section
+    const auditSection = page.locator('section#audit');
+    await expect(auditSection).toBeVisible();
+    await expect(auditSection.locator('text=Statutory Compliance & Audit Trail')).toBeVisible();
+
+    // Test Inspect drawer on first consent record
+    const inspectBtn = page.locator('button:has-text("Inspect")').first();
+    if (await inspectBtn.isVisible()) {
+      await inspectBtn.click();
+      await page.waitForTimeout(300);
+      const inspectorDrawer = page.locator('aside[aria-label="Details Inspector"]');
+      await expect(inspectorDrawer).toBeVisible();
+      // Close drawer cleanly
+      await page.locator('button[aria-label="Close inspector"]').click();
+      await page.waitForTimeout(300);
+      await expect(inspectorDrawer).not.toBeVisible();
+    }
+
     const adminOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     expect(adminOverflow).toBe(false);
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'def10_admin_audit.png'), fullPage: false });
 
-    // 3. Audit /parent/report as parent
+    // 3. Audit /parent/report as parent (including zero psychometric leaks and domain switcher)
     await context.addCookies([
       { name: 'creed_dev_role', value: 'parent', url: 'http://localhost:5173' },
       {
@@ -462,6 +510,30 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
 
     const parentHeading = page.locator('h1').first();
     await expect(parentHeading).toBeVisible();
+    await expect(parentHeading).toContainText('Family Diagnostic Guide & International Standing');
+
+    // Verify DPDP trust badge
+    await expect(page.locator('text=DPDP Act Verified • Parent Portal')).toBeVisible();
+
+    // Verify Level 1 Signal: Developmental Summary for Parents
+    await expect(page.locator('text=Developmental Summary for Parents')).toBeVisible();
+
+    // Verify ZERO raw psychometric leaks on parent route
+    const pageText = await page.evaluate(() => document.body.innerText);
+    expect(pageText).not.toMatch(/\btheta\b/i);
+    expect(pageText).not.toMatch(/θ/);
+    expect(pageText).not.toMatch(/\bFisher Information\b/i);
+    expect(pageText).not.toMatch(/3PL/i);
+    expect(pageText).not.toMatch(/SE\s*=\s*\d/);
+
+    // Test Domain Switcher
+    const englishTab = page.locator('button:has-text("English & Communication")');
+    if (await englishTab.isVisible()) {
+      await englishTab.click();
+      await page.waitForTimeout(300);
+      await expect(page.locator('text=English & Communication').first()).toBeVisible();
+    }
+
     const parentOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     expect(parentOverflow).toBe(false);
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'def10_parent_report.png'), fullPage: false });

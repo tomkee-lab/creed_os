@@ -416,7 +416,6 @@
   let blocklyLib: any = null;
   let ideResizeObserver: ResizeObserver | null = null;
   let ideThemeObserver: MutationObserver | null = null;
-  let handleGlobalClick: (() => void) | null = null;
 
   // Hardware State
   let isFlashing = $state(false);
@@ -1543,13 +1542,6 @@
     };
     window.addEventListener('keydown', handleKeyDown);
 
-    handleGlobalClick = () => {
-      showMissionDropdown = false;
-      showProjectDropdown = false;
-      showHardwareDropdown = false;
-      showTemplateDropdown = false;
-    };
-    window.addEventListener('click', handleGlobalClick);
 
     // Continuous responsive layout observer for smooth container transitions
     if (typeof ResizeObserver !== 'undefined') {
@@ -1641,9 +1633,6 @@
     }
     if (handleKeyDown && typeof window !== 'undefined') {
       window.removeEventListener('keydown', handleKeyDown);
-    }
-    if (handleGlobalClick && typeof window !== 'undefined') {
-      window.removeEventListener('click', handleGlobalClick);
     }
     if (ideResizeObserver) {
       ideResizeObserver.disconnect();
@@ -1896,9 +1885,12 @@
       showProjectDropdown = false;
       showHardwareDropdown = false;
       showTemplateDropdown = false;
+      if (isFullscreen) closeStudio();
     }
   }}
-  onclick={() => {
+  onclick={(e) => {
+    const target = e.target as HTMLElement | null;
+    if (target?.closest('header.min-h-12')) return;
     showMissionDropdown = false;
     showProjectDropdown = false;
     showHardwareDropdown = false;
