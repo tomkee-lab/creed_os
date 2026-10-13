@@ -3,6 +3,7 @@ import type { RequestHandler } from './$types';
 import { transitionConsentState, type ConsentRecord, type VerificationChannel } from '@core-os/domain';
 // Import the OTP store and learner-bound hash function from consent-otp helper
 import { OTP_STORE, hashChallengeKey } from '$lib/server/consent-otp';
+import { coreRepository } from '$lib/server/repository';
 
 export const POST: RequestHandler = async ({ request, cookies, locals }) => {
   try {
@@ -97,6 +98,9 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
       expiresAt: initialRecord.expiresAt,
       auditToken: token
     });
+
+    // Authoritatively persist verified consent record
+    coreRepository.setConsentRecord(verifiedRecord);
 
     // Set statutory consent verification cookie so parent session is immediately recognized
     cookies.set('creed_consent_verified', 'true', {

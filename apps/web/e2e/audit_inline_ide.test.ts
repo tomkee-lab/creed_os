@@ -1,8 +1,13 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
+import fs from 'node:fs';
 
 test('inspect inline IDE layout, toolbar, dropdowns, and arena dimensions', async ({ page, context }) => {
-  const outDir = 'C:/Users/rtf70/.gemini/antigravity-ide/brain/003c2140-b0c1-49b6-ac6e-7636f2889ed7';
+  test.setTimeout(90000);
+  const outDir = process.env.TEST_OUTPUT_DIR || path.join(process.cwd(), 'test-results', 'screenshots');
+  if (!fs.existsSync(outDir)) {
+    fs.mkdirSync(outDir, { recursive: true });
+  }
 
   await context.addCookies([
     { name: 'creed_dev_session', value: 'true', url: 'http://localhost:5173' },
@@ -68,16 +73,22 @@ test('inspect inline IDE layout, toolbar, dropdowns, and arena dimensions', asyn
   await missionBtn.click();
   await page.waitForTimeout(300);
   await page.screenshot({ path: path.join(outDir, 'audit_mission_dropdown.png') });
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(150);
 
   // 4. Open Project Dropdown and capture screenshot
   const projectBtn = page.getByRole('button', { name: 'Project Actions' });
   await projectBtn.click();
   await page.waitForTimeout(300);
   await page.screenshot({ path: path.join(outDir, 'audit_project_dropdown.png') });
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(150);
 
   // 5. Open Hardware Dropdown and capture screenshot
   const hardwareBtn = page.getByRole('button', { name: 'Select Target Hardware' });
   await hardwareBtn.click();
   await page.waitForTimeout(300);
   await page.screenshot({ path: path.join(outDir, 'audit_hardware_dropdown.png') });
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(150);
 });

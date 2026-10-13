@@ -44,7 +44,7 @@
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-5">
     <div class="space-y-1">
       <div class="flex items-center gap-2">
-        <span class="text-[11px] font-semibold uppercase tracking-wider text-emerald-500 flex items-center gap-1">
+        <span class="text-[11px] font-semibold uppercase tracking-wider text-positive flex items-center gap-1">
           <ShieldCheck class="w-3.5 h-3.5" />
           <span>DPDP Act Verified • Parent Portal</span>
         </span>
@@ -75,14 +75,14 @@
   {#if currentReport}
     <!-- LEVEL 1 — SIGNAL: PLAIN ENGLISH HORIZON & STATUS -->
     <section class="p-6 sm:p-8 bg-surface border border-border rounded-sm space-y-4">
-      <div class="flex items-center gap-2 text-indigo-400 text-xs font-semibold uppercase tracking-wider">
-        <Heart class="w-4 h-4 text-rose-400" />
+      <div class="flex items-center gap-2 text-ai text-xs font-semibold uppercase tracking-wider">
+        <Heart class="w-4 h-4 text-critical" />
         <span>Developmental Summary for Parents</span>
       </div>
 
       <div class="space-y-2">
         <h2 class="text-lg sm:text-xl font-bold text-foreground leading-snug">
-          {data.learner.fullName} demonstrates a <span class="text-indigo-400">{currentReport.developmentalBand}</span> in {currentReport.domainTitle}.
+          {data.learner.fullName} demonstrates a <span class="text-ai">{currentReport.developmentalBand}</span> in {currentReport.domainTitle}.
         </h2>
         <p class="text-xs sm:text-sm text-muted leading-relaxed">
           In recent 30-question diagnostic benchmarking, your child placed at the <strong>{currentReport.percentileRank}th international percentile</strong>, representing standing within the <strong>top {100 - currentReport.percentileRank}%</strong> of global peers on the {currentReport.scaleName}.
@@ -99,13 +99,13 @@
 
         <div class="p-3.5 bg-surface-raised border border-border rounded-sm space-y-1">
           <span class="text-[10px] uppercase font-semibold text-muted tracking-wider">Standard Scaled Index</span>
-          <p class="text-base font-bold text-indigo-400">{currentReport.scaleFormatted}</p>
+          <p class="text-base font-bold text-ai">{currentReport.scaleFormatted}</p>
           <span class="text-[11px] text-muted block">Against OECD Global Average ({currentReport.globalComparison.oecdAverage})</span>
         </div>
 
         <div class="p-3.5 bg-surface-raised border border-border rounded-sm space-y-1">
           <span class="text-[10px] uppercase font-semibold text-muted tracking-wider">Learning Posture</span>
-          <p class="text-base font-bold text-emerald-400">High Growth Potential</p>
+          <p class="text-base font-bold text-positive">High Growth Potential</p>
           <span class="text-[11px] text-muted block">Ready for progressive multi-step challenges</span>
         </div>
       </div>
@@ -157,7 +157,7 @@
         <div class="space-y-2">
           <div class="p-3 bg-surface-raised border border-border rounded-sm space-y-1">
             <span class="text-xs font-semibold text-foreground flex items-center gap-1.5">
-              <CheckCircle2 class="w-3.5 h-3.5 text-indigo-400" />
+              <CheckCircle2 class="w-3.5 h-3.5 text-ai" />
               <span>Praise Persistence Over Intelligence</span>
             </span>
             <p class="text-xs text-muted leading-relaxed">
@@ -167,7 +167,7 @@
 
           <div class="p-3 bg-surface-raised border border-border rounded-sm space-y-1">
             <span class="text-xs font-semibold text-foreground flex items-center gap-1.5">
-              <CheckCircle2 class="w-3.5 h-3.5 text-indigo-400" />
+              <CheckCircle2 class="w-3.5 h-3.5 text-ai" />
               <span>Allow 2 Minutes of Productive Struggle</span>
             </span>
             <p class="text-xs text-muted leading-relaxed">
@@ -177,7 +177,7 @@
 
           <div class="p-3 bg-surface-raised border border-border rounded-sm space-y-1">
             <span class="text-xs font-semibold text-foreground flex items-center gap-1.5">
-              <CheckCircle2 class="w-3.5 h-3.5 text-indigo-400" />
+              <CheckCircle2 class="w-3.5 h-3.5 text-ai" />
               <span>Normalize Errors as Scientific Data</span>
             </span>
             <p class="text-xs text-muted leading-relaxed">
@@ -193,7 +193,7 @@
       <div class="flex items-center justify-between border-b border-border pb-4">
         <div class="space-y-1">
           <div class="flex items-center gap-2">
-            <MessageCircle class="w-4 h-4 text-indigo-400" />
+            <MessageCircle class="w-4 h-4 text-ai" />
             <h2 class="text-base font-bold text-foreground">
               Dinner Table Conversations & Family Exploration
             </h2>
@@ -213,7 +213,7 @@
               class="w-full p-4 flex items-center justify-between text-left hover:bg-surface transition-colors cursor-pointer"
             >
               <div class="flex items-center gap-3">
-                <div class="w-6 h-6 rounded-sm bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-xs">
+                <div class="w-6 h-6 rounded-sm bg-ai-subtle border border-ai/20 text-ai flex items-center justify-center font-bold text-xs">
                   {milestone.week}
                 </div>
                 <div>
@@ -235,8 +235,8 @@
 
             {#if isOpen}
               <div class="p-4 pt-2 border-t border-border bg-surface space-y-3">
-                <div class="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-sm space-y-1">
-                  <span class="text-[10px] font-semibold uppercase text-indigo-300 tracking-wider block">
+                <div class="p-3 bg-ai-subtle border border-ai/20 rounded-sm space-y-1">
+                  <span class="text-[10px] font-semibold uppercase text-ai tracking-wider block">
                     Question to Ask Your Child This Week
                   </span>
                   <p class="text-xs font-medium text-foreground italic leading-relaxed">
@@ -260,7 +260,7 @@
     <!-- DPDP Consent & School Coordination Footer -->
     <div class="p-5 bg-surface border border-border rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div class="flex items-center gap-3 text-xs text-muted">
-        <ShieldCheck class="w-5 h-5 text-emerald-400 shrink-0" />
+        <ShieldCheck class="w-5 h-5 text-positive shrink-0" />
         <div>
           <span class="font-medium text-foreground block">Verified Parental Consent Record Active</span>
           <span class="text-[11px]">DPDP Act 2023 Compliant • Valid for Academic Year 2026–2027</span>

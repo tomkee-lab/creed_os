@@ -111,7 +111,8 @@ export const handle: Handle = async ({ event, resolve }) => {
       };
 
       const activeUser = parsedUser || {
-        id: `usr_${devRole}`,
+        id: devRole === 'student' ? '3fa85f64-5717-4562-b3fc-2c963f66afa6' : `usr_${devRole}`,
+        learnerId: devRole === 'student' ? '3fa85f64-5717-4562-b3fc-2c963f66afa6' : undefined,
         name: roleDefaultNames[devRole] || 'System User',
         email: `${devRole}@core-os.app`,
         role: devRole

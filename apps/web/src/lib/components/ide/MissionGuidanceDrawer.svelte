@@ -96,11 +96,11 @@
   function getStageBadge(stage: 'preparatory' | 'middle' | 'secondary') {
     switch (stage) {
       case 'preparatory':
-        return { label: 'Preparatory (Cl 3–5)', color: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30' };
+        return { label: 'Preparatory (Cl 3–5)', color: 'bg-positive-subtle text-positive border-positive/30' };
       case 'middle':
-        return { label: 'Middle (Cl 6–8)', color: 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border-cyan-500/30' };
+        return { label: 'Middle (Cl 6–8)', color: 'bg-brand-subtle text-brand border-brand/30' };
       case 'secondary':
-        return { label: 'Secondary (Cl 9–12)', color: 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border-indigo-500/30' };
+        return { label: 'Secondary (Cl 9–12)', color: 'bg-ai-subtle text-ai border-ai/30' };
     }
   }
 </script>
@@ -127,9 +127,9 @@
       <!-- Live Rubric Progress Chip -->
       <div class="flex items-center gap-1.5 font-mono text-xs">
         <div class="px-2 py-0.5 border border-border rounded-xs bg-surface-subtle flex items-center gap-1.5">
-          <span class="text-ink-muted">Score:</span>
-          <strong class={rubricEval.passed ? 'text-emerald-500 font-bold' : 'text-amber-500 font-bold'}>
-            {rubricEval.score}/{rubricEval.maxScore} ({rubricEval.percentage}%)
+          <span class="text-ink-muted">Progress:</span>
+          <strong class={rubricEval.passed ? 'text-positive font-bold' : 'text-attention font-bold'}>
+            {rubricEval.completedItems.length}/{rubricEval.totalItems} criteria ({rubricEval.score}/{rubricEval.maxScore} pts)
           </strong>
         </div>
       </div>
@@ -153,7 +153,7 @@
       <button
         onclick={() => onVerify?.()}
         disabled={isVerifying}
-        class="flex-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-mono text-xs font-semibold rounded-sm transition-micro flex items-center justify-center gap-1.5 shadow-2xs disabled:opacity-50"
+        class="flex-1 px-3 py-1.5 bg-positive hover:bg-positive/90 active:bg-positive text-positive-foreground font-mono text-xs font-semibold rounded-sm transition-micro flex items-center justify-center gap-1.5 shadow-2xs disabled:opacity-50"
         title="Deterministically evaluate code and physical telemetry against mission rubric"
       >
         {#if isVerifying}
@@ -164,7 +164,7 @@
           <span>Verify Solution & Record Evidence</span>
         {:else}
           <Play class="size-3.5" />
-          <span>Verify Solution ({rubricEval.percentage}%)</span>
+          <span>Verify Solution ({rubricEval.completedItems.length}/{rubricEval.totalItems} criteria)</span>
         {/if}
       </button>
 
@@ -189,11 +189,11 @@
 
     <!-- Feedback Banner if Verification Run -->
     {#if verificationResult}
-      <div class="p-2 border rounded-xs text-xs font-mono flex items-start gap-2 {verificationResult.passed ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300' : 'bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300'}">
+      <div class="p-2 border rounded-xs text-xs font-mono flex items-start gap-2 {verificationResult.passed ? 'bg-positive-subtle border-positive/30 text-positive' : 'bg-attention-subtle border-attention/30 text-attention'}">
         {#if verificationResult.passed}
-          <CheckCircle2 class="size-4 shrink-0 text-emerald-500 mt-0.5" />
+          <CheckCircle2 class="size-4 shrink-0 text-positive mt-0.5" />
         {:else}
-          <AlertCircle class="size-4 shrink-0 text-amber-500 mt-0.5" />
+          <AlertCircle class="size-4 shrink-0 text-attention mt-0.5" />
         {/if}
         <div class="flex-1 min-w-0">
           <div class="font-bold">{verificationResult.passed ? 'Mission Complete!' : 'Criteria Remaining'}</div>
@@ -208,7 +208,7 @@
     <!-- LEVEL 2: CONTEXT CARD (Why It Matters) -->
     <section class="space-y-1.5">
       <div class="flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-ink-muted">
-        <BookOpen class="size-3 text-cyan-500" />
+        <BookOpen class="size-3 text-cyan" />
         <span>Context & Scientific Significance</span>
       </div>
       <div class="p-3 bg-surface-subtle border border-border rounded-sm text-xs space-y-2">
@@ -229,7 +229,7 @@
     <section class="space-y-2">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-ink-muted">
-          <Sparkles class="size-3 text-amber-500" />
+          <Sparkles class="size-3 text-attention" />
           <span>PRIMM Inquiry Progression</span>
         </div>
         <span class="text-[10px] font-mono text-ink-muted">
@@ -246,7 +246,7 @@
           >
             <span class="truncate w-full">{step.phase}</span>
             {#if completedPrimmSteps.includes(i)}
-              <span class="size-1.5 rounded-none bg-emerald-500"></span>
+              <span class="size-1.5 rounded-none bg-positive"></span>
             {:else}
               <span class="size-1.5 rounded-none bg-border"></span>
             {/if}
@@ -260,14 +260,14 @@
         <div class="p-3 border border-border bg-surface-subtle rounded-sm space-y-2">
           <div class="flex items-center justify-between gap-2">
             <span class="text-xs font-bold text-ink flex items-center gap-1.5">
-              <span class="size-5 rounded-xs bg-accent-indigo/15 text-accent-indigo text-[11px] font-mono font-bold flex items-center justify-center">
+              <span class="size-5 rounded-xs bg-ai-subtle text-ai text-[11px] font-mono font-bold flex items-center justify-center">
                 {activePrimmIndex + 1}
               </span>
               {curStep.title}
             </span>
             <button
               onclick={() => togglePrimmStep(activePrimmIndex)}
-              class="px-2 py-0.5 text-[10.5px] font-mono rounded-xs border transition-micro flex items-center gap-1 {completedPrimmSteps.includes(activePrimmIndex) ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-semibold' : 'border-border text-ink-muted hover:text-ink'}"
+              class="px-2 py-0.5 text-[10.5px] font-mono rounded-xs border transition-micro flex items-center gap-1 {completedPrimmSteps.includes(activePrimmIndex) ? 'bg-positive-subtle border-positive/30 text-positive font-semibold' : 'border-border text-ink-muted hover:text-ink'}"
             >
               {#if completedPrimmSteps.includes(activePrimmIndex)}
                 <Check class="size-3" /> Step Done
@@ -287,7 +287,7 @@
     <section class="space-y-2">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-ink-muted">
-          <Award class="size-3 text-emerald-500" />
+          <Award class="size-3 text-positive" />
           <span>Algorithmic Rubric Criteria</span>
         </div>
         <span class="text-[10px] font-mono text-ink-muted">
@@ -298,10 +298,10 @@
       <div class="space-y-1.5">
         {#each mission.rubric as item}
           {@const isPassed = rubricEval.completedItems.includes(item.id)}
-          <div class="p-2 border rounded-xs transition-micro flex items-start gap-2 {isPassed ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-surface-subtle border-border'}">
+          <div class="p-2 border rounded-xs transition-micro flex items-start gap-2 {isPassed ? 'bg-positive-subtle/50 border-positive/20' : 'bg-surface-subtle border-border'}">
             <div class="pt-0.5 shrink-0">
               {#if isPassed}
-                <CheckCircle2 class="size-3.5 text-emerald-500" />
+                <CheckCircle2 class="size-3.5 text-positive" />
               {:else}
                 <Circle class="size-3.5 text-ink-muted/50" />
               {/if}
@@ -325,8 +325,8 @@
     </section>
 
     <!-- LEVEL 3: SOCRATIC GUIDANCE & HINT -->
-    <section class="p-3 bg-indigo-500/5 border border-indigo-500/20 rounded-sm space-y-1.5">
-      <div class="flex items-center gap-1.5 text-xs font-mono text-accent-indigo font-bold">
+    <section class="p-3 bg-ai-subtle/40 border border-ai/20 rounded-sm space-y-1.5">
+      <div class="flex items-center gap-1.5 text-xs font-mono text-ai font-bold">
         <HelpCircle class="size-3.5" />
         <span>Socratic Inquiry Hint</span>
       </div>
@@ -349,7 +349,7 @@
     <section class="space-y-1.5 pt-2 border-t border-border">
       <div class="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-ink-muted">
         <span class="flex items-center gap-1.5">
-          <Cpu class="size-3 text-cyan-500" />
+          <Cpu class="size-3 text-cyan" />
           <span>10-Level STEM Curriculum Ladder</span>
         </span>
         <span class="text-[10px]">Cl 3 to 12</span>
@@ -360,7 +360,7 @@
           {@const isCurrent = m.id === activeMissionId}
           <button
             onclick={() => onSelectMission?.(m.id)}
-            class="p-2 text-left border rounded-xs transition-micro flex flex-col justify-between {isCurrent ? 'bg-surface border-cyan-500 shadow-2xs' : 'bg-surface-subtle border-border hover:bg-surface'}"
+            class="p-2 text-left border rounded-xs transition-micro flex flex-col justify-between {isCurrent ? 'bg-surface border-cyan shadow-2xs' : 'bg-surface-subtle border-border hover:bg-surface'}"
           >
             <div class="flex items-center justify-between gap-1 w-full">
               <span class="text-sm">{m.icon}</span>

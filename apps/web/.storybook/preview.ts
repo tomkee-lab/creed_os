@@ -9,6 +9,9 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
+    // Tooling Fixture: Storybook background manager toolbar swatch palette.
+    // These approximate canonical WAY 2.1 OKLCH tokens (--surface-canvas light, --surface-raised light, --surface-canvas dark).
+    // They are test/preview fixtures for Storybook iframe painting, not production component tokens.
     backgrounds: {
       default: 'mineral-canvas',
       values: [

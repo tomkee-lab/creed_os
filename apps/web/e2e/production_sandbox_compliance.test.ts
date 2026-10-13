@@ -1,9 +1,14 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
+import fs from 'node:fs';
 
 test.describe('Production Sandbox & Open Source Licensing Compliance', () => {
   test('should verify Section 6 compliance, interactive SBOM filtering, and modal triggers', async ({ page, context }, testInfo) => {
-    const outDir = 'C:/Users/rtf70/.gemini/antigravity-ide/brain/003c2140-b0c1-49b6-ac6e-7636f2889ed7';
+    test.setTimeout(90000);
+    const outDir = process.env.TEST_OUTPUT_DIR || path.join(process.cwd(), 'test-results', 'screenshots');
+    if (!fs.existsSync(outDir)) {
+      fs.mkdirSync(outDir, { recursive: true });
+    }
 
     // Set dev auth cookies
     await context.addCookies([
@@ -135,7 +140,7 @@ test.describe('Production Sandbox & Open Source Licensing Compliance', () => {
     if (await projectDropdownBtn.isVisible()) {
       await projectDropdownBtn.click();
       await page.waitForTimeout(300);
-      const licenseMenuItem = page.locator('button:has-text("Open Source & Licenses")');
+      const licenseMenuItem = page.locator('button:has-text("Open Source Licenses")');
       await expect(licenseMenuItem).toBeVisible();
       await licenseMenuItem.click();
       await page.waitForTimeout(400);

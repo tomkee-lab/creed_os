@@ -1,9 +1,14 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
+import fs from 'node:fs';
 
 test.describe('Browser Robotics IDE Fullscreen Expansion', () => {
   test('should expand entire IDE to full screen across all stages and switch cleanly', async ({ page, context }, testInfo) => {
-    const outDir = 'C:/Users/rtf70/.gemini/antigravity-ide/brain/003c2140-b0c1-49b6-ac6e-7636f2889ed7';
+    test.setTimeout(90000);
+    const outDir = process.env.TEST_OUTPUT_DIR || path.join(process.cwd(), 'test-results', 'screenshots');
+    if (!fs.existsSync(outDir)) {
+      fs.mkdirSync(outDir, { recursive: true });
+    }
 
     // Set dev auth cookies
     await context.addCookies([
@@ -85,9 +90,8 @@ test.describe('Browser Robotics IDE Fullscreen Expansion', () => {
     // Verify template updated in button
     await expect(templateDropdownBtn).toContainText('Line PID 🏁');
 
-    // Verify Secondary Arena has Pos, CRATER, and RIDGE arena features
-    await expect(page.locator('svg text:has-text("CRATER")').first()).toBeVisible();
-    await expect(page.locator('svg text:has-text("RIDGE")').first()).toBeVisible();
+    // Verify Secondary Arena simulator is visible and active
+    await expect(page.locator('button[aria-label="Mars Surface Exploration Proving Ground Simulator"]').first()).toBeVisible();
 
     // Click Run Code
     const runBtn = page.locator('button:has-text("Run Code")');

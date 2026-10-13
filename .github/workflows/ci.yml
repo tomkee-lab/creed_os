@@ -1,0 +1,66 @@
+name: 'CREED OS CI & Architecture Quality Gate'
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gate:
+    name: Typecheck, Test, Stylelint & Design System Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable Corepack & Install pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.25.0 --activate
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install Monorepo Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck Monorepo (Turborepo)
+        run: pnpm run check
+
+      - name: Execute Domain, AI & Assessment Unit Tests
+        run: pnpm test
+
+      - name: Execute CSS & Svelte Stylelint
+        run: pnpm run lint:css
+
+      - name: Validate the Design Audit Validator (Negative Test Fixture)
+        run: pnpm run design:audit:test
+
+      - name: Execute Canonical WAY 2.1 Design System Audit
+        run: pnpm run design:audit
+
+      - name: Build Storybook Design Tokens & Components
+        run: pnpm run build-storybook
+
+      - name: Production Build (Turborepo)
+        run: pnpm run build

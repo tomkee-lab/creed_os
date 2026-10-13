@@ -17,6 +17,7 @@
     PanelLeft
   } from 'lucide-svelte';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+  import LanguageSwitcher from '$lib/components/i18n/LanguageSwitcher.svelte';
   import { authClient } from '$lib/auth-client';
 
   let {
@@ -160,6 +161,9 @@
 
   <!-- Right: Controls & User Profile -->
   <div class="flex items-center gap-2">
+    <!-- Language Switcher -->
+    <LanguageSwitcher />
+
     <!-- Dark Mode Toggle with Celestial Rotation -->
     <button
       onclick={handleToggleTheme}

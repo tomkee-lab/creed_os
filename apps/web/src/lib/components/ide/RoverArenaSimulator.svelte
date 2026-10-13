@@ -381,7 +381,7 @@
 <div class="relative w-full h-full flex flex-col bg-surface-subtle dark:bg-canvas overflow-hidden select-none transition-colors duration-200">
   <!-- 1. Technical Proving Ground Fixed Toolbar Strip (0% Canvas Occlusion) -->
   {#if !hideHeader}
-    <div class="shrink-0 px-3 py-1.5 bg-surface border-b border-border text-[9.5px] font-mono flex items-center justify-between text-ink-muted select-none gap-2">
+    <div class="shrink-0 px-2 py-1.5 bg-surface border-b border-border text-[9.5px] font-mono flex items-center justify-between text-ink-muted select-none gap-2 flex-wrap">
       <!-- Left: Perspective Switcher -->
       <div class="inline-flex p-0.5 bg-surface-subtle border border-border rounded-xs gap-0.5 shrink-0">
         <button
@@ -404,7 +404,7 @@
 
       <!-- Right Controls for Field Proving Ground -->
       {#if arenaViewMode === 'field'}
-        <div class="flex items-center gap-1.5 shrink-0 overflow-x-auto no-scrollbar">
+        <div class="flex items-center gap-1.5 shrink-0 flex-wrap">
           <!-- Interaction Modes -->
           <div class="inline-flex p-0.5 bg-surface-subtle border border-border rounded-xs gap-0.5 shrink-0">
             <button
@@ -466,7 +466,7 @@
             <button
               type="button"
               onclick={() => (showHazards = !showHazards)}
-              class="px-1.5 py-0.5 rounded-2xs transition-micro {showHazards ? 'text-rose-500 font-bold bg-surface' : 'text-ink-muted opacity-40'}"
+              class="px-1.5 py-0.5 rounded-2xs transition-micro {showHazards ? 'text-critical font-bold bg-surface' : 'text-ink-muted opacity-40'}"
               title="Toggle Dynamic Hazards"
             >
               🛑
@@ -1143,7 +1143,7 @@
           <button
             type="button"
             onclick={() => triggerSubsystemDiagnostic('radio')}
-            class="px-2 py-1 bg-surface hover:bg-surface-subtle active:scale-95 border border-border rounded-xs text-[9px] font-mono font-bold transition-micro flex items-center justify-center gap-1 {activeDiagnosticSubsystem === 'radio' ? 'border-emerald-500 text-emerald-500 bg-emerald-500/10' : 'text-ink'}"
+            class="px-2 py-1 bg-surface hover:bg-surface-subtle active:scale-95 border border-border rounded-xs text-[9px] font-mono font-bold transition-micro flex items-center justify-center gap-1 {activeDiagnosticSubsystem === 'radio' ? 'border-positive text-positive bg-positive-subtle' : 'text-ink'}"
             title="Broadcast test packet over 2.4GHz micro:bit radio"
           >
             <span>📻 Radio Ping</span>
@@ -1177,35 +1177,28 @@
 
   <!-- 3. Docked Authentic BBC micro:bit v2 Hardware Controller Deck -->
   {#if !hideMicrobitBar}
-    <div class="shrink-0 border-t border-border bg-surface px-3 py-2 flex items-center justify-between gap-3 shadow-xs select-none transition-colors duration-200">
+    <div class="shrink-0 border-t border-border bg-surface px-2 py-1.5 flex items-center justify-between gap-1.5 shadow-xs select-none transition-colors duration-200 overflow-hidden">
       <!-- Left: Board Identity & Active Icon Badge -->
-      <div class="flex items-center gap-2 min-w-0">
+      <div class="flex items-center gap-1.5 min-w-0 shrink-0">
         <span class="size-2 rounded-none bg-amber-500 shadow-xs shrink-0"></span>
-        <span class="font-mono text-[10px] font-bold text-ink tracking-tight uppercase shrink-0">
-          micro:bit v2
+        <span class="font-mono text-[9.5px] font-bold text-ink tracking-tight uppercase shrink-0">
+          micro:bit
         </span>
-        <span class="px-1.5 py-0.5 bg-surface-subtle border border-border text-[9px] font-mono text-mint font-bold uppercase truncate max-w-20 tracking-wider">
+        <span class="px-1 py-0.2 bg-surface-subtle border border-border text-[8.5px] font-mono text-mint font-bold uppercase truncate max-w-16 tracking-wider">
           {effectiveEmotion}
         </span>
         {#if isHardwareBridgeConnected}
           <span
-            class="px-1.5 py-0.5 bg-mint/15 border border-mint/40 text-[8px] font-mono font-bold text-mint uppercase tracking-wider animate-pulse flex items-center gap-1"
+            class="px-1 py-0.2 bg-mint/15 border border-mint/40 text-[8px] font-mono font-bold text-mint uppercase tracking-wider animate-pulse flex items-center gap-1 shrink-0"
             title="Web Serial Physical Hardware Bridge Connected & Streaming"
           >
-            TX ⚡ LIVE
-          </span>
-        {:else}
-          <span
-            class="px-1.5 py-0.5 bg-surface-subtle border border-border text-[8px] font-mono text-ink-muted uppercase tracking-wider hidden md:inline"
-            title="Virtual Hardware Simulator"
-          >
-            SIM ONLY
+            LIVE
           </span>
         {/if}
       </div>
 
       <!-- Center: Interactive Tactile Buttons + 5x5 LED Display Grid -->
-      <div class="flex items-center justify-center gap-2 shrink-0">
+      <div class="flex items-center justify-center gap-1.5 shrink-0">
         <!-- Tactile Button A -->
         <button
           type="button"
@@ -1217,7 +1210,7 @@
         </button>
 
         <!-- 5x5 LED Display Grid -->
-        <div class="p-1 bg-surface-subtle dark:bg-canvas border border-border dark:border-zinc-800 grid grid-cols-5 gap-0.5 shadow-inner">
+        <div class="p-0.5 bg-surface-subtle dark:bg-canvas border border-border dark:border-zinc-800 grid grid-cols-5 gap-0.5 shadow-inner shrink-0">
           {#each activeMicrobitGrid as row}
             {#each row as pixel}
               <div
@@ -1240,8 +1233,8 @@
         </button>
       </div>
 
-      <!-- Right: Gold Edge Connector Pins Bus -->
-      <div class="hidden sm:flex items-center gap-1.5 px-2 py-0.5 bg-surface-subtle border border-border text-[8px] font-mono shrink-0">
+      <!-- Right: Gold Edge Connector Pins Bus (Large screens only) -->
+      <div class="hidden xl:flex items-center gap-1 px-1.5 py-0.5 bg-surface-subtle border border-border text-[8px] font-mono shrink-0">
         <span class="text-amber-600 dark:text-amber-400 font-bold">P0</span>
         <span class="text-amber-600 dark:text-amber-400 font-bold">P1</span>
         <span class="text-amber-600 dark:text-amber-400 font-bold">P2</span>

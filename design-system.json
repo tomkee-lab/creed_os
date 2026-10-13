@@ -34,6 +34,13 @@
       "value": "8px",
       "class": "rounded-md",
       "useCases": ["Hero media", "Mixed-media illustration frames", "Immersive experience containers"]
+    },
+    "exemptions": {
+      "circularElements": {
+        "class": "rounded-full",
+        "permittedUses": ["Circular avatar portraits", "Progress indicator rings & spinners", "Mechanical simulation gears"],
+        "prohibitedUses": ["Action buttons", "Inputs", "Content cards", "Modal containers"]
+      }
     }
   },
   "spacing": {

@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { transitionConsentState, type ConsentRecord } from '@core-os/domain';
 import { resolveLearnerId } from '$lib/server/learnerScope';
+import { coreRepository } from '$lib/server/repository';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
   // 1. Enforce session requirements for statutory consent withdrawal under DPDP Act 2023
@@ -47,6 +48,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       withdrawnAt: new Date().toISOString(),
       reason
     });
+
+    if (targetLearnerId) {
+      coreRepository.withdrawConsent(targetLearnerId, reason);
+    }
 
     return json({
       success: true,

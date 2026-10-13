@@ -618,6 +618,7 @@ export function evaluateMissionRubric(
   score: number;
   maxScore: number;
   percentage: number;
+  totalItems: number;
   completedItems: string[];
   feedback: string[];
 } {
@@ -748,6 +749,7 @@ export function evaluateMissionRubric(
     score: earnedScore,
     maxScore,
     percentage,
+    totalItems: mission.rubric.length,
     completedItems,
     feedback
   };

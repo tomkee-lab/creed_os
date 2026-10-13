@@ -423,6 +423,16 @@
   let flashProgress = $state(0);
   let targetHardware = $state<'esp32' | 'microbit' | 'arduino'>('esp32');
 
+  // Authoritative Execution State Indicator
+  let executionState = $derived.by<'idle' | 'running' | 'flashing' | 'error' | 'completed'>(() => {
+    if (isFlashing) return 'flashing';
+    if (isExecuting || isAnimating) return 'running';
+    const lastLog = missionLogs[missionLogs.length - 1];
+    if (lastLog?.type === 'error') return 'error';
+    if (evidenceSubmitted || lastLog?.type === 'success') return 'completed';
+    return 'idle';
+  });
+
   // Dropdown States ("some kind of drop")
   let showMissionDropdown = $state(false);
   let showProjectDropdown = $state(false);
@@ -837,9 +847,6 @@
 
   function switchStage(newStage: 'primary' | 'middle' | 'secondary') {
     stage = newStage;
-    if (newStage === 'middle' || newStage === 'secondary') {
-      isFullscreen = true;
-    }
     if (blocklyWorkspace) {
       try {
         blocklyWorkspace.getFlyout()?.hide();
@@ -1882,15 +1889,32 @@
   </div>
 {/if}
 
+<svelte:window
+  onkeydown={(e) => {
+    if (e.key === 'Escape') {
+      showMissionDropdown = false;
+      showProjectDropdown = false;
+      showHardwareDropdown = false;
+      showTemplateDropdown = false;
+    }
+  }}
+  onclick={() => {
+    showMissionDropdown = false;
+    showProjectDropdown = false;
+    showHardwareDropdown = false;
+    showTemplateDropdown = false;
+  }}
+/>
+
 <div
   class={isFullscreen
     ? 'fixed inset-0 z-50 w-screen h-screen bg-canvas flex flex-col font-sans select-none overflow-hidden animate-in fade-in-0 duration-150'
-    : 'flex flex-col w-full h-160 border border-border bg-surface shadow-xs rounded-none font-sans overflow-hidden transition-all duration-200'}
+    : 'flex flex-col w-full h-[clamp(460px,calc(100vh-10rem),920px)] min-h-115 max-h-230 border border-border bg-surface shadow-xs rounded-none font-sans overflow-hidden transition-all duration-200'}
 >
-  <!-- IDE Toolbar (WAY 2.1 Unified Engineering Header - 48px) -->
-  <header class="h-12 px-3 border-b border-border bg-surface flex items-center justify-between gap-2 shrink-0 relative z-30 select-none whitespace-nowrap">
+  <!-- IDE Toolbar (WAY 2.1 Unified Engineering Header - Responsive Clusters) -->
+  <header class="min-h-12 px-3 py-1.5 border-b border-border bg-surface flex flex-wrap items-center justify-between gap-2 shrink-0 relative z-30 select-none">
     <!-- ZONE 1 (Left): Workbench / Studio Title, Mission Selector, Mode Pill -->
-    <div class="flex items-center gap-2 shrink-0">
+    <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
       {#if isFullscreen}
         <button
           onclick={closeStudio}
@@ -1936,6 +1960,9 @@
         </button>
         {#if showMissionDropdown}
           <div
+            onclick={(e) => e.stopPropagation()}
+            onkeydown={(e) => { e.stopPropagation(); if (e.key === 'Escape') showMissionDropdown = false; }}
+            tabindex="-1"
             class="absolute left-0 top-full mt-1 w-72 bg-surface border border-border shadow-lg rounded-sm z-50 py-1 text-xs font-mono animate-in fade-in-0 zoom-in-95 duration-100"
             role="menu"
           >
@@ -2073,6 +2100,9 @@
           </button>
           {#if showTemplateDropdown}
             <div
+              onclick={(e) => e.stopPropagation()}
+              onkeydown={(e) => { e.stopPropagation(); if (e.key === 'Escape') showTemplateDropdown = false; }}
+              tabindex="-1"
               class="absolute left-0 top-full mt-1 w-64 bg-surface border border-border shadow-xl rounded-sm z-50 divide-y divide-border font-mono text-xs animate-in fade-in-0 zoom-in-95 duration-100"
               role="menu"
             >
@@ -2095,8 +2125,38 @@
       {/if}
     </div>
 
-    <!-- ZONE 3 (Right): Hardware Target, Autosave, Project, HW Bridge, Extensions, Fullscreen -->
+    <!-- ZONE 3 (Right): Execution State, Hardware Target, Autosave, Project, HW Bridge, Extensions, Fullscreen -->
     <div class="flex items-center gap-1.5 shrink-0">
+      <!-- Unmistakable Execution State Indicator (Non-color-only) -->
+      <div class="flex items-center mr-1">
+        {#if executionState === 'running'}
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-mint/15 text-mint border border-mint/40 rounded-xs text-[10px] font-mono font-bold">
+            <span class="size-1.5 rounded-none bg-mint animate-pulse"></span>
+            <span>RUNNING</span>
+          </span>
+        {:else if executionState === 'flashing'}
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-brand/15 text-brand border border-brand/40 rounded-xs text-[10px] font-mono font-bold">
+            <span class="size-1.5 rounded-none bg-brand animate-pulse"></span>
+            <span>FLASHING</span>
+          </span>
+        {:else if executionState === 'error'}
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-red-500/15 text-red-500 border border-red-500/40 rounded-xs text-[10px] font-mono font-bold">
+            <span class="size-1.5 rounded-none bg-red-500"></span>
+            <span>ERROR</span>
+          </span>
+        {:else if executionState === 'completed'}
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-mint/15 text-mint border border-mint/40 rounded-xs text-[10px] font-mono font-bold">
+            <CheckCircle2 class="size-3 text-mint" />
+            <span>COMPLETED</span>
+          </span>
+        {:else}
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-surface-subtle text-ink-muted border border-border rounded-xs text-[10px] font-mono">
+            <span class="size-1.5 rounded-none bg-border-strong"></span>
+            <span>IDLE</span>
+          </span>
+        {/if}
+      </div>
+
       <!-- Autosave Status Indicator -->
       <div class="hidden xl:flex items-center gap-1 text-[11px] font-mono text-ink-muted mr-1" title="Autosave status">
         <span class="size-1.5 rounded-none {cloudSyncStatus === 'saved' ? 'bg-mint' : cloudSyncStatus === 'saving' ? 'bg-brand animate-pulse' : 'bg-amber-500'}"></span>
@@ -2124,6 +2184,9 @@
         </button>
         {#if showHardwareDropdown}
           <div
+            onclick={(e) => e.stopPropagation()}
+            onkeydown={(e) => { e.stopPropagation(); if (e.key === 'Escape') showHardwareDropdown = false; }}
+            tabindex="-1"
             class="absolute right-0 top-full mt-1 w-56 bg-surface border border-border shadow-lg rounded-sm z-50 py-1 text-xs font-mono animate-in fade-in-0 zoom-in-95 duration-100"
             role="menu"
           >
@@ -2194,6 +2257,9 @@
         </button>
         {#if showProjectDropdown}
           <div
+            onclick={(e) => e.stopPropagation()}
+            onkeydown={(e) => { e.stopPropagation(); if (e.key === 'Escape') showProjectDropdown = false; }}
+            tabindex="-1"
             class="absolute right-0 top-full mt-1 w-56 bg-surface border border-border shadow-lg rounded-sm z-50 py-1 text-xs font-mono animate-in fade-in-0 zoom-in-95 duration-100"
             role="menu"
           >
@@ -2303,9 +2369,9 @@
     <!-- PANEL 1: Visual Blockly Workspace (Unconditionally Mounted in DOM) -->
     <div
       class={stage === 'primary'
-        ? (isFullscreen ? 'w-[68%] h-full relative transition-all duration-200' : 'w-full lg:w-[65%] h-full relative transition-all duration-200')
+        ? (isFullscreen ? 'w-[64%] h-full relative transition-all duration-200' : 'w-full lg:w-[62%] h-full relative transition-all duration-200')
         : stage === 'middle'
-        ? 'w-[38%] h-full relative border-r border-border transition-all duration-200'
+        ? (isFullscreen ? 'w-full md:w-1/2 lg:w-[35%] min-w-0 h-full relative border-r border-border transition-all duration-200' : 'w-full sm:w-1/2 xl:w-[35%] min-w-0 h-full relative border-r border-border transition-all duration-200')
         : 'hidden'}
     >
       <div bind:this={blocklyContainer} class="absolute inset-0"></div>
@@ -2370,9 +2436,9 @@
     <!-- PANEL 2: Monaco Python Code Editor (Unconditionally Mounted in DOM) -->
     <div
       class={stage === 'middle'
-        ? 'w-[38%] h-full flex flex-col bg-surface-subtle border-r border-border transition-all duration-200'
+        ? (isFullscreen ? 'hidden md:flex md:w-1/2 lg:w-[33%] min-w-0 h-full flex-col bg-surface-subtle border-r border-border transition-all duration-200' : 'hidden sm:flex sm:w-1/2 xl:w-[33%] min-w-0 h-full flex-col bg-surface-subtle border-r border-border transition-all duration-200')
         : stage === 'secondary'
-        ? 'w-[60%] h-full flex flex-col bg-surface-subtle border-r border-border transition-all duration-200'
+        ? 'w-[62%] h-full flex flex-col bg-surface-subtle border-r border-border transition-all duration-200'
         : 'hidden'}
     >
       {#if stage === 'middle'}
@@ -2410,10 +2476,10 @@
     <!-- PANEL 3: Unified Resizable Auxiliary Dock (Single Authoritative Instance) -->
     <div
       class={stage === 'primary'
-        ? (isFullscreen ? 'w-[32%] h-full border-l border-border bg-surface flex flex-col transition-all duration-200' : 'hidden lg:flex lg:flex-col lg:w-[35%] h-full border-l border-border bg-surface transition-all duration-200')
+        ? (isFullscreen ? 'w-[36%] min-w-75 h-full border-l border-border bg-surface flex flex-col transition-all duration-200' : 'hidden lg:flex lg:flex-col lg:w-[38%] min-w-75 h-full border-l border-border bg-surface transition-all duration-200')
         : stage === 'middle'
-        ? 'w-[24%] h-full border-l border-border bg-surface flex flex-col transition-all duration-200'
-        : 'w-[40%] h-full border-l border-border bg-surface flex flex-col transition-all duration-200'}
+        ? (isFullscreen ? 'hidden lg:flex lg:flex-col lg:w-[32%] min-w-70 h-full border-l border-border bg-surface transition-all duration-200' : 'hidden xl:flex xl:flex-col xl:w-[32%] min-w-70 h-full border-l border-border bg-surface transition-all duration-200')
+        : 'w-[38%] min-w-75 h-full border-l border-border bg-surface flex flex-col transition-all duration-200'}
     >
       <!-- Level 1 Integrated Dock Tab Bar & Telemetry Strip (36px) -->
       <div class="h-9 px-2 border-b border-border bg-surface flex items-center justify-between text-[10.5px] font-mono shrink-0 select-none gap-1">

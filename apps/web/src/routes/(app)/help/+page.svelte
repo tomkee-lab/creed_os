@@ -1,7 +1,6 @@
 <script lang="ts">
   import WorkspaceHeader from '$lib/components/shell/WorkspaceHeader.svelte';
-  import WaySection from '$lib/components/WaySection.svelte';
-  import Button from '$lib/components/Button.svelte';
+  import { Button, WaySection } from '$lib/components';
   import { Compass, BookOpen, BrainCircuit, Shield, HelpCircle, ArrowRight, ExternalLink } from 'lucide-svelte';
 </script>
 

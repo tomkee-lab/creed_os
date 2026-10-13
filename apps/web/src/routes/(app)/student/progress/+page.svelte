@@ -88,63 +88,95 @@
   <title>Capabilities — CREED OS</title>
 </svelte:head>
 
-<div class="max-w-3xl mx-auto space-y-12 py-4">
+<div class="max-w-4xl mx-auto space-y-10 py-4 pb-16">
   <!-- 1. ORIENT: Navigation & Header -->
-  <header class="space-y-3">
+  <header class="space-y-3 border-b border-border pb-5">
     <a
       href="/student"
-      class="inline-flex items-center gap-1.5 text-xs font-medium text-ink-muted hover:text-ink transition-colors"
+      class="inline-flex items-center gap-1.5 text-xs font-medium text-foreground-secondary hover:text-foreground transition-colors"
     >
       <ArrowLeft class="w-3.5 h-3.5" />
-      <span>Back to Today</span>
+      <span>Back to Today's Dashboard</span>
     </a>
 
     <div class="space-y-1">
-      <h1 class="text-3xl font-semibold tracking-tight text-ink">
-        Capabilities
+      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+        Capabilities & Verified Evidence
       </h1>
-      <p class="text-base text-ink-secondary">
-        What you're getting good at, grounded in verified demonstrations.
+      <p class="text-xs sm:text-sm text-foreground-secondary">
+        What you're demonstrating across projects and diagnostics, grounded in verified evidence.
       </p>
     </div>
   </header>
 
-  <!-- 2. DECIDE: Demonstrated Strengths (Qualitative Developmental Bands) -->
+  <!-- 2. ACTION-FIRST UX: Recommended Next Step (Signal -> Context -> Action Primacy) -->
+  <section class="p-6 rounded-sm bg-surface border border-border space-y-4 shadow-xs">
+    <div class="flex items-center justify-between text-xs font-semibold tracking-wider uppercase text-ai">
+      <span>Recommended Next Step</span>
+      <span class="flex items-center gap-1 text-foreground-secondary font-mono">
+        <Clock class="w-3.5 h-3.5" />
+        <span>20 min</span>
+      </span>
+    </div>
+
+    <div class="space-y-1">
+      <h2 class="text-lg font-bold text-foreground">
+        Strengthen proportional reasoning
+      </h2>
+      <p class="text-xs sm:text-sm text-foreground-secondary leading-relaxed">
+        Bridging proportional equations unlocks robotics kinematics and advanced algorithm modules.
+      </p>
+    </div>
+
+    <div class="pt-1">
+      <a
+        href="/student/assessment"
+        class="inline-flex items-center gap-2 px-5 py-2 rounded-sm bg-foreground hover:bg-foreground/90 text-background font-medium text-xs transition-colors shadow-xs cursor-pointer"
+      >
+        <span>Start 20-min practice session</span>
+        <ArrowRight class="w-4 h-4" />
+      </a>
+    </div>
+  </section>
+
+  <!-- 3. DECIDE: Demonstrated Strengths (Qualitative Developmental Bands) -->
   <section class="space-y-4">
     <div class="flex items-center justify-between">
-      <h2 class="text-base font-semibold text-ink">
-        Demonstrated Strengths
-      </h2>
-      <span class="text-xs text-ink-muted">
-        Qualitative Developmental Tiers
-      </span>
+      <div>
+        <h2 class="text-base font-bold text-foreground">
+          Demonstrated Strengths
+        </h2>
+        <span class="text-xs text-foreground-secondary">
+          Qualitative Developmental Tiers (Evidence-backed)
+        </span>
+      </div>
     </div>
 
     <div class="space-y-3">
       {#each capabilities as cap}
-        <div class="p-5 rounded-none bg-surface border border-border space-y-3">
+        <div class="p-5 rounded-sm bg-surface border border-border space-y-3">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <span class="text-sm font-semibold text-ink">{cap.name}</span>
+            <span class="text-sm font-semibold text-foreground">{cap.name}</span>
             <div class="flex items-center gap-3">
               <EvidenceRating rating={cap.rating} max={cap.maxRating} />
-              <span class="text-xs font-medium px-2 py-0.5 rounded-none {cap.tier === 'positive' ? 'bg-positive-subtle text-positive' : 'bg-attention-subtle text-attention'}">
+              <span class="text-xs font-medium px-2 py-0.5 rounded-sm {cap.tier === 'positive' ? 'bg-positive-subtle text-positive' : 'bg-attention-subtle text-attention'}">
                 {cap.level}
               </span>
             </div>
           </div>
 
-          <!-- Angular Segmented Foundation Indicator (Strict 0px Sharp) -->
+          <!-- Angular Segmented Foundation Indicator -->
           <div class="grid grid-cols-5 gap-1.5 py-1">
             {#each Array(cap.maxRating) as _, i}
               <div
-                class="h-1.5 rounded-none transition-micro {i < cap.rating
-                  ? cap.tier === 'positive' ? 'bg-mint' : 'bg-attention'
-                  : 'bg-surface-subtle border border-border'}"
+                class="h-1.5 rounded-none transition-colors {i < cap.rating
+                  ? cap.tier === 'positive' ? 'bg-positive' : 'bg-attention'
+                  : 'bg-surface-raised border border-border'}"
               ></div>
             {/each}
           </div>
 
-          <p class="text-xs text-ink-secondary leading-relaxed">
+          <p class="text-xs text-foreground-secondary leading-relaxed">
             {cap.summary}
           </p>
         </div>
@@ -158,7 +190,7 @@
         onclick={() => (showDeepMap = !showDeepMap)}
         class="inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:underline cursor-pointer"
       >
-        <span>{showDeepMap ? 'Hide capability map' : 'Explore capability map ↓'}</span>
+        <span>{showDeepMap ? 'Hide capability map' : 'Explore longitudinal capability map ↓'}</span>
         {#if showDeepMap}
           <ChevronUp class="w-3.5 h-3.5" />
         {:else}
@@ -167,29 +199,29 @@
       </button>
 
       {#if showDeepMap}
-        <div class="mt-4 p-6 rounded-none bg-surface border border-border space-y-4">
+        <div class="mt-4 p-6 rounded-sm bg-surface border border-border space-y-4 animate-in fade-in duration-200">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border">
-            <span class="text-xs font-semibold text-ink">Deep Visual Exploration</span>
+            <span class="text-xs font-semibold text-foreground">Deep Visual Exploration</span>
             
             <ButtonGroup class="border border-border">
               <button
                 type="button"
                 onclick={() => (deepVisualMode = 'ribbon')}
-                class="px-3 py-1.5 text-xs font-medium transition-colors border-r cursor-pointer {deepVisualMode === 'ribbon' ? 'bg-brand text-brand-foreground font-semibold' : 'bg-surface text-ink-secondary hover:text-ink hover:bg-surface-subtle'}"
+                class="px-3 py-1.5 text-xs font-medium transition-colors border-r cursor-pointer {deepVisualMode === 'ribbon' ? 'bg-foreground text-background font-semibold' : 'bg-surface text-foreground-secondary hover:text-foreground hover:bg-surface-raised'}"
               >
                 Growth Band
               </button>
               <button
                 type="button"
                 onclick={() => (deepVisualMode = 'sunburst')}
-                class="px-3 py-1.5 text-xs font-medium transition-colors border-r cursor-pointer {deepVisualMode === 'sunburst' ? 'bg-brand text-brand-foreground font-semibold' : 'bg-surface text-ink-secondary hover:text-ink hover:bg-surface-subtle'}"
+                class="px-3 py-1.5 text-xs font-medium transition-colors border-r cursor-pointer {deepVisualMode === 'sunburst' ? 'bg-foreground text-background font-semibold' : 'bg-surface text-foreground-secondary hover:text-foreground hover:bg-surface-raised'}"
               >
                 Radial Sunburst
               </button>
               <button
                 type="button"
                 onclick={() => (deepVisualMode = 'timeline')}
-                class="px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer {deepVisualMode === 'timeline' ? 'bg-brand text-brand-foreground font-semibold' : 'bg-surface text-ink-secondary hover:text-ink hover:bg-surface-subtle'}"
+                class="px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer {deepVisualMode === 'timeline' ? 'bg-foreground text-background font-semibold' : 'bg-surface text-foreground-secondary hover:text-foreground hover:bg-surface-raised'}"
               >
                 Milestone Strip
               </button>
@@ -208,44 +240,14 @@
     </div>
   </section>
 
-  <!-- 3. ACT: Recommended Next Step -->
-  <section class="p-6 rounded-none bg-surface border border-border space-y-4">
-    <div class="flex items-center justify-between text-xs font-semibold tracking-wider uppercase text-brand">
-      <span>Recommended Next Step</span>
-      <span class="flex items-center gap-1 text-ink-muted">
-        <Clock class="w-3.5 h-3.5" />
-        <span>20 min</span>
-      </span>
-    </div>
-
-    <div class="space-y-1">
-      <h2 class="text-lg font-semibold text-ink">
-        Strengthen proportional reasoning
-      </h2>
-      <p class="text-sm text-ink-secondary">
-        Bridging proportional equations unlocks robotics kinematics and advanced algorithm modules.
-      </p>
-    </div>
-
-    <div>
-      <a
-        href="/student/assessment"
-        class="inline-flex items-center gap-2 px-5 py-2 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-sm transition-colors duration-140 cursor-pointer"
-      >
-        <span>Start 20-min practice</span>
-        <ArrowRight class="w-4 h-4" />
-      </a>
-    </div>
-  </section>
-
   <!-- 4. PROVE: Evidence Trail (Drawer/Inspector Powered) -->
   <section class="space-y-4">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
       <div>
-        <h2 class="text-base font-semibold text-ink">
-          Evidence
+        <h2 class="text-base font-bold text-foreground">
+          Evidence Ledger
         </h2>
-        <p class="text-xs text-ink-muted">
+        <p class="text-xs text-foreground-secondary">
           {(evidence || []).length} verified demonstrations across projects and diagnostics
         </p>
       </div>
@@ -255,21 +257,21 @@
         <button
           type="button"
           onclick={() => (activeFilter = 'all')}
-          class="px-3 py-1 text-xs border-r transition-colors cursor-pointer {activeFilter === 'all' ? 'bg-surface-subtle font-medium text-ink' : 'bg-surface text-ink-secondary hover:text-ink'}"
+          class="px-3 py-1 text-xs border-r transition-colors cursor-pointer {activeFilter === 'all' ? 'bg-surface-raised font-semibold text-foreground' : 'bg-surface text-foreground-secondary hover:text-foreground'}"
         >
           All
         </button>
         <button
           type="button"
           onclick={() => (activeFilter = 'assessment')}
-          class="px-3 py-1 text-xs border-r transition-colors cursor-pointer {activeFilter === 'assessment' ? 'bg-surface-subtle font-medium text-ink' : 'bg-surface text-ink-secondary hover:text-ink'}"
+          class="px-3 py-1 text-xs border-r transition-colors cursor-pointer {activeFilter === 'assessment' ? 'bg-surface-raised font-semibold text-foreground' : 'bg-surface text-foreground-secondary hover:text-foreground'}"
         >
           Diagnostics
         </button>
         <button
           type="button"
           onclick={() => (activeFilter = 'project')}
-          class="px-3 py-1 text-xs transition-colors cursor-pointer {activeFilter === 'project' ? 'bg-surface-subtle font-medium text-ink' : 'bg-surface text-ink-secondary hover:text-ink'}"
+          class="px-3 py-1 text-xs transition-colors cursor-pointer {activeFilter === 'project' ? 'bg-surface-raised font-semibold text-foreground' : 'bg-surface text-foreground-secondary hover:text-foreground'}"
         >
           Projects
         </button>
@@ -281,14 +283,14 @@
         <div class="py-3.5 flex items-center justify-between gap-4">
           <div class="min-w-0 space-y-0.5">
             <div class="flex items-center gap-2">
-              <span class="text-sm font-medium text-ink truncate">
+              <span class="text-sm font-semibold text-foreground truncate">
                 {item.sourceTitle}
               </span>
-              <span class="text-[11px] text-ink-muted">
+              <span class="text-[11px] text-foreground-secondary font-mono">
                 {new Date(item.observedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
               </span>
             </div>
-            <p class="text-xs text-ink-secondary truncate">
+            <p class="text-xs text-foreground-secondary truncate">
               {item.summary}
             </p>
           </div>
@@ -297,7 +299,7 @@
             <button
               type="button"
               onclick={() => inspect(item)}
-              class="px-3 py-1.5 rounded-none bg-surface-subtle hover:bg-surface-raised text-xs font-medium text-ink border border-border shrink-0 transition-colors cursor-pointer"
+              class="px-3 py-1.5 rounded-sm bg-surface hover:bg-surface-raised text-xs font-medium text-foreground border border-border shrink-0 transition-colors cursor-pointer shadow-2xs"
             >
               Inspect
             </button>
@@ -317,40 +319,40 @@
   {#if selectedRecord}
     <div class="space-y-6">
       <div class="space-y-1">
-        <span class="text-xs font-medium text-ink-muted uppercase tracking-wider">Context</span>
-        <p class="text-sm text-ink leading-relaxed">
+        <span class="text-xs font-semibold text-foreground-secondary uppercase tracking-wider">Context</span>
+        <p class="text-sm text-foreground leading-relaxed">
           {selectedRecord.summary}
         </p>
       </div>
 
       <div class="space-y-2">
-        <span class="text-xs font-medium text-ink-muted uppercase tracking-wider">Demonstrated Mastery Rubric</span>
-        <div class="p-3 rounded-none bg-surface-subtle border border-border flex items-center justify-between">
-          <span class="text-xs text-ink">Rubric Demonstration:</span>
+        <span class="text-xs font-semibold text-foreground-secondary uppercase tracking-wider">Demonstrated Mastery Rubric</span>
+        <div class="p-3 rounded-sm bg-surface-raised border border-border flex items-center justify-between">
+          <span class="text-xs text-foreground">Rubric Demonstration:</span>
           <EvidenceRating rating={4} max={5} label="Verified" />
         </div>
       </div>
 
       <div class="space-y-2">
-        <span class="text-xs font-medium text-ink-muted uppercase tracking-wider">Audit Metadata & Provenance</span>
-        <div class="p-3 rounded-none bg-surface-subtle border border-border text-xs space-y-1.5">
+        <span class="text-xs font-semibold text-foreground-secondary uppercase tracking-wider">Audit Metadata & Provenance</span>
+        <div class="p-3 rounded-sm bg-surface-raised border border-border text-xs space-y-1.5">
           <div class="flex justify-between">
-            <span class="text-ink-secondary">Method:</span>
-            <span class="font-medium text-ink font-mono">{selectedRecord.sourceType}</span>
+            <span class="text-foreground-secondary">Method:</span>
+            <span class="font-medium text-foreground font-mono">{selectedRecord.sourceType}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-ink-secondary">Observed:</span>
-            <span class="font-medium text-ink font-mono">{new Date(selectedRecord.observedAt).toLocaleDateString()}</span>
+            <span class="text-foreground-secondary">Observed:</span>
+            <span class="font-medium text-foreground font-mono">{new Date(selectedRecord.observedAt).toLocaleDateString()}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-ink-secondary">Authority:</span>
+            <span class="text-foreground-secondary">Authority:</span>
             <span class="font-medium text-positive">Certified Educator & Deterministic Evaluator</span>
           </div>
           <div class="flex justify-between pt-1 border-t border-border">
-            <span class="text-ink-secondary">DPDP Consent Status:</span>
-            <span class="font-medium text-mint inline-flex items-center gap-1">
+            <span class="text-foreground-secondary">DPDP Consent Status:</span>
+            <span class="font-medium text-positive inline-flex items-center gap-1">
               <ShieldCheck class="w-3 h-3" />
-              <span>Cryptographically Sealed</span>
+              <span>Statutory Parental Consent on File</span>
             </span>
           </div>
         </div>
@@ -358,12 +360,12 @@
 
       {#if selectedRecord.observedValue?.rubricCriteria}
         <div class="space-y-2">
-          <span class="text-xs font-medium text-ink-muted uppercase tracking-wider">Demonstrated Criteria</span>
-          <ul class="text-xs space-y-1.5 text-ink-secondary">
+          <span class="text-xs font-semibold text-foreground-secondary uppercase tracking-wider">Demonstrated Criteria</span>
+          <ul class="text-xs space-y-1.5 text-foreground-secondary">
             {#each Object.keys(selectedRecord.observedValue.rubricCriteria) as crit}
               <li class="flex items-start gap-1.5">
                 <CheckCircle2 class="w-3.5 h-3.5 text-positive shrink-0 mt-0.5" />
-                <span>{crit}</span>
+                <span class="text-foreground">{crit}</span>
               </li>
             {/each}
           </ul>

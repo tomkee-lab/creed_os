@@ -1,4 +1,6 @@
 {
+  "$canonicalSource": "design-system.json",
+  "system": "WAY Design System 2.1 Enforcement Rules",
   "rules": {
     "allowedRadii": ["0px", "4px", "8px"],
     "allowedRadiusClasses": ["rounded-none", "rounded-sm", "rounded-md", "rounded-full"],

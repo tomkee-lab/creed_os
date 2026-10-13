@@ -12,17 +12,17 @@
   <header class="flex items-center justify-between pb-4 border-b border-border">
     <a
       href="/student"
-      class="inline-flex items-center gap-1.5 text-xs font-medium text-ink-muted hover:text-ink transition-micro"
+      class="inline-flex items-center gap-1.5 text-xs font-medium text-foreground-secondary hover:text-foreground transition-colors"
     >
       <ArrowLeft class="size-3.5" />
       <span>Back to Today's Missions</span>
     </a>
 
     <div class="text-right">
-      <h1 class="text-lg font-bold tracking-tight text-ink">
+      <h1 class="text-lg font-bold tracking-tight text-foreground">
         Guided Reasoning Studio
       </h1>
-      <p class="text-xs text-ink-muted">
+      <p class="text-xs text-foreground-secondary">
         Kinematics & Gear Ratio Balancing • Real-time Socratic Dialogue
       </p>
     </div>

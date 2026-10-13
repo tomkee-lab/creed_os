@@ -147,7 +147,7 @@
     <div class="p-6 bg-surface border border-border rounded-none space-y-6">
       <div class="border-b border-border pb-4">
         <h2 class="text-base font-bold text-foreground flex items-center gap-2">
-          <Sparkles class="w-4 h-4 text-indigo-400" />
+          <Sparkles class="w-4 h-4 text-ai" />
           <span>Author Adaptive 3-Tier Lesson Plan</span>
         </h2>
         <p class="text-xs text-muted">
@@ -163,7 +163,7 @@
             type="text"
             bind:value={newTitle}
             placeholder="e.g. Archimedes Buoyancy & Displaced Fluid Mechanics"
-            class="w-full px-3 py-2 bg-surface-raised border border-border text-xs rounded-none text-foreground focus:border-indigo-500 focus:outline-hidden"
+            class="w-full px-3 py-2 bg-surface-raised border border-border text-xs rounded-none text-foreground focus:border-ai focus:outline-hidden"
           />
         </div>
 
@@ -172,7 +172,7 @@
           <select
             id="lesson-subject"
             bind:value={newSubject}
-            class="w-full px-3 py-2 bg-surface-raised border border-border text-xs rounded-none text-foreground focus:border-indigo-500 focus:outline-hidden"
+            class="w-full px-3 py-2 bg-surface-raised border border-border text-xs rounded-none text-foreground focus:border-ai focus:outline-hidden"
           >
             <option value="STEM Reasoning">STEM Reasoning</option>
             <option value="English Literacy">English Literacy</option>
@@ -185,7 +185,7 @@
           <select
             id="lesson-framework"
             bind:value={newFramework}
-            class="w-full px-3 py-2 bg-surface-raised border border-border text-xs rounded-none text-foreground focus:border-indigo-500 focus:outline-hidden"
+            class="w-full px-3 py-2 bg-surface-raised border border-border text-xs rounded-none text-foreground focus:border-ai focus:outline-hidden"
           >
             <option value="CRA (Concrete-Representational-Abstract)">CRA (Concrete-Representational-Abstract)</option>
             <option value="PRIMM">PRIMM (Predict, Run, Investigate, Modify, Make)</option>
@@ -200,7 +200,7 @@
             type="text"
             bind:value={newMisconceptionLabel}
             placeholder="e.g. Mass-Weight vs Displaced Volume Confusion"
-            class="w-full px-3 py-2 bg-surface-raised border border-border text-xs rounded-none text-foreground focus:border-indigo-500 focus:outline-hidden"
+            class="w-full px-3 py-2 bg-surface-raised border border-border text-xs rounded-none text-foreground focus:border-ai focus:outline-hidden"
           />
         </div>
       </div>
@@ -211,7 +211,7 @@
 
         <div class="space-y-3">
           <div class="p-4 bg-surface-raised border border-border rounded-none space-y-1.5">
-            <span class="text-[10px] font-bold uppercase text-amber-300">Tier 1 Remediation Strategy (Concrete / Tactile)</span>
+            <span class="text-[10px] font-bold uppercase text-attention">Tier 1 Remediation Strategy (Concrete / Tactile)</span>
             <input
               type="text"
               bind:value={newTier1Strategy}
@@ -220,7 +220,7 @@
           </div>
 
           <div class="p-4 bg-surface-raised border border-border rounded-none space-y-1.5">
-            <span class="text-[10px] font-bold uppercase text-indigo-300">Tier 2 Core Task (Representational / Modeling)</span>
+            <span class="text-[10px] font-bold uppercase text-ai">Tier 2 Core Task (Representational / Modeling)</span>
             <input
               type="text"
               bind:value={newTier2Task}
@@ -229,7 +229,7 @@
           </div>
 
           <div class="p-4 bg-surface-raised border border-border rounded-none space-y-1.5">
-            <span class="text-[10px] font-bold uppercase text-emerald-400">Tier 3 Extension Challenge (Synthesis / Competition)</span>
+            <span class="text-[10px] font-bold uppercase text-positive">Tier 3 Extension Challenge (Synthesis / Competition)</span>
             <input
               type="text"
               bind:value={newTier3Challenge}
@@ -272,7 +272,7 @@
             {@const isSelected = selectedPlanId === plan.id}
             <button
               onclick={() => (selectedPlanIdState = plan.id)}
-              class="w-full p-4 text-left border rounded-none transition-all cursor-pointer {isSelected ? 'bg-surface-raised border-indigo-500 ring-1 ring-indigo-500' : 'bg-surface border-border hover:border-border-strong'}"
+              class="w-full p-4 text-left border rounded-none transition-all cursor-pointer {isSelected ? 'bg-surface-raised border-ai ring-1 ring-ai' : 'bg-surface border-border hover:border-border-strong'}"
             >
               <div class="space-y-1.5">
                 <div class="flex items-center justify-between">
@@ -305,7 +305,7 @@
             <!-- Header -->
             <div class="border-b border-border pb-4 space-y-2">
               <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold px-2 py-0.5 bg-surface-raised border border-border text-indigo-400 font-mono">
+                <span class="text-xs font-semibold px-2 py-0.5 bg-surface-raised border border-border text-ai font-mono">
                   {selectedPlan.pedagogicalFramework}
                 </span>
                 <span class="text-xs text-muted font-mono">{selectedPlan.alignedStandards.join(' • ')}</span>
@@ -321,8 +321,8 @@
             </div>
 
             <!-- Targeted Misconception Box -->
-            <div class="p-4 bg-amber-500/10 border border-amber-500/30 rounded-none space-y-1">
-              <div class="flex items-center gap-1.5 text-amber-300 text-xs font-semibold">
+            <div class="p-4 bg-attention-subtle border border-attention/30 rounded-none space-y-1">
+              <div class="flex items-center gap-1.5 text-attention text-xs font-semibold">
                 <AlertCircle class="w-4 h-4" />
                 <span>Targeted Misconception Diagnosis</span>
               </div>
@@ -341,10 +341,10 @@
               </h3>
 
               <!-- Tier 1: Remediation -->
-              <div class="p-4 bg-surface-raised border-l-4 border-l-amber-400 border border-border rounded-none space-y-2">
+              <div class="p-4 bg-surface-raised border-l-4 border-l-attention border border-border rounded-none space-y-2">
                 <div class="flex items-center justify-between text-xs">
                   <span class="font-bold text-foreground">{selectedPlan.tier1Remediation.tierTitle}</span>
-                  <span class="text-[10px] text-amber-300 font-semibold uppercase tracking-wider">Concrete / Tactile</span>
+                  <span class="text-[10px] text-attention font-semibold uppercase tracking-wider">Concrete / Tactile</span>
                 </div>
                 <p class="text-xs text-muted">Target: {selectedPlan.tier1Remediation.studentTarget}</p>
                 <div class="text-xs text-foreground space-y-1 pt-1 border-t border-border">
@@ -354,10 +354,10 @@
               </div>
 
               <!-- Tier 2: Core -->
-              <div class="p-4 bg-surface-raised border-l-4 border-l-indigo-400 border border-border rounded-none space-y-2">
+              <div class="p-4 bg-surface-raised border-l-4 border-l-ai border border-border rounded-none space-y-2">
                 <div class="flex items-center justify-between text-xs">
                   <span class="font-bold text-foreground">{selectedPlan.tier2Core.tierTitle}</span>
-                  <span class="text-[10px] text-indigo-300 font-semibold uppercase tracking-wider">Representational / Core</span>
+                  <span class="text-[10px] text-ai font-semibold uppercase tracking-wider">Representational / Core</span>
                 </div>
                 <p class="text-xs text-muted">Target: {selectedPlan.tier2Core.studentTarget}</p>
                 <div class="text-xs text-foreground space-y-1 pt-1 border-t border-border">
@@ -367,10 +367,10 @@
               </div>
 
               <!-- Tier 3: Extension -->
-              <div class="p-4 bg-surface-raised border-l-4 border-l-emerald-400 border border-border rounded-none space-y-2">
+              <div class="p-4 bg-surface-raised border-l-4 border-l-positive border border-border rounded-none space-y-2">
                 <div class="flex items-center justify-between text-xs">
                   <span class="font-bold text-foreground">{selectedPlan.tier3Extension.tierTitle}</span>
-                  <span class="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider">Synthesis / Advanced</span>
+                  <span class="text-[10px] text-positive font-semibold uppercase tracking-wider">Synthesis / Advanced</span>
                 </div>
                 <p class="text-xs text-muted">Target: {selectedPlan.tier3Extension.studentTarget}</p>
                 <div class="text-xs text-foreground space-y-1 pt-1 border-t border-border">
@@ -388,7 +388,7 @@
               <ul class="space-y-1 text-xs text-muted">
                 {#each selectedPlan.teacherFacilitatorNotes as note}
                   <li class="flex items-start gap-2">
-                    <CheckCircle2 class="w-3.5 h-3.5 text-indigo-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 class="w-3.5 h-3.5 text-ai shrink-0 mt-0.5" />
                     <span>{note}</span>
                   </li>
                 {/each}

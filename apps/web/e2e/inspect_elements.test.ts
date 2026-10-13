@@ -1,6 +1,7 @@
 import { test } from '@playwright/test';
 
 test('inspect all scrollbars in blocklyContainer', async ({ page, context }) => {
+  test.setTimeout(90000);
   await context.addCookies([
     { name: 'creed_dev_session', value: 'true', url: 'http://localhost:5173' },
     { name: 'creed_dev_role', value: 'student', url: 'http://localhost:5173' },

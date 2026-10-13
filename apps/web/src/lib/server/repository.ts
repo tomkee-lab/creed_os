@@ -4,8 +4,10 @@ import type {
   Pathway,
   AssessmentSession,
   AssessmentItem,
-  CompetencyDomain
+  CompetencyDomain,
+  ConsentRecord
 } from '@core-os/domain';
+import { isConsentActive } from '@core-os/domain';
 import {
   CALIBRATED_ITEM_BANK,
   STEM_BENCHMARK_ITEMS,
@@ -305,6 +307,7 @@ class LocalCoreRepository {
   private lessonPlans: DifferentiatedLessonPlan[] = [];
   private playbooks: PedagogicalPlaybook[] = [];
   private missions: StemMission[] = [...STEM_MISSIONS];
+  private consentRecords: Map<string, ConsentRecord> = new Map();
 
   constructor() {
     // 1. Initialize Baseline Learner Profile
@@ -1079,6 +1082,66 @@ class LocalCoreRepository {
         ]
       }
     ];
+
+    // Initialize Statutory Consent Records under DPDP Act 2023
+    this.consentRecords.set('3fa85f64-5717-4562-b3fc-2c963f66afa6', {
+      id: 'cst-001',
+      learnerId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      parentName: 'Guardian G-0801',
+      parentContact: '+91 98765 43210',
+      verificationChannel: 'DIGILOCKER',
+      status: 'VERIFIED_ACTIVE',
+      consentVersion: 'v1.2-dpdp-2023',
+      purposes: ['COMPETENCY_ASSESSMENT', 'SOCRATIC_MENTORSHIP', 'PATHWAY_NAVIGATION'],
+      verifiedAt: '2026-08-14T09:30:00Z',
+      expiresAt: '2027-08-14T09:30:00Z',
+      immutableAuditHash: 'dpdp_9a7b3c21',
+      updatedAt: '2026-08-14T09:30:00Z'
+    });
+
+    this.consentRecords.set('9fa11b72-1204-4821-b3fa-110294821102', {
+      id: 'cst-002',
+      learnerId: '9fa11b72-1204-4821-b3fa-110294821102',
+      parentName: 'Guardian G-0802',
+      parentContact: 'guardian.02@family.org',
+      verificationChannel: 'SMS_OTP',
+      status: 'VERIFIED_ACTIVE',
+      consentVersion: 'v1.2-dpdp-2023',
+      purposes: ['COMPETENCY_ASSESSMENT', 'SOCRATIC_MENTORSHIP', 'PATHWAY_NAVIGATION'],
+      verifiedAt: '2026-08-16T11:15:00Z',
+      expiresAt: '2027-08-16T11:15:00Z',
+      immutableAuditHash: 'dpdp_3e8f4a19',
+      updatedAt: '2026-08-16T11:15:00Z'
+    });
+
+    this.consentRecords.set('8ac41d99-3194-4712-a1bb-592817401928', {
+      id: 'cst-003',
+      learnerId: '8ac41d99-3194-4712-a1bb-592817401928',
+      parentName: 'Guardian G-0803',
+      parentContact: '+91 98112 33445',
+      verificationChannel: 'EMAIL_VERIFICATION',
+      status: 'VERIFIED_ACTIVE',
+      consentVersion: 'v1.2-dpdp-2023',
+      purposes: ['COMPETENCY_ASSESSMENT', 'SOCRATIC_MENTORSHIP', 'PATHWAY_NAVIGATION'],
+      verifiedAt: '2026-08-18T14:45:00Z',
+      expiresAt: '2027-08-18T14:45:00Z',
+      immutableAuditHash: 'dpdp_7b2c9e42',
+      updatedAt: '2026-08-18T14:45:00Z'
+    });
+
+    this.consentRecords.set('7cc12e44-5512-4019-9182-192847102948', {
+      id: 'cst-004',
+      learnerId: '7cc12e44-5512-4019-9182-192847102948',
+      parentName: 'Guardian G-0804',
+      parentContact: '+91 97234 11223',
+      verificationChannel: 'SMS_OTP',
+      status: 'PENDING_PARENTAL_NOTICE',
+      consentVersion: 'v1.2-dpdp-2023',
+      purposes: ['COMPETENCY_ASSESSMENT'],
+      expiresAt: '2026-10-20T00:00:00Z',
+      immutableAuditHash: 'dpdp_pending_notice',
+      updatedAt: '2026-10-01T00:00:00Z'
+    });
   }
 
   // --- Profile Operations ---
@@ -1341,6 +1404,34 @@ class LocalCoreRepository {
     };
   }
 
+  // --- Statutory DPDP Consent Operations ---
+  hasActiveConsent(learnerId: string): boolean {
+    const record = this.consentRecords.get(learnerId);
+    if (!record) return false;
+    return isConsentActive(record);
+  }
+
+  getConsentRecord(learnerId: string): ConsentRecord | undefined {
+    return this.consentRecords.get(learnerId);
+  }
+
+  setConsentRecord(record: ConsentRecord): void {
+    this.consentRecords.set(record.learnerId, record);
+  }
+
+  withdrawConsent(learnerId: string, reason: string = 'Statutory withdrawal'): ConsentRecord | null {
+    const existing = this.consentRecords.get(learnerId);
+    if (!existing) return null;
+    const updated: ConsentRecord = {
+      ...existing,
+      status: 'WITHDRAWN',
+      withdrawnAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    this.consentRecords.set(learnerId, updated);
+    return updated;
+  }
+
   getConsentLedger(): Array<{
     id: string;
     learnerId: string;
@@ -1355,64 +1446,34 @@ class LocalCoreRepository {
     expiresAt: string;
     auditHash: string;
   }> {
-    return [
-      {
-        id: 'cst-001',
-        learnerId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-        learnerName: 'Learner S-0801',
-        gradeBand: 'Class 8-A',
-        parentName: 'Guardian G-0801',
-        parentContact: '+91 98765 43210',
-        channel: 'DigiLocker',
-        status: 'VERIFIED_ACTIVE',
-        consentVersion: 'v1.2-dpdp-2023',
-        verifiedAt: '2026-08-14T09:30:00Z',
-        expiresAt: '2027-08-14T09:30:00Z',
-        auditHash: 'dpdp_9a7b3c21'
-      },
-      {
-        id: 'cst-002',
-        learnerId: '9fa11b72-1204-4821-b3fa-110294821102',
-        learnerName: 'Learner S-0802',
-        gradeBand: 'Class 8-A',
-        parentName: 'Guardian G-0802',
-        parentContact: 'guardian.02@family.org',
-        channel: 'SMS OTP',
-        status: 'VERIFIED_ACTIVE',
-        consentVersion: 'v1.2-dpdp-2023',
-        verifiedAt: '2026-08-16T11:15:00Z',
-        expiresAt: '2027-08-16T11:15:00Z',
-        auditHash: 'dpdp_3e8f4a19'
-      },
-      {
-        id: 'cst-003',
-        learnerId: '8ac41d99-3194-4712-a1bb-592817401928',
-        learnerName: 'Learner S-0803',
-        gradeBand: 'Class 8-A',
-        parentName: 'Guardian G-0803',
-        parentContact: '+91 98112 33445',
-        channel: 'Email Verification',
-        status: 'VERIFIED_ACTIVE',
-        consentVersion: 'v1.2-dpdp-2023',
-        verifiedAt: '2026-08-18T14:45:00Z',
-        expiresAt: '2027-08-18T14:45:00Z',
-        auditHash: 'dpdp_7b2c9e42'
-      },
-      {
-        id: 'cst-004',
-        learnerId: '7cc12e44-5512-4019-9182-192847102948',
-        learnerName: 'Learner S-0804',
-        gradeBand: 'Class 8-B',
-        parentName: 'Guardian G-0804',
-        parentContact: '+91 97234 11223',
-        channel: 'SMS OTP',
-        status: 'PENDING_NOTICE',
-        consentVersion: 'v1.2-dpdp-2023',
-        verifiedAt: '',
-        expiresAt: '2026-10-20T00:00:00Z',
-        auditHash: 'dpdp_pending_notice'
-      }
-    ];
+    const channelDisplay: Record<string, 'DigiLocker' | 'SMS OTP' | 'Email Verification'> = {
+      DIGILOCKER: 'DigiLocker',
+      SMS_OTP: 'SMS OTP',
+      EMAIL_VERIFICATION: 'Email Verification',
+      IN_PERSON_SIGNATURE: 'Email Verification'
+    };
+    const statusDisplay: Record<string, 'VERIFIED_ACTIVE' | 'PENDING_NOTICE' | 'WITHDRAWN' | 'EXPIRED'> = {
+      VERIFIED_ACTIVE: 'VERIFIED_ACTIVE',
+      NOTICE_SENT: 'PENDING_NOTICE',
+      PENDING_PARENTAL_NOTICE: 'PENDING_NOTICE',
+      WITHDRAWN: 'WITHDRAWN',
+      EXPIRED: 'EXPIRED'
+    };
+
+    return Array.from(this.consentRecords.values()).map((r, idx) => ({
+      id: r.id,
+      learnerId: r.learnerId,
+      learnerName: `Learner S-080${idx + 1}`,
+      gradeBand: idx < 3 ? 'Class 8-A' : 'Class 8-B',
+      parentName: r.parentName,
+      parentContact: r.parentContact,
+      channel: channelDisplay[r.verificationChannel] || 'SMS OTP',
+      status: statusDisplay[r.status] || 'PENDING_NOTICE',
+      consentVersion: r.consentVersion,
+      verifiedAt: r.verifiedAt || '',
+      expiresAt: r.expiresAt,
+      auditHash: r.immutableAuditHash
+    }));
   }
 
   getTeacherRoster(): Array<{

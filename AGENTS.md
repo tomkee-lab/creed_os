@@ -3,7 +3,7 @@
 ## Project Identity
 - **Project Name:** CREED OS
 - **Domain:** AI-Native Learner Intelligence, Assessment, Learning & Pathway Navigation Platform
-- **Audience:** Students (Ages 10–16 / Classes 5–10), Parents, Teachers, Counselors, School/Institute Administrators
+- **Audience:** Core Target: Classes 5–10 (Ages 10–16); Modular Curriculum: Classes 3–12 (Ages 8–18); Parents, Teachers, Counselors, Administrators. Statutory Child Protection applies to all minors under 18 years under DPDP Act 2023.
 
 ## Strict Package Management Rules
 - **Package Manager:** `pnpm` is the ONLY allowed package manager.
@@ -26,7 +26,7 @@
 1. **Evidence before inference:** Every claim in the learner profile must map to tangible assessment or project evidence.
 2. **Growth before labeling:** Never assign fixed IQ scores, permanent ability classifications, or deterministic career exclusions.
 3. **Deterministic scoring:** Scores and psychometric ability estimates are computed by deterministic algorithms (IRT/CAT/BKT), never by raw unconstrained LLMs. AI explains; deterministic systems score; humans decide.
-4. **Data privacy & child safety:** Strict DPDP Act alignment, verified parental consent state machine, relationship-scoped RLS policies.
+4. **Data privacy & child safety:** Strict DPDP Act alignment (all minors < 18 years require verified parental consent before processing or profiling), relationship-scoped RLS policies.
 
 ## WAY 2.1 Master Design System & "Quiet Editorial Intelligence" Governance Policy
 1. **The Three Information Levels Law:**
@@ -78,7 +78,7 @@ This workspace integrates the Flowbite-Svelte MCP server (`flowbite-svelte`) to 
 
 ### Strict CREED OS Implementation Contract:
 - **Reference, not Direct Render:** Flowbite-Svelte serves as structural reference. Rendered components MUST use **Svelte 5 runes (`$state`, `$derived`, `$props`)**, **Bits UI primitives**, and **Tailwind CSS 4**.
-- **Enforce Zero-Radius (`rounded-none`):** Never carry over Flowbite's default `rounded-lg` or `rounded-full` classes. All surfaces, buttons, avatars, and badges must remain strictly 0px sharp.
+- **Enforce WAY 2.1 Radius System:** Never carry over Flowbite's default `rounded-lg`, `rounded-xl`, or `rounded-full` classes. Enforce strictly 0px (`rounded-none`) for structural/technical frames, 4px (`rounded-sm`) for controls/inputs/buttons, and 8px (`rounded-md`) for expressive media. Prohibit 12px+ curves and pill buttons.
 - **Enforce Zero-Curves:** All icons, markers, indicators, and charts must use straight angular/polygonal geometry.
 - **Enforce OKLCH Tokens:** Replace generic Flowbite color classes (`gray-500`, `primary-700`, `blue-600`) with CREED OS semantic design tokens (`--surface-canvas`, `--surface-content`, `--text-primary`, `--accent-primary`).
 - **Domain Alignment:** Substitute generic SaaS copy with authentic educational, psychometric, and DPDP-compliant learner intelligence terminology.

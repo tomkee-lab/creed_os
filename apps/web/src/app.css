@@ -77,6 +77,11 @@
   }
 }
 
+/* Authoritative Canonical Tailwind 4 Utility for text-muted */
+@utility text-muted {
+  color: var(--foreground-muted, oklch(0.480 0.018 255));
+}
+
 /* ============================================================
    CARBON VOLTAGE — Tailwind Theme Directives
    Exposes all semantic tokens directly into Tailwind CSS 4
@@ -138,6 +143,7 @@
   --color-info-foreground: var(--info-foreground);
   --color-ai: var(--ai);
   --color-ai-foreground: var(--ai-foreground);
+  --color-ai-subtle: var(--violet-subtle);
   --color-processing: var(--processing);
   --color-processing-foreground: var(--processing-foreground);
 

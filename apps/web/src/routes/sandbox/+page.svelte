@@ -694,8 +694,8 @@
 
         <!-- Architectural Seam Comparison Map -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="p-5 border border-red-500/30 bg-red-500/5 space-y-3 font-mono text-xs shadow-2xs">
-            <div class="flex items-center gap-2 text-red-400 font-bold uppercase text-[11px]">
+          <div class="p-5 border border-critical/30 bg-critical-subtle space-y-3 font-mono text-xs shadow-2xs">
+            <div class="flex items-center gap-2 text-critical font-bold uppercase text-[11px]">
               <AlertCircle class="size-4" />
               <span>Upstream Scratch Monorepo (AGPL-3.0 Copyleft)</span>
             </div>

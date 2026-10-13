@@ -21,6 +21,7 @@
   let selectedDomain = $state<BenchmarkDomain>('stem');
   let assessmentMode = $state<'benchmark' | 'rapid'>('benchmark');
   let hasStarted = $state(false);
+  let showCalibrationDetails = $state(false);
 
   // Assessment session state
   let sessionId = $state<string | null>(null);
@@ -191,7 +192,7 @@
   <!-- Top Navigation & Domain Breadcrumbs -->
   <div class="flex items-center justify-between border-b border-border pb-4">
     <div class="space-y-1">
-      <span class="text-[11px] font-semibold uppercase tracking-wider text-muted">
+      <span class="text-[11px] font-semibold uppercase tracking-wider text-ink-secondary">
         Diagnostic & Benchmarking Engine
       </span>
       <h1 class="text-xl sm:text-2xl font-bold text-foreground">
@@ -202,7 +203,7 @@
     {#if hasStarted && status !== 'idle'}
       <button
         onclick={() => { hasStarted = false; status = 'idle'; }}
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-muted hover:text-foreground border border-border rounded-sm transition-colors cursor-pointer"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-foreground-secondary hover:text-foreground border border-border rounded-sm transition-colors cursor-pointer"
       >
         <RotateCcw class="w-3.5 h-3.5" />
         <span>Change Assessment</span>
@@ -213,17 +214,43 @@
   <!-- STATE 1: DOMAIN SELECTOR SCREEN -->
   {#if !hasStarted || status === 'idle'}
     <div class="space-y-6">
-      <div class="p-6 bg-surface border border-border rounded-sm space-y-2">
-        <div class="flex items-center gap-2 text-indigo-500 text-xs font-semibold uppercase tracking-wider">
-          <Sparkles class="w-4 h-4" />
-          <span>Global Standards Calibration</span>
+      <!-- Calm Editorial Introduction -->
+      <div class="p-5 sm:p-6 bg-surface border border-border rounded-sm space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 text-ai text-xs font-semibold uppercase tracking-wider">
+            <Sparkles class="w-4 h-4" />
+            <span>Global Standards Calibration</span>
+          </div>
+          <button
+            type="button"
+            onclick={() => (showCalibrationDetails = !showCalibrationDetails)}
+            class="text-xs text-brand hover:underline cursor-pointer font-medium"
+          >
+            {showCalibrationDetails ? 'Hide methodology ↑' : 'Assessment methodology ↓'}
+          </button>
         </div>
-        <h2 class="text-lg font-semibold text-foreground">
-          Select Your 30-Question Assessment Track
-        </h2>
-        <p class="text-xs sm:text-sm text-muted leading-relaxed max-w-2xl">
-          Each assessment is calibrated using Item Response Theory (IRT 3PL). Scores directly map to international benchmarks (PISA, TIMSS, CEFR, and CSTA K-12) to generate an authentic growth diagnostic and 4-week roadmap.
-        </p>
+
+        <div>
+          <h2 class="text-lg font-bold text-foreground">
+            Select Your Assessment Track
+          </h2>
+          <p class="text-xs sm:text-sm text-foreground-secondary leading-relaxed max-w-2xl mt-1">
+            Standardized evaluations calibrated against international benchmarks to identify demonstrated strengths and targeted focus areas.
+          </p>
+        </div>
+
+        {#if showCalibrationDetails}
+          <div class="pt-3 border-t border-border text-xs text-foreground-secondary space-y-2 animate-in fade-in-0 duration-140">
+            <p>
+              Each assessment is calibrated using Item Response Theory (IRT 3PL). Scores map directly to international scales (PISA, TIMSS, CEFR, and CSTA K-12) to generate an authentic growth diagnostic and 4-week roadmap.
+            </p>
+            <div class="flex flex-wrap gap-2 text-[11px] font-mono text-ink-secondary">
+              <span class="px-2 py-0.5 bg-surface-raised border border-border">IRT 3PL EAP Scoring</span>
+              <span class="px-2 py-0.5 bg-surface-raised border border-border">Confidence Intervals Protected</span>
+              <span class="px-2 py-0.5 bg-surface-raised border border-border">Zero Fixed IQ Labeling</span>
+            </div>
+          </div>
+        {/if}
       </div>
 
       <!-- Domain Selection Cards -->
@@ -233,29 +260,45 @@
           {@const Icon = cfg.icon}
           {@const isSelected = selectedDomain === domain}
           <div
-            class="p-5 bg-surface border transition-all rounded-sm flex flex-col justify-between {isSelected ? 'border-indigo-500 ring-1 ring-indigo-500 bg-surface-raised' : 'border-border hover:border-border-strong'}"
+            role="button"
+            tabindex="0"
+            onclick={() => (selectedDomain = domain)}
+            onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') selectedDomain = domain; }}
+            class="p-5 bg-surface border transition-all rounded-sm flex flex-col justify-between cursor-pointer {isSelected ? 'border-brand ring-1 ring-brand bg-surface-raised shadow-xs' : 'border-border hover:border-border-strong'}"
           >
             <div class="space-y-3">
-              <div class="w-9 h-9 rounded-sm bg-surface-raised border border-border flex items-center justify-center text-foreground">
-                <Icon class="w-5 h-5" />
+              <div class="flex items-center justify-between">
+                <div class="w-9 h-9 rounded-sm bg-surface-raised border border-border flex items-center justify-center text-foreground">
+                  <Icon class="w-5 h-5 text-brand" />
+                </div>
+                {#if isSelected}
+                  <span class="text-[10px] font-mono font-bold px-2 py-0.5 bg-brand-subtle text-brand border border-brand/20 rounded-xs">
+                    Selected Track ✓
+                  </span>
+                {/if}
               </div>
+
               <div>
-                <h3 class="text-sm font-semibold text-foreground">{cfg.title}</h3>
-                <span class="text-[11px] text-muted block mt-0.5">{cfg.subtitle}</span>
+                <h3 class="text-sm font-bold text-foreground">{cfg.title}</h3>
+                <span class="text-[11px] text-foreground-secondary block mt-0.5 font-medium">{cfg.subtitle}</span>
               </div>
-              <p class="text-xs text-muted leading-relaxed line-clamp-3">
+              <p class="text-xs text-foreground-secondary leading-relaxed line-clamp-3">
                 {cfg.description}
               </p>
             </div>
 
             <div class="pt-4 mt-4 border-t border-border space-y-3">
-              <div class="flex items-center justify-between text-[11px] text-muted font-medium">
+              <div class="flex items-center justify-between text-[11px] text-foreground-secondary font-medium font-mono">
                 <span>{cfg.scaleName}</span>
                 <span>{cfg.targetCount} Questions</span>
               </div>
               <button
-                onclick={() => startBenchmarkSession(domain, 'benchmark')}
-                class="w-full py-2 px-3 bg-foreground text-background hover:bg-foreground/90 rounded-sm text-xs font-medium flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                type="button"
+                onclick={(e) => {
+                  e.stopPropagation();
+                  startBenchmarkSession(domain, 'benchmark');
+                }}
+                class="w-full py-2 px-3 rounded-sm text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-2xs {isSelected ? 'bg-brand text-brand-foreground hover:bg-brand/90' : 'bg-surface-raised border border-border text-foreground hover:bg-surface-subtle'}"
               >
                 <span>Start 30Q Benchmark</span>
                 <ArrowRight class="w-3.5 h-3.5" />
@@ -265,14 +308,18 @@
         {/each}
       </div>
 
-      <div class="p-4 bg-surface-raised border border-border rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-muted">
-        <span>Looking for a quick checkpoint instead?</span>
-        <div class="flex items-center gap-2">
+      <!-- Secondary Rapid Diagnostic Alternative -->
+      <div class="p-4 bg-surface-raised border border-border rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-foreground-secondary">
+        <div class="space-y-0.5">
+          <span class="font-semibold text-foreground">Need a quick checkpoint instead?</span>
+          <p class="text-[11px] text-foreground-secondary">The 8-question rapid diagnostic provides an immediate adaptive pulse check in 5 minutes.</p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
           <button
             onclick={() => startBenchmarkSession(selectedDomain, 'rapid')}
-            class="px-3 py-1.5 border border-border hover:bg-surface text-foreground rounded-sm transition-colors cursor-pointer"
+            class="px-3.5 py-1.5 border border-border hover:bg-surface hover:text-foreground text-foreground-secondary font-medium text-xs rounded-sm transition-colors cursor-pointer shadow-2xs"
           >
-            Launch 8-Question Rapid Diagnostic
+            Launch 8-Question Rapid Diagnostic ↗
           </button>
         </div>
       </div>
@@ -281,17 +328,17 @@
   <!-- STATE 2: LOADING -->
   {:else if status === 'loading'}
     <div class="p-16 bg-surface border border-border rounded-none text-center space-y-4">
-      <Loader2 class="w-8 h-8 text-indigo-500 animate-spin mx-auto" />
+      <Loader2 class="w-8 h-8 text-ai animate-spin mx-auto" />
       <div class="space-y-1">
         <p class="text-sm font-medium text-foreground">Calibrating Diagnostic Session...</p>
-        <p class="text-xs text-muted">Loading standard item models for {currentConfig.title}</p>
+        <p class="text-xs text-foreground-secondary">Loading standard item models for {currentConfig.title}</p>
       </div>
     </div>
 
   <!-- STATE 3: ERROR -->
   {:else if status === 'error'}
-    <div class="p-8 bg-surface border-l-4 border-l-rose-500 border border-border rounded-none text-center space-y-4">
-      <AlertCircle class="w-8 h-8 text-rose-500 mx-auto" />
+    <div class="p-8 bg-surface border-l-4 border-l-critical border border-border rounded-none text-center space-y-4">
+      <AlertCircle class="w-8 h-8 text-critical mx-auto" />
       <p class="text-sm font-medium text-foreground">{errorMessage}</p>
       <button
         onclick={() => startBenchmarkSession(selectedDomain, assessmentMode)}
@@ -305,16 +352,16 @@
   {:else if status === 'completed'}
     <div class="p-8 sm:p-10 bg-surface border border-border rounded-none space-y-8">
       <div class="text-center space-y-3">
-        <div class="w-14 h-14 bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto border border-emerald-500/20 rounded-sm">
+        <div class="w-14 h-14 bg-positive-subtle text-positive flex items-center justify-center mx-auto border border-positive/20 rounded-sm">
           <Award class="w-7 h-7" />
         </div>
-        <span class="text-xs font-semibold uppercase tracking-wider text-emerald-500 block">
+        <span class="text-xs font-semibold uppercase tracking-wider text-positive block">
           Assessment Complete & Calibrated
         </span>
         <h2 class="text-2xl font-bold text-foreground">
           {currentConfig.title}
         </h2>
-        <p class="text-sm text-muted max-w-md mx-auto leading-relaxed">
+        <p class="text-sm text-foreground-secondary max-w-md mx-auto leading-relaxed">
           Your responses have been processed deterministically through our IRT 3PL psychometric engine. Your international benchmark standings and growth roadmap are ready.
         </p>
       </div>
@@ -322,29 +369,29 @@
       <!-- Quick Metrics Grid -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-y border-border py-6">
         <div class="p-4 bg-surface-raised border border-border rounded-sm space-y-1">
-          <span class="text-[10px] uppercase font-semibold text-muted tracking-wider">Calibrated Standing</span>
+          <span class="text-[10px] uppercase font-semibold text-foreground-secondary tracking-wider">Calibrated Standing</span>
           <p class="text-lg font-bold text-foreground">
             {completionSummary?.benchmarkReport?.scaleFormatted || 'Secure Calibration'}
           </p>
-          <span class="text-xs text-muted block">
+          <span class="text-xs text-foreground-secondary block">
             {completionSummary?.benchmarkReport?.internationalTier || 'International Standard Verified'}
           </span>
         </div>
 
         <div class="p-4 bg-surface-raised border border-border rounded-sm space-y-1">
-          <span class="text-[10px] uppercase font-semibold text-muted tracking-wider">Global Percentile</span>
-          <p class="text-lg font-bold text-emerald-500">
+          <span class="text-[10px] uppercase font-semibold text-foreground-secondary tracking-wider">Global Percentile</span>
+          <p class="text-lg font-bold text-positive">
             {completionSummary?.benchmarkReport?.percentileRank ? `${completionSummary.benchmarkReport.percentileRank}th Percentile` : 'Top Tier'}
           </p>
-          <span class="text-xs text-muted block">Against International Norms</span>
+          <span class="text-xs text-foreground-secondary block">Against International Norms</span>
         </div>
 
         <div class="p-4 bg-surface-raised border border-border rounded-sm space-y-1">
-          <span class="text-[10px] uppercase font-semibold text-muted tracking-wider">Developmental Band</span>
-          <p class="text-lg font-bold text-indigo-400">
+          <span class="text-[10px] uppercase font-semibold text-foreground-secondary tracking-wider">Developmental Band</span>
+          <p class="text-lg font-bold text-ai">
             {completionSummary?.benchmarkReport?.developmentalBand || 'Competent Practitioner'}
           </p>
-          <span class="text-xs text-muted block">Qualitative Mastery</span>
+          <span class="text-xs text-foreground-secondary block">Qualitative Mastery</span>
         </div>
       </div>
 
@@ -352,7 +399,7 @@
       <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
         <a
           href="/student/report?domain={selectedDomain}"
-          class="w-full sm:w-auto px-6 py-2 bg-foreground text-background hover:bg-foreground/90 font-medium text-xs sm:text-sm rounded-sm transition-colors flex items-center justify-center gap-2 cursor-pointer"
+          class="w-full sm:w-auto px-6 py-2 bg-brand text-brand-foreground hover:bg-brand/90 font-semibold text-xs sm:text-sm rounded-sm transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
         >
           <span>View Full International Report & 4-Week Roadmap</span>
           <ArrowRight class="w-4 h-4" />
@@ -360,7 +407,7 @@
 
         <button
           onclick={() => { hasStarted = false; status = 'idle'; }}
-          class="w-full sm:w-auto px-5 py-2 border border-border hover:bg-surface-raised text-muted hover:text-foreground text-xs sm:text-sm rounded-sm transition-colors cursor-pointer"
+          class="w-full sm:w-auto px-5 py-2 border border-border hover:bg-surface-raised text-foreground-secondary hover:text-foreground text-xs sm:text-sm rounded-sm transition-colors cursor-pointer"
         >
           Select Another Track
         </button>
@@ -373,17 +420,17 @@
       <!-- Question Header -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-4">
         <div class="flex items-center gap-2">
-          <span class="text-xs font-semibold px-2 py-0.5 bg-surface-raised border border-border rounded-none uppercase text-muted">
+          <span class="text-xs font-semibold px-2 py-0.5 bg-surface-raised border border-border rounded-none uppercase text-ink-secondary">
             {currentConfig.title}
           </span>
-          <span class="text-xs text-muted font-mono">{currentItem.code}</span>
+          <span class="text-xs text-ink-muted font-mono">{currentItem.code}</span>
         </div>
 
-        <div class="flex items-center gap-3 text-xs text-muted">
+        <div class="flex items-center gap-3 text-xs text-foreground-secondary">
           <span>Question <strong>{itemsAnswered + 1}</strong> of {maxQuestionCount}</span>
           <div class="w-24 h-1.5 bg-surface-raised border border-border rounded-none overflow-hidden">
             <div
-              class="h-full bg-indigo-500 transition-all duration-200"
+              class="h-full bg-ai transition-all duration-200"
               style="width: {Math.min(100, Math.round(((itemsAnswered + 1) / maxQuestionCount) * 100))}%"
             ></div>
           </div>
@@ -415,10 +462,10 @@
             type="button"
             disabled={status === 'evaluating'}
             onclick={() => (selectedOptionId = opt.id)}
-            class="w-full text-left p-4 rounded-sm border transition-colors flex items-center justify-between cursor-pointer {selectedOptionId === opt.id ? 'border-indigo-500 bg-indigo-500/10 text-foreground font-medium ring-1 ring-indigo-500' : 'border-border bg-surface-raised hover:bg-surface text-muted'}"
+            class="w-full text-left p-4 rounded-sm border transition-colors flex items-center justify-between cursor-pointer {selectedOptionId === opt.id ? 'border-brand bg-brand-subtle/50 text-foreground font-medium ring-1 ring-brand' : 'border-border bg-surface-raised hover:bg-surface text-foreground-secondary hover:text-foreground'}"
           >
             <span class="text-xs sm:text-sm leading-relaxed">{opt.text}</span>
-            <div class="w-4 h-4 rounded-sm border flex items-center justify-center shrink-0 ml-3 {selectedOptionId === opt.id ? 'border-indigo-500 bg-indigo-500' : 'border-border'}">
+            <div class="w-4 h-4 rounded-sm border flex items-center justify-center shrink-0 ml-3 {selectedOptionId === opt.id ? 'border-ai bg-ai' : 'border-border'}">
               {#if selectedOptionId === opt.id}
                 <div class="w-1.5 h-1.5 bg-white rounded-none"></div>
               {/if}
@@ -429,13 +476,13 @@
 
       <!-- Socratic Learning Feedback -->
       {#if lastEvaluation}
-        <div class="p-4 rounded-sm border transition-colors {lastEvaluation.isCorrect ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-amber-500/10 border-amber-500/30 text-amber-300'} space-y-1">
+        <div class="p-4 rounded-sm border transition-colors {lastEvaluation.isCorrect ? 'bg-positive-subtle border-positive/30 text-positive' : 'bg-attention-subtle border-attention/30 text-attention'} space-y-1">
           <div class="flex items-center gap-2 text-xs font-semibold">
             {#if lastEvaluation.isCorrect}
-              <CheckCircle2 class="w-4 h-4 text-emerald-400" />
+              <CheckCircle2 class="w-4 h-4 text-positive" />
               <span>Accurate analytical deduction</span>
             {:else}
-              <AlertCircle class="w-4 h-4 text-amber-400" />
+              <AlertCircle class="w-4 h-4 text-attention" />
               <span>Conceptual clarification:</span>
             {/if}
           </div>

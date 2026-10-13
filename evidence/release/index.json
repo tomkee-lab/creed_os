@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CREED OS Master Release Verification Index",
+  "description": "Append-only master ledger indexing all release verification runs across candidate tags",
+  "lastUpdated": "2026-10-13T06:30:00Z",
+  "releases": [
+    {
+      "releaseId": "v1.0.0-rc1",
+      "targetVersion": "1.0.0-rc.1",
+      "status": "VERIFICATION_PENDING",
+      "sourceCommit": "UNVERIFIED_PENDING_COMMIT_SHA",
+      "manifestPath": "evidence/release/v1.0.0-rc1/manifest.json",
+      "summary": "Initial Release Candidate Verification Run — Godmode Specification-Validation Pass Complete. Verification Pending.",
+      "createdAt": "2026-10-13T06:30:00Z",
+      "closedAt": null
+    }
+  ]
+}

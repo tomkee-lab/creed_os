@@ -30,6 +30,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       return json({ error: 'Bad Request: Valid learner ID required' }, { status: 400 });
     }
 
+    // 3. Enforce statutory DPDP Act parental consent for minor learner diagnostics
+    if (!coreRepository.hasActiveConsent(effectiveLearnerId)) {
+      return json({
+        error: 'Forbidden: Statutory DPDP parental consent is required before commencing assessment diagnostics for this learner.',
+        code: 'CONSENT_REQUIRED'
+      }, { status: 403 });
+    }
+
     const domain = body.domain || 'stem';
     const mode: 'rapid' | 'benchmark' | 'diagnostic' =
       body.mode === 'rapid'

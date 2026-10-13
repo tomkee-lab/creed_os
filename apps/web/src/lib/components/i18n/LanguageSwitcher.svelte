@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { browser } from '$app/environment';
   import { Globe, Check } from 'lucide-svelte';
   import { getLocale, setLocale, locales, type Locale } from '$lib/paraglide/runtime.js';
 
@@ -17,7 +18,7 @@
 
   let currentLocale = $state<string>('en');
   let open = $state(false);
-  let hydrated = $state(false);
+  let hydrated = $state(browser);
 
   onMount(() => {
     hydrated = true;
@@ -47,9 +48,9 @@
   <button
     type="button"
     data-testid="language-switcher"
-    data-hydrated={hydrated}
+    data-hydrated={hydrated ? "true" : "false"}
     onclick={toggleOpen}
-    class="inline-flex items-center gap-1.5 px-2 py-1 rounded-none bg-surface hover:bg-surface-raised border border-border hover:border-border-strong text-ink text-xs transition-colors cursor-pointer"
+    class="inline-flex items-center gap-1.5 px-2 py-1 rounded-sm bg-surface hover:bg-surface-raised border border-border hover:border-border-strong text-foreground text-xs transition-colors cursor-pointer"
     aria-expanded={open}
     aria-haspopup="listbox"
     title="Switch Language"

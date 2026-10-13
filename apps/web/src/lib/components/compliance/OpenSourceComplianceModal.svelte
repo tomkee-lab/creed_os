@@ -337,8 +337,8 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Upstream Reference Architecture -->
-              <div class="p-4 border border-red-500/30 bg-red-500/5 space-y-2 font-mono text-xs">
-                <div class="flex items-center gap-1.5 text-red-400 font-bold uppercase text-[11px]">
+              <div class="p-4 border border-critical/30 bg-critical-subtle space-y-2 font-mono text-xs">
+                <div class="flex items-center gap-1.5 text-critical font-bold uppercase text-[11px]">
                   <AlertCircle class="size-3.5" />
                   <span>Upstream Monorepo (AGPL-3.0)</span>
                 </div>

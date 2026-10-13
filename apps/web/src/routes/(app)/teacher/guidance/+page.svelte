@@ -71,7 +71,7 @@
       {@const isSelected = selectedPlaybookId === pb.id}
       <button
         onclick={() => (selectedPlaybookIdState = pb.id)}
-        class="p-4 text-left border rounded-none transition-all cursor-pointer {isSelected ? 'bg-surface-raised border-indigo-500 ring-1 ring-indigo-500' : 'bg-surface border-border hover:border-border-strong'}"
+        class="p-4 text-left border rounded-none transition-all cursor-pointer {isSelected ? 'bg-surface-raised border-ai ring-1 ring-ai' : 'bg-surface border-border hover:border-border-strong'}"
       >
         <div class="space-y-1.5">
           <span class="text-[10px] uppercase font-mono font-semibold px-1.5 py-0.5 bg-surface border border-border text-muted">
@@ -94,7 +94,7 @@
       <!-- Header -->
       <div class="border-b border-border pb-4 space-y-1">
         <div class="flex items-center gap-2">
-          <BrainCircuit class="w-4 h-4 text-indigo-400" />
+          <BrainCircuit class="w-4 h-4 text-ai" />
           <h2 class="text-base font-bold text-foreground">
             {selectedPlaybook.frameworkName}
           </h2>
@@ -113,7 +113,7 @@
           {#each selectedPlaybook.corePrinciples as cp}
             <div class="p-3.5 bg-surface-raised border border-border rounded-none space-y-1.5">
               <span class="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                <Lightbulb class="w-3.5 h-3.5 text-indigo-400" />
+                <Lightbulb class="w-3.5 h-3.5 text-ai" />
                 <span>{cp.principle}</span>
               </span>
               <p class="text-[11px] text-muted leading-relaxed">
@@ -142,11 +142,11 @@
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1 border-t border-border">
                 <div class="space-y-0.5">
-                  <span class="text-[10px] uppercase font-bold text-indigo-300 tracking-wider">Teacher Action</span>
+                  <span class="text-[10px] uppercase font-bold text-ai tracking-wider">Teacher Action</span>
                   <p class="text-muted leading-relaxed">{step.teacherAction}</p>
                 </div>
                 <div class="space-y-0.5">
-                  <span class="text-[10px] uppercase font-bold text-emerald-400 tracking-wider">Student Action</span>
+                  <span class="text-[10px] uppercase font-bold text-positive tracking-wider">Student Action</span>
                   <p class="text-muted leading-relaxed">{step.studentAction}</p>
                 </div>
               </div>
@@ -169,20 +169,20 @@
               </span>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-2 border-t border-border">
-                <div class="p-2 bg-rose-500/10 border border-rose-500/30 rounded-none space-y-1">
-                  <span class="text-[10px] font-bold uppercase text-rose-300 flex items-center gap-1">
+                <div class="p-2 bg-critical-subtle border border-critical/30 rounded-none space-y-1">
+                  <span class="text-[10px] font-bold uppercase text-critical flex items-center gap-1">
                     <ShieldAlert class="w-3.5 h-3.5" />
                     <span>What NOT To Do (Ineffective)</span>
                   </span>
-                  <p class="text-rose-200/90 leading-relaxed text-[11px]">{item.whatNotToDo}</p>
+                  <p class="text-critical/90 leading-relaxed text-[11px]">{item.whatNotToDo}</p>
                 </div>
 
-                <div class="p-2 bg-emerald-500/10 border border-emerald-500/30 rounded-none space-y-1">
-                  <span class="text-[10px] font-bold uppercase text-emerald-300 flex items-center gap-1">
+                <div class="p-2 bg-positive-subtle border border-positive/30 rounded-none space-y-1">
+                  <span class="text-[10px] font-bold uppercase text-positive flex items-center gap-1">
                     <CheckCircle2 class="w-3.5 h-3.5" />
                     <span>Recommended Pedagogical Intervention</span>
                   </span>
-                  <p class="text-emerald-200/90 leading-relaxed text-[11px]">{item.recommendedIntervention}</p>
+                  <p class="text-positive/90 leading-relaxed text-[11px]">{item.recommendedIntervention}</p>
                 </div>
               </div>
             </div>

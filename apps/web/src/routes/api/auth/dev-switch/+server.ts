@@ -100,8 +100,8 @@ export const POST: RequestHandler = async ({ request, url, cookies }) => {
 /**
  * Sign out / clear dev session
  */
-export const DELETE: RequestHandler = async ({ cookies }) => {
-  if (!import.meta.env.DEV) {
+export const DELETE: RequestHandler = async ({ cookies, url }) => {
+  if (!import.meta.env.DEV || (url.hostname !== 'localhost' && url.hostname !== '127.0.0.1')) {
     throw error(404, 'Not found');
   }
 

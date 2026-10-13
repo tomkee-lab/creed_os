@@ -337,7 +337,7 @@
       </a>
 
       <div class="flex items-center gap-2">
-        <span class="text-[10px] font-mono px-2 py-0.5 rounded-sm bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
+        <span class="text-[10px] font-mono px-2 py-0.5 rounded-sm bg-ai-subtle text-ai border border-ai/30">
           LEVEL 4 APPLIED TASK
         </span>
         <button
@@ -345,7 +345,7 @@
           onclick={() => (socraticDrawerOpen = true)}
           class="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm bg-surface-raised border border-border text-foreground text-xs font-medium hover:border-border-strong cursor-pointer"
         >
-          <Sparkles class="w-3.5 h-3.5 text-indigo-400" />
+          <Sparkles class="w-3.5 h-3.5 text-ai" />
           <span>Socratic Guide</span>
         </button>
       </div>
@@ -355,7 +355,7 @@
       <div class="flex items-center gap-2 text-xs font-mono text-muted">
         <span>{mission.code}</span>
         <span>•</span>
-        <span class="text-indigo-400 font-semibold">{mission.stageLabel}</span>
+        <span class="text-ai font-semibold">{mission.stageLabel}</span>
         <span>•</span>
         <span>{mission.domainTitle}</span>
       </div>
@@ -371,7 +371,7 @@
     <div class="flex flex-wrap items-center gap-4 py-2 px-4 bg-surface border border-border rounded-sm text-xs">
       {#each mission.rubricCriteria as rc}
         <div class="flex items-center gap-1.5">
-          <CheckCircle2 class="w-3.5 h-3.5 text-emerald-400" />
+          <CheckCircle2 class="w-3.5 h-3.5 text-positive" />
           <span class="text-muted">{rc.criterion}:</span>
           <span class="font-mono font-bold text-foreground">{rc.target}</span>
         </div>
@@ -386,11 +386,11 @@
       <div class="p-5 bg-surface border border-border rounded-sm space-y-4">
         <div class="flex items-center justify-between text-xs">
           <span class="font-semibold text-foreground flex items-center gap-1.5">
-            <Activity class="w-3.5 h-3.5 text-indigo-400" />
+            <Activity class="w-3.5 h-3.5 text-ai" />
             <span>Interactive Proving Ground Simulation</span>
           </span>
           <span class="font-mono text-[10px] uppercase text-muted">
-            Engine: Deterministic Physics Model
+            Engine: Deterministic Physics Model • 12.0 METERS SPAN
           </span>
         </div>
 
@@ -415,9 +415,9 @@
               <circle cx="300" cy={160 + centerDeflectionMm * 0.8} r="6" fill="#f43f5e" />
             </svg>
             <div class="flex items-center justify-between w-full pt-2 text-xs border-t border-border">
-              <span>Mass: <strong class="font-mono text-foreground">{massKg} kg</strong></span>
-              <span>Strength Ratio: <strong class="font-mono text-indigo-400">{strengthToWeightRatio}x</strong></span>
-              <span>Deflection: <strong class="font-mono {centerDeflectionMm <= 18 ? 'text-emerald-400' : 'text-rose-400'}">{centerDeflectionMm} mm</strong></span>
+              <span>Bridge Mass: <strong class="font-mono text-foreground">{massKg} kg</strong></span>
+              <span>Strength-to-Weight: <strong class="font-mono text-foreground font-semibold">{strengthToWeightRatio}x</strong></span>
+              <span>Deflection: <strong class="font-mono {centerDeflectionMm <= 18 ? 'text-positive' : 'text-critical'}">{centerDeflectionMm} mm</strong></span>
             </div>
 
           {:else if mission.simulatorType === 'grid_rover'}
@@ -429,7 +429,7 @@
                 {@const isRover = roverX === gx && roverY === gy}
                 {@const isTarget = targetBase.x === gx && targetBase.y === gy}
                 {@const isCrater = craters.some(c => c.x === gx && c.y === gy)}
-                <div class="w-12 h-12 border border-border flex items-center justify-center font-mono text-[10px] relative {isCrater ? 'bg-rose-950/40 text-rose-400' : isTarget ? 'bg-emerald-950/40 text-emerald-400' : isRover ? 'bg-indigo-950/50 text-indigo-400' : 'bg-surface-raised text-muted'}">
+                <div class="w-12 h-12 border border-border flex items-center justify-center font-mono text-[10px] relative {isCrater ? 'bg-critical-subtle text-critical' : isTarget ? 'bg-positive-subtle text-positive' : isRover ? 'bg-ai-subtle text-ai' : 'bg-surface-raised text-muted'}">
                   {#if isRover}
                     <div class="font-bold flex flex-col items-center">
                       <span>🤖</span>
@@ -448,7 +448,7 @@
 
             <div class="flex items-center justify-between w-full pt-3 text-xs border-t border-border">
               <span class="text-muted">Pos: ({roverX}, {roverY}) Heading: {roverHeading}°</span>
-              <span class="font-bold {roverStatus === 'success' ? 'text-emerald-400' : roverStatus === 'collision' ? 'text-rose-400' : roverStatus === 'boundary' ? 'text-amber-400' : 'text-muted'}">
+              <span class="font-bold {roverStatus === 'success' ? 'text-positive' : roverStatus === 'collision' ? 'text-critical' : roverStatus === 'boundary' ? 'text-attention' : 'text-muted'}">
                 Status: {roverStatus.toUpperCase()}
               </span>
             </div>
@@ -457,7 +457,7 @@
             <!-- GEAR TRAIN SIMULATOR -->
             <div class="flex items-center justify-center gap-6 py-6 w-full">
               <div class="flex flex-col items-center space-y-2">
-                <div class="w-24 h-24 rounded-full border-4 border-dashed border-indigo-400 flex items-center justify-center bg-indigo-500/10"> <!-- allowed-circle: gear wheel -->
+                <div class="w-24 h-24 rounded-full border-4 border-dashed border-ai flex items-center justify-center bg-ai-subtle"> <!-- allowed-circle: gear wheel -->
                   <span class="font-mono font-bold text-xs">{gearATeeth}T</span>
                 </div>
                 <span class="text-[11px] text-muted">Driving Gear (CW)</span>
@@ -467,17 +467,17 @@
               <span class="text-lg font-bold text-muted">⇄</span>
 
               <div class="flex flex-col items-center space-y-2">
-                <div class="w-36 h-36 rounded-full border-4 border-dashed border-emerald-400 flex items-center justify-center bg-emerald-500/10"> <!-- allowed-circle: gear wheel -->
+                <div class="w-36 h-36 rounded-full border-4 border-dashed border-positive flex items-center justify-center bg-positive-subtle"> <!-- allowed-circle: gear wheel -->
                   <span class="font-mono font-bold text-xs">{gearBTeeth}T</span>
                 </div>
                 <span class="text-[11px] text-muted">Driven Gear (CCW)</span>
-                <span class="font-mono text-xs text-emerald-400">{outputRpm} RPM</span>
+                <span class="font-mono text-xs text-positive">{outputRpm} RPM</span>
               </div>
             </div>
 
             <div class="flex items-center justify-between w-full pt-3 text-xs border-t border-border">
               <span>Ratio: <strong class="font-mono text-foreground">{gearRatio}:1</strong></span>
-              <span>Torque Multiplication: <strong class="font-mono text-emerald-400">{torqueMultiplier}x</strong></span>
+              <span>Torque Multiplication: <strong class="font-mono text-positive">{torqueMultiplier}x</strong></span>
               <span>Direction: <strong class="font-mono text-foreground">Inverted (CCW)</strong></span>
             </div>
 
@@ -490,29 +490,29 @@
                   <path d="M 0 50 Q 50 {50 - filterWindow * 2} 100 55 T 200 {50 - filterWindow * 1.5} T 300 {50 + filterWindow} T 400 45" fill="none" stroke="#10b981" stroke-width="2.5" />
                   <circle cx="280" cy="52" r="5" fill="#f43f5e" />
                 </svg>
-                <span class="absolute top-2 right-2 text-[10px] font-mono text-rose-400">Microclimate Anomaly (+3.2°C)</span>
+                <span class="absolute top-2 right-2 text-[10px] font-mono text-critical">Microclimate Anomaly (+3.2°C)</span>
               </div>
             </div>
 
             <div class="flex items-center justify-between w-full pt-2 text-xs border-t border-border">
-              <span>Noise Reduction: <strong class="font-mono text-emerald-400">{signalNoiseReduction}%</strong></span>
-              <span>Statistical Confidence: <strong class="font-mono text-indigo-400">{statisticalConfidence}% CI</strong></span>
+              <span>Noise Reduction: <strong class="font-mono text-positive">{signalNoiseReduction}%</strong></span>
+              <span>Statistical Confidence: <strong class="font-mono text-ai">{statisticalConfidence}% CI</strong></span>
               <span>Drift Compensation: <strong class="font-mono text-foreground">{driftCompensationEnabled ? 'ACTIVE' : 'OFF'}</strong></span>
             </div>
 
           {:else if mission.simulatorType === 'obstacle_avoidance'}
             <!-- SONAR ARENA -->
             <div class="w-full h-44 bg-surface border border-border flex items-center justify-center relative overflow-hidden">
-              <div class="absolute left-6 top-6 bottom-6 w-3 bg-rose-500/40"></div>
-              <div class="absolute left-6 top-6 right-6 h-3 bg-rose-500/40"></div>
-              <div class="p-3 bg-indigo-500/20 border border-indigo-400 text-xs font-mono rounded-sm">
+              <div class="absolute left-6 top-6 bottom-6 w-3 bg-critical/40"></div>
+              <div class="absolute left-6 top-6 right-6 h-3 bg-critical/40"></div>
+              <div class="p-3 bg-ai-subtle border border-ai text-xs font-mono rounded-sm">
                 ROVER ARENA (Corner Trap Matrix)
               </div>
             </div>
 
             <div class="flex items-center justify-between w-full pt-2 text-xs border-t border-border">
               <span>Detection Distance: <strong class="font-mono text-foreground">{detectionThresholdCm} cm</strong></span>
-              <span>Corner Escape Rate: <strong class="font-mono {cornerEscapeRate === 100 ? 'text-emerald-400' : 'text-rose-400'}">{cornerEscapeRate}%</strong></span>
+              <span>Corner Escape Rate: <strong class="font-mono {cornerEscapeRate === 100 ? 'text-positive' : 'text-critical'}">{cornerEscapeRate}%</strong></span>
             </div>
 
           {:else if mission.simulatorType === 'winch_lift'}
@@ -530,14 +530,14 @@
               <span class="text-xl font-bold text-muted">=</span>
               <div class="text-center space-y-1">
                 <span class="text-muted text-[11px]">Required Torque</span>
-                <p class="text-xl font-bold font-mono text-indigo-400">{totalDrumTorqueInLbs} in-lbs</p>
+                <p class="text-xl font-bold font-mono text-ai">{totalDrumTorqueInLbs} in-lbs</p>
               </div>
             </div>
 
             <div class="flex items-center justify-between w-full pt-2 text-xs border-t border-border">
               <span>Planetary Ratio: <strong class="font-mono text-foreground">{planetaryRatio}:1</strong></span>
               <span>Motor Torque: <strong class="font-mono text-foreground">{motorRequiredTorqueInLbs} in-lbs</strong></span>
-              <span>Safety Factor: <strong class="font-mono {safetyFactor >= 1.5 ? 'text-emerald-400' : 'text-rose-400'}">{safetyFactor}x</strong></span>
+              <span>Safety Factor: <strong class="font-mono {safetyFactor >= 1.5 ? 'text-positive' : 'text-critical'}">{safetyFactor}x</strong></span>
             </div>
 
           {:else if mission.simulatorType === 'cv_vision'}
@@ -545,7 +545,7 @@
             <div class="w-full flex items-center justify-around py-6 text-xs">
               <div class="text-center space-y-1">
                 <span class="text-muted text-[11px]">Active Color Space</span>
-                <p class="text-base font-bold font-mono text-indigo-400">{colorSpace}</p>
+                <p class="text-base font-bold font-mono text-ai">{colorSpace}</p>
               </div>
               <div class="text-center space-y-1">
                 <span class="text-muted text-[11px]">Ambient Illuminance</span>
@@ -553,12 +553,12 @@
               </div>
               <div class="text-center space-y-1">
                 <span class="text-muted text-[11px]">Bounding Box IOU</span>
-                <p class="text-base font-bold font-mono {boundingBoxIou >= 0.85 ? 'text-emerald-400' : 'text-rose-400'}">{boundingBoxIou}</p>
+                <p class="text-base font-bold font-mono {boundingBoxIou >= 0.85 ? 'text-positive' : 'text-critical'}">{boundingBoxIou}</p>
               </div>
             </div>
 
             <div class="flex items-center justify-between w-full pt-2 text-xs border-t border-border">
-              <span>Lighting Stability: <strong class="font-mono text-emerald-400">{lightingStability}%</strong></span>
+              <span>Lighting Stability: <strong class="font-mono text-positive">{lightingStability}%</strong></span>
               <span>WRO Target Match: <strong class="font-mono text-foreground">{passesCvCriteria ? 'PASSED' : 'DRIFTING'}</strong></span>
             </div>
 
@@ -574,9 +574,9 @@
             </div>
 
             <div class="flex items-center justify-between w-full pt-2 text-xs border-t border-border">
-              <span>Overshoot: <strong class="font-mono {overshootPercent < 8 ? 'text-emerald-400' : 'text-rose-400'}">{overshootPercent}%</strong></span>
-              <span>Settling Time: <strong class="font-mono {settlingTimeSec < 2.5 ? 'text-emerald-400' : 'text-rose-400'}">{settlingTimeSec}s</strong></span>
-              <span>Steady-State Error: <strong class="font-mono text-emerald-400">{steadyStateError}</strong></span>
+              <span>Overshoot: <strong class="font-mono {overshootPercent < 8 ? 'text-positive' : 'text-critical'}">{overshootPercent}%</strong></span>
+              <span>Settling Time: <strong class="font-mono {settlingTimeSec < 2.5 ? 'text-positive' : 'text-critical'}">{settlingTimeSec}s</strong></span>
+              <span>Steady-State Error: <strong class="font-mono text-positive">{steadyStateError}</strong></span>
             </div>
           {/if}
         </div>
@@ -588,12 +588,12 @@
       <div class="p-5 bg-surface border border-border rounded-sm space-y-5 text-xs">
         <div class="flex items-center justify-between pb-2 border-b border-border">
           <div class="flex items-center gap-2">
-            <Sliders class="w-4 h-4 text-indigo-400" />
+            <Sliders class="w-4 h-4 text-ai" />
             <h2 class="text-sm font-semibold text-foreground">Mission Control Deck</h2>
           </div>
           <a
             href="/ide"
-            class="text-[11px] text-indigo-400 hover:underline flex items-center gap-1 font-mono"
+            class="text-[11px] text-ai hover:underline flex items-center gap-1 font-mono"
           >
             <TerminalSquare class="w-3 h-3" />
             <span>Open in IDE</span>
@@ -610,7 +610,7 @@
                   <button
                     type="button"
                     onclick={() => (trussType = type)}
-                    class="p-2 border text-center rounded-sm transition-colors cursor-pointer {trussType === type ? 'border-indigo-500 bg-surface-raised font-bold text-foreground' : 'border-border text-muted hover:text-foreground'}"
+                    class="p-2 border text-center rounded-sm transition-colors cursor-pointer {trussType === type ? 'border-ai bg-surface-raised font-bold text-foreground' : 'border-border text-muted hover:text-foreground'}"
                   >
                     <span class="capitalize">{type}</span>
                   </button>
@@ -625,7 +625,7 @@
                   <button
                     type="button"
                     onclick={() => (material = mat)}
-                    class="p-2 border text-center rounded-sm transition-colors cursor-pointer {material === mat ? 'border-indigo-500 bg-surface-raised font-bold text-foreground' : 'border-border text-muted hover:text-foreground'}"
+                    class="p-2 border text-center rounded-sm transition-colors cursor-pointer {material === mat ? 'border-ai bg-surface-raised font-bold text-foreground' : 'border-border text-muted hover:text-foreground'}"
                   >
                     <span class="capitalize">{mat}</span>
                   </button>
@@ -638,7 +638,7 @@
                 <span>Strut Thickness</span>
                 <span class="font-mono font-bold text-foreground">{strutThicknessMm} mm</span>
               </div>
-              <input type="range" min="14" max="36" bind:value={strutThicknessMm} class="w-full accent-indigo-500" />
+              <input type="range" min="14" max="36" bind:value={strutThicknessMm} class="w-full accent-ai" />
             </div>
           </div>
 
@@ -646,13 +646,13 @@
           <div class="space-y-3">
             <span class="font-medium text-foreground">Input Navigation Commands</span>
             <div class="grid grid-cols-3 gap-2">
-              <button onclick={() => addRoverCommand('FORWARD')} class="p-2 bg-surface-raised border border-border text-xs rounded-sm hover:border-indigo-500 cursor-pointer">
+              <button onclick={() => addRoverCommand('FORWARD')} class="p-2 bg-surface-raised border border-border text-xs rounded-sm hover:border-ai cursor-pointer">
                 FORWARD 1
               </button>
-              <button onclick={() => addRoverCommand('LEFT')} class="p-2 bg-surface-raised border border-border text-xs rounded-sm hover:border-indigo-500 cursor-pointer">
+              <button onclick={() => addRoverCommand('LEFT')} class="p-2 bg-surface-raised border border-border text-xs rounded-sm hover:border-ai cursor-pointer">
                 TURN LEFT 90°
               </button>
-              <button onclick={() => addRoverCommand('RIGHT')} class="p-2 bg-surface-raised border border-border text-xs rounded-sm hover:border-indigo-500 cursor-pointer">
+              <button onclick={() => addRoverCommand('RIGHT')} class="p-2 bg-surface-raised border border-border text-xs rounded-sm hover:border-ai cursor-pointer">
                 TURN RIGHT 90°
               </button>
             </div>
@@ -743,7 +743,7 @@
                 <span>Planetary Reduction Ratio</span>
                 <span class="font-mono font-bold text-foreground">{planetaryRatio}:1</span>
               </div>
-              <input type="range" min="15" max="40" step="5" bind:value={planetaryRatio} class="w-full accent-indigo-500" />
+              <input type="range" min="15" max="40" step="5" bind:value={planetaryRatio} class="w-full accent-ai" />
             </div>
           </div>
 
@@ -755,7 +755,7 @@
                 {#each (['HSV', 'BGR'] as const) as cs}
                   <button
                     onclick={() => (colorSpace = cs)}
-                    class="p-2 border text-center rounded-sm cursor-pointer {colorSpace === cs ? 'border-indigo-500 bg-surface-raised font-bold text-foreground' : 'border-border text-muted hover:text-foreground'}"
+                    class="p-2 border text-center rounded-sm cursor-pointer {colorSpace === cs ? 'border-ai bg-surface-raised font-bold text-foreground' : 'border-border text-muted hover:text-foreground'}"
                   >
                     {cs}
                   </button>
@@ -795,13 +795,13 @@
                 <span>Kd (Derivative)</span>
                 <span class="font-mono font-bold text-foreground">{kD}</span>
               </div>
-              <input type="range" min="0" max="2.0" step="0.05" bind:value={kD} class="w-full accent-indigo-500" />
+              <input type="range" min="0" max="2.0" step="0.05" bind:value={kD} class="w-full accent-ai" />
             </div>
           </div>
         {/if}
 
         <!-- CRITERIA STATUS BADGE -->
-        <div class="p-3 rounded-sm border {isMissionPassed ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-amber-500/10 border-amber-500/30 text-amber-400'} flex items-center gap-2">
+        <div class="p-3 rounded-sm border {isMissionPassed ? 'bg-positive-subtle border-positive/30 text-positive' : 'bg-attention-subtle border-attention/30 text-attention'} flex items-center gap-2">
           {#if isMissionPassed}
             <CheckCircle2 class="w-4 h-4 shrink-0" />
             <span class="font-medium">All target rubric requirements satisfied!</span>
@@ -832,7 +832,7 @@
   subtitle="Guided inquiry for applied engineering"
 >
   <div class="space-y-4 text-xs">
-    <div class="p-3 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-sm space-y-1">
+    <div class="p-3 bg-ai-subtle border border-ai/20 text-ai rounded-sm space-y-1">
       <div class="flex items-center gap-1.5 font-semibold">
         <Sparkles class="w-3.5 h-3.5" />
         <span>Inquiry Heuristic</span>
@@ -866,7 +866,7 @@
 >
   {#if submissionResult?.evidence}
     <div class="space-y-5 text-xs">
-      <div class="p-3.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-sm flex items-center gap-2">
+      <div class="p-3.5 bg-positive-subtle border border-positive/30 text-positive rounded-sm flex items-center gap-2">
         <CheckCircle2 class="w-5 h-5 shrink-0" />
         <div class="space-y-0.5">
           <p class="font-bold text-sm">Challenge Verified & Passed</p>
@@ -881,7 +881,7 @@
         </div>
         <div class="flex justify-between items-center text-xs">
           <span class="text-muted">Competency Track:</span>
-          <span class="font-semibold text-indigo-400 uppercase">{submissionResult.evidence.competency.replace('_', ' ')}</span>
+          <span class="font-semibold text-ai uppercase">{submissionResult.evidence.competency.replace('_', ' ')}</span>
         </div>
         <div class="flex justify-between items-center text-xs">
           <span class="text-muted">Evidence Level:</span>

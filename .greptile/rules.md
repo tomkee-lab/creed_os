@@ -45,12 +45,12 @@ export async function scoreStudentWithLLM(responses: ItemResponse[]) {
 
 ## 3. Child Safety & DPDP Act Data Governance
 
-Target audience includes minors aged 10–16 (Classes 5–10). Compliance with the Digital Personal Data Protection (DPDP) Act and international child protection regulations is non-negotiable.
+Primary product audience focuses on Classes 5–10 (Ages 10–16), with modular curriculum scaling Classes 3–12 (Ages 8–18). Statutory child protection under Section 2(f) and Section 9 of India's Digital Personal Data Protection (DPDP) Act, 2023 applies to **all individuals who have not completed 18 years of age**. Compliance is non-negotiable.
 
 ### Parental Consent State Machine
-- Minor data processing requires verified parental consent transition:
+- Minor data processing (under 18 years) requires verified parental consent transition:
   `DRAFT` → `PARENT_INVITED` → `PARENT_CONSENT_PENDING` → `PARENT_CONSENTED` → `ACTIVE`.
-- No profiling, automated ability classification, or recommendation tracking may be persisted without verified consent.
+- No profiling, automated ability classification, or recommendation tracking may be persisted without verified consent. Students aged 16–17 in senior classes remain strictly protected under this child-safety model.
 
 ### Database Row Level Security (RLS)
 - Every Supabase PostgreSQL table containing student data must have `ENABLE ROW LEVEL SECURITY`.
@@ -93,7 +93,7 @@ The web application (`apps/web`) is built with SvelteKit 2 and Svelte 5.
 
 ## 5. WAY Design System & "No AI Slope" Governance
 
-- **Zero Rounded Corners:** All container boxes, cards, inputs, and buttons use square corners (`rounded-none`). No pill buttons, no bubbly curves.
+- **Architectural Radius System (WAY 2.1):** 0px structural & technical surfaces (`rounded-none`), 4px controls & content surfaces (`rounded-sm`), 8px expressive media & hero frames (`rounded-md`). Prohibited: 12px+ bubbly consumer curves (`rounded-lg`, `rounded-xl`, `rounded-2xl`, `rounded-3xl`) and pill text buttons.
 - **Semantic OKLCH Tokens:** Use only `--surface-canvas`, `--surface-raised`, `--text-primary`, `--accent-cyan`, `--border-subtle`, etc. Ad-hoc hex values (`#03080E`, `#38bdf8`) are forbidden in component classes.
 - **No Neon Borders:** Avoid cyber-neon glows and loud colored outlines. Use Nordic Lagom warm mineral surfaces in light mode and deep carbon in dark mode.
 - **Strict 8pt Spacing Rhythm:** Spacing must be multiples of 4px/8px (4, 8, 12, 16, 24, 32, 40, 48, 64px). Arbitrary pixel padding (e.g., `p-[13px]`, `gap-[19px]`) is forbidden.

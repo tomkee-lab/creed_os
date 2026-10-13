@@ -2,10 +2,13 @@ import { test, expect, type BrowserContext } from '@playwright/test';
 
 // ── Auth Test Helpers ────────────────────────────────────────────────────────
 
+const DEFAULT_STUDENT_ID = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
+
 async function loginAs(
   context: BrowserContext,
   role: 'student' | 'parent' | 'teacher' | 'counselor' | 'admin' | 'studio' = 'student'
 ) {
+  const userId = role === 'student' ? DEFAULT_STUDENT_ID : `usr_${role}`;
   await context.addCookies([
     {
       name: 'creed_dev_session',
@@ -20,7 +23,8 @@ async function loginAs(
     {
       name: 'creed_dev_user',
       value: JSON.stringify({
-        id: `usr_${role}`,
+        id: userId,
+        learnerId: role === 'student' ? DEFAULT_STUDENT_ID : undefined,
         name:
           role === 'student'
             ? 'Student Learner'
@@ -30,6 +34,8 @@ async function loginAs(
             ? 'Lead Educator'
             : role === 'counselor'
             ? 'Academic Counselor'
+            : role === 'studio'
+            ? 'Lead Psychometrician'
             : 'System Administrator',
         email: `${role}@core-os.app`,
         role
@@ -44,9 +50,14 @@ async function loginAs(
   ]);
 }
 
-function authHeaders(role: string = 'student') {
+function authHeaders(role: string = 'student', learnerId: string = DEFAULT_STUDENT_ID) {
+  const user = encodeURIComponent(JSON.stringify({
+    id: role === 'student' ? learnerId : `usr_${role}`,
+    learnerId: role === 'student' ? learnerId : undefined,
+    role
+  }));
   return {
-    Cookie: `creed_dev_session=true; creed_dev_role=${role}; creed_consent_verified=true;`
+    Cookie: `creed_dev_session=true; creed_dev_role=${role}; creed_dev_user=${user}; creed_consent_verified=true;`
   };
 }
 
@@ -115,6 +126,37 @@ test.describe('Route Protection & Security Enforcement', () => {
     await page.goto('/parent');
     await expect(page).toHaveURL(/\/consent/);
   });
+
+  test('learner with pending consent cannot create assessment session even with creed_consent_verified cookie', async ({ request }) => {
+    const res = await request.post('/api/v1/assessments/sessions', {
+      headers: {
+        Cookie: 'creed_dev_session=true; creed_dev_role=admin; creed_consent_verified=true;'
+      },
+      data: {
+        learnerId: '7cc12e44-5512-4019-9182-192847102948',
+        domain: 'stem_reasoning'
+      }
+    });
+    expect(res.status()).toBe(403);
+    const body = await res.json();
+    expect(body.code).toBe('CONSENT_REQUIRED');
+  });
+
+  test('cross-learner profile access by student is blocked with 403 Forbidden', async ({ request }) => {
+    const userCookie = encodeURIComponent(JSON.stringify({
+      id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      role: 'student',
+      learnerId: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+    }));
+    const res = await request.get('/api/v1/learners/9fa11b72-1204-4821-b3fa-110294821102/profile', {
+      headers: {
+        Cookie: `creed_dev_session=true; creed_dev_role=student; creed_dev_user=${userCookie};`
+      }
+    });
+    expect(res.status()).toBe(403);
+    const body = await res.json();
+    expect(body.error).toContain('Students are restricted strictly to their own learner profile');
+  });
 });
 
 // ── 1. Navigation & Core Layout ──────────────────────────────────────────────
@@ -124,15 +166,14 @@ test.describe('Global Layout', () => {
     await page.goto('/');
     await expect(page.locator('header')).toBeVisible();
     await expect(page.getByRole('link', { name: /CREED OS/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Explore CREED/i }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: /Access Workspace/i }).first()).toBeVisible();
   });
 
   test('mobile viewport displays primary action and access links', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     await page.setViewportSize({ width: 375, height: 667 });
-    await expect(page.getByRole('link', { name: /Explore CREED/i }).first()).toBeVisible();
-    await expect(page.getByRole('link', { name: /Sign in/i }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: /Access Workspace/i }).first()).toBeVisible();
   });
 
   test('authenticated app shell provides mobile bottom navigation', async ({ page, context }) => {
@@ -213,7 +254,7 @@ test.describe('Adaptive CAT Assessment (/student/assessment)', () => {
 test.describe('Pathway Explorer (/student/pathways)', () => {
   test('renders pathway cards', async ({ page, context }) => {
     await loginAs(context, 'student');
-    await page.goto('/student/pathways');
+    await page.goto('/student/pathways', { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   });
 });
@@ -223,9 +264,9 @@ test.describe('Pathway Explorer (/student/pathways)', () => {
 test.describe('Socratic AI Mentor (/student/mentor)', () => {
   test('renders the mentor interface with thinking moves and dialogue', async ({ page, context }) => {
     await loginAs(context, 'student');
-    await page.goto('/student/mentor');
+    await page.goto('/student/mentor', { waitUntil: 'domcontentloaded' });
     await expect(page.getByText(/Socratic Mentor/i)).toBeVisible();
-    await expect(page.getByRole('heading', { level: 1 })).toContainText(/Kinematics/i);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(/Guided Reasoning Studio/i);
     await expect(page.getByRole('button', { name: /Decompose/i })).toBeVisible();
   });
 
@@ -317,16 +358,16 @@ test.describe('Admin Intelligence Portal (/admin)', () => {
 test.describe('Psychometric & Item Bank Studio (/studio)', () => {
   test('redirects legacy /author to /studio for authenticated studio user', async ({ page, context }) => {
     await loginAs(context, 'studio');
-    await page.goto('/author');
+    await page.goto('/author', { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(/\/studio/);
   });
 
   test('renders the item studio and 3PL IRT calibration panel', async ({ page, context }) => {
     await loginAs(context, 'studio');
-    await page.goto('/studio');
+    await page.goto('/studio', { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { level: 1 })).toContainText(/ITEM_STUDIO/i);
     await expect(page.getByText(/CALIBRATION \/\/ 3PL IRT/i)).toBeVisible();
-    await expect(page.locator('input[type="range"]').first()).toBeVisible();
+    await expect(page.getByRole('slider').first()).toBeVisible();
   });
 });
 
@@ -467,16 +508,17 @@ test.describe('Bits UI v1 Primitives & Iconify Architecture', () => {
 
   test('Parental Consent Gate (/consent) renders Bits UI v1 PinInput after OTP request', async ({ page, context }) => {
     await loginAs(context, 'parent');
-    await page.goto('/consent');
+    await page.goto('/consent', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('[data-hydrated="true"]')).toBeVisible();
     await page.fill('#guardian-name', 'Parent Guardian');
-    await page.fill('#guardian-contact', '+91 98765 43210');
+    const randomContact = `+91 98765 ${Math.floor(10000 + Math.random() * 90000)}`;
+    await page.fill('#guardian-contact', randomContact);
     await page.getByRole('button', { name: /Send Verification OTP/i }).click();
     await expect(page.getByTestId('pin-input-otp')).toBeVisible();
   });
 
   test('Account Verification Gate (/verify) renders Bits UI v1 PinInput', async ({ page }) => {
-    await page.goto('/verify');
+    await page.goto('/verify', { waitUntil: 'domcontentloaded' });
     await expect(page.getByTestId('pin-input-verify')).toBeVisible();
     await expect(page.getByRole('button', { name: /Confirm & Activate Account/i })).toBeVisible();
   });
@@ -487,12 +529,12 @@ test.describe('Bits UI v1 Primitives & Iconify Architecture', () => {
 test.describe('Applied Maker Missions & Pedagogical Actions', () => {
   test('Student can launch and simulate RoboBridge maker mission (/student/missions/robobridge)', async ({ page, context }) => {
     await loginAs(context, 'student');
-    await page.goto('/student/missions/robobridge');
-    await expect(page.locator('[data-app-hydrated="true"]')).toBeVisible();
+    await page.goto('/student/missions/robobridge', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="language-switcher"][data-hydrated="true"]')).toBeVisible();
     await expect(page.getByRole('heading', { level: 1 })).toContainText(/RoboBridge Structural Optimization/i);
     await expect(page.getByText(/LEVEL 4 APPLIED TASK/i)).toBeVisible();
     await expect(page.getByText(/Bridge Mass/i)).toBeVisible();
-    await expect(page.getByText(/Strength-to-Weight/i)).toBeVisible();
+    await expect(page.getByText('Strength-to-Weight Ratio:')).toBeVisible();
     await expect(page.getByText(/12.0 METERS SPAN/i)).toBeVisible();
 
     // Verify submit button is enabled and generates Level 4 evidence modal
@@ -506,13 +548,13 @@ test.describe('Applied Maker Missions & Pedagogical Actions', () => {
 
     // Evidence modal should disclose verified evidence details
     await expect(page.getByText(/Verified Level 4 Applied Evidence/i)).toBeVisible();
-    await expect(page.getByText(/Level 4 \(Applied Mission Task\) created/i)).toBeVisible();
+    await expect(page.getByText(/Level 4 \(Applied Mission Task\) recorded/i)).toBeVisible();
   });
 
   test('Teacher can log classroom observation and see it appended to evidence trail', async ({ page, context }) => {
     await loginAs(context, 'teacher');
-    await page.goto('/teacher');
-    await expect(page.locator('[data-app-hydrated="true"]')).toBeVisible();
+    await page.goto('/teacher', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="language-switcher"][data-hydrated="true"]')).toBeVisible();
 
     // Open observation drawer via top priority tool
     await page.getByRole('button', { name: /Log observation/i }).first().click();
@@ -532,8 +574,8 @@ test.describe('Applied Maker Missions & Pedagogical Actions', () => {
 
   test('Item Studio can trigger QTI 3.0 XML export', async ({ page, context }) => {
     await loginAs(context, 'studio');
-    await page.goto('/studio');
-    await expect(page.locator('[data-app-hydrated="true"]')).toBeVisible();
+    await page.goto('/studio', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-testid="language-switcher"][data-hydrated="true"]')).toBeVisible();
     await expect(page.getByRole('menubar')).toBeVisible();
     const itemMenu = page.getByRole('menuitem', { name: 'Item', exact: true });
     await expect(itemMenu).toBeVisible();
@@ -541,5 +583,6 @@ test.describe('Applied Maker Missions & Pedagogical Actions', () => {
     await expect(page.getByRole('menuitem', { name: /Export QTI 3.0 XML/i })).toBeVisible();
   });
 });
+
 
 

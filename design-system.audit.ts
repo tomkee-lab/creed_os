@@ -7,8 +7,8 @@ interface AuditResult {
   details: string[];
 }
 
-const ROOT_DIR = process.cwd();
-const WEB_SRC = path.join(ROOT_DIR, 'apps', 'web', 'src');
+const ROOT_DIR = process.env.AUDIT_ROOT_DIR || process.cwd();
+const WEB_SRC = process.env.AUDIT_WEB_SRC || path.join(ROOT_DIR, 'apps', 'web', 'src');
 
 const results: AuditResult[] = [];
 
@@ -28,11 +28,25 @@ function getFiles(dir: string, extensions: string[]): string[] {
   return files;
 }
 
+// Collect all target files across web src and UI package
+function getAllTargetFiles(): string[] {
+  const dirs = [
+    WEB_SRC,
+    path.join(ROOT_DIR, 'packages', 'ui', 'src')
+  ].filter(d => fs.existsSync(d));
+
+  const files: string[] = [];
+  for (const dir of dirs) {
+    files.push(...getFiles(dir, ['.svelte', '.css']));
+  }
+  return files;
+}
+
 // 1. Audit Prohibited Radii (Align with AGENTS.md: permit 0px rounded-none, 4px rounded-sm, 8px rounded-md; ban 12px+ bubbly curves and pill buttons/containers)
 function auditRadii() {
   const violations: string[] = [];
   const bannedPatterns = [/\brounded-(?:lg|xl|2xl|3xl)\b/g, /\brounded-full\b/g];
-  const allFiles = getFiles(WEB_SRC, ['.svelte', '.css']);
+  const allFiles = getAllTargetFiles();
 
   for (const file of allFiles) {
     const content = fs.readFileSync(file, 'utf-8');
@@ -69,16 +83,16 @@ function auditSpacing() {
   const violations: string[] = [];
   const bannedPatterns = [
     {
-      regex: /\b(?:[a-zA-Z0-9_\-:]+)?(?:p|px|py|pt|pb|pl|pr|m|mx|my|mt|mb|ml|mr|gap|gap-x|gap-y|space-[xy])-(?:2\.5|7\.5)\b/g,
-      desc: 'arbitrary 10px / 30px spacing (-2.5 / -7.5)'
+      regex: /\b(?:[a-zA-Z0-9_\-:]+)?(?:p|px|py|pt|pb|pl|pr|m|mx|my|mt|mb|ml|mr|gap|gap-x|gap-y|space-[xy])-(?:2\.5|7\.5|\d+\.(?:25|75))\b/g,
+      desc: 'arbitrary 10px / 30px or quarter-step spacing (-2.5 / -7.5 / -N.25 / -N.75)'
     },
     {
-      regex: /\b(?:[a-zA-Z0-9_\-:]+)?(?:p|px|py|pt|pb|pl|pr|m|mx|my|mt|mb|ml|mr|gap|gap-x|gap-y)-\[\d+px\]\b/g,
+      regex: /\b(?:[a-zA-Z0-9_\-:]+)?(?:p|px|py|pt|pb|pl|pr|m|mx|my|mt|mb|ml|mr|gap|gap-x|gap-y)-\[\d+px\]/g,
       desc: 'arbitrary bracketed pixel spacing (-[Npx])'
     }
   ];
 
-  const allFiles = getFiles(WEB_SRC, ['.svelte', '.css']);
+  const allFiles = getAllTargetFiles();
 
   for (const file of allFiles) {
     const content = fs.readFileSync(file, 'utf-8');
@@ -101,7 +115,7 @@ function auditSpacing() {
 // 3. Audit Arbitrary Hex Color Injection (Rule 5: No Arbitrary Colors; only use semantic tokens)
 function auditHexColors() {
   const violations: string[] = [];
-  const allFiles = getFiles(WEB_SRC, ['.svelte', '.css']);
+  const allFiles = getAllTargetFiles();
 
   const classHexPattern = /\b(?:[a-zA-Z0-9_\-:]+)?(?:bg|text|border|fill|stroke|ring|shadow)-\[#[0-9a-fA-F]+\]/g;
   const rawClassHexPattern = /class="[^"]*#[0-9a-fA-F]{3,6}[^"]*"/g;
@@ -132,7 +146,7 @@ function auditHexColors() {
 function auditMotionContract() {
   const violations: string[] = [];
   const bannedDurations = /\bduration-(?:300|400|500|600|700|800|900|1000|550)\b/g;
-  const allFiles = getFiles(WEB_SRC, ['.svelte', '.css']);
+  const allFiles = getAllTargetFiles();
 
   for (const file of allFiles) {
     const content = fs.readFileSync(file, 'utf-8');
@@ -229,11 +243,11 @@ function auditTokenPipeline() {
     if (!content.includes('--radius-structural: 0px')) {
       violations.push('theme.css: Missing --radius-structural: 0px token');
     }
-    if (!content.includes('--radius-control: 0px')) {
-      violations.push('theme.css: Missing --radius-control: 0px token');
+    if (!content.includes('--radius-control: 4px')) {
+      violations.push('theme.css: Missing --radius-control: 4px token');
     }
-    if (!content.includes('--radius-expressive: 0px')) {
-      violations.push('theme.css: Missing --radius-expressive: 0px token');
+    if (!content.includes('--radius-expressive: 8px')) {
+      violations.push('theme.css: Missing --radius-expressive: 8px token');
     }
   }
 
@@ -244,7 +258,107 @@ function auditTokenPipeline() {
   });
 }
 
+// 8. Audit Package Manager Invariants (Strict pnpm only; zero npm/yarn locks)
+function auditPackageManager() {
+  const violations: string[] = [];
+  const bannedLocks = ['package-lock.json', 'yarn.lock'];
+
+  for (const lock of bannedLocks) {
+    if (fs.existsSync(path.join(ROOT_DIR, lock))) {
+      violations.push(`Found forbidden package lockfile '${lock}' (pnpm is the exclusive package manager)`);
+    }
+  }
+
+  results.push({
+    category: 'Package Manager Governance (pnpm exclusive; zero npm/yarn lockfiles)',
+    passed: violations.length === 0,
+    details: violations
+  });
+}
+
+// 9. Heuristic Design Audits (Card Soup, Excessive Nesting, AI-Slop Patterns -> REVIEW_REQUIRED)
+interface HeuristicFinding {
+  rule: string;
+  file: string;
+  line: number;
+  snippet: string;
+}
+
+const heuristicFindings: HeuristicFinding[] = [];
+
+function auditHeuristics() {
+  const allFiles = getAllTargetFiles().filter(f => f.endsWith('.svelte'));
+
+  for (const file of allFiles) {
+    const content = fs.readFileSync(file, 'utf-8');
+    const lines = content.split('\n');
+    const rel = path.relative(ROOT_DIR, file);
+
+    lines.forEach((line, idx) => {
+      // Heuristic 1: Decorative neon glows or gradients
+      if (/\b(?:from-purple|to-pink|from-cyan|bg-gradient-to-r)\b/i.test(line) && !line.includes('// exempt:gradient')) {
+        heuristicFindings.push({
+          rule: 'Decorative Gradient / Potential AI-Slop Pattern',
+          file: rel,
+          line: idx + 1,
+          snippet: line.trim().slice(0, 80)
+        });
+      }
+
+      // Heuristic 2: Excessive box-shadow glows
+      if (/\bshadow-\[(?:0_0_|0px_0px_)[^\]]*\]/i.test(line)) {
+        heuristicFindings.push({
+          rule: 'Glow Box Shadow / Neon Halo Effect',
+          file: rel,
+          line: idx + 1,
+          snippet: line.trim().slice(0, 80)
+        });
+      }
+    });
+  }
+}
+
+// 10. Audit Canonical Specification Integrity (design-system.json authority & derived consistency)
+function auditCanonicalSpecification() {
+  const violations: string[] = [];
+  const specFile = path.join(ROOT_DIR, 'design-system.json');
+  const rulesFile = path.join(ROOT_DIR, 'design-system.rules.json');
+
+  if (!fs.existsSync(specFile)) {
+    violations.push('Missing canonical master specification file: design-system.json');
+  } else {
+    try {
+      const spec = JSON.parse(fs.readFileSync(specFile, 'utf-8'));
+      if (spec.version !== '2.1.0') {
+        violations.push(`design-system.json version mismatch: expected 2.1.0, got ${spec.version}`);
+      }
+    } catch (e) {
+      violations.push(`design-system.json contains invalid JSON: ${e}`);
+    }
+  }
+
+  if (!fs.existsSync(rulesFile)) {
+    violations.push('Missing derived rules file: design-system.rules.json');
+  } else {
+    try {
+      const rules = JSON.parse(fs.readFileSync(rulesFile, 'utf-8'));
+      if (rules.$canonicalSource !== 'design-system.json') {
+        violations.push('design-system.rules.json must declare $canonicalSource: "design-system.json"');
+      }
+    } catch (e) {
+      violations.push(`design-system.rules.json contains invalid JSON: ${e}`);
+    }
+  }
+
+  results.push({
+    category: 'Canonical Specification Integrity (design-system.json authority & derived rules consistency)',
+    passed: violations.length === 0,
+    details: violations
+  });
+}
+
 // Run all audits
+auditCanonicalSpecification();
 auditRadii();
 auditSpacing();
 auditHexColors();
@@ -252,6 +366,8 @@ auditMotionContract();
 auditPsychometricLeaks();
 auditFalsePrecision();
 auditTokenPipeline();
+auditPackageManager();
+auditHeuristics();
 
 console.log('\n===============================================================');
 console.log('       CREED OS • WAY 2.1 Calm Intelligence Design Audit       ');
@@ -271,10 +387,21 @@ for (const res of results) {
 }
 
 console.log('\n---------------------------------------------------------------');
+console.log('HEURISTIC ADVERSARIAL REVIEW (Anti-Slop & Information Density):');
+if (heuristicFindings.length === 0) {
+  console.log('[PASS] Zero decorative neon gradients, AI glows, or slop anomalies detected.');
+} else {
+  console.log(`[REVIEW_REQUIRED] ${heuristicFindings.length} heuristic patterns flagged for editorial inspection:`);
+  for (const h of heuristicFindings.slice(0, 10)) {
+    console.log(`  -> [${h.rule}] ${h.file}:${h.line} ("${h.snippet}")`);
+  }
+}
+
+console.log('---------------------------------------------------------------');
 if (allPassed) {
-  console.log('STATUS: ALL WAY 2.1 DESIGN SYSTEM ASSERTIONS PASSED (100%)\n');
+  console.log('STATUS: ALL WAY 2.1 DETERMINISTIC DESIGN ASSERTIONS PASSED (100%)\n');
   process.exit(0);
 } else {
-  console.log('STATUS: DESIGN SYSTEM VIOLATIONS DETECTED\n');
+  console.log('STATUS: HARD DESIGN SYSTEM VIOLATIONS DETECTED\n');
   process.exit(1);
 }

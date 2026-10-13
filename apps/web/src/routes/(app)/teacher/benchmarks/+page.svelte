@@ -154,7 +154,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
       <div>
         <h2 class="text-sm font-bold text-foreground flex items-center gap-2">
-          <AlertTriangle class="w-4 h-4 text-amber-400" />
+          <AlertTriangle class="w-4 h-4 text-attention" />
           <span>Active Misconception Clusters (Cohort Gaps)</span>
         </h2>
         <p class="text-xs text-muted">
@@ -172,7 +172,7 @@
             <div class="flex items-center justify-between">
               <span class="text-xs font-bold text-foreground">{cluster.clusterName}</span>
               <span
-                class="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded-none border {cluster.severity === 'High' ? 'bg-rose-500/10 border-rose-500/30 text-rose-400' : cluster.severity === 'Moderate' ? 'bg-amber-500/10 border-amber-500/30 text-amber-300' : 'bg-surface border-border text-muted'}"
+                class="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded-none border {cluster.severity === 'High' ? 'bg-critical-subtle border-critical/30 text-critical' : cluster.severity === 'Moderate' ? 'bg-attention-subtle border-attention/30 text-attention' : 'bg-surface border-border text-muted'}"
               >
                 {cluster.studentCount} Students ({cluster.severity})
               </span>
@@ -184,7 +184,7 @@
             </div>
 
             <div class="p-2 bg-surface border border-border rounded-none text-xs text-muted leading-relaxed">
-              <strong class="text-indigo-400 block text-[10px] uppercase font-semibold tracking-wider">
+              <strong class="text-ai block text-[10px] uppercase font-semibold tracking-wider">
                 Targeted Remediation Strategy:
               </strong>
               {cluster.recommendedDifferentiatedActivity}
@@ -223,7 +223,7 @@
           type="text"
           bind:value={searchQuery}
           placeholder="Search learner name or ID..."
-          class="w-full pl-9 pr-3 py-1.5 bg-surface-raised border border-border text-xs rounded-none text-foreground placeholder:text-muted focus:outline-hidden focus:border-indigo-500"
+          class="w-full pl-9 pr-3 py-1.5 bg-surface-raised border border-border text-xs rounded-none text-foreground placeholder:text-muted focus:outline-hidden focus:border-border-focus"
         />
       </div>
     </div>
@@ -252,10 +252,10 @@
                   {student.overallReadiness}
                 </span>
               </td>
-              <td class="p-3 text-emerald-400 font-medium">
+              <td class="p-3 text-positive font-medium">
                 {student.strongestCompetency.replace(/_/g, ' ')}
               </td>
-              <td class="p-3 text-amber-400 font-medium">
+              <td class="p-3 text-attention font-medium">
                 {student.weakestCompetency.replace(/_/g, ' ')}
               </td>
               <td class="p-3 text-muted">
@@ -264,7 +264,7 @@
               <td class="p-3 text-right">
                 <a
                   href="/student/report?domain=stem"
-                  class="text-indigo-400 hover:text-indigo-300 font-medium inline-flex items-center gap-1 cursor-pointer"
+                  class="text-ai hover:underline font-medium inline-flex items-center gap-1 cursor-pointer"
                 >
                   <span>Inspect</span>
                   <ArrowRight class="w-3 h-3" />

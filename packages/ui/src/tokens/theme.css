@@ -1,17 +1,17 @@
-/* CARBON VOLTAGE Design System — Technical Precision & Restrained Neon */
+/* WAY 2.1 Design System — Quiet Editorial Intelligence */
 
 :root {
-  /* Architectural Radius System (Strict 0px Sharp Technical Precision) */
+  /* Architectural Radius System (WAY 2.1: 0px structural, 4px controls, 8px expressive) */
   --radius-structural: 0px;  /* 0px: Data tables, assessment question frames, item studio, console grids */
-  --radius-control: 0px;     /* 0px: Buttons, inputs, tiles */
-  --radius-expressive: 0px;  /* 0px: Cards, dialogs */
-  --radius: 0px;             /* Default interactive control radius */
-  --radius-xs: 0px;
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-full: 0px;
+  --radius-control: 4px;     /* 4px: Buttons, inputs, tiles, content panels */
+  --radius-expressive: 8px;  /* 8px: Hero media, mixed-media illustration frames, editorial features */
+  --radius: 4px;             /* Default interactive control radius */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-full: 9999px;
 
   /* Carbon Voltage Surface Layering (Dark-as-Default: 90% Carbon/Graphite) */
   --surface-canvas: oklch(0.135 0.018 255);    /* Application Canvas */
@@ -29,8 +29,8 @@
 
   /* Typography Tokens (8% Cool Neutral Scale) */
   --text-primary: oklch(0.955 0.012 255);      /* Primary text (Crisp graphite white) */
-  --text-secondary: oklch(0.760 0.018 255);    /* Secondary supporting text */
-  --text-muted: oklch(0.570 0.020 255);        /* Metadata / tertiary text */
+  --text-secondary: oklch(0.780 0.018 255);    /* Secondary supporting text */
+  --text-muted: oklch(0.680 0.020 255);        /* Metadata / tertiary text */
   --text-inverse: oklch(0.135 0.018 255);      /* Deep obsidian on mint (12.4:1 AAA) */
 
   /* High-Voltage Accents */
@@ -99,8 +99,8 @@
   --border-strong: oklch(0.285 0.022 255);
   --border-focus: oklch(0.820 0.190 165);
   --text-primary: oklch(0.955 0.012 255);
-  --text-secondary: oklch(0.760 0.018 255);
-  --text-muted: oklch(0.570 0.020 255);
+  --text-secondary: oklch(0.780 0.018 255);
+  --text-muted: oklch(0.680 0.020 255);
   --text-inverse: oklch(0.135 0.018 255);
   --accent-primary: oklch(0.820 0.190 165);
   --accent-indigo: oklch(0.720 0.170 285);
@@ -120,8 +120,8 @@
   --border-strong: oklch(0.895 0.008 240);
   --border-focus: oklch(0.520 0.170 165);
   --text-primary: oklch(0.200 0.020 255);
-  --text-secondary: oklch(0.440 0.022 255);
-  --text-muted: oklch(0.580 0.018 255);
+  --text-secondary: oklch(0.400 0.022 255);
+  --text-muted: oklch(0.480 0.018 255);
   --text-inverse: oklch(0.990 0.002 240);
   --accent-primary: oklch(0.520 0.170 165);
   --accent-primary-subtle: oklch(0.950 0.030 165);

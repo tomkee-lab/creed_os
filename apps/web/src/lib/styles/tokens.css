@@ -25,12 +25,12 @@
   --font-heading: 'DM Sans Variable', 'DM Sans', var(--font-sans);
   --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
   --foreground: oklch(0.200 0.020 255);            /* Primary text (Crisp graphite ink) */
-  --foreground-secondary: oklch(0.440 0.022 255);  /* Secondary supporting text */
-  --foreground-muted: oklch(0.580 0.018 255);      /* Metadata / tertiary text */
+  --foreground-secondary: oklch(0.400 0.022 255);  /* Secondary supporting text (7:1 AAA) */
+  --foreground-muted: oklch(0.480 0.018 255);      /* Metadata / tertiary text (5.4:1 AA) */
 
   /* --- 4. Primary High-Voltage Accent: Performance Mint --- */
   /* Active · Success · Execute · Connected · Live · Selected · Primary CTA (<2% at rest) */
-  --mint: oklch(0.520 0.170 165);                  /* Signature Performance Mint */
+  --mint: oklch(0.445 0.165 165);                  /* Signature Performance Mint (WCAG AA Compliant >= 4.5:1) */
   --mint-foreground: oklch(0.990 0.002 240);       /* AAA contrast on light mint */
   --mint-subtle: oklch(0.950 0.030 165);
   --mint-hover: oklch(0.470 0.165 165);
@@ -199,8 +199,8 @@
   --border-subtle: oklch(0.225 0.018 255);
   --border-strong: oklch(0.360 0.024 255);
   --foreground: oklch(0.955 0.012 255);
-  --foreground-secondary: oklch(0.760 0.018 255);
-  --foreground-muted: oklch(0.570 0.020 255);
+  --foreground-secondary: oklch(0.780 0.018 255);
+  --foreground-muted: oklch(0.680 0.020 255);
 
   /* Dark-Mode Calibrated Accents (High luminance on dark backgrounds) */
   --mint: oklch(0.865 0.195 165);
@@ -259,13 +259,13 @@
   --border-subtle: oklch(0.925 0.006 240);
   --border-strong: oklch(0.800 0.015 240);
   --foreground: oklch(0.200 0.020 255);
-  --foreground-secondary: oklch(0.440 0.022 255);
-  --foreground-muted: oklch(0.580 0.018 255);
+  --foreground-secondary: oklch(0.400 0.022 255);
+  --foreground-muted: oklch(0.480 0.018 255);
 
-  --mint: oklch(0.520 0.170 165);
+  --mint: oklch(0.445 0.165 165);
   --mint-foreground: oklch(0.990 0.002 240);
   --mint-subtle: oklch(0.950 0.030 165);
-  --mint-hover: oklch(0.470 0.165 165);
+  --mint-hover: oklch(0.410 0.160 165);
 
   --violet: oklch(0.540 0.160 285);
   --violet-foreground: oklch(0.990 0.002 240);
