@@ -114,7 +114,7 @@
               {currentReport.standardScaleScore}
             </span>
             <span class="text-xs text-foreground-secondary font-medium">
-              {currentReport.domain === 'english' ? 'Lexile' : currentReport.domain === 'robotics' ? 'RoboScale' : 'PISA Pts'}
+              {currentReport.domain === 'english' ? 'Lexile' : currentReport.domain === 'robotics' ? 'RoboScale' : 'Ref Pts'}
             </span>
           </div>
           <p class="text-xs text-foreground-secondary leading-relaxed line-clamp-1">
@@ -136,7 +136,7 @@
             </span>
           </div>
           <p class="text-xs text-foreground-secondary leading-relaxed">
-            Calibrated against OECD cohorts
+            Contextual educational reference (Gate 4 empirical linking pending)
           </p>
         </div>
 

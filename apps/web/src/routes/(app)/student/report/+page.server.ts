@@ -3,7 +3,7 @@ import type { PageServerLoad } from './$types';
 import { coreRepository } from '$lib/server/repository';
 import { resolveLearnerId } from '$lib/server/learnerScope';
 import {
-  toSafeBenchmarkReportDTO,
+  toStudentBenchmarkReportDTO,
   toSafeLearnerProfileDTO,
   deepSanitizePsychometrics
 } from '$lib/server/psychometricDto';
@@ -24,11 +24,11 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     : null;
 
   const safeReports = rawReports
-    .map(toSafeBenchmarkReportDTO)
+    .map(toStudentBenchmarkReportDTO)
     .filter(Boolean)
     .map((r) => deepSanitizePsychometrics(r));
 
-  const safeActiveReport = deepSanitizePsychometrics(toSafeBenchmarkReportDTO(rawActiveReport));
+  const safeActiveReport = deepSanitizePsychometrics(toStudentBenchmarkReportDTO(rawActiveReport));
 
   return {
     learner: safeLearner,

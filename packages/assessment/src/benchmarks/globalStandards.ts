@@ -33,7 +33,7 @@ export interface GlobalBenchmarkReport {
   se: number;
   percentileRank: number; // 1 - 99
   standardScaleScore: number;
-  scaleFormatted: string; // e.g. "542 (PISA)", "940L (Lexile)", "580 (RoboScale)"
+  scaleFormatted: string; // e.g. "542 Ref Pts (Pending Gate 4)", "940L (Lexile)", "580 (RoboScale)"
   scaleName: string;
   internationalTier: string;
   developmentalBand: 'Emergent Explorer' | 'Developing Foundation' | 'Competent Practitioner' | 'Advanced Master';
@@ -77,25 +77,25 @@ export function mapDevelopmentalBand(theta: number): 'Emergent Explorer' | 'Deve
 }
 
 /**
- * Maps theta to PISA and TIMSS international benchmarks for STEM
+ * Maps theta to provisional reference scales for STEM (provisional reference indicators; empirical PISA/TIMSS concordance pending Gate 4 validation)
  */
 export function mapStemBenchmarks(theta: number) {
   const pisaScore = Math.round(500 + 100 * theta);
-  let timssTier = 'Below Low International Benchmark';
+  let timssTier = 'Below Level 3 (Emergent Reference Tier)';
   if (pisaScore >= 625) {
-    timssTier = 'Advanced International Benchmark (Level 6)';
+    timssTier = 'Level 6 (Advanced Reference Tier)';
   } else if (pisaScore >= 550) {
-    timssTier = 'High International Benchmark (Level 5)';
+    timssTier = 'Level 5 (High Reference Tier)';
   } else if (pisaScore >= 475) {
-    timssTier = 'Intermediate International Benchmark (Level 4)';
+    timssTier = 'Level 4 (Intermediate Reference Tier)';
   } else if (pisaScore >= 400) {
-    timssTier = 'Low International Benchmark (Level 3)';
+    timssTier = 'Level 3 (Foundational Reference Tier)';
   }
 
   return {
     scaleScore: pisaScore,
-    scaleFormatted: `${pisaScore} PISA Points`,
-    scaleName: 'PISA Scientific & Quantitative Literacy Scale',
+    scaleFormatted: `${pisaScore} Ref Pts (Calibration Pending Gate 4)`,
+    scaleName: 'Quantitative Literacy Reference Scale (Gate 4 Empirical Linking Pending)',
     tier: timssTier,
     oecdAverage: 500,
     topDecile: 625

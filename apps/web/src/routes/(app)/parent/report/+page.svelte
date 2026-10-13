@@ -109,6 +109,12 @@
           <span class="text-[11px] text-muted block">Ready for progressive multi-step challenges</span>
         </div>
       </div>
+
+      <!-- Psychometric Governance Disclosure -->
+      <div class="p-3 bg-surface-raised border border-border rounded-sm text-[11px] text-muted leading-relaxed">
+        <span class="font-semibold text-foreground">Psychometric Governance Note:</span>
+        Standard scaled scores and international standing tiers are formative reference benchmarks. Formal empirical linking (e.g. OECD PISA/TIMSS concordance) remains subject to Gate 4 psychometric validation.
+      </div>
     </section>
 
     <!-- LEVEL 2 — CONTEXT: WHAT THIS MEANS & HOW TO TALK AT HOME -->

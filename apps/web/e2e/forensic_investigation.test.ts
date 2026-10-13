@@ -1,6 +1,11 @@
 import { test, expect } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
+import {
+  toStudentBenchmarkReportDTO,
+  toParentBenchmarkReportDTO,
+  toSafeEvidenceDTO
+} from '../src/lib/server/psychometricDto';
 
 const SCREENSHOT_DIR = path.resolve('test-results/screenshots/forensic');
 
@@ -305,22 +310,24 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
     });
     console.log('=== MOBILE KEYBOARD TELEMETRY (375x340) ===', JSON.stringify(keyboardTelemetry, null, 2));
 
-    // In unscrolled page flow (scrollY = 0), the IDE container begins at document Y ~288px.
-    // In a compressed 340px viewport, test the documented reachability mechanism:
-    // user-driven realistic scrolling (via touch/wheel or keyboard navigation) rather than programmatic locator helper.
+    // =========================================================================
+    // LEVEL 1: DETERMINISTIC SCRIPT-POSITIONED SCROLLING (Programmatic Baseline)
+    // =========================================================================
+    // Documents deterministic coordinate placement under script-driven scroll.
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(100);
 
-    // Realistic user scroll gesture: scroll down by 150px to bring the IDE toolbar into comfortable interaction view
+    // Scripted repositioning: scroll down by 150px
     await page.evaluate(() => window.scrollBy(0, 150));
     await page.waitForTimeout(200);
 
-    const postScrollTelemetry = await page.evaluate(() => {
+    const level1Telemetry = await page.evaluate(() => {
       const headerEl = document.querySelector('header.min-h-12');
       const verifyBtnEl = headerEl ? Array.from(headerEl.querySelectorAll('button')).find(b => b.textContent?.includes('Verify')) : null;
       const verifyRect = verifyBtnEl ? verifyBtnEl.getBoundingClientRect() : null;
 
       return {
+        mode: 'Level 1: Deterministic Script-Positioned (window.scrollBy)',
         scrollY: window.scrollY,
         verifyRect: verifyRect ? {
           x: verifyRect.x,
@@ -331,16 +338,69 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
         } : null
       };
     });
-    console.log('=== USER-SCROLLED KEYBOARD TELEMETRY (scrollY=150) ===', JSON.stringify(postScrollTelemetry, null, 2));
+    console.log('=== [LEVEL 1: DETERMINISTIC SCRIPT-POSITIONED PLACEMENT] ===', JSON.stringify(level1Telemetry, null, 2));
 
-    const scrolledVerifyBox = await verifyBtn.boundingBox();
-    expect(scrolledVerifyBox).not.toBeNull();
-    if (scrolledVerifyBox) {
-      // When scrolled by user, Verify button is fully contained within the 375x340 viewport
-      expect(scrolledVerifyBox.x + scrolledVerifyBox.width).toBeLessThanOrEqual(375);
-      expect(scrolledVerifyBox.y).toBeGreaterThanOrEqual(0);
-      expect(scrolledVerifyBox.y + scrolledVerifyBox.height).toBeLessThanOrEqual(340);
+    const scriptScrolledVerifyBox = await verifyBtn.boundingBox();
+    expect(scriptScrolledVerifyBox).not.toBeNull();
+    if (scriptScrolledVerifyBox) {
+      expect(scriptScrolledVerifyBox.x + scriptScrolledVerifyBox.width).toBeLessThanOrEqual(375);
+      expect(scriptScrolledVerifyBox.y).toBeGreaterThanOrEqual(0);
+      expect(scriptScrolledVerifyBox.y + scriptScrolledVerifyBox.height).toBeLessThanOrEqual(340);
     }
+
+    // =========================================================================
+    // LEVEL 2: SIMULATED USER INPUT (Browser Input Event Dispatch via Wheel)
+    // =========================================================================
+    // Tests authentic browser user interaction using Playwright input APIs:
+    // resets to top, dispatches page.mouse.wheel, and measures visual viewport offsets.
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(150);
+
+    // Position pointer in the main content canvas and issue mouse wheel scroll
+    await page.mouse.move(187, 170);
+    await page.mouse.wheel(0, 150);
+    await page.waitForTimeout(400);
+
+    const level2Telemetry = await page.evaluate(() => {
+      const headerEl = document.querySelector('header.min-h-12');
+      const verifyBtnEl = headerEl ? Array.from(headerEl.querySelectorAll('button')).find(b => b.textContent?.includes('Verify')) : null;
+      const verifyRect = verifyBtnEl ? verifyBtnEl.getBoundingClientRect() : null;
+      const vv = window.visualViewport;
+
+      return {
+        mode: 'Level 2: Simulated User Input (page.mouse.wheel)',
+        scrollY: window.scrollY,
+        visualViewport: vv ? {
+          height: vv.height,
+          width: vv.width,
+          offsetTop: vv.offsetTop,
+          pageTop: vv.pageTop
+        } : null,
+        verifyRect: verifyRect ? {
+          x: verifyRect.x,
+          y: verifyRect.y,
+          w: verifyRect.width,
+          h: verifyRect.height,
+          bottom: verifyRect.bottom
+        } : null
+      };
+    });
+    console.log('=== [LEVEL 2: SIMULATED USER INPUT (page.mouse.wheel)] ===', JSON.stringify(level2Telemetry, null, 2));
+
+    // Verify wheel input initiated document movement
+    expect(level2Telemetry.scrollY).toBeGreaterThan(0);
+
+    const userScrolledVerifyBox = await verifyBtn.boundingBox();
+    expect(userScrolledVerifyBox).not.toBeNull();
+    if (userScrolledVerifyBox) {
+      expect(userScrolledVerifyBox.x + userScrolledVerifyBox.width).toBeLessThanOrEqual(375);
+      expect(userScrolledVerifyBox.y).toBeGreaterThanOrEqual(0);
+      expect(userScrolledVerifyBox.y + userScrolledVerifyBox.height).toBeLessThanOrEqual(340);
+    }
+
+    // LEVEL 3 NOTE: Native device & OS virtual keyboard resizing (e.g. iOS Safari / Android Chrome
+    // visual viewport compression with software keyboard) requires a physical device test harness.
+    // This is formally documented as Pending Gate 5 (Platform Operations & Mobile Hardware Lab).
 
     // Verify pointer activation succeeds at the user-scrolled position
     await verifyBtn.click();
@@ -569,6 +629,8 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
       return {
         whiteBlackRatio,
         gray76Linear: sRGBtoLinear(118 / 255),
+        gray77Linear: sRGBtoLinear(119 / 255),
+        gray75Linear: sRGBtoLinear(117 / 255),
         gray76Ratio,
         gray77Ratio,
         gray75Ratio
@@ -576,11 +638,21 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
     });
 
     expect(Math.abs(mathCalibration.whiteBlackRatio - 21.0)).toBeLessThan(0.001);
-    expect(Math.abs(mathCalibration.gray76Ratio - 4.542)).toBeLessThan(0.005);
+
+    // Exact unrounded linear channel values (transfer function output before rounding):
+    // #767676 (118/255): 0.181164
+    expect(Math.abs(mathCalibration.gray76Linear - 0.181164)).toBeLessThan(0.00001);
+    // #777777 (119/255): 0.184475
+    expect(Math.abs(mathCalibration.gray77Linear - 0.184475)).toBeLessThan(0.00001);
+    // #757575 (117/255): 0.177888
+    expect(Math.abs(mathCalibration.gray75Linear - 0.177888)).toBeLessThan(0.00001);
+
+    // Contrast assertions around 4.5:1 threshold:
+    expect(Math.abs(mathCalibration.gray76Ratio - 4.542)).toBeLessThan(0.002);
     expect(mathCalibration.gray76Ratio).toBeGreaterThanOrEqual(4.50);
-    expect(Math.abs(mathCalibration.gray77Ratio - 4.478)).toBeLessThan(0.005);
+    expect(Math.abs(mathCalibration.gray77Ratio - 4.478)).toBeLessThan(0.002);
     expect(mathCalibration.gray77Ratio).toBeLessThan(4.50);
-    expect(Math.abs(mathCalibration.gray75Ratio - 4.608)).toBeLessThan(0.005);
+    expect(Math.abs(mathCalibration.gray75Ratio - 4.608)).toBeLessThan(0.002);
     expect(mathCalibration.gray75Ratio).toBeGreaterThan(4.50);
 
     const passRate = (results.length - failures.length) / results.length;
@@ -757,6 +829,91 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
       return leaksFound;
     });
     expect(jsonInspection).toEqual([]);
+
+    // Strict Role-Scoped DTO Schema Projection & Unknown Field Rejection Test:
+    // Ensures internal psychometrics and unexpected properties never survive projection into student/parent DTOs
+    const mockRawWithMaliciousFields = {
+      domain: 'stem' as const,
+      domainTitle: 'STEM Diagnostic',
+      theta: 2.14,
+      se: 0.18,
+      standardError: 0.18,
+      fisherInfo: 14.2,
+      internal3PL: { a: 1.5, b: 0.2, c: 0.1 },
+      unexpectedTopLevel: 'malicious_leak',
+      subCompetencies: [
+        {
+          name: 'Calculus',
+          scoreRatio: 0.85,
+          qualitativeStatus: 'Secure',
+          evidenceNote: 'Demonstrated mastery',
+          hiddenTheta: 1.8,
+          unexpectedNestedProp: 'leak'
+        }
+      ],
+      identifiedMisconceptions: [
+        {
+          tag: 'volume_neglect',
+          label: 'Volume Neglect',
+          severity: 'critical',
+          frequency: 2,
+          pedagogicalRemedy: 'Physical cylinder drill',
+          restrictedInternalMeta: 'internal_only'
+        }
+      ],
+      actionableRoadmap: [
+        {
+          week: 1,
+          title: 'Week 1',
+          focusArea: 'Spatial Reasoning',
+          pedagogicalObjective: 'Objective 1',
+          recommendedActivities: ['Activity 1'],
+          primingQuestion: 'Question 1',
+          internalAuditToken: 'forbidden_token'
+        }
+      ]
+    };
+
+    const studentDto = toStudentBenchmarkReportDTO(mockRawWithMaliciousFields);
+    expect(studentDto).not.toBeNull();
+    if (studentDto) {
+      expect((studentDto as any).theta).toBeUndefined();
+      expect((studentDto as any).se).toBeUndefined();
+      expect((studentDto as any).standardError).toBeUndefined();
+      expect((studentDto as any).fisherInfo).toBeUndefined();
+      expect((studentDto as any).internal3PL).toBeUndefined();
+      expect((studentDto as any).unexpectedTopLevel).toBeUndefined();
+      expect((studentDto as any).globalComparison).toBeUndefined(); // Excluded from student DTO to avoid stereotype threat
+      expect((studentDto.subCompetencies[0] as any).hiddenTheta).toBeUndefined();
+      expect((studentDto.subCompetencies[0] as any).unexpectedNestedProp).toBeUndefined();
+      expect((studentDto.identifiedMisconceptions[0] as any).restrictedInternalMeta).toBeUndefined();
+      expect((studentDto.actionableRoadmap[0] as any).internalAuditToken).toBeUndefined();
+    }
+
+    const parentDto = toParentBenchmarkReportDTO(mockRawWithMaliciousFields);
+    expect(parentDto).not.toBeNull();
+    if (parentDto) {
+      expect((parentDto as any).theta).toBeUndefined();
+      expect((parentDto as any).se).toBeUndefined();
+      expect((parentDto as any).internal3PL).toBeUndefined();
+      expect((parentDto as any).unexpectedTopLevel).toBeUndefined();
+      expect(parentDto.globalComparison).toBeDefined();
+      expect(parentDto.psychometricNotice).toContain('Gate 4');
+    }
+
+    const evidenceDto = toSafeEvidenceDTO({
+      id: 'ev_1',
+      learnerId: 'lrn_1',
+      competencyId: 'comp_1',
+      activityScore: 92,
+      score: 92,
+      theta: 1.45,
+      itemParameters: { difficulty: 0.5 }
+    });
+    expect(evidenceDto.activityScore).toBe(92);
+    expect(evidenceDto.score).toBe(92);
+    expect((evidenceDto as any).theta).toBeUndefined();
+    expect((evidenceDto as any).itemParameters).toBeUndefined();
 
     // Test Domain Switcher
     const englishTab = page.locator('button:has-text("English & Communication")');

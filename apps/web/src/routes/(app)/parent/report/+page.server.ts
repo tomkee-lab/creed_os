@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { coreRepository } from '$lib/server/repository';
 import { resolveLearnerId } from '$lib/server/learnerScope';
-import { toSafeBenchmarkReportDTO, deepSanitizePsychometrics } from '$lib/server/psychometricDto';
+import { toParentBenchmarkReportDTO, deepSanitizePsychometrics } from '$lib/server/psychometricDto';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const learnerId = locals.user ? resolveLearnerId(locals.user) : null;
@@ -23,11 +23,11 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   };
 
   const safeReports = rawReports
-    .map(toSafeBenchmarkReportDTO)
+    .map(toParentBenchmarkReportDTO)
     .filter(Boolean)
     .map((r) => deepSanitizePsychometrics(r));
 
-  const safeActiveReport = deepSanitizePsychometrics(toSafeBenchmarkReportDTO(rawActiveReport));
+  const safeActiveReport = deepSanitizePsychometrics(toParentBenchmarkReportDTO(rawActiveReport));
 
   return {
     learner: sanitizeLearner(profile),
