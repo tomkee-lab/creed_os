@@ -2,6 +2,7 @@ import { redirect, error } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 import { coreRepository } from '$lib/server/repository';
 import { resolveLearnerId } from '$lib/server/learnerScope';
+import { toSafeLearnerProfileDTO, toSafeEvidenceDTO, deepSanitizePsychometrics } from '$lib/server/psychometricDto';
 
 export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
   const currentPath = url.pathname;
@@ -63,36 +64,25 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
     (requestedRole === 'student' && ['student', 'parent', 'teacher', 'counselor', 'admin'].includes(effectiveRole)) ||
     (requestedRole === 'parent' && ['parent', 'admin'].includes(effectiveRole));
 
-  const sanitizeEvidenceItem = (ev: any) => {
-    if (!ev) return ev;
-    if (ev.observedValue && typeof ev.observedValue === 'object') {
-      const { theta, standardError, se, ...safeObserved } = ev.observedValue;
-      return { ...ev, observedValue: safeObserved };
-    }
-    return ev;
-  };
-
   const scopedLearnerId = resolveLearnerId(user);
 
   const rawLearner = isStudentOrParentRoute && isVerifiedAccess && scopedLearnerId
     ? coreRepository.getLearnerProfile(scopedLearnerId, user)
     : null;
 
-  // Bifurcated Paradigm Security: Purge raw psychometric parameters (theta, standardError) from student/parent wire payload
-  const learner = rawLearner ? {
-    ...rawLearner,
-    recentEvidence: (rawLearner.recentEvidence || []).map(sanitizeEvidenceItem),
-    competencies: Object.fromEntries(
-      Object.entries(rawLearner.competencies || {}).map(([key, comp]: [string, any]) => {
-        const { theta, standardError, ...safeComp } = comp;
-        return [key, safeComp];
-      })
-    )
-  } : null;
+  // Bifurcated Paradigm Security: Construct role-specific allowlist DTO (zero psychometrics on student/parent wire)
+  const learner = rawLearner
+    ? deepSanitizePsychometrics(toSafeLearnerProfileDTO(rawLearner))
+    : null;
+
   const rawEvidence = isStudentOrParentRoute && isVerifiedAccess && learner
     ? coreRepository.getLearnerEvidence(learner.id)
     : null;
-  const evidence = rawEvidence ? rawEvidence.map(sanitizeEvidenceItem) : null;
+
+  const evidence = rawEvidence
+    ? deepSanitizePsychometrics(rawEvidence.map(toSafeEvidenceDTO))
+    : null;
+
   const pathways = isStudentOrParentRoute && isVerifiedAccess
     ? coreRepository.getPathways()
     : null;

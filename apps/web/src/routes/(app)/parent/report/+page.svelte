@@ -46,7 +46,7 @@
       <div class="flex items-center gap-2">
         <span class="text-[11px] font-semibold uppercase tracking-wider text-positive flex items-center gap-1">
           <ShieldCheck class="w-3.5 h-3.5" />
-          <span>Verified Parental Consent • Parent Portal</span>
+          <span>Parent Verification Recorded • Parent Portal</span>
         </span>
         <span class="text-xs text-muted">•</span>
         <span class="text-xs text-muted font-mono">{data.learner.fullName} ({data.learner.gradeBand})</span>

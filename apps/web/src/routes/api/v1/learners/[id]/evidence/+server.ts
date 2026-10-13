@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { coreRepository } from '$lib/server/repository';
 import { resolveLearnerId } from '$lib/server/learnerScope';
+import { toSafeEvidenceDTO } from '$lib/server/psychometricDto';
 
 export const GET: RequestHandler = async ({ params, locals }) => {
   // 1. Enforce active authentication
@@ -33,20 +34,25 @@ export const GET: RequestHandler = async ({ params, locals }) => {
   }
 
   const evidence = coreRepository.getLearnerEvidence(id);
+  const isMinorOrGuardian = ['student', 'parent'].includes(userRole);
+
+  const safeEvidence = isMinorOrGuardian
+    ? evidence.map(toSafeEvidenceDTO)
+    : evidence.map((e) => ({
+        id: e.id,
+        competency: e.competency,
+        strengthLevel: e.evidenceStrength,
+        sourceType: e.sourceType,
+        sourceName: e.sourceTitle,
+        observedAt: e.observedAt,
+        confidence: e.confidence,
+        summary: e.summary,
+        observedValue: e.observedValue
+      }));
 
   return json({
     learnerId: id,
-    evidenceCount: evidence.length,
-    evidence: evidence.map((e) => ({
-      id: e.id,
-      competency: e.competency,
-      strengthLevel: e.evidenceStrength,
-      sourceType: e.sourceType,
-      sourceName: e.sourceTitle,
-      observedAt: e.observedAt,
-      confidence: e.confidence,
-      summary: e.summary,
-      observedValue: e.observedValue
-    }))
+    evidenceCount: safeEvidence.length,
+    evidence: safeEvidence
   });
 };

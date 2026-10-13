@@ -280,15 +280,65 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
     // Virtual Keyboard Simulation (Height reduced to 340px)
     await page.setViewportSize({ width: 375, height: 340 });
     await page.waitForTimeout(300);
-    await expect(header).toBeVisible();
-    await expect(verifyBtn).toBeVisible();
+
+    // Measure layout viewport, visual viewport, and scroll state
+    const keyboardTelemetry = await page.evaluate(() => {
+      const headerEl = document.querySelector('header.min-h-12');
+      const verifyBtnEl = headerEl ? Array.from(headerEl.querySelectorAll('button')).find(b => b.textContent?.includes('Verify')) : null;
+      const verifyRect = verifyBtnEl ? verifyBtnEl.getBoundingClientRect() : null;
+
+      return {
+        windowInnerWidth: window.innerWidth,
+        windowInnerHeight: window.innerHeight,
+        visualViewportHeight: window.visualViewport ? window.visualViewport.height : window.innerHeight,
+        scrollY: window.scrollY,
+        documentScrollHeight: document.documentElement.scrollHeight,
+        documentClientHeight: document.documentElement.clientHeight,
+        unscrolledVerifyRect: verifyRect ? {
+          x: verifyRect.x,
+          y: verifyRect.y,
+          w: verifyRect.width,
+          h: verifyRect.height,
+          bottom: verifyRect.bottom
+        } : null
+      };
+    });
+    console.log('=== MOBILE KEYBOARD TELEMETRY (375x340) ===', JSON.stringify(keyboardTelemetry, null, 2));
+
+    // In unscrolled page flow (scrollY = 0), the IDE container begins at document Y ~288px.
+    // In a compressed 340px viewport, test the documented reachability mechanism:
+    // scrolling the active control into the visual viewport.
+    await verifyBtn.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(200);
+
+    const scrolledVerifyBox = await verifyBtn.boundingBox();
+    expect(scrolledVerifyBox).not.toBeNull();
+    if (scrolledVerifyBox) {
+      // When scrolled into view, Verify button is fully contained within the 375x340 viewport
+      expect(scrolledVerifyBox.x + scrolledVerifyBox.width).toBeLessThanOrEqual(375);
+      expect(scrolledVerifyBox.y).toBeGreaterThanOrEqual(0);
+      expect(scrolledVerifyBox.y + scrolledVerifyBox.height).toBeLessThanOrEqual(340);
+    }
+
+    // Verify pointer activation succeeds
+    await verifyBtn.click();
+    await page.waitForTimeout(300);
+
+    // Verify keyboard activation (focus + Enter) succeeds
+    await verifyBtn.focus();
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(300);
+
     // Verify switching to Code mode remains operable under keyboard compression
     await codeBtn.click();
     await page.waitForTimeout(300);
     await expect(codeContainer).toBeVisible();
+
     // Switch cleanly back to Blocks mode
     await blocksBtn.click();
     await page.waitForTimeout(300);
+    await expect(header).toBeVisible();
+
     // Restore standard mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
     await page.waitForTimeout(300);
@@ -449,6 +499,51 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
     if (failures.length > 0) {
       console.log('FAILING SAMPLES:', JSON.stringify(failures.slice(0, 10), null, 2));
     }
+    // Exact unrounded mathematical calibration benchmarks
+    const mathCalibration = await page.evaluate(() => {
+      function sRGBtoLinear(c: number): number {
+        return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+      }
+      function getLuminance(r: number, g: number, b: number): number {
+        return 0.2126 * sRGBtoLinear(r / 255) + 0.7152 * sRGBtoLinear(g / 255) + 0.0722 * sRGBtoLinear(b / 255);
+      }
+      function getRatio(l1: number, l2: number): number {
+        const lighter = Math.max(l1, l2);
+        const darker = Math.min(l1, l2);
+        return (lighter + 0.05) / (darker + 0.05);
+      }
+
+      const whiteL = getLuminance(255, 255, 255); // 1.0
+      const blackL = getLuminance(0, 0, 0);       // 0.0
+      const whiteBlackRatio = getRatio(whiteL, blackL); // exactly 21.0
+
+      // #767676 (118/255)
+      const gray76L = getLuminance(118, 118, 118);
+      const gray76Ratio = getRatio(whiteL, gray76L); // ~4.542
+
+      // Sub-threshold boundary: #777777 (119/255)
+      const gray77L = getLuminance(119, 119, 119);
+      const gray77Ratio = getRatio(whiteL, gray77L); // ~4.472 (< 4.5)
+
+      // Generous boundary: #757575 (117/255)
+      const gray75L = getLuminance(117, 117, 117);
+      const gray75Ratio = getRatio(whiteL, gray75L); // ~4.614 (> 4.5)
+
+      return {
+        whiteBlackRatio,
+        gray76Linear: sRGBtoLinear(118 / 255),
+        gray76Ratio,
+        gray77Ratio,
+        gray75Ratio
+      };
+    });
+
+    expect(Math.abs(mathCalibration.whiteBlackRatio - 21.0)).toBeLessThan(0.001);
+    expect(Math.abs(mathCalibration.gray76Ratio - 4.542)).toBeLessThan(0.005);
+    expect(mathCalibration.gray76Ratio).toBeGreaterThanOrEqual(4.50);
+    expect(mathCalibration.gray77Ratio).toBeLessThan(4.50);
+    expect(mathCalibration.gray75Ratio).toBeGreaterThan(4.50);
+
     const passRate = (results.length - failures.length) / results.length;
     console.log(`Measured WCAG AA Compliance Rate: ${(passRate * 100).toFixed(1)}%`);
     expect(passRate).toBeGreaterThanOrEqual(0.95);
@@ -549,8 +644,8 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
     await expect(parentHeading).toBeVisible();
     await expect(parentHeading).toContainText('Family Diagnostic Guide & International Standing');
 
-    // Verify Non-Misleading Parent Trust Badge
-    await expect(page.locator('text=Verified Parental Consent • Parent Portal')).toBeVisible();
+    // Verify Non-Misleading Parent Trust Badge (truthful domain-state copy)
+    await expect(page.locator('text=Parent Verification Recorded • Parent Portal')).toBeVisible();
 
     // Verify Level 1 Signal: Developmental Summary for Parents
     await expect(page.locator('text=Developmental Summary for Parents')).toBeVisible();
@@ -570,6 +665,59 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
     expect(pageHtml).not.toMatch(/\bdiscrimination_a\b/i);
     expect(pageHtml).not.toMatch(/\bdifficulty_b\b/i);
     expect(pageHtml).not.toMatch(/\bguessing_c\b/i);
+
+    // Structured JSON Hydration Payload Inspection:
+    // Recursively parse and inspect every property in serialized script tags and client stores
+    const jsonInspection = await page.evaluate(() => {
+      const forbiddenTerms = [
+        'theta',
+        'standarderror',
+        'standard_error',
+        'se',
+        '3pl',
+        'fisher',
+        'fisherinfo',
+        'fisher_info',
+        'discrimination',
+        'difficulty',
+        'guessing'
+      ];
+      const leaksFound: string[] = [];
+
+      function checkObject(obj: any, path: string) {
+        if (!obj || typeof obj !== 'object') return;
+        if (Array.isArray(obj)) {
+          obj.forEach((item, idx) => checkObject(item, `${path}[${idx}]`));
+          return;
+        }
+        for (const [key, val] of Object.entries(obj)) {
+          const lowerKey = key.toLowerCase();
+          for (const term of forbiddenTerms) {
+            if (lowerKey === term) {
+              leaksFound.push(`Key '${key}' at path '${path}.${key}' matched forbidden term '${term}'`);
+            }
+          }
+          checkObject(val, `${path}.${key}`);
+        }
+      }
+
+      // Check all application/json script tags (SvelteKit hydration payloads)
+      const scriptTags = Array.from(document.querySelectorAll('script[type="application/json"], script[data-sveltekit-fetched]'));
+      for (const script of scriptTags) {
+        try {
+          const parsed = JSON.parse(script.textContent || '');
+          checkObject(parsed, 'script_json');
+        } catch {}
+      }
+
+      // Check window data structures if present
+      if ((window as any).__sveltekit_data) {
+        checkObject((window as any).__sveltekit_data, '__sveltekit_data');
+      }
+
+      return leaksFound;
+    });
+    expect(jsonInspection).toEqual([]);
 
     // Test Domain Switcher
     const englishTab = page.locator('button:has-text("English & Communication")');

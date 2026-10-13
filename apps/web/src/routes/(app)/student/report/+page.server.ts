@@ -2,6 +2,11 @@ import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { coreRepository } from '$lib/server/repository';
 import { resolveLearnerId } from '$lib/server/learnerScope';
+import {
+  toSafeBenchmarkReportDTO,
+  toSafeLearnerProfileDTO,
+  deepSanitizePsychometrics
+} from '$lib/server/psychometricDto';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const learnerId = locals.user ? resolveLearnerId(locals.user) : null;
@@ -10,14 +15,25 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   }
 
   const profile = coreRepository.getLearnerProfile(learnerId);
-  const reports = coreRepository.getBenchmarkReports(learnerId);
+  const rawReports = coreRepository.getBenchmarkReports(learnerId);
   const selectedDomain = (url.searchParams.get('domain') || 'stem') as 'stem' | 'english' | 'robotics';
-  const activeReport = coreRepository.getBenchmarkReport(learnerId, selectedDomain) || reports[0] || null;
+  const rawActiveReport = coreRepository.getBenchmarkReport(learnerId, selectedDomain) || rawReports[0] || null;
+
+  const safeLearner = profile
+    ? deepSanitizePsychometrics(toSafeLearnerProfileDTO(profile))
+    : null;
+
+  const safeReports = rawReports
+    .map(toSafeBenchmarkReportDTO)
+    .filter(Boolean)
+    .map((r) => deepSanitizePsychometrics(r));
+
+  const safeActiveReport = deepSanitizePsychometrics(toSafeBenchmarkReportDTO(rawActiveReport));
 
   return {
-    learner: profile,
-    reports,
-    activeReport,
+    learner: safeLearner,
+    reports: safeReports,
+    activeReport: safeActiveReport,
     selectedDomain
   };
 };

@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { coreRepository } from '$lib/server/repository';
 import { resolveLearnerId } from '$lib/server/learnerScope';
+import { toSafeCompetencyDTO } from '$lib/server/psychometricDto';
 
 export const GET: RequestHandler = async ({ params, locals }) => {
   // 1. Enforce active authentication
@@ -61,6 +62,16 @@ export const GET: RequestHandler = async ({ params, locals }) => {
     };
   });
 
+  const isMinorOrGuardian = ['student', 'parent'].includes(userRole);
+  const safeCompetencies = isMinorOrGuardian
+    ? Object.fromEntries(
+        Object.entries(learner.competencies || {}).map(([key, comp]: [string, any]) => [
+          key,
+          toSafeCompetencyDTO(key, comp)
+        ])
+      )
+    : learner.competencies;
+
   return json({
     learnerId: learner.id,
     name: learner.fullName,
@@ -68,7 +79,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
     grade: 8,
     gradeBand: learner.gradeBand,
     schoolName: learner.schoolName,
-    competencies: learner.competencies,
+    competencies: safeCompetencies,
     topPathways
   });
 };
