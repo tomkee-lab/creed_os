@@ -10,14 +10,27 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   }
 
   const profile = coreRepository.getLearnerProfile(learnerId);
-  const reports = coreRepository.getBenchmarkReports(learnerId);
+  const rawReports = coreRepository.getBenchmarkReports(learnerId);
   const selectedDomain = (url.searchParams.get('domain') || 'stem') as 'stem' | 'english' | 'robotics';
-  const activeReport = coreRepository.getBenchmarkReport(learnerId, selectedDomain) || reports[0] || null;
+  const rawActiveReport = coreRepository.getBenchmarkReport(learnerId, selectedDomain) || rawReports[0] || null;
+
+  // Enforce zero psychometric leaks on wire: purge raw theta and SE parameters from client hydration payload
+  const sanitizeReport = (report: any) => {
+    if (!report) return null;
+    const { theta, se, ...safe } = report;
+    return safe;
+  };
+
+  const sanitizeLearner = (learner: any) => {
+    if (!learner) return null;
+    const { competencies, recentEvidence, ...safe } = learner;
+    return safe;
+  };
 
   return {
-    learner: profile,
-    reports,
-    activeReport,
+    learner: sanitizeLearner(profile),
+    reports: rawReports.map(sanitizeReport),
+    activeReport: sanitizeReport(rawActiveReport),
     selectedDomain
   };
 };

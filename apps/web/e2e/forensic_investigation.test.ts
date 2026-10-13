@@ -170,14 +170,9 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
     const missionBtn = page.locator('button[aria-label="Select Robotics Mission"]');
     await expect(missionBtn).toBeVisible();
 
-    // 1. Mouse Opening (resilient to hydration timing)
+    // 1. Mouse Opening
     await missionBtn.click();
-    await page.waitForTimeout(300);
     const missionMenu = page.locator('div[role="menu"]').first();
-    if (!await missionMenu.isVisible()) {
-      await missionBtn.click();
-      await page.waitForTimeout(200);
-    }
     await expect(missionMenu).toBeVisible();
 
     // 2. Click INSIDE the menu container (propagation stopped -> remains open)
@@ -211,6 +206,32 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
     await page.keyboard.press('Escape');
     await page.waitForTimeout(200);
     await expect(projectMenu).not.toBeVisible();
+
+    // 6. Test Escape priority in Fullscreen Studio Mode:
+    // Enter Fullscreen mode
+    const fullscreenToggle = page.locator('button:has-text("Fullscreen Studio ↗"), button[title*="fullscreen"], button[aria-label*="fullscreen"]').first();
+    if (await fullscreenToggle.isVisible()) {
+      await fullscreenToggle.click();
+      await page.waitForTimeout(300);
+      const fullscreenContainer = page.locator('div.fixed.inset-0.z-50');
+      await expect(fullscreenContainer).toBeVisible();
+
+      // Open mission dropdown inside fullscreen
+      await missionBtn.click();
+      await page.waitForTimeout(200);
+      await expect(missionMenu).toBeVisible();
+
+      // Press Escape -> MUST close dropdown, MUST retain fullscreen!
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(200);
+      await expect(missionMenu).not.toBeVisible();
+      await expect(fullscreenContainer).toBeVisible(); // Fullscreen is retained!
+
+      // Press Escape again -> MUST exit fullscreen!
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(200);
+      await expect(fullscreenContainer).not.toBeVisible();
+    }
   });
 
   test('Mobile IDE (375px) End-to-End Mission Workflow & Usability', async ({ page }) => {
@@ -255,6 +276,22 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
     // Click Verify button and assert no crash
     await verifyBtn.click();
     await page.waitForTimeout(600);
+
+    // Virtual Keyboard Simulation (Height reduced to 340px)
+    await page.setViewportSize({ width: 375, height: 340 });
+    await page.waitForTimeout(300);
+    await expect(header).toBeVisible();
+    await expect(verifyBtn).toBeVisible();
+    // Verify switching to Code mode remains operable under keyboard compression
+    await codeBtn.click();
+    await page.waitForTimeout(300);
+    await expect(codeContainer).toBeVisible();
+    // Switch cleanly back to Blocks mode
+    await blocksBtn.click();
+    await page.waitForTimeout(300);
+    // Restore standard mobile viewport
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.waitForTimeout(300);
 
     // Document must have zero horizontal overflow throughout mobile workflow
     const hasHorizontalOverflow = await page.evaluate(() => {
@@ -512,19 +549,27 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
     await expect(parentHeading).toBeVisible();
     await expect(parentHeading).toContainText('Family Diagnostic Guide & International Standing');
 
-    // Verify DPDP trust badge
-    await expect(page.locator('text=DPDP Act Verified • Parent Portal')).toBeVisible();
+    // Verify Non-Misleading Parent Trust Badge
+    await expect(page.locator('text=Verified Parental Consent • Parent Portal')).toBeVisible();
 
     // Verify Level 1 Signal: Developmental Summary for Parents
     await expect(page.locator('text=Developmental Summary for Parents')).toBeVisible();
 
-    // Verify ZERO raw psychometric leaks on parent route
+    // Deep Psychometric Privacy Regression (Visible DOM text, accessibility content, and innerHTML)
     const pageText = await page.evaluate(() => document.body.innerText);
     expect(pageText).not.toMatch(/\btheta\b/i);
     expect(pageText).not.toMatch(/θ/);
     expect(pageText).not.toMatch(/\bFisher Information\b/i);
     expect(pageText).not.toMatch(/3PL/i);
     expect(pageText).not.toMatch(/SE\s*=\s*\d/);
+
+    const pageHtml = await page.evaluate(() => document.body.innerHTML);
+    expect(pageHtml).not.toMatch(/\btheta\b/i);
+    expect(pageHtml).not.toMatch(/θ/);
+    expect(pageHtml).not.toMatch(/\bfisher_info\b/i);
+    expect(pageHtml).not.toMatch(/\bdiscrimination_a\b/i);
+    expect(pageHtml).not.toMatch(/\bdifficulty_b\b/i);
+    expect(pageHtml).not.toMatch(/\bguessing_c\b/i);
 
     // Test Domain Switcher
     const englishTab = page.locator('button:has-text("English & Communication")');

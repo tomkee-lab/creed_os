@@ -360,7 +360,6 @@
   let evidenceSubmitted = $state(false);
   let autosaveTimer: any = null;
   let handleWindowResize: (() => void) | null = null;
-  let handleKeyDown: ((e: KeyboardEvent) => void) | null = null;
 
   // Modular Extensions & Scratch Importer State
   let showExtensionDrawer = $state(false);
@@ -439,6 +438,19 @@
   let showTemplateDropdown = $state(false);
   let activeTemplateLabel = $state('Wall-Follower 📡');
   let showComplianceModal = $state(false);
+  let lastDropdownTrigger: HTMLElement | null = null;
+
+  function dismissDropdowns(restoreFocus = true) {
+    const wasOpen = showMissionDropdown || showProjectDropdown || showHardwareDropdown || showTemplateDropdown;
+    showMissionDropdown = false;
+    showProjectDropdown = false;
+    showHardwareDropdown = false;
+    showTemplateDropdown = false;
+    if (wasOpen && restoreFocus && lastDropdownTrigger) {
+      lastDropdownTrigger.focus();
+      lastDropdownTrigger = null;
+    }
+  }
 
   // Guided Missions List & Active Metadata
   const missionsList = [
@@ -1535,13 +1547,6 @@
     };
     window.addEventListener('resize', handleWindowResize);
 
-    handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isFullscreen) {
-        closeStudio();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-
 
     // Continuous responsive layout observer for smooth container transitions
     if (typeof ResizeObserver !== 'undefined') {
@@ -1630,9 +1635,6 @@
     }
     if (handleWindowResize && typeof window !== 'undefined') {
       window.removeEventListener('resize', handleWindowResize);
-    }
-    if (handleKeyDown && typeof window !== 'undefined') {
-      window.removeEventListener('keydown', handleKeyDown);
     }
     if (ideResizeObserver) {
       ideResizeObserver.disconnect();
@@ -1881,20 +1883,27 @@
 <svelte:window
   onkeydown={(e) => {
     if (e.key === 'Escape') {
-      showMissionDropdown = false;
-      showProjectDropdown = false;
-      showHardwareDropdown = false;
-      showTemplateDropdown = false;
-      if (isFullscreen) closeStudio();
+      // 1. Highest priority: dismiss modal dialog if open
+      if (showComplianceModal) {
+        showComplianceModal = false;
+        return;
+      }
+      // 2. Second priority: dismiss active dropdown menu and restore focus to trigger
+      const anyDropdownOpen = showMissionDropdown || showProjectDropdown || showHardwareDropdown || showTemplateDropdown;
+      if (anyDropdownOpen) {
+        dismissDropdowns(true);
+        return;
+      }
+      // 3. Lowest priority: exit fullscreen studio mode if no overlays or menus are open
+      if (isFullscreen) {
+        closeStudio();
+      }
     }
   }}
   onclick={(e) => {
     const target = e.target as HTMLElement | null;
     if (target?.closest('header.min-h-12')) return;
-    showMissionDropdown = false;
-    showProjectDropdown = false;
-    showHardwareDropdown = false;
-    showTemplateDropdown = false;
+    dismissDropdowns(false);
   }}
 />
 
@@ -1933,6 +1942,7 @@
         <button
           onclick={(e) => {
             e.stopPropagation();
+            lastDropdownTrigger = e.currentTarget as HTMLElement;
             showMissionDropdown = !showMissionDropdown;
             showProjectDropdown = false;
             showHardwareDropdown = false;
@@ -1953,7 +1963,7 @@
         {#if showMissionDropdown}
           <div
             onclick={(e) => e.stopPropagation()}
-            onkeydown={(e) => { e.stopPropagation(); if (e.key === 'Escape') showMissionDropdown = false; }}
+            onkeydown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); dismissDropdowns(true); } }}
             tabindex="-1"
             class="absolute left-0 top-full mt-1 w-72 bg-surface border border-border shadow-lg rounded-sm z-50 py-1 text-xs font-mono animate-in fade-in-0 zoom-in-95 duration-100"
             role="menu"
@@ -2075,6 +2085,7 @@
           <button
             onclick={(e) => {
               e.stopPropagation();
+              lastDropdownTrigger = e.currentTarget as HTMLElement;
               showTemplateDropdown = !showTemplateDropdown;
               showMissionDropdown = false;
               showProjectDropdown = false;
@@ -2093,7 +2104,7 @@
           {#if showTemplateDropdown}
             <div
               onclick={(e) => e.stopPropagation()}
-              onkeydown={(e) => { e.stopPropagation(); if (e.key === 'Escape') showTemplateDropdown = false; }}
+              onkeydown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); dismissDropdowns(true); } }}
               tabindex="-1"
               class="absolute left-0 top-full mt-1 w-64 bg-surface border border-border shadow-xl rounded-sm z-50 divide-y divide-border font-mono text-xs animate-in fade-in-0 zoom-in-95 duration-100"
               role="menu"
@@ -2160,6 +2171,7 @@
         <button
           onclick={(e) => {
             e.stopPropagation();
+            lastDropdownTrigger = e.currentTarget as HTMLElement;
             showHardwareDropdown = !showHardwareDropdown;
             showMissionDropdown = false;
             showProjectDropdown = false;
@@ -2177,7 +2189,7 @@
         {#if showHardwareDropdown}
           <div
             onclick={(e) => e.stopPropagation()}
-            onkeydown={(e) => { e.stopPropagation(); if (e.key === 'Escape') showHardwareDropdown = false; }}
+            onkeydown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); dismissDropdowns(true); } }}
             tabindex="-1"
             class="absolute right-0 top-full mt-1 w-56 bg-surface border border-border shadow-lg rounded-sm z-50 py-1 text-xs font-mono animate-in fade-in-0 zoom-in-95 duration-100"
             role="menu"
@@ -2233,6 +2245,7 @@
         <button
           onclick={(e) => {
             e.stopPropagation();
+            lastDropdownTrigger = e.currentTarget as HTMLElement;
             showProjectDropdown = !showProjectDropdown;
             showMissionDropdown = false;
             showHardwareDropdown = false;
@@ -2250,7 +2263,7 @@
         {#if showProjectDropdown}
           <div
             onclick={(e) => e.stopPropagation()}
-            onkeydown={(e) => { e.stopPropagation(); if (e.key === 'Escape') showProjectDropdown = false; }}
+            onkeydown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); dismissDropdowns(true); } }}
             tabindex="-1"
             class="absolute right-0 top-full mt-1 w-56 bg-surface border border-border shadow-lg rounded-sm z-50 py-1 text-xs font-mono animate-in fade-in-0 zoom-in-95 duration-100"
             role="menu"

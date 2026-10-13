@@ -63,14 +63,36 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
     (requestedRole === 'student' && ['student', 'parent', 'teacher', 'counselor', 'admin'].includes(effectiveRole)) ||
     (requestedRole === 'parent' && ['parent', 'admin'].includes(effectiveRole));
 
+  const sanitizeEvidenceItem = (ev: any) => {
+    if (!ev) return ev;
+    if (ev.observedValue && typeof ev.observedValue === 'object') {
+      const { theta, standardError, se, ...safeObserved } = ev.observedValue;
+      return { ...ev, observedValue: safeObserved };
+    }
+    return ev;
+  };
+
   const scopedLearnerId = resolveLearnerId(user);
 
-  const learner = isStudentOrParentRoute && isVerifiedAccess && scopedLearnerId
+  const rawLearner = isStudentOrParentRoute && isVerifiedAccess && scopedLearnerId
     ? coreRepository.getLearnerProfile(scopedLearnerId, user)
     : null;
-  const evidence = isStudentOrParentRoute && isVerifiedAccess && learner
+
+  // Bifurcated Paradigm Security: Purge raw psychometric parameters (theta, standardError) from student/parent wire payload
+  const learner = rawLearner ? {
+    ...rawLearner,
+    recentEvidence: (rawLearner.recentEvidence || []).map(sanitizeEvidenceItem),
+    competencies: Object.fromEntries(
+      Object.entries(rawLearner.competencies || {}).map(([key, comp]: [string, any]) => {
+        const { theta, standardError, ...safeComp } = comp;
+        return [key, safeComp];
+      })
+    )
+  } : null;
+  const rawEvidence = isStudentOrParentRoute && isVerifiedAccess && learner
     ? coreRepository.getLearnerEvidence(learner.id)
     : null;
+  const evidence = rawEvidence ? rawEvidence.map(sanitizeEvidenceItem) : null;
   const pathways = isStudentOrParentRoute && isVerifiedAccess
     ? coreRepository.getPathways()
     : null;
