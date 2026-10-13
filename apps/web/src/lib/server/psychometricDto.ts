@@ -61,6 +61,13 @@ export interface SafeLearnerProfileDTO {
   updatedAt: string;
 }
 
+/** Recipient-specific DTO: Minor learner self-reflection view */
+export type StudentSelfProfileDTO = SafeLearnerProfileDTO;
+
+/** Recipient-specific DTO: Verified parent diagnostic guide view */
+export type ParentLearnerSummaryDTO = SafeLearnerProfileDTO;
+
+/** Recipient-specific DTO: Educational benchmark report for families */
 export interface SafeBenchmarkReportDTO {
   domain: BenchmarkDomain;
   domainTitle: string;
@@ -81,6 +88,8 @@ export interface SafeBenchmarkReportDTO {
   actionableRoadmap: any[];
   generatedAt: string;
 }
+
+export type ParentBenchmarkReportDTO = SafeBenchmarkReportDTO;
 
 /**
  * Maps an evidence item using an explicit allowlist.

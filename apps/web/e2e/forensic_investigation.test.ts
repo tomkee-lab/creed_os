@@ -307,20 +307,42 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
 
     // In unscrolled page flow (scrollY = 0), the IDE container begins at document Y ~288px.
     // In a compressed 340px viewport, test the documented reachability mechanism:
-    // scrolling the active control into the visual viewport.
-    await verifyBtn.scrollIntoViewIfNeeded();
+    // user-driven realistic scrolling (via touch/wheel or keyboard navigation) rather than programmatic locator helper.
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(100);
+
+    // Realistic user scroll gesture: scroll down by 150px to bring the IDE toolbar into comfortable interaction view
+    await page.evaluate(() => window.scrollBy(0, 150));
     await page.waitForTimeout(200);
+
+    const postScrollTelemetry = await page.evaluate(() => {
+      const headerEl = document.querySelector('header.min-h-12');
+      const verifyBtnEl = headerEl ? Array.from(headerEl.querySelectorAll('button')).find(b => b.textContent?.includes('Verify')) : null;
+      const verifyRect = verifyBtnEl ? verifyBtnEl.getBoundingClientRect() : null;
+
+      return {
+        scrollY: window.scrollY,
+        verifyRect: verifyRect ? {
+          x: verifyRect.x,
+          y: verifyRect.y,
+          w: verifyRect.width,
+          h: verifyRect.height,
+          bottom: verifyRect.bottom
+        } : null
+      };
+    });
+    console.log('=== USER-SCROLLED KEYBOARD TELEMETRY (scrollY=150) ===', JSON.stringify(postScrollTelemetry, null, 2));
 
     const scrolledVerifyBox = await verifyBtn.boundingBox();
     expect(scrolledVerifyBox).not.toBeNull();
     if (scrolledVerifyBox) {
-      // When scrolled into view, Verify button is fully contained within the 375x340 viewport
+      // When scrolled by user, Verify button is fully contained within the 375x340 viewport
       expect(scrolledVerifyBox.x + scrolledVerifyBox.width).toBeLessThanOrEqual(375);
       expect(scrolledVerifyBox.y).toBeGreaterThanOrEqual(0);
       expect(scrolledVerifyBox.y + scrolledVerifyBox.height).toBeLessThanOrEqual(340);
     }
 
-    // Verify pointer activation succeeds
+    // Verify pointer activation succeeds at the user-scrolled position
     await verifyBtn.click();
     await page.waitForTimeout(300);
 
@@ -338,6 +360,21 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
     await blocksBtn.click();
     await page.waitForTimeout(300);
     await expect(header).toBeVisible();
+
+    // Verify Fullscreen Studio mode behavior under 375x340:
+    // In Fullscreen mode, header is pinned at Y=0, so button is immediately reachable without any document scroll
+    const fullscreenToggle = page.locator('button[aria-label="Expand studio to full screen"]').first();
+    if (await fullscreenToggle.isVisible()) {
+      await fullscreenToggle.click();
+      await page.waitForTimeout(300);
+      const fsVerifyBox = await verifyBtn.boundingBox();
+      if (fsVerifyBox) {
+        expect(fsVerifyBox.y).toBeGreaterThanOrEqual(0);
+        expect(fsVerifyBox.y + fsVerifyBox.height).toBeLessThanOrEqual(340);
+      }
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
+    }
 
     // Restore standard mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
@@ -523,11 +560,11 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
 
       // Sub-threshold boundary: #777777 (119/255)
       const gray77L = getLuminance(119, 119, 119);
-      const gray77Ratio = getRatio(whiteL, gray77L); // ~4.472 (< 4.5)
+      const gray77Ratio = getRatio(whiteL, gray77L); // ~4.478 (< 4.5)
 
       // Generous boundary: #757575 (117/255)
       const gray75L = getLuminance(117, 117, 117);
-      const gray75Ratio = getRatio(whiteL, gray75L); // ~4.614 (> 4.5)
+      const gray75Ratio = getRatio(whiteL, gray75L); // ~4.608 (> 4.5)
 
       return {
         whiteBlackRatio,
@@ -541,7 +578,9 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
     expect(Math.abs(mathCalibration.whiteBlackRatio - 21.0)).toBeLessThan(0.001);
     expect(Math.abs(mathCalibration.gray76Ratio - 4.542)).toBeLessThan(0.005);
     expect(mathCalibration.gray76Ratio).toBeGreaterThanOrEqual(4.50);
+    expect(Math.abs(mathCalibration.gray77Ratio - 4.478)).toBeLessThan(0.005);
     expect(mathCalibration.gray77Ratio).toBeLessThan(4.50);
+    expect(Math.abs(mathCalibration.gray75Ratio - 4.608)).toBeLessThan(0.005);
     expect(mathCalibration.gray75Ratio).toBeGreaterThan(4.50);
 
     const passRate = (results.length - failures.length) / results.length;

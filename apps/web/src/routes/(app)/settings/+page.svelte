@@ -120,10 +120,10 @@
         <div class="space-y-2 max-w-xl">
           <div class="flex items-center gap-2">
             <ShieldCheck class="w-4 h-4 text-positive shrink-0" />
-            <span class="text-xs font-semibold text-foreground">Statutory Parental Consent Status</span>
+            <span class="text-xs font-semibold text-foreground">Parental Verification Record</span>
           </div>
           <p class="text-xs text-foreground-secondary leading-relaxed">
-            Parental consent record registered under Digital Personal Data Protection Act (DPDP) 2023 Section 9. Guardian contact channel authenticated via secure SMS OTP challenge.
+            Guardian verification record registered in accordance with DPDP operational workflows. Guardian contact channel authenticated via secure SMS OTP challenge.
           </p>
           <div class="text-[11px] text-foreground-muted font-sans bg-surface-subtle p-2 border border-border rounded-xs space-y-1">
             <div class="flex items-center justify-between font-mono text-[10px] text-ink-secondary">
@@ -134,7 +134,7 @@
               <strong>Workflow State:</strong> VERIFIED_ACTIVE · Valid through 14 Sep 2027
             </div>
             <p class="text-[10px] text-foreground-muted italic">
-              Notice: Channel OTP verifies communication delivery and contact reachability; statutory legal sufficiency relies on the registered guardian consent declaration.
+              Technical Notice: OTP verification was completed and recorded on file. This status confirms technical verification only and does not establish statutory legal sufficiency. Formal legal review remains pending under Gate 3.
             </p>
           </div>
         </div>
