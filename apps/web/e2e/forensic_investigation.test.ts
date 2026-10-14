@@ -1203,6 +1203,41 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
     });
     expect(expiredParentG4?.globalComparison).toBeUndefined(); // Withheld when consent is expired
 
+    // Case C: Missing consent guardian identity (record.guardianId is absent/undefined)
+    // Restore active consent, but simulate a record missing the guardianId field
+    coreRepository.restoreConsent('3fa85f64-5717-4562-b3fc-2c963f66afa6', 'parent_1');
+    const consentRecord = coreRepository.getConsentRecord('3fa85f64-5717-4562-b3fc-2c963f66afa6');
+    expect(consentRecord).toBeDefined();
+    if (consentRecord) {
+      const backupGuardianId = consentRecord.guardianId;
+      delete (consentRecord as any).guardianId;
+
+      // Invariant: Unconditional identity-to-consent binding requires record.guardianId to be present and match
+      // Even though registered relationship exists for parent_1 and status is VERIFIED_ACTIVE, missing guardianId must reject
+      expect(coreRepository.isVerifiedGuardianForLearner('parent_1', '3fa85f64-5717-4562-b3fc-2c963f66afa6')).toBe(false);
+      const missingGuardianG4 = toParentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+        enableGate4Outputs: true,
+        approvedFields: ['globalComparison'],
+        isVerifiedGuardian: coreRepository.isVerifiedGuardianForLearner('parent_1', '3fa85f64-5717-4562-b3fc-2c963f66afa6')
+      });
+      expect(missingGuardianG4?.globalComparison).toBeUndefined(); // Denied when guardianId is absent on consent record
+
+      // Case D: Conflicting consent guardian identity (record.guardianId points to a different guardian)
+      // Even though registered relationship exists for parent_1, conflicting record.guardianId must reject
+      consentRecord.guardianId = 'conflicting_guardian_99';
+      expect(coreRepository.isVerifiedGuardianForLearner('parent_1', '3fa85f64-5717-4562-b3fc-2c963f66afa6')).toBe(false);
+      const conflictingGuardianG4 = toParentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+        enableGate4Outputs: true,
+        approvedFields: ['globalComparison'],
+        isVerifiedGuardian: coreRepository.isVerifiedGuardianForLearner('parent_1', '3fa85f64-5717-4562-b3fc-2c963f66afa6')
+      });
+      expect(conflictingGuardianG4?.globalComparison).toBeUndefined(); // Denied when guardianId mismatches
+
+      // Restore legitimate guardian identity
+      consentRecord.guardianId = backupGuardianId;
+      expect(coreRepository.isVerifiedGuardianForLearner('parent_1', '3fa85f64-5717-4562-b3fc-2c963f66afa6')).toBe(true);
+    }
+
     // Restore clean consent state for subsequent tests
     coreRepository.restoreConsent('3fa85f64-5717-4562-b3fc-2c963f66afa6', 'parent_1');
     expect(coreRepository.isVerifiedGuardianForLearner('parent_1', '3fa85f64-5717-4562-b3fc-2c963f66afa6')).toBe(true);

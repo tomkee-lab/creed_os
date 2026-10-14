@@ -1445,14 +1445,15 @@ class LocalCoreRepository {
     // 3. Verify consent lifecycle is strictly active (not withdrawn, expired, or pending notice)
     if (!isConsentActive(record)) return false;
 
-    // 4. Verify identity-to-consent binding:
-    // If the consent record specifies a guardianId, it MUST match the authenticated guardian identity
-    if (record.guardianId && record.guardianId !== guardianId) {
+    // 4. Verify identity-to-consent binding unconditionally:
+    // The consent record MUST explicitly identify the guardian (non-empty guardianId)
+    // AND must strictly match the authenticated guardian identity
+    if (!record.guardianId || record.guardianId !== guardianId) {
       return false;
     }
 
-    // Must satisfy either direct relationship map or exact guardianId match on the active consent record
-    return hasRegisteredRelationship || record.guardianId === guardianId;
+    // 5. Must also have an active registered guardian-learner relationship
+    return hasRegisteredRelationship;
   }
 
   bindGuardianToLearner(guardianId: string, learnerId: string): void {
