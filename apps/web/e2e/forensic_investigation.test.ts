@@ -910,14 +910,121 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
       expect((studentDtoPreG4.actionableRoadmap[0] as any).internalAuditToken).toBeUndefined();
     }
 
-    // Fail-Closed Security Policy: non-boolean or malformed parameters fail closed to false
-    const malformedDto1 = toStudentBenchmarkReportDTO(mockRawWithMaliciousFields, { enableGate4Outputs: 'true' as any });
-    expect(malformedDto1?.isGate4Calibrated).toBe(false);
-    expect(malformedDto1?.percentileRank).toBeUndefined();
+    // =========================================================================
+    // GATE 4 SWITCH & FIELD ALLOWLIST INTERACTION REGRESSION TESTS (P0)
+    // Enforces that global calibration prerequisite and field authorizations
+    // fail closed under all mixed-configuration combinations.
+    // =========================================================================
 
-    const malformedDto2 = toStudentBenchmarkReportDTO(mockRawWithMaliciousFields, { enableGate4Outputs: 1 as any });
-    expect(malformedDto2?.isGate4Calibrated).toBe(false);
-    expect(malformedDto2?.percentileRank).toBeUndefined();
+    // Config 1: Switch missing, no allowlist -> All Gate 4 metrics withheld
+    const cfg1Student = toStudentBenchmarkReportDTO(mockRawWithMaliciousFields, {});
+    expect(cfg1Student?.isGate4Calibrated).toBe(false);
+    expect(cfg1Student?.percentileRank).toBeUndefined();
+    expect(cfg1Student?.standardScaleScore).toBeUndefined();
+    expect(cfg1Student?.scaleFormatted).toBeUndefined();
+
+    const cfg1Parent = toParentBenchmarkReportDTO(mockRawWithMaliciousFields, {});
+    expect(cfg1Parent?.isGate4Calibrated).toBe(false);
+    expect(cfg1Parent?.percentileRank).toBeUndefined();
+    expect(cfg1Parent?.standardScaleScore).toBeUndefined();
+    expect(cfg1Parent?.scaleFormatted).toBeUndefined();
+    expect(cfg1Parent?.globalComparison).toBeUndefined();
+
+    // Config 2: Switch false, allowlist contains percentileRank -> All Gate 4 metrics withheld
+    const cfg2Student = toStudentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+      enableGate4Outputs: false,
+      approvedFields: ['percentileRank']
+    });
+    expect(cfg2Student?.isGate4Calibrated).toBe(false);
+    expect(cfg2Student?.percentileRank).toBeUndefined();
+    expect(cfg2Student?.standardScaleScore).toBeUndefined();
+    expect(cfg2Student?.scaleFormatted).toBeUndefined();
+
+    const cfg2Parent = toParentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+      enableGate4Outputs: false,
+      approvedFields: ['percentileRank', 'globalComparison']
+    });
+    expect(cfg2Parent?.isGate4Calibrated).toBe(false);
+    expect(cfg2Parent?.percentileRank).toBeUndefined();
+    expect(cfg2Parent?.globalComparison).toBeUndefined();
+
+    // Config 3: Switch "true" or 1, allowlist provided -> All Gate 4 metrics withheld
+    const cfg3StringStudent = toStudentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+      enableGate4Outputs: 'true' as any,
+      approvedFields: ['percentileRank', 'standardScaleScore']
+    });
+    expect(cfg3StringStudent?.isGate4Calibrated).toBe(false);
+    expect(cfg3StringStudent?.percentileRank).toBeUndefined();
+    expect(cfg3StringStudent?.standardScaleScore).toBeUndefined();
+
+    const cfg3NumberParent = toParentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+      enableGate4Outputs: 1 as any,
+      approvedFields: ['percentileRank', 'globalComparison']
+    });
+    expect(cfg3NumberParent?.isGate4Calibrated).toBe(false);
+    expect(cfg3NumberParent?.percentileRank).toBeUndefined();
+    expect(cfg3NumberParent?.globalComparison).toBeUndefined();
+
+    // Config 4: Switch true, empty allowlist -> No Gate 4 fields exposed
+    const cfg4Student = toStudentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+      enableGate4Outputs: true,
+      approvedFields: []
+    });
+    expect(cfg4Student?.isGate4Calibrated).toBe(true);
+    expect(cfg4Student?.percentileRank).toBeUndefined();
+    expect(cfg4Student?.standardScaleScore).toBeUndefined();
+    expect(cfg4Student?.scaleFormatted).toBeUndefined();
+
+    const cfg4Parent = toParentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+      enableGate4Outputs: true,
+      approvedFields: []
+    });
+    expect(cfg4Parent?.isGate4Calibrated).toBe(true);
+    expect(cfg4Parent?.percentileRank).toBeUndefined();
+    expect(cfg4Parent?.standardScaleScore).toBeUndefined();
+    expect(cfg4Parent?.scaleFormatted).toBeUndefined();
+    expect(cfg4Parent?.globalComparison).toBeUndefined();
+
+    // Config 5: Switch true, only one specifically authorized field -> Only that field exposed
+    const cfg5Student = toStudentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+      enableGate4Outputs: true,
+      approvedFields: ['percentileRank']
+    });
+    expect(cfg5Student?.isGate4Calibrated).toBe(true);
+    expect(cfg5Student?.percentileRank).toBe(78); // Specifically authorized
+    expect(cfg5Student?.standardScaleScore).toBeUndefined(); // Withheld
+    expect(cfg5Student?.scaleFormatted).toBeUndefined(); // Withheld
+
+    const cfg5Parent = toParentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+      enableGate4Outputs: true,
+      approvedFields: ['globalComparison']
+    });
+    expect(cfg5Parent?.isGate4Calibrated).toBe(true);
+    expect(cfg5Parent?.globalComparison).toBeDefined(); // Specifically authorized
+    expect(cfg5Parent?.globalComparison?.deltaVsGlobalMean).toBe(40);
+    expect(cfg5Parent?.percentileRank).toBeUndefined(); // Withheld
+    expect(cfg5Parent?.standardScaleScore).toBeUndefined(); // Withheld
+
+    // Config 6: Unknown or disallowed field in allowlist -> Rejected and withheld
+    const cfg6Student = toStudentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+      enableGate4Outputs: true,
+      approvedFields: ['theta' as any, 'malicious_leak' as any, 'unexpectedField' as any]
+    });
+    expect(cfg6Student?.isGate4Calibrated).toBe(true);
+    expect(cfg6Student?.percentileRank).toBeUndefined();
+    expect(cfg6Student?.standardScaleScore).toBeUndefined();
+    expect(cfg6Student?.scaleFormatted).toBeUndefined();
+    expect((cfg6Student as any).theta).toBeUndefined();
+    expect((cfg6Student as any).malicious_leak).toBeUndefined();
+
+    const cfg6Parent = toParentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+      enableGate4Outputs: true,
+      approvedFields: ['standardError' as any, 'internal3PL' as any]
+    });
+    expect(cfg6Parent?.isGate4Calibrated).toBe(true);
+    expect(cfg6Parent?.percentileRank).toBeUndefined();
+    expect(cfg6Parent?.globalComparison).toBeUndefined();
+    expect((cfg6Parent as any).standardError).toBeUndefined();
 
     // 2. Pre-Gate 4 Default Gating: Parent DTO (Numerical & norm delta withheld)
     const parentDtoPreG4 = toParentBenchmarkReportDTO(mockRawWithMaliciousFields);

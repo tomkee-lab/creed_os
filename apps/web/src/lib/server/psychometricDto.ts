@@ -203,12 +203,18 @@ export function toSafeLearnerProfileDTO(raw: any): SafeLearnerProfileDTO {
   };
 }
 
+const ALLOWED_STUDENT_GATE4_FIELDS = ['percentileRank', 'standardScaleScore', 'scaleFormatted'] as const;
+type AllowedStudentGate4Field = typeof ALLOWED_STUDENT_GATE4_FIELDS[number];
+
+const ALLOWED_PARENT_GATE4_FIELDS = ['percentileRank', 'standardScaleScore', 'scaleFormatted', 'globalComparison'] as const;
+type AllowedParentGate4Field = typeof ALLOWED_PARENT_GATE4_FIELDS[number];
+
 /**
  * Maps a benchmark report for Minor Student self-reflection view.
  * Physically excludes raw theta, SE, and competitive peer-delta comparisons.
  *
  * Gate 4 Governance Rule:
- * Unvalidated numerical metrics (percentileRank, standardScaleScore, scaleFormatted)
+ * Uncalibrated normative or external-comparison metrics (percentileRank, standardScaleScore, scaleFormatted)
  * are WITHHELD from responses by default until Gate 4 empirical validation is approved.
  */
 export function toStudentBenchmarkReportDTO(
@@ -218,11 +224,23 @@ export function toStudentBenchmarkReportDTO(
   // Gate 4 Fail-Closed Security Policy:
   // Must strictly be boolean true. Any missing, undefined, null, string, or malformed config fails closed to false.
   const isGate4Calibrated = options?.enableGate4Outputs === true;
-  const approvedFields = new Set(
-    Array.isArray(options?.approvedFields)
-      ? options.approvedFields
-      : (isGate4Calibrated ? ['percentileRank', 'standardScaleScore', 'scaleFormatted'] : [])
+
+  // Strict Fail-Closed Field Allowlist Authorization:
+  // 1. If isGate4Calibrated is false (or not boolean true), approvedFields is unconditionally an empty Set.
+  // 2. If isGate4Calibrated is true:
+  //    - If options.approvedFields is explicitly provided, filter it strictly against ALLOWED_STUDENT_GATE4_FIELDS (rejecting unknown/disallowed fields).
+  //    - If options.approvedFields is omitted/undefined, default to all ALLOWED_STUDENT_GATE4_FIELDS.
+  const approvedFields = new Set<string>(
+    isGate4Calibrated
+      ? (Array.isArray(options?.approvedFields)
+          ? options.approvedFields.filter((f): f is AllowedStudentGate4Field =>
+              (ALLOWED_STUDENT_GATE4_FIELDS as readonly string[]).includes(f)
+            )
+          : ALLOWED_STUDENT_GATE4_FIELDS)
+      : []
   );
+
+  const canExposeField = (field: AllowedStudentGate4Field) => isGate4Calibrated && approvedFields.has(field);
 
   const base: StudentBenchmarkReportDTO = {
     domain: report.domain,
@@ -239,13 +257,13 @@ export function toStudentBenchmarkReportDTO(
   };
 
   // Only expose numerical indicators when Gate 4 approval has explicitly authorized each output
-  if (isGate4Calibrated && approvedFields.has('percentileRank') && typeof report.percentileRank === 'number') {
+  if (canExposeField('percentileRank') && typeof report.percentileRank === 'number') {
     base.percentileRank = report.percentileRank;
   }
-  if (isGate4Calibrated && approvedFields.has('standardScaleScore') && typeof report.standardScaleScore === 'number') {
+  if (canExposeField('standardScaleScore') && typeof report.standardScaleScore === 'number') {
     base.standardScaleScore = report.standardScaleScore;
   }
-  if (isGate4Calibrated && approvedFields.has('scaleFormatted') && report.scaleFormatted) {
+  if (canExposeField('scaleFormatted') && report.scaleFormatted) {
     base.scaleFormatted = String(report.scaleFormatted);
   }
 
@@ -271,14 +289,26 @@ export function toParentBenchmarkReportDTO(
   // Gate 4 Fail-Closed Security Policy:
   // Must strictly be boolean true. Any missing, undefined, null, string, or malformed config fails closed to false.
   const isGate4Calibrated = options?.enableGate4Outputs === true;
-  const approvedFields = new Set(
-    Array.isArray(options?.approvedFields)
-      ? options.approvedFields
-      : (isGate4Calibrated ? ['percentileRank', 'standardScaleScore', 'scaleFormatted', 'globalComparison'] : [])
+
+  // Strict Fail-Closed Field Allowlist Authorization:
+  // 1. If isGate4Calibrated is false (or not boolean true), approvedFields is unconditionally an empty Set.
+  // 2. If isGate4Calibrated is true:
+  //    - If options.approvedFields is explicitly provided, filter it strictly against ALLOWED_PARENT_GATE4_FIELDS (rejecting unknown/disallowed fields).
+  //    - If options.approvedFields is omitted/undefined, default to all ALLOWED_PARENT_GATE4_FIELDS.
+  const approvedFields = new Set<string>(
+    isGate4Calibrated
+      ? (Array.isArray(options?.approvedFields)
+          ? options.approvedFields.filter((f): f is AllowedParentGate4Field =>
+              (ALLOWED_PARENT_GATE4_FIELDS as readonly string[]).includes(f)
+            )
+          : ALLOWED_PARENT_GATE4_FIELDS)
+      : []
   );
 
+  const canExposeParentField = (field: AllowedParentGate4Field) => isGate4Calibrated && approvedFields.has(field);
+
   let globalComparison: ParentBenchmarkReportDTO['globalComparison'] = undefined;
-  if (isGate4Calibrated && approvedFields.has('globalComparison') && report.globalComparison) {
+  if (canExposeParentField('globalComparison') && report.globalComparison) {
     globalComparison = {
       oecdAverage: Number(report.globalComparison.oecdAverage || 500),
       topDecileThreshold: Number(report.globalComparison.topDecileThreshold || 600),
