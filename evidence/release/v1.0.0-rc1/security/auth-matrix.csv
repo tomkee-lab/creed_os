@@ -1,0 +1,21 @@
+TestID,Endpoint,Method,RoleTested,AuthState,ExpectedHTTP,InvariantEnforced,Result
+SEC-01,/api/v1/learners/3fa85f64/profile,GET,Anonymous,Unauthenticated,401,Confidentiality: Zero learner PII returned,PASS
+SEC-01,/student,GET,Anonymous,Unauthenticated,303,Redirect: Workspace redirects to /login,PASS
+SEC-01,/parent,GET,Anonymous,Unauthenticated,303,Redirect: Workspace redirects to /login,PASS
+SEC-02,/api/auth/dev-switch,POST,Attacker,ForgedRoleClaim,403,Integrity: Server ignores client role claim,PASS
+SEC-03,/api/v1/learners/other-uuid/profile,GET,student,CrossStudent,403,Isolation: Student cannot read other student profile,PASS
+SEC-04,/api/v1/assessments/sessions,POST,student,TamperedCookie,401,Integrity: Signature validation fails on forged cookies,PASS
+SEC-05,/api/auth/dev-switch,DELETE,student,ProductionEnvironment,404,Zero Leakage: Dev switch 404 in production,PASS
+SEC-06,/api/v1/assessments/sessions,POST,student,ConsentPending,403,Statutory: Processing blocked without active verified consent,PASS
+SEC-07,/api/v1/consent/verify,POST,attacker,ForgedOTP,400,Integrity: Cryptographic challenge required for verification,PASS
+SEC-08,/api/v1/assessments/sessions,POST,student,ConsentExpired,403,Statutory: Processing blocked when consent is expired,PASS
+SEC-09,/api/v1/assessments/sessions/active/responses,POST,student,ConcurrentRevocation,403,Concurrency: Commit aborts immediately upon consent revocation,PASS
+SEC-10,/parent/report?learnerId=unlinked-child,GET,parent,CrossGuardian,403,Relationship: Guardian denied access to unlinked child,PASS
+SEC-11,/api/v1/teacher/cohorts/other-org,GET,teacher,CrossTenant,403,Tenant: Cross-tenant cohort access blocked,PASS
+SEC-12,/api/v1/consent/challenge,POST,bot,RateLimitFlooding,429,Anti-Abuse: Altcha PoW throttles automated replay attacks,PASS
+SEC-13,/api/v1/reports/download,GET,attacker,ConfusedDeputy,403,Authority: Endpoint verifies caller relationship over target,PASS
+SEC-14,/api/v1/consent/verify,POST,attacker,ReplayConsumedToken,400,Integrity: Single-use OTP token replay detected and rejected,PASS
+SEC-15,/student/assessment,GET,student,RoleDowngradedInDB,403,Freshness: Active session reflects database permission update,PASS
+SEC-16,/api/v1/learners?limit=10000,GET,teacher,BulkExtraction,403,Bounds: Bulk query restricted to verified cohort members only,PASS
+SEC-17,/api/v1/reports/3fa85f64/download,GET,student,CacheInspection,200,Storage: Cache-Control private no-store enforced; proxy streamed,PASS
+SEC-18,/student/assessment,GET,student,IdPOutageSimulated,503,Fail-Closed: System fails closed when auth service is unreachable,PASS

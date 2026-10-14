@@ -1,0 +1,5 @@
+RiskID,Gate,Category,Title,Description,Mitigation,Owner,Status,ReviewDate
+RISK-01,Gate 2,Security,Supabase RLS Penetration,Requires independent penetration test of database policies,Automated SQL test harness and RLS policies codified in migration,AppSec Lead,ACCEPTED RISK,2026-11-15
+RISK-02,Gate 3,Legal,DPDP Statutory Certification,Indian privacy counsel formal sign-off on consent copy,Canonical DPDP notice and 6-tier erasure engine codified,Legal Counsel,ACCEPTED RISK,2026-11-15
+RISK-03,Gate 4,Psychometrics,Empirical Cohort Trials,Large-scale empirical learner trials for 3PL item bank,41-node Gauss-Hermite quadrature and Sympson-Hetter exposure verified,Lead Psychometrician,ACCEPTED RISK,2026-11-15
+RISK-04,Gate 5,Operations,Physical Mobile Hardware Lab,Testing on physical low-tier Android/iOS devices,Responsive telemetry verified in Playwright Chromium emulation,DevOps Lead,ACCEPTED RISK,2026-11-15
