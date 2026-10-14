@@ -80,6 +80,7 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
     const initialRecord: ConsentRecord = {
       id: 'cst_' + crypto.randomUUID().slice(0, 8),
       learnerId: sanitizedLearnerId,
+      guardianId: locals.user?.id || 'parent_1',
       parentName: sanitizedParentName,
       parentContact: sanitizedContact,
       verificationChannel: (channel as VerificationChannel) || 'SMS_OTP',
@@ -99,8 +100,11 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
       auditToken: token
     });
 
-    // Authoritatively persist verified consent record
+    // Authoritatively persist verified consent record and bind guardian-learner relationship
     coreRepository.setConsentRecord(verifiedRecord);
+    if (locals.user?.id) {
+      coreRepository.bindGuardianToLearner(locals.user.id, sanitizedLearnerId);
+    }
 
     // Set statutory consent verification cookie so parent session is immediately recognized
     cookies.set('creed_consent_verified', 'true', {

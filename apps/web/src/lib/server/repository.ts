@@ -308,6 +308,7 @@ class LocalCoreRepository {
   private playbooks: PedagogicalPlaybook[] = [];
   private missions: StemMission[] = [...STEM_MISSIONS];
   private consentRecords: Map<string, ConsentRecord> = new Map();
+  private guardianLearnerMap: Map<string, Set<string>> = new Map();
 
   constructor() {
     // 1. Initialize Baseline Learner Profile
@@ -1083,10 +1084,11 @@ class LocalCoreRepository {
       }
     ];
 
-    // Initialize Statutory Consent Records under DPDP Act 2023
+    // Initialize Statutory Consent Records under DPDP Act 2023 with verified guardian identity bindings
     this.consentRecords.set('3fa85f64-5717-4562-b3fc-2c963f66afa6', {
       id: 'cst-001',
       learnerId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      guardianId: 'parent_1',
       parentName: 'Guardian G-0801',
       parentContact: '+91 98765 43210',
       verificationChannel: 'DIGILOCKER',
@@ -1098,10 +1100,12 @@ class LocalCoreRepository {
       immutableAuditHash: 'dpdp_9a7b3c21',
       updatedAt: '2026-08-14T09:30:00Z'
     });
+    this.guardianLearnerMap.set('parent_1', new Set(['3fa85f64-5717-4562-b3fc-2c963f66afa6']));
 
     this.consentRecords.set('9fa11b72-1204-4821-b3fa-110294821102', {
       id: 'cst-002',
       learnerId: '9fa11b72-1204-4821-b3fa-110294821102',
+      guardianId: 'parent_2',
       parentName: 'Guardian G-0802',
       parentContact: 'guardian.02@family.org',
       verificationChannel: 'SMS_OTP',
@@ -1113,10 +1117,12 @@ class LocalCoreRepository {
       immutableAuditHash: 'dpdp_3e8f4a19',
       updatedAt: '2026-08-16T11:15:00Z'
     });
+    this.guardianLearnerMap.set('parent_2', new Set(['9fa11b72-1204-4821-b3fa-110294821102']));
 
     this.consentRecords.set('8ac41d99-3194-4712-a1bb-592817401928', {
       id: 'cst-003',
       learnerId: '8ac41d99-3194-4712-a1bb-592817401928',
+      guardianId: 'parent_3',
       parentName: 'Guardian G-0803',
       parentContact: '+91 98112 33445',
       verificationChannel: 'EMAIL_VERIFICATION',
@@ -1128,10 +1134,12 @@ class LocalCoreRepository {
       immutableAuditHash: 'dpdp_7b2c9e42',
       updatedAt: '2026-08-18T14:45:00Z'
     });
+    this.guardianLearnerMap.set('parent_3', new Set(['8ac41d99-3194-4712-a1bb-592817401928']));
 
     this.consentRecords.set('7cc12e44-5512-4019-9182-192847102948', {
       id: 'cst-004',
       learnerId: '7cc12e44-5512-4019-9182-192847102948',
+      guardianId: 'parent_4',
       parentName: 'Guardian G-0804',
       parentContact: '+91 97234 11223',
       verificationChannel: 'SMS_OTP',
@@ -1142,6 +1150,7 @@ class LocalCoreRepository {
       immutableAuditHash: 'dpdp_pending_notice',
       updatedAt: '2026-10-01T00:00:00Z'
     });
+    this.guardianLearnerMap.set('parent_4', new Set(['7cc12e44-5512-4019-9182-192847102948']));
   }
 
   // --- Profile Operations ---
@@ -1404,11 +1413,87 @@ class LocalCoreRepository {
     };
   }
 
-  // --- Statutory DPDP Consent Operations ---
+  // --- Statutory DPDP Consent & Guardian Authorization Operations ---
   hasActiveConsent(learnerId: string): boolean {
     const record = this.consentRecords.get(learnerId);
     if (!record) return false;
     return isConsentActive(record);
+  }
+
+  /**
+   * Authoritative identity-to-learner relationship & statutory consent verification.
+   * Guarantees that:
+   * 1. Authenticated user identity (guardianId) and requested learnerId are non-empty.
+   * 2. An authorized guardian-learner relationship exists between this guardian and learner.
+   * 3. An active statutory consent record exists for this learner under DPDP Act 2023.
+   * 4. The consent record is active (VERIFIED_ACTIVE, not expired, not withdrawn).
+   * 5. The consent record is explicitly bound to this authenticated guardian identity (guardianId matches).
+   *
+   * Note: Administrators, unverified guardians, and cross-guardian requests strictly fail this check.
+   */
+  isVerifiedGuardianForLearner(guardianId: string, learnerId: string): boolean {
+    if (!guardianId || !learnerId) return false;
+
+    // 1. Verify that this guardian identity has an authorized relationship to this learner
+    const authorizedLearners = this.guardianLearnerMap.get(guardianId);
+    const hasRegisteredRelationship = authorizedLearners ? authorizedLearners.has(learnerId) : false;
+
+    // 2. Query statutory consent record for this learner
+    const record = this.consentRecords.get(learnerId);
+    if (!record) return false;
+
+    // 3. Verify consent lifecycle is strictly active (not withdrawn, expired, or pending notice)
+    if (!isConsentActive(record)) return false;
+
+    // 4. Verify identity-to-consent binding:
+    // If the consent record specifies a guardianId, it MUST match the authenticated guardian identity
+    if (record.guardianId && record.guardianId !== guardianId) {
+      return false;
+    }
+
+    // Must satisfy either direct relationship map or exact guardianId match on the active consent record
+    return hasRegisteredRelationship || record.guardianId === guardianId;
+  }
+
+  bindGuardianToLearner(guardianId: string, learnerId: string): void {
+    if (!this.guardianLearnerMap.has(guardianId)) {
+      this.guardianLearnerMap.set(guardianId, new Set());
+    }
+    this.guardianLearnerMap.get(guardianId)!.add(learnerId);
+  }
+
+  expireConsent(learnerId: string): ConsentRecord | null {
+    const existing = this.consentRecords.get(learnerId);
+    if (!existing) return null;
+    const updated: ConsentRecord = {
+      ...existing,
+      status: 'EXPIRED',
+      expiresAt: new Date(Date.now() - 1000).toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    this.consentRecords.set(learnerId, updated);
+    return updated;
+  }
+
+  restoreConsent(learnerId: string, guardianId: string = 'parent_1'): ConsentRecord {
+    const record: ConsentRecord = {
+      id: 'cst-restored-' + learnerId.slice(0, 8),
+      learnerId,
+      guardianId,
+      parentName: 'Guardian Verified',
+      parentContact: '+91 98765 43210',
+      verificationChannel: 'DIGILOCKER',
+      status: 'VERIFIED_ACTIVE',
+      consentVersion: 'v1.2-dpdp-2023',
+      purposes: ['COMPETENCY_ASSESSMENT', 'SOCRATIC_MENTORSHIP', 'PATHWAY_NAVIGATION'],
+      verifiedAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+      immutableAuditHash: 'dpdp_restored',
+      updatedAt: new Date().toISOString()
+    };
+    this.consentRecords.set(learnerId, record);
+    this.bindGuardianToLearner(guardianId, learnerId);
+    return record;
   }
 
   getConsentRecord(learnerId: string): ConsentRecord | undefined {

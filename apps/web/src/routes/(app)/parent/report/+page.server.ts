@@ -22,12 +22,15 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
   const learnerId = boundLearnerId;
 
+  const userId = (user as any)?.id || (user as any)?.sub || '';
+
   // Authoritative server-side identity & relationship validation:
-  // Requires authenticated parent role and active statutory parental consent record on file
+  // Requires authenticated parent role (administrators are strictly excluded from guardian status),
+  // and an active statutory consent record bound to this authenticated guardian identity.
   const isVerifiedGuardian =
-    (userRole === 'parent' || userRole === 'admin') &&
+    userRole === 'parent' &&
     userRole !== 'parent_pending' &&
-    coreRepository.hasActiveConsent(learnerId);
+    coreRepository.isVerifiedGuardianForLearner(userId, learnerId);
 
   const profile = coreRepository.getLearnerProfile(learnerId);
   const rawReports = coreRepository.getBenchmarkReports(learnerId);

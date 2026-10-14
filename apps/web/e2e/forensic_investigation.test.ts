@@ -6,6 +6,7 @@ import {
   toParentBenchmarkReportDTO,
   toSafeEvidenceDTO
 } from '../src/lib/server/psychometricDto';
+import { coreRepository } from '../src/lib/server/repository';
 
 const SCREENSHOT_DIR = path.resolve('test-results/screenshots/forensic');
 
@@ -1166,6 +1167,57 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
     const parentHeaders = {
       Cookie: `creed_dev_session=true; creed_dev_role=parent; creed_dev_user=${encodeURIComponent(JSON.stringify({ id: 'parent_1', learnerId: '3fa85f64-5717-4562-b3fc-2c963f66afa6', childLearnerId: '3fa85f64-5717-4562-b3fc-2c963f66afa6', role: 'parent' }))}; creed_consent_verified=true;`
     };
+
+    // --- Identity-to-Consent & Guardian Relationship Boundary Verifications ---
+    // Test 1: Guardian A has consent; Guardian B requests the same learner -> Denied unless Guardian B has their own valid authorization
+    const guardianBHeaders = {
+      Cookie: `creed_dev_session=true; creed_dev_role=parent; creed_dev_user=${encodeURIComponent(JSON.stringify({ id: 'parent_2', learnerId: '9fa11b72-1204-4821-b3fa-110294821102', childLearnerId: '9fa11b72-1204-4821-b3fa-110294821102', role: 'parent' }))}; creed_consent_verified=true;`
+    };
+    // Guardian B attempts to query Guardian A's child (3fa85f64-5717-4562-b3fc-2c963f66afa6)
+    const crossGuardianRes = await page.request.get('/parent/report?learnerId=3fa85f64-5717-4562-b3fc-2c963f66afa6', {
+      headers: guardianBHeaders
+    });
+    expect(crossGuardianRes.status()).toBe(403); // Denied with 403 Forbidden
+    // Direct repository check: Guardian B is NOT authorized for Guardian A's child despite active consent existing for that child
+    expect(coreRepository.isVerifiedGuardianForLearner('parent_2', '3fa85f64-5717-4562-b3fc-2c963f66afa6')).toBe(false);
+    expect(coreRepository.isVerifiedGuardianForLearner('parent_1', '3fa85f64-5717-4562-b3fc-2c963f66afa6')).toBe(true);
+
+    // Test 2: Consent is revoked or expired -> Guardian-authorized access and restricted metrics are denied
+    // Case A: Withdrawn consent
+    coreRepository.withdrawConsent('3fa85f64-5717-4562-b3fc-2c963f66afa6', 'Parent revoked consent under DPDP Act');
+    expect(coreRepository.isVerifiedGuardianForLearner('parent_1', '3fa85f64-5717-4562-b3fc-2c963f66afa6')).toBe(false);
+    const withdrawnParentG4 = toParentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+      enableGate4Outputs: true,
+      approvedFields: ['globalComparison'],
+      isVerifiedGuardian: coreRepository.isVerifiedGuardianForLearner('parent_1', '3fa85f64-5717-4562-b3fc-2c963f66afa6')
+    });
+    expect(withdrawnParentG4?.globalComparison).toBeUndefined(); // Withheld when consent is withdrawn
+
+    // Case B: Expired consent
+    coreRepository.expireConsent('3fa85f64-5717-4562-b3fc-2c963f66afa6');
+    expect(coreRepository.isVerifiedGuardianForLearner('parent_1', '3fa85f64-5717-4562-b3fc-2c963f66afa6')).toBe(false);
+    const expiredParentG4 = toParentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+      enableGate4Outputs: true,
+      approvedFields: ['globalComparison'],
+      isVerifiedGuardian: coreRepository.isVerifiedGuardianForLearner('parent_1', '3fa85f64-5717-4562-b3fc-2c963f66afa6')
+    });
+    expect(expiredParentG4?.globalComparison).toBeUndefined(); // Withheld when consent is expired
+
+    // Restore clean consent state for subsequent tests
+    coreRepository.restoreConsent('3fa85f64-5717-4562-b3fc-2c963f66afa6', 'parent_1');
+    expect(coreRepository.isVerifiedGuardianForLearner('parent_1', '3fa85f64-5717-4562-b3fc-2c963f66afa6')).toBe(true);
+
+    // Test 3: Administrator requests parent-only metrics without an explicit authorized access grant -> Denied
+    expect(coreRepository.isVerifiedGuardianForLearner('admin_1', '3fa85f64-5717-4562-b3fc-2c963f66afa6')).toBe(false);
+    const adminG4Attempt = toParentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+      enableGate4Outputs: true,
+      approvedFields: ['globalComparison', 'percentileRank'],
+      isVerifiedGuardian: false // Admins are not parents/guardians and cannot inherit guardian status
+    });
+    expect(adminG4Attempt?.globalComparison).toBeUndefined(); // Denied
+    expect(adminG4Attempt?.percentileRank).toBe(78); // Other approved fields deserialize if broad access is granted
+
+    // Test 4: Guardian requests a learner outside their authorized relationship -> HTTP 403 Forbidden
     const crossParentReportRes = await page.request.get('/parent/report?learnerId=other_unauthorized_learner_id', {
       headers: parentHeaders
     });
@@ -1175,6 +1227,15 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
       headers: parentHeaders
     });
     expect(crossParentApiRes.status()).toBe(403);
+
+    // Test 5: Legitimately authorized guardian requests globalComparison before Gate 4 approval -> Field remains withheld
+    const legitimateParentPreG4Res = await page.request.get('/parent/report?enableGate4Outputs=true&approvedFields=globalComparison', {
+      headers: parentHeaders
+    });
+    expect(legitimateParentPreG4Res.status()).toBe(200);
+    const legitimateParentPreG4Html = await legitimateParentPreG4Res.text();
+    expect(legitimateParentPreG4Html).not.toMatch(/"globalComparison":\s*\{/);
+    expect(legitimateParentPreG4Html).not.toContain('deltaVsGlobalMean');
 
     // Test Domain Switcher
     const englishTab = page.locator('button:has-text("English & Communication")');

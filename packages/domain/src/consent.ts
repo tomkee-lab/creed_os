@@ -17,6 +17,7 @@ export type VerificationChannel = 'DIGILOCKER' | 'SMS_OTP' | 'EMAIL_VERIFICATION
 export interface ConsentRecord {
   id: string;
   learnerId: string;
+  guardianId?: string; // Authenticated user ID of the bound legal guardian
   parentName: string;
   parentContact: string; // Phone or Email
   verificationChannel: VerificationChannel;
