@@ -23,8 +23,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   };
 
   const safeReports = rawReports
-    .map(toParentBenchmarkReportDTO)
-    .filter(Boolean)
+    .map((r) => toParentBenchmarkReportDTO(r))
+    .filter((r): r is NonNullable<typeof r> => Boolean(r))
     .map((r) => deepSanitizePsychometrics(r));
 
   const safeActiveReport = deepSanitizePsychometrics(toParentBenchmarkReportDTO(rawActiveReport));

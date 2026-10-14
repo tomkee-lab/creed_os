@@ -828,7 +828,12 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
 
       return leaksFound;
     });
-    expect(jsonInspection).toEqual([]);
+
+    // Strictly scoped crawler assertion:
+    expect(
+      jsonInspection,
+      'No prohibited psychometric fields were detected in the enumerated hydration payloads for the tested routes and fixtures'
+    ).toEqual([]);
 
     // Strict Role-Scoped DTO Schema Projection & Unknown Field Rejection Test:
     // Ensures internal psychometrics and unexpected properties never survive projection into student/parent DTOs
@@ -841,6 +846,15 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
       fisherInfo: 14.2,
       internal3PL: { a: 1.5, b: 0.2, c: 0.1 },
       unexpectedTopLevel: 'malicious_leak',
+      percentileRank: 78,
+      standardScaleScore: 540,
+      scaleFormatted: '540 Ref Pts',
+      globalComparison: {
+        oecdAverage: 500,
+        topDecileThreshold: 625,
+        learnerScore: 540,
+        deltaVsGlobalMean: 40
+      },
       subCompetencies: [
         {
           name: 'Calculus',
@@ -874,33 +888,70 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
       ]
     };
 
-    const studentDto = toStudentBenchmarkReportDTO(mockRawWithMaliciousFields);
-    expect(studentDto).not.toBeNull();
-    if (studentDto) {
-      expect((studentDto as any).theta).toBeUndefined();
-      expect((studentDto as any).se).toBeUndefined();
-      expect((studentDto as any).standardError).toBeUndefined();
-      expect((studentDto as any).fisherInfo).toBeUndefined();
-      expect((studentDto as any).internal3PL).toBeUndefined();
-      expect((studentDto as any).unexpectedTopLevel).toBeUndefined();
-      expect((studentDto as any).globalComparison).toBeUndefined(); // Excluded from student DTO to avoid stereotype threat
-      expect((studentDto.subCompetencies[0] as any).hiddenTheta).toBeUndefined();
-      expect((studentDto.subCompetencies[0] as any).unexpectedNestedProp).toBeUndefined();
-      expect((studentDto.identifiedMisconceptions[0] as any).restrictedInternalMeta).toBeUndefined();
-      expect((studentDto.actionableRoadmap[0] as any).internalAuditToken).toBeUndefined();
+    // 1. Pre-Gate 4 Default Gating: Student DTO (Numerical metrics withheld)
+    const studentDtoPreG4 = toStudentBenchmarkReportDTO(mockRawWithMaliciousFields);
+    expect(studentDtoPreG4).not.toBeNull();
+    if (studentDtoPreG4) {
+      expect(studentDtoPreG4.isGate4Calibrated).toBe(false);
+      expect(studentDtoPreG4.calibrationStatus).toBe('DEVELOPMENTAL_UNLINKED');
+      expect(studentDtoPreG4.percentileRank).toBeUndefined();
+      expect(studentDtoPreG4.standardScaleScore).toBeUndefined();
+      expect(studentDtoPreG4.scaleFormatted).toBeUndefined();
+      expect((studentDtoPreG4 as any).globalComparison).toBeUndefined(); // Strictly withheld from student
+      expect((studentDtoPreG4 as any).theta).toBeUndefined();
+      expect((studentDtoPreG4 as any).se).toBeUndefined();
+      expect((studentDtoPreG4 as any).standardError).toBeUndefined();
+      expect((studentDtoPreG4 as any).fisherInfo).toBeUndefined();
+      expect((studentDtoPreG4 as any).internal3PL).toBeUndefined();
+      expect((studentDtoPreG4 as any).unexpectedTopLevel).toBeUndefined();
+      expect((studentDtoPreG4.subCompetencies[0] as any).hiddenTheta).toBeUndefined();
+      expect((studentDtoPreG4.subCompetencies[0] as any).unexpectedNestedProp).toBeUndefined();
+      expect((studentDtoPreG4.identifiedMisconceptions[0] as any).restrictedInternalMeta).toBeUndefined();
+      expect((studentDtoPreG4.actionableRoadmap[0] as any).internalAuditToken).toBeUndefined();
     }
 
-    const parentDto = toParentBenchmarkReportDTO(mockRawWithMaliciousFields);
-    expect(parentDto).not.toBeNull();
-    if (parentDto) {
-      expect((parentDto as any).theta).toBeUndefined();
-      expect((parentDto as any).se).toBeUndefined();
-      expect((parentDto as any).internal3PL).toBeUndefined();
-      expect((parentDto as any).unexpectedTopLevel).toBeUndefined();
-      expect(parentDto.globalComparison).toBeDefined();
-      expect(parentDto.psychometricNotice).toContain('Gate 4');
+    // 2. Pre-Gate 4 Default Gating: Parent DTO (Numerical & norm delta withheld)
+    const parentDtoPreG4 = toParentBenchmarkReportDTO(mockRawWithMaliciousFields);
+    expect(parentDtoPreG4).not.toBeNull();
+    if (parentDtoPreG4) {
+      expect(parentDtoPreG4.isGate4Calibrated).toBe(false);
+      expect(parentDtoPreG4.calibrationStatus).toBe('DEVELOPMENTAL_UNLINKED');
+      expect(parentDtoPreG4.percentileRank).toBeUndefined();
+      expect(parentDtoPreG4.standardScaleScore).toBeUndefined();
+      expect(parentDtoPreG4.scaleFormatted).toBeUndefined();
+      expect(parentDtoPreG4.globalComparison).toBeUndefined(); // Withheld pre-Gate 4
+      expect((parentDtoPreG4 as any).theta).toBeUndefined();
+      expect((parentDtoPreG4 as any).se).toBeUndefined();
+      expect((parentDtoPreG4 as any).internal3PL).toBeUndefined();
+      expect((parentDtoPreG4 as any).unexpectedTopLevel).toBeUndefined();
+      expect(parentDtoPreG4.psychometricNotice).toContain('Gate 4');
     }
 
+    // 3. Post-Gate 4 Opt-In Validation: Authorized outputs exposed under explicit approval
+    const studentDtoPostG4 = toStudentBenchmarkReportDTO(mockRawWithMaliciousFields, { enableGate4Outputs: true });
+    expect(studentDtoPostG4).not.toBeNull();
+    if (studentDtoPostG4) {
+      expect(studentDtoPostG4.isGate4Calibrated).toBe(true);
+      expect(studentDtoPostG4.calibrationStatus).toBe('CALIBRATED');
+      expect(studentDtoPostG4.percentileRank).toBe(78);
+      expect(studentDtoPostG4.standardScaleScore).toBe(540);
+      expect(studentDtoPostG4.scaleFormatted).toBe('540 Ref Pts');
+      expect((studentDtoPostG4 as any).globalComparison).toBeUndefined(); // Still withheld from student DTO
+    }
+
+    const parentDtoPostG4 = toParentBenchmarkReportDTO(mockRawWithMaliciousFields, { enableGate4Outputs: true });
+    expect(parentDtoPostG4).not.toBeNull();
+    if (parentDtoPostG4) {
+      expect(parentDtoPostG4.isGate4Calibrated).toBe(true);
+      expect(parentDtoPostG4.calibrationStatus).toBe('CALIBRATED');
+      expect(parentDtoPostG4.percentileRank).toBe(78);
+      expect(parentDtoPostG4.standardScaleScore).toBe(540);
+      expect(parentDtoPostG4.globalComparison).toBeDefined();
+      expect(parentDtoPostG4.globalComparison?.deltaVsGlobalMean).toBe(40);
+      expect(parentDtoPostG4.psychometricNotice).toContain('Calibrated benchmark output authorized under Gate 4');
+    }
+
+    // 4. SafeEvidenceDTO: activityScore canonical field & backward compatibility
     const evidenceDto = toSafeEvidenceDTO({
       id: 'ev_1',
       learnerId: 'lrn_1',
@@ -911,9 +962,45 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
       itemParameters: { difficulty: 0.5 }
     });
     expect(evidenceDto.activityScore).toBe(92);
-    expect(evidenceDto.score).toBe(92);
+    expect(evidenceDto.score).toBe(92); // Deprecated alias retained for v3.0 migration window
     expect((evidenceDto as any).theta).toBeUndefined();
     expect((evidenceDto as any).itemParameters).toBeUndefined();
+
+    // 5. Direct API Response Boundary & Authorization Verification:
+    // Ensures direct JSON API responses conform to data minimization and contain zero psychometric leaks
+    const studentHeaders = {
+      Cookie: `creed_dev_session=true; creed_dev_role=student; creed_dev_user=${encodeURIComponent(JSON.stringify({ id: '3fa85f64-5717-4562-b3fc-2c963f66afa6', learnerId: '3fa85f64-5717-4562-b3fc-2c963f66afa6', role: 'student' }))}; creed_consent_verified=true;`
+    };
+
+    const apiProfileRes = await page.request.get('/api/v1/learners/3fa85f64-5717-4562-b3fc-2c963f66afa6/profile', {
+      headers: studentHeaders
+    });
+    expect(apiProfileRes.status()).toBe(200);
+    const apiProfileData = await apiProfileRes.json();
+    expect(apiProfileData.learnerId).toBe('3fa85f64-5717-4562-b3fc-2c963f66afa6');
+    const apiProfileString = JSON.stringify(apiProfileData).toLowerCase();
+    expect(apiProfileString).not.toMatch(/"theta"/);
+    expect(apiProfileString).not.toMatch(/"standarderror"/);
+    expect(apiProfileString).not.toMatch(/"se"/);
+    expect(apiProfileString).not.toMatch(/"fisher"/);
+    expect(apiProfileString).not.toMatch(/"3pl"/);
+
+    const apiEvidenceRes = await page.request.get('/api/v1/learners/3fa85f64-5717-4562-b3fc-2c963f66afa6/evidence', {
+      headers: studentHeaders
+    });
+    expect(apiEvidenceRes.status()).toBe(200);
+    const apiEvidenceData = await apiEvidenceRes.json();
+    expect(Array.isArray(apiEvidenceData.evidence)).toBe(true);
+    const apiEvidenceString = JSON.stringify(apiEvidenceData).toLowerCase();
+    expect(apiEvidenceString).not.toMatch(/"theta"/);
+    expect(apiEvidenceString).not.toMatch(/"standarderror"/);
+    expect(apiEvidenceString).not.toMatch(/"itemparameters"/);
+
+    // Cross-learner unauthorized read must be blocked with 403 Forbidden
+    const crossProfileRes = await page.request.get('/api/v1/learners/other_unauthorized_id/profile', {
+      headers: studentHeaders
+    });
+    expect(crossProfileRes.status()).toBe(403);
 
     // Test Domain Switcher
     const englishTab = page.locator('button:has-text("English & Communication")');

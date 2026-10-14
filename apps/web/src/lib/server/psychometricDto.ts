@@ -1,154 +1,69 @@
 /**
  * CREED OS — Role-Specific Psychometric Data Transfer Object (DTO) Layer
  *
- * Implements strict role-scoped data minimization and allowlist-based payload construction.
+ * Implements strict role-scoped data minimization, allowlist-based payload construction,
+ * and psychometric benchmark gating under Gate 4 governance.
+ *
  * Ensures internal psychometric parameters (theta, standardError, 3PL a/b/c, Fisher info)
- * are NEVER serialized to minor learners or parents.
+ * and unvalidated numerical benchmark metrics (percentileRank, standardScaleScore, globalComparison)
+ * are NEVER serialized to minor learners or parents prior to formal Gate 4 calibration.
  *
- * Route-to-Recipient Governance Matrix:
- * - /student/report, /student: StudentSelfProfileDTO, StudentBenchmarkReportDTO
- *   Permitted Recipient: Minor Learner (Self-reflection, milestone roadmap, qualitative bands).
- *   Excluded: Adult guardian metadata, institutional identifiers, competitive peer comparisons, raw psychometrics.
- * - /parent/report, /parent: ParentLearnerSummaryDTO, ParentBenchmarkReportDTO
- *   Permitted Recipient: Verified Guardian (Family diagnostic guide, formative context, international scale reference).
- *   Excluded: Other families' records, raw CAT item parameters (a, b, c), Fisher information, raw theta.
- * - /api/v1/learners/:id/evidence: SafeEvidenceDTO[]
- *   Permitted Recipient: Student & Verified Guardian
- *   Semantic Note: 'activityScore' (0-100) reflects local activity or rubric completion; it is NEVER latent trait theta.
+ * =========================================================================================
+ * AUTHORITATIVE DATA GOVERNANCE & FIELD EXPOSURE MATRIX:
+ * =========================================================================================
+ * | Field & Type                       | Allowed Recipient    | Authorized Routes               | Educational Purpose                               | Sensitivity  | Gate 4 Status | Exposure Decision        |
+ * |------------------------------------|----------------------|---------------------------------|---------------------------------------------------|--------------|---------------|--------------------------|
+ * | id: string                         | Student, Parent      | /student, /parent, /api/v1      | Stable entity identification                      | Personal     | Approved      | ALLOWED                  |
+ * | name / fullName: string            | Student, Parent      | /student, /parent, /api/v1      | Learner salutation and portal context             | Personal     | Approved      | ALLOWED                  |
+ * | grade / gradeBand: string          | Student, Parent      | /student, /parent, /api/v1      | Curriculum cohort framing                         | Educational  | Approved      | ALLOWED                  |
+ * | dominantFocus: string              | Student              | /student                        | "What should I do next?" orientation              | Educational  | Approved      | ALLOWED                  |
+ * | schoolName: string                 | Parent               | /parent                         | Institutional verification                         | Personal     | Approved      | ALLOWED                  |
+ * | competencies: Record<string, Comp> | Student, Parent      | /student, /parent, /api/v1      | Multi-dimensional competency profile              | Educational  | Approved      | ALLOWED (Safe DTO)       |
+ * | recentEvidence: SafeEvidenceDTO[]  | Student, Parent      | /student, /parent, /api/v1      | Tangible proof of mission demonstrations          | Educational  | Approved      | ALLOWED (Safe DTO)       |
+ * | activityScore: number (0-100)      | Student, Parent      | /student, /parent, /api/v1      | Local task completion percentage                  | Educational  | Approved      | ALLOWED                  |
+ * | score: number (deprecated alias)   | Student, Parent      | /student, /parent, /api/v1      | Backward-compatible alias for activityScore       | Educational  | Deprecated    | ALLOWED (Scheduled v3.0) |
+ * | developmentalBand: string          | Student, Parent      | /student/report, /parent/report | Qualitative mastery tier (Growth over labeling)   | Educational  | Approved      | ALLOWED                  |
+ * | subCompetencies: SubCompDTO[]      | Student, Parent      | /student/report, /parent/report | Formative syllabus dimension mastery              | Educational  | Approved      | ALLOWED (Safe DTO)       |
+ * | identifiedMisconceptions: MiscDTO[]| Student, Parent      | /student/report, /parent/report | Targeted pedagogical remedies                     | Educational  | Approved      | ALLOWED (Safe DTO)       |
+ * | actionableRoadmap: MilestoneDTO[]  | Student, Parent      | /student/report, /parent/report | Actionable 4-week practice milestones              | Educational  | Approved      | ALLOWED (Safe DTO)       |
+ * | isGate4Calibrated: boolean         | Student, Parent      | /student/report, /parent/report | Explicit psychometric calibration state           | Operational  | Approved      | ALLOWED                  |
+ * | percentileRank: number             | Parent, Student      | /parent/report, /student/report | Normative cohort standing                         | Psychometric | PENDING (G4)  | GATED (Withheld pre-G4)   |
+ * | standardScaleScore: number         | Parent, Student      | /parent/report, /student/report | Standard scaled metric                            | Psychometric | PENDING (G4)  | GATED (Withheld pre-G4)   |
+ * | scaleFormatted: string             | Parent, Student      | /parent/report, /student/report | Contextual reference scale label                  | Psychometric | PENDING (G4)  | GATED (Withheld pre-G4)   |
+ * | globalComparison: object           | Parent               | /parent/report                  | International benchmark norm delta vs OECD mean   | Psychometric | PENDING (G4)  | GATED (Withheld pre-G4)   |
+ * | theta: number                      | Teacher/Console Only | /studio, /counselor/telemetry   | Raw latent psychometric ability parameter         | Restricted   | Internal Only | WITHHELD FROM STUDENTS   |
+ * | standardError (se): number         | Teacher/Console Only | /studio, /counselor/telemetry   | Item information / estimation uncertainty         | Restricted   | Internal Only | WITHHELD FROM STUDENTS   |
+ * | 3PL item parameters (a, b, c)      | Item Authoring Only  | /studio                         | Discrimination, difficulty, pseudo-guessing       | Restricted   | Internal Only | WITHHELD FROM CLIENTS    |
+ * | Fisher information: number         | Engine Internal Only | Internal Engine                 | Test information function value                   | Restricted   | Internal Only | WITHHELD FROM CLIENTS    |
+ * =========================================================================================
  */
 
-import type { BenchmarkDomain } from '@core-os/assessment';
+export type {
+  SafeEvidenceDTO,
+  SafeCompetencyDTO,
+  SafeSubCompetencyDTO,
+  SafeMisconceptionDTO,
+  SafeRoadmapMilestoneDTO,
+  SafeLearnerProfileDTO,
+  StudentSelfProfileDTO,
+  ParentLearnerSummaryDTO,
+  BenchmarkGatingOptions,
+  StudentBenchmarkReportDTO,
+  ParentBenchmarkReportDTO,
+  SafeBenchmarkReportDTO
+} from '$lib/types/psychometricDto';
 
-/**
- * Tangible demonstration of competency.
- *
- * Semantic Note on Scores:
- * 'activityScore' (0-100) or 'rubricLevel' represents local activity/task completion or classroom rubric scoring.
- * It is strictly decoupled from latent psychometric trait estimations (theta).
- */
-export interface SafeEvidenceDTO {
-  id: string;
-  learnerId: string;
-  competencyId: string;
-  competency?: string;
-  timestamp: string;
-  observedAt: string;
-  activityType: string;
-  sourceType?: string;
-  sourceTitle: string;
-  title?: string;
-  summary: string;
-  description?: string;
-  qualitativeBand?: string;
-  rubricLevel?: string;
-  strengthLevel?: string;
-  confidence?: number;
-  activityScore?: number; // 0-100 task performance; local task score, NOT latent ability theta
-  score?: number; // Alias to activityScore for component backwards-compatibility
-  status: string;
-  provenance?: {
-    source: string;
-    assessorRole: string;
-    sessionId?: string;
-  };
-}
-
-export interface SafeCompetencyDTO {
-  id: string;
-  name: string;
-  score?: number;
-  level: string;
-  status: string;
-  qualitativeTier?: string;
-  lastAssessed?: string;
-}
-
-export interface SafeSubCompetencyDTO {
-  name: string;
-  scoreRatio: number; // 0.0 - 1.0 (activity completion / rubric ratio)
-  qualitativeStatus: 'Needs Remediation' | 'Developing' | 'Secure' | 'Exceeding';
-  evidenceNote: string;
-}
-
-export interface SafeMisconceptionDTO {
-  tag: string;
-  label: string;
-  severity: 'mild' | 'moderate' | 'critical';
-  frequency: number;
-  pedagogicalRemedy: string;
-}
-
-export interface SafeRoadmapMilestoneDTO {
-  week: number;
-  title: string;
-  focusArea: string;
-  pedagogicalObjective: string;
-  recommendedActivities: string[];
-  primingQuestion: string;
-}
-
-export interface SafeLearnerProfileDTO {
-  id: string;
-  userId: string;
-  name: string;
-  fullName: string;
-  age?: number;
-  grade: string;
-  gradeBand?: string;
-  schoolName?: string;
-  avatarUrl?: string;
-  dominantFocus?: string;
-  competencies: Record<string, SafeCompetencyDTO>;
-  recentEvidence: SafeEvidenceDTO[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-/** Recipient-specific DTO: Minor learner self-reflection view */
-export type StudentSelfProfileDTO = SafeLearnerProfileDTO;
-
-/** Recipient-specific DTO: Verified parent diagnostic guide view */
-export type ParentLearnerSummaryDTO = SafeLearnerProfileDTO;
-
-/**
- * Recipient-specific DTO: Minor Learner Diagnostic Benchmark Report (/student/report)
- *
- * Focuses on developmental milestones, growth roadmaps, and qualitative tiers.
- * Excludes comparative delta metrics vs global means to eliminate stereotype threat.
- */
-export interface StudentBenchmarkReportDTO {
-  domain: BenchmarkDomain;
-  domainTitle: string;
-  percentileRank: number; // Approved macro international standing anchor (never fixed IQ or ranking)
-  standardScaleScore: number;
-  scaleFormatted: string; // Contextual reference scale (e.g. "540 Ref Pts · Pending Gate 4 Validation")
-  scaleName: string;
-  internationalTier: string;
-  developmentalBand: 'Emergent Explorer' | 'Developing Foundation' | 'Competent Practitioner' | 'Advanced Master';
-  subCompetencies: SafeSubCompetencyDTO[];
-  identifiedMisconceptions: SafeMisconceptionDTO[];
-  actionableRoadmap: SafeRoadmapMilestoneDTO[];
-  generatedAt: string;
-}
-
-/**
- * Recipient-specific DTO: Verified Parent Benchmark Report (/parent/report)
- *
- * Includes contextual global norm comparison for family educational planning,
- * with explicit psychometric governance disclosure regarding Gate 4 validation.
- */
-export interface ParentBenchmarkReportDTO extends StudentBenchmarkReportDTO {
-  globalComparison: {
-    oecdAverage: number;
-    topDecileThreshold: number;
-    learnerScore: number;
-    deltaVsGlobalMean: number;
-  };
-  psychometricNotice: string;
-}
-
-/** Standard alias for parent/family benchmark report */
-export type SafeBenchmarkReportDTO = ParentBenchmarkReportDTO;
+import type {
+  SafeEvidenceDTO,
+  SafeCompetencyDTO,
+  SafeSubCompetencyDTO,
+  SafeMisconceptionDTO,
+  SafeRoadmapMilestoneDTO,
+  SafeLearnerProfileDTO,
+  BenchmarkGatingOptions,
+  StudentBenchmarkReportDTO,
+  ParentBenchmarkReportDTO
+} from '$lib/types/psychometricDto';
 
 /**
  * Maps a single sub-competency using an explicit allowlist schema.
@@ -291,58 +206,102 @@ export function toSafeLearnerProfileDTO(raw: any): SafeLearnerProfileDTO {
 /**
  * Maps a benchmark report for Minor Student self-reflection view.
  * Physically excludes raw theta, SE, and competitive peer-delta comparisons.
+ *
+ * Gate 4 Governance Rule:
+ * Unvalidated numerical metrics (percentileRank, standardScaleScore, scaleFormatted)
+ * are WITHHELD from responses by default until Gate 4 empirical validation is approved.
  */
-export function toStudentBenchmarkReportDTO(report: any): StudentBenchmarkReportDTO | null {
+export function toStudentBenchmarkReportDTO(
+  report: any,
+  options: BenchmarkGatingOptions = {}
+): StudentBenchmarkReportDTO | null {
   if (!report) return null;
 
-  return {
+  const isGate4Calibrated = Boolean(options.enableGate4Outputs);
+  const approvedFields = new Set(
+    options.approvedFields ||
+      (isGate4Calibrated ? ['percentileRank', 'standardScaleScore', 'scaleFormatted'] : [])
+  );
+
+  const base: StudentBenchmarkReportDTO = {
     domain: report.domain,
     domainTitle: String(report.domainTitle || ''),
-    percentileRank: typeof report.percentileRank === 'number' ? report.percentileRank : 50,
-    standardScaleScore: typeof report.standardScaleScore === 'number' ? report.standardScaleScore : 500,
-    scaleFormatted: String(report.scaleFormatted || ''),
-    scaleName: String(report.scaleName || ''),
-    internationalTier: String(report.internationalTier || ''),
+    scaleName: String(report.scaleName || 'CREED Foundational Competency Horizon'),
+    internationalTier: String(report.internationalTier || 'Foundational Competency Demonstrated'),
     developmentalBand: report.developmentalBand || 'Developing Foundation',
     subCompetencies: Array.isArray(report.subCompetencies) ? report.subCompetencies.map(toSafeSubCompetencyDTO) : [],
     identifiedMisconceptions: Array.isArray(report.identifiedMisconceptions) ? report.identifiedMisconceptions.map(toSafeMisconceptionDTO) : [],
     actionableRoadmap: Array.isArray(report.actionableRoadmap) ? report.actionableRoadmap.map(toSafeRoadmapMilestoneDTO) : [],
-    generatedAt: String(report.generatedAt || new Date().toISOString())
+    generatedAt: String(report.generatedAt || new Date().toISOString()),
+    isGate4Calibrated,
+    calibrationStatus: isGate4Calibrated ? 'CALIBRATED' : 'DEVELOPMENTAL_UNLINKED'
   };
+
+  // Only expose numerical indicators when Gate 4 approval has explicitly authorized each output
+  if (isGate4Calibrated && approvedFields.has('percentileRank') && typeof report.percentileRank === 'number') {
+    base.percentileRank = report.percentileRank;
+  }
+  if (isGate4Calibrated && approvedFields.has('standardScaleScore') && typeof report.standardScaleScore === 'number') {
+    base.standardScaleScore = report.standardScaleScore;
+  }
+  if (isGate4Calibrated && approvedFields.has('scaleFormatted') && report.scaleFormatted) {
+    base.scaleFormatted = String(report.scaleFormatted);
+  }
+
+  return base;
 }
 
 /**
  * Maps a benchmark report for Verified Guardian Family Diagnostic Guide.
- * Includes globalComparison context and Gate 4 calibration disclosure.
+ * Includes family diagnostic context with Gate 4 calibration disclosures.
+ *
+ * Gate 4 Governance Rule:
+ * Global comparison norm delta is WITHHELD from responses by default until Gate 4 validation.
  */
-export function toParentBenchmarkReportDTO(report: any): ParentBenchmarkReportDTO | null {
+export function toParentBenchmarkReportDTO(
+  report: any,
+  options: BenchmarkGatingOptions = {}
+): ParentBenchmarkReportDTO | null {
   if (!report) return null;
 
-  const base = toStudentBenchmarkReportDTO(report);
+  const base = toStudentBenchmarkReportDTO(report, options);
   if (!base) return null;
 
-  return {
-    ...base,
-    globalComparison: report.globalComparison ? {
+  const isGate4Calibrated = Boolean(options.enableGate4Outputs);
+  const approvedFields = new Set(
+    options.approvedFields ||
+      (isGate4Calibrated ? ['percentileRank', 'standardScaleScore', 'scaleFormatted', 'globalComparison'] : [])
+  );
+
+  let globalComparison: ParentBenchmarkReportDTO['globalComparison'] = undefined;
+  if (isGate4Calibrated && approvedFields.has('globalComparison') && report.globalComparison) {
+    globalComparison = {
       oecdAverage: Number(report.globalComparison.oecdAverage || 500),
       topDecileThreshold: Number(report.globalComparison.topDecileThreshold || 600),
       learnerScore: Number(report.globalComparison.learnerScore || 500),
       deltaVsGlobalMean: Number(report.globalComparison.deltaVsGlobalMean || 0)
-    } : {
-      oecdAverage: 500,
-      topDecileThreshold: 600,
-      learnerScore: 500,
-      deltaVsGlobalMean: 0
-    },
-    psychometricNotice: 'Standard scaled scores and international standing tiers are contextual reference benchmarks. Empirical external calibration and formal concordance (such as OECD PISA or TIMSS linking) remain subject to Gate 4 psychometric validation.'
+    };
+  }
+
+  const psychometricNotice = isGate4Calibrated
+    ? 'Calibrated benchmark output authorized under Gate 4 psychometric validation. Normative references are contextual formative indicators, not deterministic ability labels.'
+    : 'Developmental diagnostic report based on verified evidence and qualitative pedagogical rubrics. Standard numerical scaled scores, percentile ranks, and international norm comparisons remain gated pending formal empirical Gate 4 psychometric calibration.';
+
+  return {
+    ...base,
+    globalComparison,
+    psychometricNotice
   };
 }
 
 /**
  * Standard backward-compatible alias for benchmark reports.
  */
-export function toSafeBenchmarkReportDTO(report: any): ParentBenchmarkReportDTO | null {
-  return toParentBenchmarkReportDTO(report);
+export function toSafeBenchmarkReportDTO(
+  report: any,
+  options: BenchmarkGatingOptions = {}
+): ParentBenchmarkReportDTO | null {
+  return toParentBenchmarkReportDTO(report, options);
 }
 
 /**

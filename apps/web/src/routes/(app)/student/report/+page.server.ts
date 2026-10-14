@@ -24,8 +24,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     : null;
 
   const safeReports = rawReports
-    .map(toStudentBenchmarkReportDTO)
-    .filter(Boolean)
+    .map((r) => toStudentBenchmarkReportDTO(r))
+    .filter((r): r is NonNullable<typeof r> => Boolean(r))
     .map((r) => deepSanitizePsychometrics(r));
 
   const safeActiveReport = deepSanitizePsychometrics(toStudentBenchmarkReportDTO(rawActiveReport));

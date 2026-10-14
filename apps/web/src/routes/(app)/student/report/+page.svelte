@@ -18,7 +18,8 @@
     Sparkles
   } from 'lucide-svelte';
   import type { PageData } from './$types';
-  import type { BenchmarkDomain, GlobalBenchmarkReport } from '@core-os/assessment';
+  import type { BenchmarkDomain } from '@core-os/assessment';
+  import type { StudentBenchmarkReportDTO } from '$lib/types/psychometricDto';
 
   let { data } = $props<{ data: PageData }>();
 
@@ -28,8 +29,8 @@
   let openRoadmapWeek = $state<number | null>(1);
   let showEvidenceDrawer = $state(false);
 
-  const currentReport = $derived<GlobalBenchmarkReport>(
-    data.reports.find((r: GlobalBenchmarkReport) => r.domain === activeDomain) || data.activeReport
+  const currentReport = $derived<StudentBenchmarkReportDTO | null>(
+    data.reports.find((r: StudentBenchmarkReportDTO) => r.domain === activeDomain) || data.activeReport
   );
 
   const domainTabs: Array<{ id: BenchmarkDomain; label: string; icon: any }> = [
@@ -88,9 +89,15 @@
           <h2 class="text-lg font-bold text-foreground">
             {currentReport.developmentalBand} · {currentReport.internationalTier}
           </h2>
-          <p class="text-xs sm:text-sm text-foreground-secondary max-w-2xl leading-relaxed">
-            Performance places this learner in the <strong>{currentReport.percentileRank}th international percentile</strong>, demonstrating authentic strengths with clear, actionable milestones ahead.
-          </p>
+          {#if currentReport.isGate4Calibrated && currentReport.percentileRank}
+            <p class="text-xs sm:text-sm text-foreground-secondary max-w-2xl leading-relaxed">
+              Performance places this learner in the <strong>{currentReport.percentileRank}th international percentile</strong>, demonstrating authentic strengths with clear, actionable milestones ahead.
+            </p>
+          {:else}
+            <p class="text-xs sm:text-sm text-foreground-secondary max-w-2xl leading-relaxed">
+              Learner demonstrates authentic strengths in <strong>{currentReport.domainTitle}</strong> within the <strong>{currentReport.developmentalBand}</strong> tier, with clear actionable milestones and targeted remedies ahead.
+            </p>
+          {/if}
         </div>
 
         <a
@@ -104,132 +111,123 @@
 
       <!-- Standing Metric Cards -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <!-- Standard Scale Score -->
-        <div class="p-5 bg-surface border border-border rounded-sm space-y-2">
-          <span class="text-[10px] font-semibold uppercase tracking-wider text-ink-secondary block">
-            Standard Scale Score
-          </span>
-          <div class="flex items-baseline gap-2">
-            <span class="text-3xl font-extrabold text-foreground tracking-tight font-mono">
-              {currentReport.standardScaleScore}
+        {#if currentReport.isGate4Calibrated}
+          <!-- Standard Scale Score -->
+          <div class="p-5 bg-surface border border-border rounded-sm space-y-2">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-ink-secondary block">
+              Standard Scale Score
             </span>
-            <span class="text-xs text-foreground-secondary font-medium">
-              {currentReport.domain === 'english' ? 'Lexile' : currentReport.domain === 'robotics' ? 'RoboScale' : 'Ref Pts'}
-            </span>
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl font-extrabold text-foreground tracking-tight font-mono">
+                {currentReport.standardScaleScore}
+              </span>
+              <span class="text-xs text-foreground-secondary font-medium">
+                {currentReport.domain === 'english' ? 'Lexile' : currentReport.domain === 'robotics' ? 'RoboScale' : 'Ref Pts'}
+              </span>
+            </div>
+            <p class="text-xs text-foreground-secondary leading-relaxed line-clamp-1">
+              {currentReport.scaleName}
+            </p>
           </div>
-          <p class="text-xs text-foreground-secondary leading-relaxed line-clamp-1">
-            {currentReport.scaleName}
-          </p>
-        </div>
 
-        <!-- Global Percentile -->
-        <div class="p-5 bg-surface border border-border rounded-sm space-y-2">
-          <span class="text-[10px] font-semibold uppercase tracking-wider text-ink-secondary block">
-            International Percentile
-          </span>
-          <div class="flex items-baseline gap-2">
-            <span class="text-3xl font-extrabold text-positive tracking-tight font-mono">
-              {currentReport.percentileRank}th
+          <!-- Global Percentile -->
+          <div class="p-5 bg-surface border border-border rounded-sm space-y-2">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-ink-secondary block">
+              International Percentile
             </span>
-            <span class="text-xs text-positive font-semibold">
-              Top {100 - currentReport.percentileRank}%
-            </span>
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl font-extrabold text-positive tracking-tight font-mono">
+                {currentReport.percentileRank}th
+              </span>
+              <span class="text-xs text-positive font-semibold">
+                Top {100 - (currentReport.percentileRank || 50)}%
+              </span>
+            </div>
+            <p class="text-xs text-foreground-secondary leading-relaxed">
+              Calibrated international standing
+            </p>
           </div>
-          <p class="text-xs text-foreground-secondary leading-relaxed">
-            Contextual educational reference (Gate 4 empirical linking pending)
-          </p>
-        </div>
+        {:else}
+          <!-- Pre-Gate 4 Developmental Cards: Zero False Precision -->
+          <div class="p-5 bg-surface border border-border rounded-sm space-y-2">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-ink-secondary block">
+              Developmental Posture
+            </span>
+            <div class="flex items-baseline gap-2">
+              <span class="text-xl font-bold text-foreground tracking-tight">
+                {currentReport.developmentalBand}
+              </span>
+            </div>
+            <p class="text-xs text-foreground-secondary leading-relaxed line-clamp-1">
+              Qualitative progression tier
+            </p>
+          </div>
 
-        <!-- Developmental Band -->
+          <div class="p-5 bg-surface border border-border rounded-sm space-y-2">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-ink-secondary block">
+              Curriculum Alignment
+            </span>
+            <div class="flex items-baseline gap-2">
+              <span class="text-sm font-bold text-positive tracking-tight">
+                {currentReport.internationalTier}
+              </span>
+            </div>
+            <p class="text-xs text-foreground-secondary leading-relaxed">
+              Foundational syllabus prerequisites
+            </p>
+          </div>
+        {/if}
+
+        <!-- Developmental Band / Tier -->
         <div class="p-5 bg-surface border border-border rounded-sm space-y-2">
           <span class="text-[10px] font-semibold uppercase tracking-wider text-ink-secondary block">
-            Developmental Tier
+            Focus Dimensions
           </span>
           <div class="flex items-baseline gap-2">
             <span class="text-xl font-bold text-ai tracking-tight">
-              {currentReport.developmentalBand}
+              {currentReport.subCompetencies.length} Vectors
             </span>
           </div>
           <p class="text-xs text-foreground-secondary leading-relaxed line-clamp-1">
-            Evidence before labeling
+            Diagnostic syllabus coverage
           </p>
         </div>
 
-        <!-- International Tier -->
+        <!-- Calibration & Readiness Horizon -->
         <div class="p-5 bg-surface border border-border rounded-sm space-y-2">
           <span class="text-[10px] font-semibold uppercase tracking-wider text-ink-secondary block">
-            Benchmark Horizon
+            Calibration Protocol
           </span>
           <div class="flex items-baseline gap-2">
-            <span class="text-sm font-bold text-foreground">
-              {currentReport.internationalTier}
+            <span class="text-sm font-bold {currentReport.isGate4Calibrated ? 'text-positive' : 'text-attention'}">
+              {currentReport.isGate4Calibrated ? 'Gate 4 Validated' : 'Gate 4 In Progress'}
             </span>
           </div>
           <p class="text-xs text-foreground-secondary leading-relaxed">
-            Standard syllabus alignment
+            {currentReport.isGate4Calibrated ? 'Empirical linking verified' : 'Formative reference state'}
           </p>
         </div>
       </div>
     </section>
 
-    <!-- LEVEL 2 — CONTEXT: GLOBAL NORM COMPARISON & QUALITATIVE ANALYSIS -->
-    <section class="p-6 bg-surface border border-border rounded-sm space-y-4">
+    <!-- LEVEL 2 — CONTEXT: DEVELOPMENTAL GUIDANCE & LEARNING TRAJECTORY -->
+    <section class="p-6 bg-surface border border-border rounded-sm space-y-3">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
         <div>
           <h2 class="text-sm font-bold text-foreground">
-            Global Benchmark Horizon & Normative Calibration
+            Developmental Learning Trajectory & Pedagogical Guidance
           </h2>
           <p class="text-xs text-muted">
-            Comparison against international cohort means (OECD Baseline vs. Top Decile Advanced Threshold)
+            Qualitative diagnostic profile derived from verified mission demonstrations and rubric criteria
           </p>
         </div>
-        <span class="text-xs font-mono text-muted">
-          Delta vs Global Mean: <strong class="{currentReport.globalComparison.deltaVsGlobalMean >= 0 ? 'text-positive' : 'text-attention'}">{currentReport.globalComparison.deltaVsGlobalMean >= 0 ? `+${currentReport.globalComparison.deltaVsGlobalMean}` : currentReport.globalComparison.deltaVsGlobalMean} pts</strong>
+        <span class="text-[11px] font-mono text-ai bg-ai-subtle px-2 py-0.5 rounded-sm">
+          {currentReport.isGate4Calibrated ? 'Gate 4 Validated' : 'Formative Mode'}
         </span>
       </div>
-
-      <!-- Comparative Spectrum Bar -->
-      <div class="space-y-2 pt-2">
-        <div class="relative w-full h-8 bg-surface-raised border border-border rounded-none overflow-hidden flex items-center px-4">
-          <!-- OECD Average Marker -->
-          <div
-            class="absolute top-0 bottom-0 border-r-2 border-dashed border-attention/60 flex items-center z-10"
-            style="left: 45%;"
-            title="OECD Global Mean (500 pts)"
-          >
-            <span class="text-[9px] bg-attention-subtle text-attention font-mono px-1 py-0.5 ml-1">
-              Global Mean (500)
-            </span>
-          </div>
-
-          <!-- Top Decile Marker -->
-          <div
-            class="absolute top-0 bottom-0 border-r-2 border-dashed border-ai/60 flex items-center z-10"
-            style="left: 78%;"
-            title="Top Decile Advanced (625 pts)"
-          >
-            <span class="text-[9px] bg-ai-subtle text-ai font-mono px-1 py-0.5 ml-1">
-              Top 10% (625)
-            </span>
-          </div>
-
-          <!-- Learner Score Fill -->
-          <div
-            class="h-full bg-linear-to-r from-ai/30 to-ai/80 transition-all duration-200 flex items-center justify-end pr-2"
-            style="width: {Math.min(95, Math.max(15, (currentReport.standardScaleScore / 800) * 100))}%"
-          >
-            <span class="text-xs font-bold text-white font-mono drop-shadow-xs">
-              {currentReport.standardScaleScore}
-            </span>
-          </div>
-        </div>
-
-        <div class="flex items-center justify-between text-[11px] text-muted">
-          <span>Foundational Explorer (300)</span>
-          <span>Global Average (500)</span>
-          <span>Advanced Master (750+)</span>
-        </div>
-      </div>
+      <p class="text-xs text-foreground-secondary leading-relaxed">
+        Under CREED OS <em>Zero False Precision</em> governance, feedback is focused on sub-competency diagnostic breakdowns and targeted milestone roadmaps. Peer competitive comparisons and unvalidated numerical scales are withheld to eliminate stereotype threat and promote mastery-oriented growth.
+      </p>
     </section>
 
     <!-- LEVEL 3 — EVIDENCE: SUB-COMPETENCY BREAKDOWN & MISCONCEPTION AUDIT -->

@@ -16,7 +16,8 @@
     ChevronUp
   } from 'lucide-svelte';
   import type { PageData } from './$types';
-  import type { BenchmarkDomain, GlobalBenchmarkReport } from '@core-os/assessment';
+  import type { BenchmarkDomain } from '@core-os/assessment';
+  import type { ParentBenchmarkReportDTO } from '$lib/types/psychometricDto';
 
   let { data } = $props<{ data: PageData }>();
 
@@ -24,8 +25,8 @@
   const activeDomain = $derived<BenchmarkDomain>(selectedDomain ?? data.selectedDomain ?? 'stem');
   let openParentTipIndex = $state<number | null>(0);
 
-  const currentReport = $derived<GlobalBenchmarkReport>(
-    data.reports.find((r: GlobalBenchmarkReport) => r.domain === activeDomain) || data.activeReport
+  const currentReport = $derived<ParentBenchmarkReportDTO | null>(
+    data.reports.find((r: ParentBenchmarkReportDTO) => r.domain === activeDomain) || data.activeReport
   );
 
   const domainTabs: Array<{ id: BenchmarkDomain; label: string; icon: any }> = [
@@ -84,24 +85,38 @@
         <h2 class="text-lg sm:text-xl font-bold text-foreground leading-snug">
           {data.learner.fullName} demonstrates a <span class="text-ai">{currentReport.developmentalBand}</span> in {currentReport.domainTitle}.
         </h2>
-        <p class="text-xs sm:text-sm text-muted leading-relaxed">
-          In recent 30-question diagnostic benchmarking, your child placed at the <strong>{currentReport.percentileRank}th international percentile</strong>, representing standing within the <strong>top {100 - currentReport.percentileRank}%</strong> of global peers on the {currentReport.scaleName}.
-        </p>
+        {#if currentReport.isGate4Calibrated && currentReport.percentileRank}
+          <p class="text-xs sm:text-sm text-muted leading-relaxed">
+            In recent 30-question diagnostic benchmarking, your child placed at the <strong>{currentReport.percentileRank}th international percentile</strong>, representing standing within the <strong>top {100 - currentReport.percentileRank}%</strong> of global peers on the {currentReport.scaleName}.
+          </p>
+        {:else}
+          <p class="text-xs sm:text-sm text-muted leading-relaxed">
+            Diagnostic assessment indicates strong foundational understanding in <strong>{currentReport.domainTitle}</strong> within the <strong>{currentReport.developmentalBand}</strong> tier. Numerical percentiles remain gated pending Gate 4 validation to prioritize developmental growth.
+          </p>
+        {/if}
       </div>
 
       <!-- Humanized Score Card Grid -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-border">
         <div class="p-3.5 bg-surface-raised border border-border rounded-sm space-y-1">
-          <span class="text-[10px] uppercase font-semibold text-muted tracking-wider">International Standing</span>
-          <p class="text-base font-bold text-foreground">{currentReport.internationalTier}</p>
-          <span class="text-[11px] text-muted block">Equivalent to high school honors placement</span>
+          <span class="text-[10px] uppercase font-semibold text-muted tracking-wider">Developmental Standing</span>
+          <p class="text-base font-bold text-foreground">{currentReport.developmentalBand}</p>
+          <span class="text-[11px] text-muted block">{currentReport.internationalTier}</span>
         </div>
 
-        <div class="p-3.5 bg-surface-raised border border-border rounded-sm space-y-1">
-          <span class="text-[10px] uppercase font-semibold text-muted tracking-wider">Standard Scaled Index</span>
-          <p class="text-base font-bold text-ai">{currentReport.scaleFormatted}</p>
-          <span class="text-[11px] text-muted block">Against OECD Global Average ({currentReport.globalComparison.oecdAverage})</span>
-        </div>
+        {#if currentReport.isGate4Calibrated && currentReport.scaleFormatted}
+          <div class="p-3.5 bg-surface-raised border border-border rounded-sm space-y-1">
+            <span class="text-[10px] uppercase font-semibold text-muted tracking-wider">Standard Scaled Index</span>
+            <p class="text-base font-bold text-ai">{currentReport.scaleFormatted}</p>
+            <span class="text-[11px] text-muted block">Against OECD Global Average ({currentReport.globalComparison?.oecdAverage || 500})</span>
+          </div>
+        {:else}
+          <div class="p-3.5 bg-surface-raised border border-border rounded-sm space-y-1">
+            <span class="text-[10px] uppercase font-semibold text-muted tracking-wider">Reporting Mode</span>
+            <p class="text-base font-bold text-ai">Qualitative Growth</p>
+            <span class="text-[11px] text-muted block">Empirical scales gated under Gate 4</span>
+          </div>
+        {/if}
 
         <div class="p-3.5 bg-surface-raised border border-border rounded-sm space-y-1">
           <span class="text-[10px] uppercase font-semibold text-muted tracking-wider">Learning Posture</span>
@@ -113,7 +128,7 @@
       <!-- Psychometric Governance Disclosure -->
       <div class="p-3 bg-surface-raised border border-border rounded-sm text-[11px] text-muted leading-relaxed">
         <span class="font-semibold text-foreground">Psychometric Governance Note:</span>
-        Standard scaled scores and international standing tiers are formative reference benchmarks. Formal empirical linking (e.g. OECD PISA/TIMSS concordance) remains subject to Gate 4 psychometric validation.
+        {currentReport.psychometricNotice}
       </div>
     </section>
 
