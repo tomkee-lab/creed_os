@@ -6,7 +6,9 @@ export * from './types/assessment.js';
 export * from './types/learner.js';
 export * from './schemas/index.js';
 export * from './consent.js';
+export * from './dpdp-manifest.js';
 export * from './security.js';
 export * from './workflows/assessment_pipeline.js';
 export * from './workflows/mismatch_pipeline.js';
 export * from './workflows/pathway.js';
+

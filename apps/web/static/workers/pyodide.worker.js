@@ -806,9 +806,20 @@ async function loadPyodideAndPackages() {
     indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/'
   });
   await self.pyodide.runPythonAsync(ROBOTICS_RUNTIME_INIT);
+
+  // SANDBOX HARDENING: Neutralize network & dynamic script execution capabilities in worker
+  try {
+    self.fetch = () => Promise.reject(new Error('Network access is disabled in the Pyodide robotics sandbox.'));
+    self.XMLHttpRequest = function() { throw new Error('Network access is disabled in the Pyodide robotics sandbox.'); };
+    self.WebSocket = function() { throw new Error('WebSocket connections are disabled in the Pyodide robotics sandbox.'); };
+    self.importScripts = () => { throw new Error('Dynamic script imports are disabled in the Pyodide robotics sandbox.'); };
+  } catch {}
 }
 
 pyodideReadyPromise = loadPyodideAndPackages();
+
+const MAX_STDOUT_BYTES = 65536; // 64KB buffer cap to prevent memory exhaustion
+const EXECUTION_TIMEOUT_MS = 5000; // 5-second CPU limit watchdog
 
 self.onmessage = async (event) => {
   const { id, code } = event.data;
@@ -819,7 +830,14 @@ self.onmessage = async (event) => {
 
     let stdOut = '';
     self.pyodide.setStdout({
-      batched: (msg) => { stdOut += msg + '\n'; }
+      batched: (msg) => {
+        if (stdOut.length < MAX_STDOUT_BYTES) {
+          stdOut += msg + '\n';
+          if (stdOut.length >= MAX_STDOUT_BYTES) {
+            stdOut += '\n[OUTPUT TRUNCATED: 64KB sandbox buffer threshold reached]\n';
+          }
+        }
+      }
     });
 
     await self.pyodide.runPythonAsync(`
@@ -852,7 +870,13 @@ time.sleep = _kinematic_sleep
 
 `);
 
-    const result = await self.pyodide.runPythonAsync(code);
+    // Execute with 5-second watchdog timer race
+    const executionPromise = self.pyodide.runPythonAsync(code);
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Execution timed out: CPU limit exceeded (5-second watchdog limit)')), EXECUTION_TIMEOUT_MS);
+    });
+
+    const result = await Promise.race([executionPromise, timeoutPromise]);
 
     let telemetry = null;
     try {

@@ -155,7 +155,7 @@ export function isConsentActive(record: ConsentRecord): boolean {
   return now < expiry;
 }
 
-function computeAuditHash(learnerId: string, token: string, timestamp: string): string {
+function computeAuditHashInternal(learnerId: string, token: string, timestamp: string): string {
   // Deterministic pseudo-hash string for local verification audit trail
   let hash = 0;
   const str = `${learnerId}:${token}:${timestamp}:DPDP-ACT-2023`;
@@ -164,4 +164,91 @@ function computeAuditHash(learnerId: string, token: string, timestamp: string): 
     hash |= 0;
   }
   return `dpdp_${Math.abs(hash).toString(16).padStart(8, '0')}`;
+}
+
+export function computeAuditHash(learnerId: string, token: string, timestamp: string): string {
+  return computeAuditHashInternal(learnerId, token, timestamp);
+}
+
+export function verifyAuditHash(record: ConsentRecord, auditToken: string): boolean {
+  if (!record.verifiedAt || !record.immutableAuditHash) return false;
+  const expected = computeAuditHashInternal(record.learnerId, auditToken, record.verifiedAt);
+  return record.immutableAuditHash === expected;
+}
+
+/**
+ * Statutory Child Protection Rule under India DPDP Act 2023, Section 9:
+ * Verifiable parental consent is mandatory for any individual under 18 years of age.
+ */
+export function isMinorRequiringConsent(birthDate: string | Date, referenceDate: Date = new Date()): boolean {
+  const birth = typeof birthDate === 'string' ? new Date(birthDate) : birthDate;
+  if (isNaN(birth.getTime())) return true; // Fail closed if birthdate is invalid
+
+  let age = referenceDate.getFullYear() - birth.getFullYear();
+  const m = referenceDate.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && referenceDate.getDate() < birth.getDate())) {
+    age--;
+  }
+
+  // Statutory threshold: < 18 years
+  return age < 18;
+}
+
+/**
+ * 6-Tier Account Erasure Architecture under DPDP Act 2023:
+ * Distinguishes active profile purge, derived psychometric anonymization, and rolling backup lifecycles.
+ */
+export type ErasureStage =
+  | 'IDLE'
+  | 'ERASURE_REQUESTED'
+  | 'GRACE_PERIOD_ACTIVE'
+  | 'ACTIVE_RECORD_PURGED'
+  | 'DERIVED_PROFILE_PURGED'
+  | 'EDGE_CACHE_PURGED'
+  | 'ARCHIVED_LOG_PURGED';
+
+export interface AccountErasureRecord {
+  learnerId: string;
+  stage: ErasureStage;
+  requestedAt: string;
+  gracePeriodExpiresAt: string;
+  activePurgedAt?: string;
+  derivedPurgedAt?: string;
+  cachePurgedAt?: string;
+  backupPurgedAt?: string;
+  immutableAuditLog: string[];
+}
+
+export function advanceErasureStage(
+  current: AccountErasureRecord,
+  nextStage: ErasureStage,
+  timestamp: string = new Date().toISOString()
+): AccountErasureRecord {
+  const validTransitions: Record<ErasureStage, ErasureStage[]> = {
+    IDLE: ['ERASURE_REQUESTED'],
+    ERASURE_REQUESTED: ['GRACE_PERIOD_ACTIVE', 'ACTIVE_RECORD_PURGED'],
+    GRACE_PERIOD_ACTIVE: ['ACTIVE_RECORD_PURGED', 'IDLE'], // IDLE represents guardian withdrawal of erasure request during grace period
+    ACTIVE_RECORD_PURGED: ['DERIVED_PROFILE_PURGED'],
+    DERIVED_PROFILE_PURGED: ['EDGE_CACHE_PURGED'],
+    EDGE_CACHE_PURGED: ['ARCHIVED_LOG_PURGED'],
+    ARCHIVED_LOG_PURGED: []
+  };
+
+  const allowed = validTransitions[current.stage] || [];
+  if (!allowed.includes(nextStage)) {
+    throw new ConsentStateError(`Invalid erasure transition from ${current.stage} to ${nextStage}`);
+  }
+
+  const updated: AccountErasureRecord = {
+    ...current,
+    stage: nextStage,
+    immutableAuditLog: [...current.immutableAuditLog, `Transition to ${nextStage} at ${timestamp}`]
+  };
+
+  if (nextStage === 'ACTIVE_RECORD_PURGED') updated.activePurgedAt = timestamp;
+  if (nextStage === 'DERIVED_PROFILE_PURGED') updated.derivedPurgedAt = timestamp;
+  if (nextStage === 'EDGE_CACHE_PURGED') updated.cachePurgedAt = timestamp;
+  if (nextStage === 'ARCHIVED_LOG_PURGED') updated.backupPurgedAt = timestamp;
+
+  return updated;
 }

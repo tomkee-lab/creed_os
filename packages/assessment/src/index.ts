@@ -1,4 +1,5 @@
 export * from './irt/three_pl.js';
+export * from './irt/calibration.js';
 export * from './cat/estimator.js';
 export * from './cat/selector.js';
 export * from './scoring/evaluator.js';
@@ -6,3 +7,4 @@ export * from './items/bank.js';
 export * from './bkt.js';
 export * from './export/qti.js';
 export * from './benchmarks/index.js';
+
