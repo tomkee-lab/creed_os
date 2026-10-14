@@ -910,6 +910,15 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
       expect((studentDtoPreG4.actionableRoadmap[0] as any).internalAuditToken).toBeUndefined();
     }
 
+    // Fail-Closed Security Policy: non-boolean or malformed parameters fail closed to false
+    const malformedDto1 = toStudentBenchmarkReportDTO(mockRawWithMaliciousFields, { enableGate4Outputs: 'true' as any });
+    expect(malformedDto1?.isGate4Calibrated).toBe(false);
+    expect(malformedDto1?.percentileRank).toBeUndefined();
+
+    const malformedDto2 = toStudentBenchmarkReportDTO(mockRawWithMaliciousFields, { enableGate4Outputs: 1 as any });
+    expect(malformedDto2?.isGate4Calibrated).toBe(false);
+    expect(malformedDto2?.percentileRank).toBeUndefined();
+
     // 2. Pre-Gate 4 Default Gating: Parent DTO (Numerical & norm delta withheld)
     const parentDtoPreG4 = toParentBenchmarkReportDTO(mockRawWithMaliciousFields);
     expect(parentDtoPreG4).not.toBeNull();

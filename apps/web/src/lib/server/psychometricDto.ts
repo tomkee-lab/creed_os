@@ -215,12 +215,13 @@ export function toStudentBenchmarkReportDTO(
   report: any,
   options: BenchmarkGatingOptions = {}
 ): StudentBenchmarkReportDTO | null {
-  if (!report) return null;
-
-  const isGate4Calibrated = Boolean(options.enableGate4Outputs);
+  // Gate 4 Fail-Closed Security Policy:
+  // Must strictly be boolean true. Any missing, undefined, null, string, or malformed config fails closed to false.
+  const isGate4Calibrated = options?.enableGate4Outputs === true;
   const approvedFields = new Set(
-    options.approvedFields ||
-      (isGate4Calibrated ? ['percentileRank', 'standardScaleScore', 'scaleFormatted'] : [])
+    Array.isArray(options?.approvedFields)
+      ? options.approvedFields
+      : (isGate4Calibrated ? ['percentileRank', 'standardScaleScore', 'scaleFormatted'] : [])
   );
 
   const base: StudentBenchmarkReportDTO = {
@@ -267,10 +268,13 @@ export function toParentBenchmarkReportDTO(
   const base = toStudentBenchmarkReportDTO(report, options);
   if (!base) return null;
 
-  const isGate4Calibrated = Boolean(options.enableGate4Outputs);
+  // Gate 4 Fail-Closed Security Policy:
+  // Must strictly be boolean true. Any missing, undefined, null, string, or malformed config fails closed to false.
+  const isGate4Calibrated = options?.enableGate4Outputs === true;
   const approvedFields = new Set(
-    options.approvedFields ||
-      (isGate4Calibrated ? ['percentileRank', 'standardScaleScore', 'scaleFormatted', 'globalComparison'] : [])
+    Array.isArray(options?.approvedFields)
+      ? options.approvedFields
+      : (isGate4Calibrated ? ['percentileRank', 'standardScaleScore', 'scaleFormatted', 'globalComparison'] : [])
   );
 
   let globalComparison: ParentBenchmarkReportDTO['globalComparison'] = undefined;
