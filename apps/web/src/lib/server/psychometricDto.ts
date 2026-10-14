@@ -225,18 +225,15 @@ export function toStudentBenchmarkReportDTO(
   // Must strictly be boolean true. Any missing, undefined, null, string, or malformed config fails closed to false.
   const isGate4Calibrated = options?.enableGate4Outputs === true;
 
-  // Strict Fail-Closed Field Allowlist Authorization:
-  // 1. If isGate4Calibrated is false (or not boolean true), approvedFields is unconditionally an empty Set.
-  // 2. If isGate4Calibrated is true:
-  //    - If options.approvedFields is explicitly provided, filter it strictly against ALLOWED_STUDENT_GATE4_FIELDS (rejecting unknown/disallowed fields).
-  //    - If options.approvedFields is omitted/undefined, default to all ALLOWED_STUDENT_GATE4_FIELDS.
+  // Explicit Per-Field Authorization Policy:
+  // Both global calibration must be active (isGate4Calibrated === true) AND approvedFields must be an explicitly
+  // supplied array of permitted fields.
+  // If approvedFields is omitted, undefined, or empty, approvedFields is unconditionally an empty Set (zero Gate 4 outputs authorized).
   const approvedFields = new Set<string>(
-    isGate4Calibrated
-      ? (Array.isArray(options?.approvedFields)
-          ? options.approvedFields.filter((f): f is AllowedStudentGate4Field =>
-              (ALLOWED_STUDENT_GATE4_FIELDS as readonly string[]).includes(f)
-            )
-          : ALLOWED_STUDENT_GATE4_FIELDS)
+    isGate4Calibrated && Array.isArray(options?.approvedFields)
+      ? options.approvedFields.filter((f): f is AllowedStudentGate4Field =>
+          (ALLOWED_STUDENT_GATE4_FIELDS as readonly string[]).includes(f)
+        )
       : []
   );
 
@@ -287,18 +284,15 @@ export function toParentBenchmarkReportDTO(
   // Must strictly be boolean true. Any missing, undefined, null, string, or malformed config fails closed to false.
   const isGate4Calibrated = options?.enableGate4Outputs === true;
 
-  // Strict Fail-Closed Field Allowlist Authorization for Parent Recipient:
-  // 1. If isGate4Calibrated is false (or not boolean true), approvedFields is unconditionally an empty Set.
-  // 2. If isGate4Calibrated is true:
-  //    - If options.approvedFields is explicitly provided, filter it strictly against ALLOWED_PARENT_GATE4_FIELDS (rejecting unknown/disallowed fields).
-  //    - If options.approvedFields is omitted/undefined, default to all ALLOWED_PARENT_GATE4_FIELDS.
+  // Explicit Per-Field Authorization Policy for Parent Recipient:
+  // Both global calibration must be active (isGate4Calibrated === true) AND approvedFields must be an explicitly
+  // supplied array of permitted fields.
+  // If approvedFields is omitted, undefined, or empty, approvedFields is unconditionally an empty Set (zero Gate 4 outputs authorized).
   const approvedFields = new Set<string>(
-    isGate4Calibrated
-      ? (Array.isArray(options?.approvedFields)
-          ? options.approvedFields.filter((f): f is AllowedParentGate4Field =>
-              (ALLOWED_PARENT_GATE4_FIELDS as readonly string[]).includes(f)
-            )
-          : ALLOWED_PARENT_GATE4_FIELDS)
+    isGate4Calibrated && Array.isArray(options?.approvedFields)
+      ? options.approvedFields.filter((f): f is AllowedParentGate4Field =>
+          (ALLOWED_PARENT_GATE4_FIELDS as readonly string[]).includes(f)
+        )
       : []
   );
 
