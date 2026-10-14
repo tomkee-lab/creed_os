@@ -3,12 +3,31 @@ import type { PageServerLoad } from './$types';
 import { coreRepository } from '$lib/server/repository';
 import { resolveLearnerId } from '$lib/server/learnerScope';
 import { toParentBenchmarkReportDTO, deepSanitizePsychometrics } from '$lib/server/psychometricDto';
+import type { BenchmarkGatingOptions } from '$lib/types/psychometricDto';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-  const learnerId = locals.user ? resolveLearnerId(locals.user) : null;
-  if (!learnerId) {
+  const user = locals.user;
+  const userRole = (user as any)?.role || (user as any)?.metadata?.role || 'student';
+  const boundLearnerId = user ? resolveLearnerId(user) : null;
+
+  if (!boundLearnerId) {
     throw error(404, 'No bound learner profile found for this account');
   }
+
+  // Cross-learner unauthorized read must be blocked with 403 Forbidden
+  const requestedLearnerId = url.searchParams.get('learnerId');
+  if (requestedLearnerId && requestedLearnerId !== boundLearnerId) {
+    throw error(403, 'Forbidden: Guardians are restricted to their verified child profile.');
+  }
+
+  const learnerId = boundLearnerId;
+
+  // Authoritative server-side identity & relationship validation:
+  // Requires authenticated parent role and active statutory parental consent record on file
+  const isVerifiedGuardian =
+    (userRole === 'parent' || userRole === 'admin') &&
+    userRole !== 'parent_pending' &&
+    coreRepository.hasActiveConsent(learnerId);
 
   const profile = coreRepository.getLearnerProfile(learnerId);
   const rawReports = coreRepository.getBenchmarkReports(learnerId);
@@ -22,12 +41,20 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     return safe;
   };
 
+  // Authoritative server-side policy options:
+  // In pre-Gate 4 baseline, enableGate4Outputs remains false.
+  // isVerifiedGuardian is derived strictly from server-side policy.
+  const gatingOptions: BenchmarkGatingOptions = {
+    enableGate4Outputs: false,
+    isVerifiedGuardian
+  };
+
   const safeReports = rawReports
-    .map((r) => toParentBenchmarkReportDTO(r))
+    .map((r) => toParentBenchmarkReportDTO(r, gatingOptions))
     .filter((r): r is NonNullable<typeof r> => Boolean(r))
     .map((r) => deepSanitizePsychometrics(r));
 
-  const safeActiveReport = deepSanitizePsychometrics(toParentBenchmarkReportDTO(rawActiveReport));
+  const safeActiveReport = deepSanitizePsychometrics(toParentBenchmarkReportDTO(rawActiveReport, gatingOptions));
 
   return {
     learner: sanitizeLearner(profile),

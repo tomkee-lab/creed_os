@@ -296,7 +296,16 @@ export function toParentBenchmarkReportDTO(
       : []
   );
 
-  const canExposeParentField = (field: AllowedParentGate4Field) => isGate4Calibrated && approvedFields.has(field);
+  const isVerifiedGuardian = options?.isVerifiedGuardian === true;
+
+  const canExposeParentField = (field: AllowedParentGate4Field) => {
+    if (!isGate4Calibrated || !approvedFields.has(field)) return false;
+    // Parent-only international benchmark comparisons mandate authoritative verified guardian authorization:
+    if (field === 'globalComparison') {
+      return isVerifiedGuardian;
+    }
+    return true;
+  };
 
   // Formative base fields (shared pedagogical contract)
   const base: ParentBenchmarkReportDTO = {

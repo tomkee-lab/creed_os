@@ -152,6 +152,11 @@ export type ParentLearnerSummaryDTO = SafeLearnerProfileDTO;
 export interface BenchmarkGatingOptions {
   enableGate4Outputs?: boolean;
   approvedFields?: Array<'percentileRank' | 'standardScaleScore' | 'scaleFormatted' | 'globalComparison'>;
+  /**
+   * Authoritative server-side indicator confirming the recipient is a verified guardian of this learner.
+   * Required before parent-only normative comparison metrics (globalComparison) can be exposed.
+   */
+  isVerifiedGuardian?: boolean;
 }
 
 /**

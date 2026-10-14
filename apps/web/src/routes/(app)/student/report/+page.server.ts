@@ -14,6 +14,12 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     throw error(404, 'No bound learner profile found for this student account');
   }
 
+  // Cross-learner unauthorized read must be blocked with 403 Forbidden
+  const requestedLearnerId = url.searchParams.get('learnerId');
+  if (requestedLearnerId && requestedLearnerId !== learnerId) {
+    throw error(403, 'Forbidden: Students are restricted strictly to their own learner profile.');
+  }
+
   const profile = coreRepository.getLearnerProfile(learnerId);
   const rawReports = coreRepository.getBenchmarkReports(learnerId);
   const selectedDomain = (url.searchParams.get('domain') || 'stem') as 'stem' | 'english' | 'robotics';

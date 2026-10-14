@@ -979,7 +979,8 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
 
     const cfg4Parent = toParentBenchmarkReportDTO(mockRawWithMaliciousFields, {
       enableGate4Outputs: true,
-      approvedFields: ['globalComparison']
+      approvedFields: ['globalComparison'],
+      isVerifiedGuardian: true
     });
     expect(cfg4Parent?.isGate4Calibrated).toBe(true);
     expect(cfg4Parent?.globalComparison).toBeDefined(); // Specifically authorized
@@ -1049,7 +1050,8 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
 
     const fullParent = toParentBenchmarkReportDTO(mockRawWithMaliciousFields, {
       enableGate4Outputs: true,
-      approvedFields: ['percentileRank', 'standardScaleScore', 'scaleFormatted', 'globalComparison']
+      approvedFields: ['percentileRank', 'standardScaleScore', 'scaleFormatted', 'globalComparison'],
+      isVerifiedGuardian: true
     });
     expect(fullParent?.isGate4Calibrated).toBe(true);
     expect(fullParent?.percentileRank).toBe(78);
@@ -1057,6 +1059,40 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
     expect(fullParent?.scaleFormatted).toBe('540 Ref Pts');
     expect(fullParent?.globalComparison?.deltaVsGlobalMean).toBe(40);
     expect(fullParent?.psychometricNotice).toContain('Calibrated benchmark output authorized under Gate 4');
+
+    // Parental Identity & Relationship Boundary Scenarios (P0 Security Check):
+    // Scenario 1: Verified parent, authorized relationship, calibrated output, explicit field approval -> Field returned
+    const verifiedParentG4 = toParentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+      enableGate4Outputs: true,
+      approvedFields: ['globalComparison', 'percentileRank'],
+      isVerifiedGuardian: true
+    });
+    expect(verifiedParentG4?.globalComparison?.deltaVsGlobalMean).toBe(40);
+    expect(verifiedParentG4?.percentileRank).toBe(78);
+
+    // Scenario 2: Unverified parent, even with globalComparison in the allowlist -> Field withheld
+    const unverifiedParentG4 = toParentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+      enableGate4Outputs: true,
+      approvedFields: ['globalComparison', 'percentileRank'],
+      isVerifiedGuardian: false
+    });
+    expect(unverifiedParentG4?.percentileRank).toBe(78);
+    expect(unverifiedParentG4?.globalComparison).toBeUndefined();
+
+    const omittedGuardianParentG4 = toParentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+      enableGate4Outputs: true,
+      approvedFields: ['globalComparison']
+    });
+    expect(omittedGuardianParentG4?.globalComparison).toBeUndefined();
+
+    // Scenario 4: Student serializer supplied with globalComparison -> Field never serialized
+    const studentWithGlobal = toStudentBenchmarkReportDTO(mockRawWithMaliciousFields, {
+      enableGate4Outputs: true,
+      approvedFields: ['globalComparison' as any, 'percentileRank']
+    });
+    expect(studentWithGlobal?.percentileRank).toBe(78);
+    expect(studentWithGlobal?.globalComparison).toBeUndefined();
+    expect('globalComparison' in (studentWithGlobal || {})).toBe(false);
 
     // 2. Pre-Gate 4 Default Gating: Parent DTO (Numerical & norm delta withheld)
     const parentDtoPreG4 = toParentBenchmarkReportDTO(mockRawWithMaliciousFields);
@@ -1125,6 +1161,20 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
       headers: studentHeaders
     });
     expect(crossProfileRes.status()).toBe(403);
+
+    // Scenario 3: Verified parent requesting another learner's report without an authorized relationship -> Access denied (403 Forbidden)
+    const parentHeaders = {
+      Cookie: `creed_dev_session=true; creed_dev_role=parent; creed_dev_user=${encodeURIComponent(JSON.stringify({ id: 'parent_1', learnerId: '3fa85f64-5717-4562-b3fc-2c963f66afa6', childLearnerId: '3fa85f64-5717-4562-b3fc-2c963f66afa6', role: 'parent' }))}; creed_consent_verified=true;`
+    };
+    const crossParentReportRes = await page.request.get('/parent/report?learnerId=other_unauthorized_learner_id', {
+      headers: parentHeaders
+    });
+    expect(crossParentReportRes.status()).toBe(403);
+
+    const crossParentApiRes = await page.request.get('/api/v1/learners/other_unauthorized_learner_id/profile', {
+      headers: parentHeaders
+    });
+    expect(crossParentApiRes.status()).toBe(403);
 
     // Test Domain Switcher
     const englishTab = page.locator('button:has-text("English & Communication")');
