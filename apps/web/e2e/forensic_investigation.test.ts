@@ -1134,6 +1134,24 @@ test.describe('Forensic UI/UX Audit & Layout Verification', () => {
       await expect(page.locator('text=English & Communication').first()).toBeVisible();
     }
 
+    // 6. Caller Boundary & Client Parameter Tamper Resistance:
+    // Assert that client-supplied query parameters (?enableGate4Outputs=true&approvedFields=percentileRank)
+    // CANNOT activate the global calibration switch or serialize gated metrics into hydration payloads.
+    await page.goto('/student/report?enableGate4Outputs=true&approvedFields=percentileRank&approvedFields=standardScaleScore', { waitUntil: 'networkidle' });
+    const studentPageContent = await page.content();
+    expect(studentPageContent).not.toMatch(/"percentileRank":\s*\d+/);
+    expect(studentPageContent).not.toMatch(/"standardScaleScore":\s*\d+/);
+    expect(studentPageContent).toContain('DEVELOPMENTAL_UNLINKED');
+    expect(studentPageContent).toContain('Gate 4 In Progress');
+
+    // Test parent route with malicious client query parameter tampering
+    await page.goto('/parent/report?enableGate4Outputs=true&approvedFields=globalComparison,percentileRank', { waitUntil: 'networkidle' });
+    const parentPageContent = await page.content();
+    expect(parentPageContent).not.toMatch(/"percentileRank":\s*\d+/);
+    expect(parentPageContent).not.toMatch(/"globalComparison":\s*\{/);
+    expect(parentPageContent).not.toContain('globalComparison');
+    expect(parentPageContent).toContain('DEVELOPMENTAL_UNLINKED');
+
     const parentOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     expect(parentOverflow).toBe(false);
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'def10_parent_report.png'), fullPage: false });
