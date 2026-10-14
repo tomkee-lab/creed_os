@@ -283,14 +283,11 @@ export function toParentBenchmarkReportDTO(
 ): ParentBenchmarkReportDTO | null {
   if (!report) return null;
 
-  const base = toStudentBenchmarkReportDTO(report, options);
-  if (!base) return null;
-
   // Gate 4 Fail-Closed Security Policy:
   // Must strictly be boolean true. Any missing, undefined, null, string, or malformed config fails closed to false.
   const isGate4Calibrated = options?.enableGate4Outputs === true;
 
-  // Strict Fail-Closed Field Allowlist Authorization:
+  // Strict Fail-Closed Field Allowlist Authorization for Parent Recipient:
   // 1. If isGate4Calibrated is false (or not boolean true), approvedFields is unconditionally an empty Set.
   // 2. If isGate4Calibrated is true:
   //    - If options.approvedFields is explicitly provided, filter it strictly against ALLOWED_PARENT_GATE4_FIELDS (rejecting unknown/disallowed fields).
@@ -307,9 +304,36 @@ export function toParentBenchmarkReportDTO(
 
   const canExposeParentField = (field: AllowedParentGate4Field) => isGate4Calibrated && approvedFields.has(field);
 
-  let globalComparison: ParentBenchmarkReportDTO['globalComparison'] = undefined;
+  // Formative base fields (shared pedagogical contract)
+  const base: ParentBenchmarkReportDTO = {
+    domain: report.domain,
+    domainTitle: String(report.domainTitle || ''),
+    scaleName: String(report.scaleName || 'CREED Foundational Competency Horizon'),
+    internationalTier: String(report.internationalTier || 'Foundational Competency Demonstrated'),
+    developmentalBand: report.developmentalBand || 'Developing Foundation',
+    subCompetencies: Array.isArray(report.subCompetencies) ? report.subCompetencies.map(toSafeSubCompetencyDTO) : [],
+    identifiedMisconceptions: Array.isArray(report.identifiedMisconceptions) ? report.identifiedMisconceptions.map(toSafeMisconceptionDTO) : [],
+    actionableRoadmap: Array.isArray(report.actionableRoadmap) ? report.actionableRoadmap.map(toSafeRoadmapMilestoneDTO) : [],
+    generatedAt: String(report.generatedAt || new Date().toISOString()),
+    isGate4Calibrated,
+    calibrationStatus: isGate4Calibrated ? 'CALIBRATED' : 'DEVELOPMENTAL_UNLINKED',
+    psychometricNotice: isGate4Calibrated
+      ? 'Calibrated benchmark output authorized under Gate 4 psychometric validation. Normative references are contextual formative indicators, not deterministic ability labels.'
+      : 'Developmental diagnostic report based on verified evidence and qualitative pedagogical rubrics. Standard numerical scaled scores, percentile ranks, and international norm comparisons remain gated pending formal empirical Gate 4 psychometric calibration.'
+  };
+
+  // Explicit, recipient-specific field authorization for Parent DTO:
+  if (canExposeParentField('percentileRank') && typeof report.percentileRank === 'number') {
+    base.percentileRank = report.percentileRank;
+  }
+  if (canExposeParentField('standardScaleScore') && typeof report.standardScaleScore === 'number') {
+    base.standardScaleScore = report.standardScaleScore;
+  }
+  if (canExposeParentField('scaleFormatted') && report.scaleFormatted) {
+    base.scaleFormatted = String(report.scaleFormatted);
+  }
   if (canExposeParentField('globalComparison') && report.globalComparison) {
-    globalComparison = {
+    base.globalComparison = {
       oecdAverage: Number(report.globalComparison.oecdAverage || 500),
       topDecileThreshold: Number(report.globalComparison.topDecileThreshold || 600),
       learnerScore: Number(report.globalComparison.learnerScore || 500),
@@ -317,15 +341,7 @@ export function toParentBenchmarkReportDTO(
     };
   }
 
-  const psychometricNotice = isGate4Calibrated
-    ? 'Calibrated benchmark output authorized under Gate 4 psychometric validation. Normative references are contextual formative indicators, not deterministic ability labels.'
-    : 'Developmental diagnostic report based on verified evidence and qualitative pedagogical rubrics. Standard numerical scaled scores, percentile ranks, and international norm comparisons remain gated pending formal empirical Gate 4 psychometric calibration.';
-
-  return {
-    ...base,
-    globalComparison,
-    psychometricNotice
-  };
+  return base;
 }
 
 /**
