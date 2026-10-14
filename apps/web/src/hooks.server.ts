@@ -93,10 +93,36 @@ export const handle: Handle = async ({ event, resolve }) => {
     ) {
       // In local development, support explicit dev persona cookies strictly on loopback
       const rawUser = event.cookies.get('creed_dev_user');
-      const devRole = event.cookies.get('creed_dev_role') || 'student';
+      const queryRole = event.url.searchParams.get('devRole') || event.url.searchParams.get('role');
+      const validDevRoles = ['student', 'parent', 'teacher', 'counselor', 'admin', 'studio'];
+      const routeDefaultRole = pathname.startsWith('/admin')
+        ? 'admin'
+        : pathname.startsWith('/teacher')
+        ? 'teacher'
+        : pathname.startsWith('/counselor')
+        ? 'counselor'
+        : pathname.startsWith('/parent')
+        ? 'parent'
+        : pathname.startsWith('/studio') || pathname.startsWith('/author')
+        ? 'studio'
+        : 'student';
+
+      const devRole = (queryRole && validDevRoles.includes(queryRole))
+        ? queryRole
+        : event.cookies.get('creed_dev_role') || routeDefaultRole;
+
+      if (queryRole && validDevRoles.includes(queryRole)) {
+        event.cookies.set('creed_dev_role', queryRole, {
+          path: '/',
+          httpOnly: true,
+          sameSite: 'lax',
+          maxAge: 7 * 24 * 60 * 60
+        });
+      }
+
       let parsedUser = null;
       try {
-        if (rawUser) parsedUser = JSON.parse(rawUser);
+        if (rawUser && !queryRole) parsedUser = JSON.parse(rawUser);
       } catch {
         // Fallback default
       }
@@ -204,34 +230,18 @@ export const handle: Handle = async ({ event, resolve }) => {
       }
     }
 
-    // Workspace-specific permissions
-    if (pathname.startsWith('/admin')) {
-      if (effectiveRole !== 'admin') {
+    // Workspace-specific API permissions
+    // Note: Workspace page routes inside (app) are authoritatively validated in (app)/+layout.server.ts
+    // so that SvelteKit's router executes and renders the styled +error.svelte component with action-first recovery.
+    if (pathname.startsWith('/api/')) {
+      if (pathname.startsWith('/api/v1/admin') && effectiveRole !== 'admin') {
         throw error(403, 'Forbidden: Administrative privilege required');
       }
-    }
-
-    if (pathname.startsWith('/teacher')) {
-      if (!['teacher', 'admin'].includes(effectiveRole)) {
+      if (
+        (pathname.startsWith('/api/v1/teachers') || pathname.startsWith('/api/v1/scrape')) &&
+        !['teacher', 'admin'].includes(effectiveRole)
+      ) {
         throw error(403, 'Forbidden: Educator credential required');
-      }
-    }
-
-    if (pathname.startsWith('/counselor')) {
-      if (!['counselor', 'admin'].includes(effectiveRole)) {
-        throw error(403, 'Forbidden: Counselor credential required');
-      }
-    }
-
-    if (pathname.startsWith('/studio') || pathname.startsWith('/author')) {
-      if (!['studio', 'admin', 'teacher'].includes(effectiveRole)) {
-        throw error(403, 'Forbidden: Item calibration credentials required');
-      }
-    }
-
-    if (pathname.startsWith('/parent')) {
-      if (!['parent', 'admin'].includes(effectiveRole)) {
-        throw error(403, 'Forbidden: Guardian relationship credential required');
       }
     }
   }

@@ -28,8 +28,7 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
     : 'student';
 
   const userRole = (user as any).role || (user as any).metadata?.role || 'student';
-  const isDevLoopback = import.meta.env.DEV && (url.hostname === 'localhost' || url.hostname === '127.0.0.1');
-  const effectiveRole = (isDevLoopback && requestedRole) ? requestedRole : userRole;
+  const effectiveRole = userRole;
 
   // Role access enforcement:
   // Non-privileged users cannot access staff, guardian, or administrative workspaces
@@ -47,8 +46,11 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
   if (requestedRole === 'admin' && effectiveRole !== 'admin') {
     throw error(403, 'Forbidden: Administrative privilege required');
   }
-  if ((requestedRole === 'teacher' || requestedRole === 'counselor') && !['teacher', 'counselor', 'admin'].includes(effectiveRole)) {
-    throw error(403, 'Forbidden: Educator or counselor credential required');
+  if (requestedRole === 'teacher' && !['teacher', 'admin'].includes(effectiveRole)) {
+    throw error(403, 'Forbidden: Educator credential required');
+  }
+  if (requestedRole === 'counselor' && !['counselor', 'admin'].includes(effectiveRole)) {
+    throw error(403, 'Forbidden: Counselor credential required');
   }
   if (requestedRole === 'studio' && !['studio', 'admin', 'teacher'].includes(effectiveRole)) {
     throw error(403, 'Forbidden: Item calibration credentials required');

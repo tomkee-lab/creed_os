@@ -1,13 +1,77 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import { ShieldAlert, ArrowLeft, LogIn, Lock, Compass } from 'lucide-svelte';
+  import { ShieldAlert, ArrowLeft, LogIn, Lock, Compass, Sliders, RefreshCw } from 'lucide-svelte';
   import CreedLogo from '$lib/components/brand/CreedLogo.svelte';
 
   const status = $derived(page.status);
   const errorMessage = $derived(page.error?.message || 'An unexpected error occurred.');
+  const pathname = $derived(page.url.pathname);
 
   const isAccessDenied = $derived(status === 403 || status === 401);
   const isNotFound = $derived(status === 404);
+
+  // Target workspace persona derivation
+  const requiredPersona = $derived.by(() => {
+    if (pathname.startsWith('/studio') || pathname.startsWith('/author')) {
+      return {
+        role: 'studio',
+        title: 'Psychometrics & Item Studio',
+        personaTitle: 'Psychometrician (Studio)',
+        description: '3PL IRT item authoring, parameter calibration, and discrimination metrics.'
+      };
+    }
+    if (pathname.startsWith('/admin')) {
+      return {
+        role: 'admin',
+        title: 'Institutional Administration',
+        personaTitle: 'System Administrator',
+        description: 'Consent audit records, tenant configurations, and educator provisioning.'
+      };
+    }
+    if (pathname.startsWith('/teacher')) {
+      return {
+        role: 'teacher',
+        title: 'Teacher Copilot',
+        personaTitle: 'Lead Educator',
+        description: 'Differentiated lesson plan studio and classroom observation logging.'
+      };
+    }
+    if (pathname.startsWith('/counselor')) {
+      return {
+        role: 'counselor',
+        title: 'Counselor Intelligence Center',
+        personaTitle: 'Academic Counselor',
+        description: 'Caseload telemetry and longitudinal learner guidance.'
+      };
+    }
+    if (pathname.startsWith('/parent')) {
+      return {
+        role: 'parent',
+        title: 'Parent Portal',
+        personaTitle: 'Parent Guardian',
+        description: 'Child growth evidence and statutory DPDP consent management.'
+      };
+    }
+    return null;
+  });
+
+  let switching = $state(false);
+
+  async function handleDevSwitch() {
+    if (!requiredPersona || switching) return;
+    switching = true;
+    try {
+      await fetch('/api/auth/dev-switch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: requiredPersona.role })
+      });
+      window.location.reload();
+    } catch (err) {
+      console.error('Failed to switch dev persona:', err);
+      switching = false;
+    }
+  }
 
   const title = $derived.by(() => {
     if (status === 401) return 'Authentication Required';
@@ -74,7 +138,7 @@
       <!-- Level 1 Signal & Level 2 Context -->
       <div class="space-y-2">
         <h1 class="text-xl font-heading font-semibold text-ink tracking-tight">
-          {title}
+          {isAccessDenied && errorMessage ? errorMessage : title}
         </h1>
         <p class="text-xs text-ink-secondary leading-relaxed">
           {subtitle}
@@ -91,14 +155,35 @@
           <p class="text-ink-secondary text-xs">
             Student developmental evidence, diagnostic assessments, and administrative rosters are strictly bound to authenticated institutional credentials and verified guardian consent.
           </p>
+          {#if requiredPersona}
+            <p class="text-ink-muted text-[10px] pt-1 border-t border-border/50">
+              Target Workspace: <span class="text-ink font-medium">{requiredPersona.title}</span> ({requiredPersona.description})
+            </p>
+          {/if}
         </div>
       {/if}
 
       <!-- Level 1 Action Primacy -->
       <div class="space-y-2 pt-2 border-t border-border">
+        {#if import.meta.env.DEV && isAccessDenied && requiredPersona}
+          <button
+            onclick={handleDevSwitch}
+            disabled={switching}
+            class="w-full h-9 rounded-none bg-brand text-brand-foreground text-xs font-semibold hover:bg-brand-hover shadow-xs flex items-center justify-center gap-2 transition-micro cursor-pointer active:scale-[0.99] disabled:opacity-50"
+          >
+            {#if switching}
+              <RefreshCw class="w-3.5 h-3.5 animate-spin" />
+              <span>Activating {requiredPersona.personaTitle}...</span>
+            {:else}
+              <Sliders class="w-3.5 h-3.5" />
+              <span>Switch to {requiredPersona.personaTitle} & Continue</span>
+            {/if}
+          </button>
+        {/if}
+
         {#if status === 401}
           <a
-            href="/login"
+            href="/login?next={encodeURIComponent(pathname)}"
             class="w-full h-8 rounded-none bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 shadow-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
           >
             <LogIn class="w-3.5 h-3.5" />
@@ -108,13 +193,13 @@
           <div class="grid grid-cols-2 gap-2">
             <a
               href="/student"
-              class="h-8 rounded-none bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 shadow-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+              class="h-8 rounded-none {import.meta.env.DEV && requiredPersona ? 'bg-surface text-ink border border-border hover:bg-surface-subtle' : 'bg-brand text-brand-foreground hover:bg-brand/90'} text-xs font-medium shadow-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
             >
               <Compass class="w-3.5 h-3.5" />
               <span>Learner Home</span>
             </a>
             <a
-              href="/login"
+              href="/login?next={encodeURIComponent(pathname)}"
               class="h-8 rounded-none bg-surface text-ink border border-border hover:bg-surface-subtle text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
             >
               <LogIn class="w-3.5 h-3.5" />

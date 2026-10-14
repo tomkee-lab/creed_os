@@ -33,17 +33,28 @@
     { value: 'studio', title: 'Item Studio', label: 'Psychometrics Studio', email: 'studio@core-os.app', path: '/studio', icon: 'carbon:sigma' }
   ];
 
-  let selectedRole = $state('student');
-  let email = $state(ROLES[0].email);
-  let password = $state('••••••••••••');
-  let showPassword = $state(false);
-  let loading = $state(false);
-  let errorMsg = $state('');
-
   const nextUrl = $derived(page.url.searchParams.get('next') || '');
   const statusParam = $derived(page.url.searchParams.get('status'));
   const isPendingApproval = $derived(statusParam === 'pending_approval');
   const isAuthRequired = $derived(!!page.url.searchParams.get('next') && !statusParam);
+
+  function getInitialRole(): string {
+    const next = page.url.searchParams.get('next') || '';
+    if (next.startsWith('/studio') || next.startsWith('/author')) return 'studio';
+    if (next.startsWith('/admin')) return 'admin';
+    if (next.startsWith('/teacher')) return 'teacher';
+    if (next.startsWith('/counselor')) return 'counselor';
+    if (next.startsWith('/parent')) return 'parent';
+    return 'student';
+  }
+
+  const initialRole = getInitialRole();
+  let selectedRole = $state(initialRole);
+  let email = $state(ROLES.find((r) => r.value === initialRole)?.email || ROLES[0].email);
+  let password = $state('••••••••••••');
+  let showPassword = $state(false);
+  let loading = $state(false);
+  let errorMsg = $state('');
 
   function handleRoleChange(e: Event) {
     const target = e.target as HTMLSelectElement;

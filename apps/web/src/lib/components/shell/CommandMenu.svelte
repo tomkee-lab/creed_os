@@ -59,9 +59,24 @@
     return () => window.removeEventListener('keydown', handleKeyDown);
   });
 
-  function selectItem(href: string) {
+  async function selectItem(href: string) {
     open = false;
     searchQuery = '';
+    if (import.meta.env.DEV) {
+      if (href === '/studio') {
+        await fetch('/api/auth/dev-switch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: 'studio' })
+        }).catch(() => {});
+      } else if (href.startsWith('/admin')) {
+        await fetch('/api/auth/dev-switch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: 'admin' })
+        }).catch(() => {});
+      }
+    }
     goto(href);
   }
 </script>

@@ -145,11 +145,12 @@ export const POST: RequestHandler = async ({ request }) => {
       }
     }
 
-    // Rate limit OTP generation per contact (max 3 dispatches per 5-minute window)
+    // Rate limit OTP generation per contact (max 3 dispatches per 5-minute window in prod, 50 in dev/test)
     const nowMs = Date.now();
     const rateData = contactRateLimits.get(sanitizedContact);
+    const maxRequests = import.meta.env.DEV ? 50 : 3;
     if (rateData && nowMs < rateData.resetAt) {
-      if (rateData.count >= 3) {
+      if (rateData.count >= maxRequests) {
         return json(
           { error: 'Too Many Requests: Rate limit exceeded. Please wait 5 minutes before requesting another verification code.' },
           { status: 429 }

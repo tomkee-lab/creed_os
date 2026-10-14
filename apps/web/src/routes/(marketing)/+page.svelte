@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
   import {
     ArrowRight,
     Sparkles,
@@ -45,6 +46,22 @@
   ];
   let currentStep = $state(2);
   let isAllCompleted = $state(false);
+
+  async function handleExploreStudio(e: MouseEvent) {
+    if (import.meta.env.DEV) {
+      e.preventDefault();
+      try {
+        await fetch('/api/auth/dev-switch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: 'studio' })
+        });
+      } catch {
+        // Fallback
+      }
+      goto('/studio');
+    }
+  }
 
   const phaseDetails = [
     {
@@ -1091,6 +1108,7 @@
             </a>
             <a
               href="/studio"
+              onclick={handleExploreStudio}
               class="inline-flex items-center gap-2 px-5 py-2 rounded-none bg-surface-subtle hover:bg-surface-raised text-ink border border-border font-medium text-xs sm:text-sm transition-micro cursor-pointer shadow-xs active-press"
             >
               <span>Explore Item Studio</span>
