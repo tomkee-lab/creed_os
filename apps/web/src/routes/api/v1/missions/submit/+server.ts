@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { coreRepository } from '$lib/server/repository';
 import { resolveLearnerId } from '$lib/server/learnerScope';
-import type { LearnerEvidence } from '@core-os/domain';
+import { createRoleBasedEvidenceAtom, type LearnerEvidence } from '@core-os/domain';
 
 const ALLOWED_TRUSS_TYPES = new Set(['warren', 'pratt', 'howe', 'k-truss', 'isometric', 'custom']);
 const ALLOWED_MATERIALS = new Set(['carbon', 'carbon_fiber', 'steel', 'titanium', 'aluminum', 'wood', 'composite']);
@@ -33,6 +33,32 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
   try {
     const body = await request.json();
+
+    // Support Activity Theory Role-Based Team Submissions (Kinematics, Firmware, Telemetry)
+    if (body.teamRole && ['kinematics', 'firmware', 'telemetry'].includes(body.teamRole)) {
+      const evidenceRecord = createRoleBasedEvidenceAtom(boundLearnerId, {
+        missionId: body.missionId || 'team-mission-01',
+        missionTitle: body.missionTitle || 'Collaborative Robotics Proving Ground',
+        teamRole: body.teamRole,
+        roleArtifact: body.roleArtifact || {
+          kinematicsMetrics: body.kinematicsMetrics,
+          firmwareAst: body.firmwareAst,
+          telemetry: body.telemetry
+        },
+        collaborators: body.collaborators || [],
+        notes: body.learnerNotes || body.notes
+      });
+
+      coreRepository.addEvidence(evidenceRecord);
+
+      return json({
+        success: true,
+        verified: true,
+        teamRole: body.teamRole,
+        evidence: evidenceRecord,
+        message: `Activity Theory role '${body.teamRole.toUpperCase()}' verified! Level 4 applied evidence recorded in growth ledger.`
+      });
+    }
 
     // Support Robotics IDE Mission Submissions
     if (body.missionType === 'robotics' || body.telemetry) {

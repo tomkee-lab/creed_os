@@ -14,12 +14,16 @@
     Award,
     Sparkles,
     ShieldCheck,
-    FlaskConical
+    FlaskConical,
+    Globe
   } from 'lucide-svelte';
+  import ThreeLaunchpad from '$lib/components/telemetry/ThreeLaunchpad.svelte';
   import type { PageData } from './$types';
   import type { StemMission } from '$lib/server/repository';
 
   let { data } = $props<{ data: PageData }>();
+
+  let show3DLaunchpad = $state(true);
 
   // State runes
   let stageFilterState = $state<string | null>(null);
@@ -101,22 +105,47 @@
     </div>
 
     <!-- Quick Actions -->
-    <div class="flex items-center gap-2 shrink-0">
+    <div class="flex flex-wrap items-center gap-2 shrink-0">
+      <button
+        onclick={() => (show3DLaunchpad = !show3DLaunchpad)}
+        class="px-3 py-2 border border-border hover:bg-surface-raised text-xs font-mono text-cyan rounded-none transition-micro flex items-center gap-1.5 cursor-pointer shadow-2xs"
+        title="Toggle 3D Holographic Launchpad"
+      >
+        <Sparkles class="w-3.5 h-3.5" />
+        <span>{show3DLaunchpad ? 'Hide 3D Mesh' : 'Show 3D Mesh'}</span>
+      </button>
+
+      <a
+        href="/observatory"
+        class="px-3.5 py-2 border border-border bg-surface hover:bg-surface-raised text-xs font-medium text-foreground rounded-none transition-micro flex items-center gap-1.5 cursor-pointer shadow-xs"
+        title="Open Earth & Space Planetary Observatory"
+      >
+        <Globe class="w-3.5 h-3.5 text-brand" />
+        <span>Observatory ↗</span>
+      </a>
+
       <a
         href="/ide"
-        class="px-4 py-2 bg-foreground text-background hover:bg-foreground/90 text-xs font-medium rounded-sm transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+        class="px-3.5 py-2 bg-foreground text-background hover:bg-foreground/90 text-xs font-medium rounded-none transition-micro flex items-center gap-1.5 cursor-pointer shadow-xs"
       >
         <TerminalSquare class="w-3.5 h-3.5" />
-        <span>Robotics IDE Studio ↗</span>
+        <span>Robotics IDE ↗</span>
       </a>
       <a
         href="/student/assessment"
-        class="px-4 py-2 border border-border hover:bg-surface-raised text-xs font-medium text-foreground rounded-sm transition-colors cursor-pointer"
+        class="px-3.5 py-2 border border-border hover:bg-surface-raised text-xs font-medium text-foreground rounded-none transition-micro cursor-pointer"
       >
         <span>30Q Benchmark</span>
       </a>
     </div>
   </div>
+
+  {#if show3DLaunchpad}
+    <!-- 3D Interactive Telemetry Launchpad Hero Frame -->
+    <div class="border border-border bg-surface rounded-none overflow-hidden shadow-xs">
+      <ThreeLaunchpad compact={false} />
+    </div>
+  {/if}
 
   <!-- Editorial Orientation Summary -->
   <div class="flex flex-wrap items-center justify-between gap-4 p-4 bg-surface border border-border rounded-sm">

@@ -18,10 +18,12 @@
     Radio,
     Eye,
     Gauge,
-    Flame
+    Flame,
+    Globe
   } from 'lucide-svelte';
   import { EvidenceRating } from '$lib/components';
   import InspectorPanel from '$lib/components/shell/InspectorPanel.svelte';
+  import TransitionalLounge from '$lib/components/missions/TransitionalLounge.svelte';
 
   let { data } = $props();
   let mission = $derived(data.mission);
@@ -36,6 +38,53 @@
   } | null>(null);
   let evidenceModalOpen = $state(false);
   let studentNotes = $state('');
+  let lowStimulation = $state(false);
+
+  let currentTelemetry = $derived.by(() => {
+    if (mission?.simulatorType === 'truss') {
+      return {
+        mass: `${massKg} kg`,
+        maxLoad: `${maxSupportedLoadKg} kg`,
+        strengthToWeight: `${strengthToWeightRatio}x`,
+        deflection: `${centerDeflectionMm} mm`,
+        stress: `${stressPercentage}%`
+      };
+    }
+    if (mission?.simulatorType === 'gear_train') {
+      return {
+        gearRatio: `${gearRatio}:1`,
+        outputRpm: `${outputRpm} RPM`,
+        torqueMultiplier: `${torqueMultiplier}x`,
+        teethRatio: `${gearATeeth}T : ${gearBTeeth}T`
+      };
+    }
+    if (mission?.simulatorType === 'winch_lift') {
+      return {
+        drumTorque: `${totalDrumTorqueInLbs} in-lbs`,
+        motorTorque: `${motorRequiredTorqueInLbs} in-lbs`,
+        safetyFactor: `${safetyFactor}x`
+      };
+    }
+    if (mission?.simulatorType === 'cv_vision') {
+      return {
+        colorSpace,
+        ambientLighting: `${ambientLightingLux} Lux`,
+        boundingBoxIou,
+        lightingStability: `${lightingStability}%`
+      };
+    }
+    if (mission?.simulatorType === 'pid_control') {
+      return {
+        overshoot: `${overshootPercent}%`,
+        settlingTime: `${settlingTimeSec} s`,
+        steadyStateError: `${steadyStateError}`
+      };
+    }
+    return {
+      simulationStatus: 'Nominal',
+      telemetrySync: 'Active'
+    };
+  });
 
   // =========================================================================
   // SIMULATOR 1: TRUSS STRUCTURAL SIMULATION (robobridge)
@@ -239,6 +288,23 @@
   const passesPidCriteria = $derived(overshootPercent < 8.0 && settlingTimeSec < 2.5 && steadyStateError === 0.0);
 
   // =========================================================================
+  // SIMULATOR 9: PLANETARY TELEMETRY & EARTH OBSERVATION (planetary_space)
+  // =========================================================================
+  let spaceUserInputValue = $state(27600);
+  const passesSpaceCriteria = $derived.by(() => {
+    if (mission.id === 'mission-iss-speed') {
+      return Math.abs(spaceUserInputValue - 27600) / 27600 <= 0.06;
+    }
+    if (mission.id === 'mission-cyclone-path') {
+      return Math.abs(spaceUserInputValue - 18) / 18 <= 0.15;
+    }
+    if (mission.id === 'mission-great-circle') {
+      return Math.abs(spaceUserInputValue - 1850) / 1850 <= 0.10;
+    }
+    return true;
+  });
+
+  // =========================================================================
   // OVERALL PASS CRITERIA ACROSS ALL SIMULATOR TYPES
   // =========================================================================
   const isMissionPassed = $derived.by(() => {
@@ -259,6 +325,8 @@
         return passesCvCriteria;
       case 'pid_control':
         return passesPidCriteria;
+      case 'planetary_space':
+        return passesSpaceCriteria;
       default:
         return true;
     }
@@ -578,6 +646,52 @@
               <span>Settling Time: <strong class="font-mono {settlingTimeSec < 2.5 ? 'text-positive' : 'text-critical'}">{settlingTimeSec}s</strong></span>
               <span>Steady-State Error: <strong class="font-mono text-positive">{steadyStateError}</strong></span>
             </div>
+          {:else if mission.simulatorType === 'planetary_space'}
+            <!-- PLANETARY OBSERVATORY SIMULATOR -->
+            <div class="w-full space-y-4 py-2">
+              <div class="p-4 bg-surface border border-border rounded-none space-y-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2 text-ink">
+                    <Globe class="w-4 h-4 text-brand" />
+                    <span class="font-mono text-xs font-semibold uppercase">Earth & Space Planetary Observatory</span>
+                  </div>
+                  <span class="px-2 py-0.5 text-[10px] font-mono bg-mint/15 text-mint border border-mint/30">
+                    SGP4 Propagation
+                  </span>
+                </div>
+                <p class="text-xs text-ink-secondary leading-relaxed">
+                  {mission.brief}
+                </p>
+                <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-border">
+                  <a
+                    href="/observatory"
+                    target="_blank"
+                    class="inline-flex items-center gap-2 px-3 py-1.5 bg-brand hover:bg-brand/90 text-brand-foreground text-xs font-mono font-semibold rounded-none transition-micro shadow-xs"
+                  >
+                    <Globe class="size-3.5" />
+                    <span>Launch in 3D Observatory Studio ↗</span>
+                  </a>
+                  <span class="text-[11px] text-ink-muted">
+                    Inspect SGP4 telemetry vectors directly in Cesium 3D
+                  </span>
+                </div>
+              </div>
+
+              <div class="p-3 bg-surface-raised border border-border rounded-none space-y-2">
+                <div class="flex items-center justify-between text-xs font-mono">
+                  <span class="text-ink">Observed / Calculated Telemetry Value:</span>
+                  <span class="font-bold text-brand">{spaceUserInputValue.toLocaleString()}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input
+                    type="number"
+                    bind:value={spaceUserInputValue}
+                    class="w-full px-3 py-1.5 bg-surface border border-border text-xs font-mono text-ink rounded-none focus:outline-hidden focus:border-brand"
+                    placeholder="Enter telemetry value"
+                  />
+                </div>
+              </div>
+            </div>
           {/if}
         </div>
       </div>
@@ -823,6 +937,15 @@
       </div>
     </div>
   </div>
+
+  <!-- Dedicated Transitional Lounge (Digital Ecotone per Howson Ch. 13-14) -->
+  <TransitionalLounge
+    missionTitle={mission.title}
+    missionSlug={mission.id}
+    simulatorType={mission.simulatorType}
+    telemetryData={currentTelemetry}
+    bind:lowStimulation
+  />
 </div>
 
 <!-- SOCRATIC GUIDE DRAWER -->
