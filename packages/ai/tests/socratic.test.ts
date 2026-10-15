@@ -3,6 +3,7 @@ import {
   SOCRATIC_SYSTEM_PROMPT,
   generateDeterministicSocraticResponse
 } from '../src/mentor/socratic.js';
+import { generateSocraticSystemPrompt } from '../src/socratic.js';
 import {
   classifyQueryCompetency,
   extractObservationCandidate
@@ -67,5 +68,75 @@ describe('Evidence Extraction & Query Classification', () => {
   it('returns null when no observation is extracted', () => {
     const candidate = extractObservationCandidate('Hello', 'Hi there!', undefined);
     expect(candidate).toBeNull();
+  });
+});
+
+describe('Howson C. (2024) Socio-Psychological Trust Protocol & De-individualization', () => {
+  it('triggers Trust Protocol greeting when item difficulty b > 1.50', () => {
+    const prompt = generateSocraticSystemPrompt({
+      learnerGradeBand: 'middle',
+      currentTheta: 1.2,
+      itemDifficultyB: 1.85
+    });
+
+    expect(prompt).toContain('[TRUST PROTOCOL]');
+    expect(prompt).toContain('This is an advanced challenge designed to test high-level reasoning');
+    expect(prompt).toContain('your recent missions prove you are ready to tackle it');
+  });
+
+  it('omits Trust Protocol greeting when item difficulty b <= 1.50', () => {
+    const prompt = generateSocraticSystemPrompt({
+      learnerGradeBand: 'middle',
+      currentTheta: 0.5,
+      itemDifficultyB: 0.8
+    });
+
+    expect(prompt).not.toContain('[TRUST PROTOCOL]');
+  });
+
+  it('de-individualizes algebraic sign inversion (MISC_SIGN_INVERSION)', () => {
+    const prompt = generateSocraticSystemPrompt({
+      learnerGradeBand: 'middle',
+      currentTheta: 0.4,
+      itemDifficultyB: 1.1,
+      misconceptionCode: 'MISC_SIGN_INVERSION'
+    });
+
+    expect(prompt).toContain('[DE-INDIVIDUALIZATION PROTOCOL]');
+    expect(prompt).toContain('Over 40% of young engineers navigate this exact conceptual step');
+    expect(prompt).toContain('balancing equations');
+    expect(prompt).toContain("let's unravel it together");
+  });
+
+  it('de-individualizes hardware blame misconception (MISC_HARDWARE_BLAME)', () => {
+    const prompt = generateSocraticSystemPrompt({
+      learnerGradeBand: 'secondary',
+      currentTheta: 1.0,
+      itemDifficultyB: 1.6,
+      misconceptionCode: 'MISC_HARDWARE_BLAME'
+    });
+
+    expect(prompt).toContain('[DE-INDIVIDUALIZATION PROTOCOL]');
+    expect(prompt).toContain('isolating software feedback from sensor state');
+    // Also asserts trust protocol because b = 1.6 > 1.50
+    expect(prompt).toContain('[TRUST PROTOCOL]');
+  });
+
+  it('adapts pedagogical tone across grade bands', () => {
+    const prepPrompt = generateSocraticSystemPrompt({
+      learnerGradeBand: 'preparatory',
+      currentTheta: -0.2,
+      itemDifficultyB: -0.1
+    });
+    expect(prepPrompt).toContain('GRADE BAND: PREPARATORY');
+    expect(prepPrompt).toContain('sensory metaphors');
+
+    const secPrompt = generateSocraticSystemPrompt({
+      learnerGradeBand: 'secondary',
+      currentTheta: 1.5,
+      itemDifficultyB: 1.4
+    });
+    expect(secPrompt).toContain('GRADE BAND: SECONDARY');
+    expect(secPrompt).toContain('computational abstractions');
   });
 });
