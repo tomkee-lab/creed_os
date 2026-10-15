@@ -1,0 +1,35 @@
+{
+  "sourceEvent": "TechRadiance National & International Robotics Championship",
+  "normalizedDate": "2026-10-15T11:53:37.275Z",
+  "extractionEngine": "deterministic-fallback",
+  "competencies": [
+    {
+      "id": "robotics-line-follower-kinematics",
+      "name": "High-Speed Line Follower Differential Steering",
+      "description": "Constructs and tunes dual-motor differential drive with infrared array sensor alignment.",
+      "level": "L3_INTERMEDIATE",
+      "evidenceRequired": "Telemetry log proving closed-loop trajectory tracking with optical deviation < 12mm."
+    },
+    {
+      "id": "robotics-obstacle-evasion-fsm",
+      "name": "Ultrasonic Obstacle Evasion Finite State Machine",
+      "description": "Implements non-blocking state machine evading dynamic obstacles in arena perimeter.",
+      "level": "L3_INTERMEDIATE",
+      "evidenceRequired": "Execution trace showing zero boundary collisions over 3 trial runs."
+    },
+    {
+      "id": "robotics-chassis-structural-statics",
+      "name": "Rigid Frame Load Distribution & Torque Balance",
+      "description": "Optimizes gear reduction ratio and center of gravity to prevent rollover under acceleration.",
+      "level": "L4_ADVANCED",
+      "evidenceRequired": "Physical build artifact with verified gear reduction and center-of-mass static test."
+    },
+    {
+      "id": "robotics-team-engineering-journal",
+      "name": "Engineering Design Iteration & Failure Taxonomy",
+      "description": "Maintains longitudinal log of hardware component failures, firmware patches, and tuning trials.",
+      "level": "L2_BEGINNER",
+      "evidenceRequired": "Dated engineering log with at least 5 structured failure-remedy entries."
+    }
+  ]
+}

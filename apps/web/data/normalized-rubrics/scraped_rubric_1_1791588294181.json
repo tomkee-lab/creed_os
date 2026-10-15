@@ -1,0 +1,28 @@
+{
+  "sourceEvent": "World Robot Olympiad (WRO) Autonomous Robotics Challenge",
+  "normalizedDate": "2026-10-15T11:53:35.412Z",
+  "extractionEngine": "deterministic-fallback",
+  "competencies": [
+    {
+      "id": "wro-autonomous-mission-planning",
+      "name": "Autonomous Mission Route Optimization",
+      "description": "Calculates optimal game piece collection sequence minimizing travel time and turns.",
+      "level": "L4_ADVANCED",
+      "evidenceRequired": "AST graph traversal and waypoint execution log in under 120 seconds."
+    },
+    {
+      "id": "wro-precision-manipulator-kinematics",
+      "name": "Motorized Gripper & Lift Arm Torque Verification",
+      "description": "Calculates servo holding torque and mechanical link stress when lifting competition payload.",
+      "level": "L4_ADVANCED",
+      "evidenceRequired": "Holding torque equation verification and repeatable pick-and-place trials."
+    },
+    {
+      "id": "wro-color-sensor-matrix-calibration",
+      "name": "Dynamic Ambient Light Sensor Calibration",
+      "description": "Compensates for 200–1200 lux variation on field tiles using baseline white/black reference sampling.",
+      "level": "L3_INTERMEDIATE",
+      "evidenceRequired": "Sensor calibration routine emitting normalized RGB values across 4 distinct field zones."
+    }
+  ]
+}
