@@ -188,7 +188,7 @@
         <!-- Stage Dropdown Filter -->
         <DropdownMenu.Root>
           <DropdownMenu.Trigger
-            class="h-9 px-3 border border-border bg-surface-raised hover:bg-surface text-xs font-medium rounded-sm transition-colors flex items-center justify-between gap-2 cursor-pointer shadow-2xs text-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-brand min-w-[190px] sm:min-w-[210px] {activeStage !== 'all' ? 'border-brand/50 text-brand bg-brand-subtle/10' : ''}"
+            class="h-9 px-3 border border-border bg-surface-raised hover:bg-surface text-xs font-medium rounded-sm transition-colors flex items-center justify-between gap-2 cursor-pointer shadow-2xs text-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-brand min-w-48 sm:min-w-52 {activeStage !== 'all' ? 'border-brand/50 text-brand bg-brand-subtle/10' : ''}"
           >
             <div class="flex items-center gap-2 truncate">
               <GraduationCap class="w-3.5 h-3.5 text-foreground-secondary shrink-0" />
@@ -228,7 +228,7 @@
         <!-- Competency Track Dropdown Filter -->
         <DropdownMenu.Root>
           <DropdownMenu.Trigger
-            class="h-9 px-3 border border-border bg-surface-raised hover:bg-surface text-xs font-medium rounded-sm transition-colors flex items-center justify-between gap-2 cursor-pointer shadow-2xs text-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-brand min-w-[200px] sm:min-w-[230px] {activeDomain !== 'all' ? 'border-brand/50 text-brand bg-brand-subtle/10' : ''}"
+            class="h-9 px-3 border border-border bg-surface-raised hover:bg-surface text-xs font-medium rounded-sm transition-colors flex items-center justify-between gap-2 cursor-pointer shadow-2xs text-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-brand min-w-52 sm:min-w-56 {activeDomain !== 'all' ? 'border-brand/50 text-brand bg-brand-subtle/10' : ''}"
           >
             <div class="flex items-center gap-2 truncate">
               <Compass class="w-3.5 h-3.5 text-foreground-secondary shrink-0" />
