@@ -2,16 +2,26 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "CREED OS Master Release Verification Index",
   "description": "Append-only master ledger indexing all release verification runs across candidate tags",
-  "lastUpdated": "2026-10-13T06:30:00Z",
+  "lastUpdated": "2026-10-15T12:12:00Z",
   "releases": [
     {
       "releaseId": "v1.0.0-rc1",
       "targetVersion": "1.0.0-rc.1",
-      "status": "VERIFICATION_PENDING",
-      "sourceCommit": "UNVERIFIED_PENDING_COMMIT_SHA",
+      "status": "SUPERSEDED",
+      "sourceCommit": "a22ec5f4a74dd690d6082ac3c712a245b55b98ad",
       "manifestPath": "evidence/release/v1.0.0-rc1/manifest.json",
-      "summary": "Initial Release Candidate Verification Run — Godmode Specification-Validation Pass Complete. Verification Pending.",
+      "summary": "Initial Release Candidate Verification Run — Superseded by v1.0.0-rc2.",
       "createdAt": "2026-10-13T06:30:00Z",
+      "closedAt": "2026-10-15T12:00:00Z"
+    },
+    {
+      "releaseId": "v1.0.0-rc2",
+      "targetVersion": "1.0.0-rc.2",
+      "status": "VERIFIED_READY_FOR_GOVERNANCE",
+      "sourceCommit": "5b93474df46ae8d3cd525f0a19bc261a385ae7b7",
+      "manifestPath": "evidence/release/v1.0.0-rc2/manifest.json",
+      "summary": "Release Candidate 2 Verification Run — Milestones 1-4 Complete, Socratic Trust, Full SBB Engine, Digital Ecotones, Evidence Graph, Clean-Room SBOM Gated.",
+      "createdAt": "2026-10-15T12:12:00Z",
       "closedAt": null
     }
   ]
