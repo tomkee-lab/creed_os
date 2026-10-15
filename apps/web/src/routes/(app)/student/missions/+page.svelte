@@ -15,8 +15,13 @@
     Sparkles,
     ShieldCheck,
     FlaskConical,
-    Globe
+    Globe,
+    ChevronDown,
+    Check,
+    X,
+    GraduationCap
   } from 'lucide-svelte';
+  import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
   import ThreeLaunchpad from '$lib/components/telemetry/ThreeLaunchpad.svelte';
   import type { PageData } from './$types';
   import type { StemMission } from '$lib/server/repository';
@@ -34,19 +39,27 @@
 
   let searchQuery = $state('');
 
-  const stageTabs = [
-    { id: 'all', label: 'All Stages' },
-    { id: 'preparatory', label: 'Preparatory (Classes 3–5)' },
-    { id: 'middle', label: 'Middle (Classes 6–8)' },
-    { id: 'secondary', label: 'Secondary (Classes 9–12)' }
+  const stageOptions = [
+    { id: 'all', label: 'All Stages', grades: 'Classes 3–12', description: 'Complete developmental continuum' },
+    { id: 'preparatory', label: 'Preparatory', grades: 'Classes 3–5', description: 'Foundational mechanics & statics' },
+    { id: 'middle', label: 'Middle', grades: 'Classes 6–8', description: 'Autonomous kinematics & telemetry' },
+    { id: 'secondary', label: 'Secondary', grades: 'Classes 9–12', description: 'Closed-loop PID & computer vision' }
   ];
 
   const domainFilterOptions = [
-    { id: 'all', label: 'All Competency Tracks' },
-    { id: 'computational_thinking', label: 'Computational Thinking & AI' },
-    { id: 'quantitative_reasoning', label: 'Quantitative Kinematics' },
-    { id: 'spatial_reasoning', label: 'Spatial Reasoning & Statics' }
+    { id: 'all', label: 'All Competency Tracks', description: 'All applied engineering disciplines' },
+    { id: 'computational_thinking', label: 'Computational Thinking & AI', description: 'A* search, vision tracking & state machines' },
+    { id: 'quantitative_reasoning', label: 'Quantitative Kinematics', description: 'Torque ratios, mechanical advantage & PID' },
+    { id: 'spatial_reasoning', label: 'Spatial Reasoning & Statics', description: 'Truss load deflection & bridge mechanics' }
   ];
+
+  const activeStageOption = $derived(
+    stageOptions.find((opt) => opt.id === activeStage) ?? stageOptions[0]
+  );
+
+  const activeDomainOption = $derived(
+    domainFilterOptions.find((opt) => opt.id === activeDomain) ?? domainFilterOptions[0]
+  );
 
   const filteredMissions = $derived<StemMission[]>(
     data.missions.filter((m: StemMission) => {
@@ -167,45 +180,164 @@
     </span>
   </div>
 
-  <!-- Filter & Search Controls -->
-  <div class="space-y-4">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
-      <!-- Stage Segmented Tabs -->
-      <div class="flex items-center gap-1 p-1 bg-surface-raised border border-border rounded-sm overflow-x-auto">
-        {#each stageTabs as tab}
-          {@const isActive = activeStage === tab.id}
-          <button
-            onclick={() => (stageFilterState = tab.id)}
-            class="px-3 py-1.5 text-xs font-medium rounded-sm transition-colors cursor-pointer whitespace-nowrap {isActive ? 'bg-foreground text-background shadow-xs' : 'text-foreground-secondary hover:text-foreground'}"
+  <div class="space-y-6">
+    <!-- Filter & Search Controls: Unified WAY 2.1 Dropdown Suite -->
+    <div class="space-y-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface p-2 border border-border rounded-sm shadow-2xs">
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Stage Dropdown Filter -->
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger
+            class="h-9 px-3 border border-border bg-surface-raised hover:bg-surface text-xs font-medium rounded-sm transition-colors flex items-center justify-between gap-2 cursor-pointer shadow-2xs text-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-brand min-w-[190px] sm:min-w-[210px] {activeStage !== 'all' ? 'border-brand/50 text-brand bg-brand-subtle/10' : ''}"
           >
-            {tab.label}
-          </button>
-        {/each}
+            <div class="flex items-center gap-2 truncate">
+              <GraduationCap class="w-3.5 h-3.5 text-foreground-secondary shrink-0" />
+              <span class="truncate">
+                <span class="text-foreground-secondary font-normal">Stage:</span>
+                <span class="font-medium ml-1">{activeStageOption.label}</span>
+              </span>
+            </div>
+            <ChevronDown class="w-3.5 h-3.5 text-foreground-secondary shrink-0 opacity-70" />
+          </DropdownMenu.Trigger>
+
+          <DropdownMenu.Content align="start" class="w-80 p-1 bg-surface-overlay border border-border shadow-md rounded-sm">
+            <div class="px-3 py-2 border-b border-border mb-1">
+              <p class="text-[10px] font-mono uppercase tracking-wider text-foreground-secondary">Filter by Stage</p>
+              <p class="text-[11px] text-foreground-secondary">Classes 3–12 Developmental Continuum</p>
+            </div>
+            {#each stageOptions as opt}
+              <DropdownMenu.Item
+                onclick={() => (stageFilterState = opt.id)}
+                class="flex items-center justify-between px-3 py-2 text-xs rounded-sm hover:bg-surface-raised cursor-pointer transition-colors {activeStage === opt.id ? 'bg-surface-raised' : ''}"
+              >
+                <div class="flex flex-col gap-0.5">
+                  <div class="flex items-center gap-2">
+                    <span class="font-medium text-foreground">{opt.label}</span>
+                    <span class="text-[10px] font-mono text-foreground-secondary">({opt.grades})</span>
+                  </div>
+                  <span class="text-[11px] text-foreground-secondary">{opt.description}</span>
+                </div>
+                {#if activeStage === opt.id}
+                  <Check class="w-3.5 h-3.5 text-brand shrink-0 ml-2" />
+                {/if}
+              </DropdownMenu.Item>
+            {/each}
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
+
+        <!-- Competency Track Dropdown Filter -->
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger
+            class="h-9 px-3 border border-border bg-surface-raised hover:bg-surface text-xs font-medium rounded-sm transition-colors flex items-center justify-between gap-2 cursor-pointer shadow-2xs text-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-brand min-w-[200px] sm:min-w-[230px] {activeDomain !== 'all' ? 'border-brand/50 text-brand bg-brand-subtle/10' : ''}"
+          >
+            <div class="flex items-center gap-2 truncate">
+              <Compass class="w-3.5 h-3.5 text-foreground-secondary shrink-0" />
+              <span class="truncate">
+                <span class="text-foreground-secondary font-normal">Track:</span>
+                <span class="font-medium ml-1">{activeDomainOption.label}</span>
+              </span>
+            </div>
+            <ChevronDown class="w-3.5 h-3.5 text-foreground-secondary shrink-0 opacity-70" />
+          </DropdownMenu.Trigger>
+
+          <DropdownMenu.Content align="start" class="w-80 p-1 bg-surface-overlay border border-border shadow-md rounded-sm">
+            <div class="px-3 py-2 border-b border-border mb-1">
+              <p class="text-[10px] font-mono uppercase tracking-wider text-foreground-secondary">Competency Track</p>
+              <p class="text-[11px] text-foreground-secondary">Engineering & Algorithmic Strands</p>
+            </div>
+            {#each domainFilterOptions as opt}
+              <DropdownMenu.Item
+                onclick={() => (domainFilterState = opt.id)}
+                class="flex items-center justify-between px-3 py-2 text-xs rounded-sm hover:bg-surface-raised cursor-pointer transition-colors {activeDomain === opt.id ? 'bg-surface-raised' : ''}"
+              >
+                <div class="flex flex-col gap-0.5">
+                  <span class="font-medium text-foreground">{opt.label}</span>
+                  <span class="text-[11px] text-foreground-secondary">{opt.description}</span>
+                </div>
+                {#if activeDomain === opt.id}
+                  <Check class="w-3.5 h-3.5 text-brand shrink-0 ml-2" />
+                {/if}
+              </DropdownMenu.Item>
+            {/each}
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
       </div>
 
-      <!-- Domain Track & Search Filters -->
-      <div class="flex items-center gap-2">
-        <select
-          value={activeDomain}
-          onchange={(e) => (domainFilterState = (e.target as HTMLSelectElement).value)}
-          class="px-3 py-1.5 bg-surface border border-border text-xs rounded-sm text-foreground focus:outline-hidden"
-        >
-          {#each domainFilterOptions as opt}
-            <option value={opt.id}>{opt.label}</option>
-          {/each}
-        </select>
-
-        <div class="relative">
-          <Search class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-foreground-secondary" />
-          <input
-            type="text"
-            bind:value={searchQuery}
-            placeholder="Search missions..."
-            class="pl-8 pr-3 py-1.5 bg-surface border border-border text-xs rounded-sm text-foreground placeholder:text-foreground-secondary focus:outline-hidden w-44 sm:w-52"
-          />
-        </div>
+      <!-- Search Input with Clear Button -->
+      <div class="relative w-full sm:w-64">
+        <Search class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-foreground-secondary pointer-events-none" />
+        <input
+          type="text"
+          bind:value={searchQuery}
+          placeholder="Search missions..."
+          class="h-9 w-full pl-8 pr-8 bg-surface-raised border border-border text-xs rounded-sm text-foreground placeholder:text-foreground-secondary focus:outline-hidden focus:border-brand/50 shadow-2xs"
+        />
+        {#if searchQuery}
+          <button
+            type="button"
+            onclick={() => (searchQuery = '')}
+            class="absolute right-2.5 top-1/2 -translate-y-1/2 text-foreground-secondary hover:text-foreground p-0.5 rounded-sm cursor-pointer"
+            title="Clear search"
+          >
+            <X class="w-3.5 h-3.5" />
+          </button>
+        {/if}
       </div>
     </div>
+
+    <!-- Active Filter Badges / Chips -->
+    {#if activeStage !== 'all' || activeDomain !== 'all' || searchQuery.trim()}
+      <div class="flex flex-wrap items-center gap-2 px-1 text-xs">
+        <span class="text-[11px] font-mono text-foreground-secondary">Active filters:</span>
+        {#if activeStage !== 'all'}
+          <span class="inline-flex items-center gap-1.5 px-2 py-1 bg-surface-raised border border-border rounded-sm text-xs text-foreground">
+            <span>Stage: <strong>{activeStageOption.label}</strong> ({activeStageOption.grades})</span>
+            <button
+              type="button"
+              onclick={() => (stageFilterState = 'all')}
+              class="hover:text-critical cursor-pointer ml-1"
+              title="Remove stage filter"
+            >
+              <X class="w-3 h-3" />
+            </button>
+          </span>
+        {/if}
+        {#if activeDomain !== 'all'}
+          <span class="inline-flex items-center gap-1.5 px-2 py-1 bg-surface-raised border border-border rounded-sm text-xs text-foreground">
+            <span>Track: <strong>{activeDomainOption.label}</strong></span>
+            <button
+              type="button"
+              onclick={() => (domainFilterState = 'all')}
+              class="hover:text-critical cursor-pointer ml-1"
+              title="Remove track filter"
+            >
+              <X class="w-3 h-3" />
+            </button>
+          </span>
+        {/if}
+        {#if searchQuery.trim()}
+          <span class="inline-flex items-center gap-1.5 px-2 py-1 bg-surface-raised border border-border rounded-sm text-xs text-foreground">
+            <span>Search: <strong>"{searchQuery}"</strong></span>
+            <button
+              type="button"
+              onclick={() => (searchQuery = '')}
+              class="hover:text-critical cursor-pointer ml-1"
+              title="Clear search query"
+            >
+              <X class="w-3 h-3" />
+            </button>
+          </span>
+        {/if}
+        <button
+          type="button"
+          onclick={() => { stageFilterState = 'all'; domainFilterState = 'all'; searchQuery = ''; }}
+          class="text-xs text-foreground-secondary hover:text-foreground underline underline-offset-4 ml-1 cursor-pointer"
+        >
+          Reset all
+        </button>
+      </div>
+    {/if}
+  </div>
 
     <!-- MISSION CARDS GRID: 4-QUESTION ANATOMY -->
     {#if filteredMissions.length === 0}
