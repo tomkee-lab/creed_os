@@ -39,7 +39,10 @@ const PUBLIC_PREFIXES: string[] = [
   '/families',
   '/platform',
   '/pricing',
-  '/schools'
+  '/schools',
+  // Educational Sandboxes & Observatory
+  '/sandbox',
+  '/ide'
 ];
 
 function isPublicRoute(pathname: string): boolean {

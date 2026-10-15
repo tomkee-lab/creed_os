@@ -65,7 +65,7 @@
   </header>
 
   <!-- Focused Center Canvas -->
-  <main class="w-full max-w-md mx-auto my-auto py-8">
+  <main class="w-full {page.url.pathname === '/consent' ? 'max-w-4xl' : 'max-w-md'} mx-auto my-auto py-8">
     {@render children?.()}
   </main>
 

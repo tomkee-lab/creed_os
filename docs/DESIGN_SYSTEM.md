@@ -40,12 +40,12 @@ To prevent flat "white-out" canvas fatigue, interfaces use a calibrated 5-tier e
 
 | Layer | Token | Light Mode Value | Dark Mode Value | Function |
 | :--- | :--- | :--- | :--- | :--- |
-| **L0 Canvas** | `--surface-canvas` | `oklch(0.978 0.006 240)` | `oklch(0.145 0.018 250)` | Base application background (Warm mineral white / Deep slate) |
-| **L1 Content** | `--surface-content` | `oklch(0.965 0.008 240)` | `oklch(0.180 0.020 250)` | Secondary wells, section groupings, subtle inset panels |
-| **L2 Raised** | `--surface-raised` | `oklch(1.000 0.000 0)` | `oklch(0.210 0.022 250)` | Interactive cards, focus tiles, active content surfaces |
-| **L3 Overlay** | `--surface-overlay` | `oklch(0.985 0.004 240)` | `oklch(0.250 0.025 250)` | Popovers, dropdown menus, flyout toolbars |
-| **L4 Modal** | `--surface-modal` | `oklch(1.000 0.000 0)` | `oklch(0.220 0.022 250)` | Focus dialogs, drawers, full-screen inspector sheets |
-| **L5 Transient**| `--surface-transient`| `oklch(0.200 0.020 250)` | `oklch(0.960 0.005 240)` | High-contrast toasts, keyboard shortcuts, snackbars |
+| **L0 Canvas** | `--surface-canvas` | `oklch(0.985 0.003 260)` | `oklch(0.205 0.012 265)` | Base application background (Crisp Zinc `#FAFAFB` / Slate Dimmed `#1C1F2B`) |
+| **L1 Content** | `--surface-content` | `oklch(0.965 0.005 260)` | `oklch(0.245 0.014 265)` | Secondary wells, section groupings, subtle inset panels (`#F4F5F7` / `#242837`) |
+| **L2 Raised** | `--surface-raised` | `oklch(1.000 0.000 0)` | `oklch(0.285 0.016 265)` | Interactive cards, focus tiles, active content surfaces (`#FFFFFF` / `#2E3345`) |
+| **L3 Overlay** | `--surface-overlay` | `oklch(0.995 0.002 260)` | `oklch(0.325 0.018 265)` | Popovers, dropdown menus, flyout toolbars (`#FCFCFD` / `#383E53`) |
+| **L4 Modal** | `--surface-modal` | `oklch(1.000 0.000 0)` | `oklch(0.285 0.016 265)` | Focus dialogs, drawers, full-screen inspector sheets (`#FFFFFF` / `#2E3345`) |
+| **L5 Transient**| `--surface-transient`| `oklch(0.180 0.015 270)` | `oklch(0.965 0.005 265)` | High-contrast toasts, keyboard shortcuts, snackbars |
 
 ---
 

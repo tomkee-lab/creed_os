@@ -4,25 +4,15 @@
   import { onMount } from 'svelte';
   import { Toaster } from '$lib/components/ui/sonner/index.js';
   import { TooltipProvider } from '$lib/components/ui/tooltip/index.js';
+  import { getInitialTheme, applyTheme } from '$lib/theme.js';
 
   let { children } = $props();
   let hydrated = $state(false);
 
   onMount(() => {
     hydrated = true;
-    const savedTheme = localStorage.getItem('way_theme');
-    const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
-    const shouldBeDark = savedTheme === 'dark' || (savedTheme === null && prefersDark);
-
-    if (shouldBeDark) {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-      document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-      document.documentElement.setAttribute('data-theme', 'light');
-    }
+    const theme = getInitialTheme();
+    applyTheme(theme);
   });
 </script>
 

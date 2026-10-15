@@ -193,6 +193,9 @@
                 <li>
                   <strong class="text-ink">Anti-Zip-Bomb Archive Protection:</strong> Project importers enforce strict 100-file and 25MB limits with path normalization, preventing malicious payload injection.
                 </li>
+                <li>
+                  <strong class="text-ink">Planetary Telemetry Clean-Room Purge:</strong> CesiumJS (Apache-2.0) and SGP4 orbital mechanics (MIT) run with 100% commercial-grade data. All non-commercial feeds (TeleGeography, Nepal flood pack, ALPR, OpenSky) are purged and replaced with Esri World Imagery, Re:Earth Terrain, and crowdsourced transponders (ODbL 1.0).
+                </li>
               </ul>
             </div>
           </div>

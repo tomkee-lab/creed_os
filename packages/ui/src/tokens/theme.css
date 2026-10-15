@@ -13,44 +13,44 @@
   --radius-xl: 10px;
   --radius-full: 9999px;
 
-  /* Carbon Voltage Surface Layering (Dark-as-Default: 90% Carbon/Graphite) */
-  --surface-canvas: oklch(0.135 0.018 255);    /* Application Canvas */
-  --surface-content: oklch(0.165 0.020 255);   /* Primary Panels / L1 */
-  --surface-raised: oklch(0.195 0.022 255);    /* Elevated Cards / L2 */
-  --surface-overlay: oklch(0.225 0.024 255);   /* Popovers / Active Surfaces / L3 */
-  --surface-modal: oklch(0.195 0.022 255);     /* Focus Dialog, Drawer */
-  --surface-sunken: oklch(0.115 0.015 255);    /* Inset Input Well */
+  /* Linear / Raycast Precision Palette */
+  --surface-canvas: oklch(0.985 0.003 260);      /* Crisp Zinc Canvas #FAFAFB */
+  --surface-content: oklch(0.965 0.005 260);     /* Content Well #F4F5F7 */
+  --surface-raised: oklch(1.000 0.000 0);        /* Pure White Card Pop #FFFFFF */
+  --surface-overlay: oklch(0.995 0.002 260);     /* Elevated Popovers #FCFCFD */
+  --surface-modal: oklch(1.000 0.000 0);         /* Dialogs / Modals #FFFFFF */
+  --surface-sunken: oklch(0.950 0.006 260);      /* Inset Input Well #EEF0F3 */
 
   /* Border Tokens */
-  --border-subtle: oklch(0.225 0.018 255);     /* Low-contrast dividers */
-  --border-strong: oklch(0.285 0.022 255);     /* Structural borders */
-  --border-focus: oklch(0.820 0.190 165);      /* Performance Mint Focus Ring */
-  --border-hairline: color-mix(in oklch, var(--text-primary) 12%, transparent);
+  --border-subtle: oklch(0.925 0.005 260);       /* Subtle Hairline #EAECEF */
+  --border-strong: oklch(0.800 0.010 260);       /* Structural Frame #CBD0D8 */
+  --border-focus: oklch(0.520 0.220 275);        /* Electric Indigo Ring #5B50E6 */
+  --border-hairline: color-mix(in oklch, var(--text-primary) 10%, transparent);
 
-  /* Typography Tokens (8% Cool Neutral Scale) */
-  --text-primary: oklch(0.955 0.012 255);      /* Primary text (Crisp graphite white) */
-  --text-secondary: oklch(0.780 0.018 255);    /* Secondary supporting text */
-  --text-muted: oklch(0.680 0.020 255);        /* Metadata / tertiary text */
-  --text-inverse: oklch(0.135 0.018 255);      /* Deep obsidian on mint (12.4:1 AAA) */
+  /* Typography Tokens */
+  --text-primary: oklch(0.180 0.015 270);        /* Deep Slate Ink #0F1117 (15.5:1 AAA) */
+  --text-secondary: oklch(0.460 0.020 270);      /* Slate Grey #4F5464 (5.4:1 AAA) */
+  --text-muted: oklch(0.580 0.015 270);          /* Steel Muted #73798C (4.5:1 AA) */
+  --text-inverse: oklch(0.996 0.000 0);          /* Pure White on Accent */
 
-  /* High-Voltage Accents */
-  --accent-primary: oklch(0.820 0.190 165);    /* Performance Mint (<2% at rest) */
-  --accent-primary-subtle: color-mix(in oklch, var(--accent-primary) 12%, transparent);
-  --accent-indigo: oklch(0.720 0.170 285);     /* Digital Violet (AI & Copilots) */
-  --accent-indigo-subtle: color-mix(in oklch, var(--accent-indigo) 12%, transparent);
-  --accent-success: oklch(0.820 0.190 165);    /* Performance Mint */
-  --accent-success-subtle: color-mix(in oklch, var(--accent-success) 12%, transparent);
-  --accent-warning: oklch(0.900 0.170 105);    /* Electric Yellow (Attention/Warning) */
-  --accent-warning-subtle: color-mix(in oklch, var(--accent-warning) 12%, transparent);
-  --accent-danger: oklch(0.680 0.190 25);      /* Signal Red (Destructive/Errors) */
-  --accent-danger-subtle: color-mix(in oklch, var(--accent-danger) 12%, transparent);
+  /* High-Voltage & Brand Accents */
+  --accent-primary: oklch(0.520 0.220 275);      /* Electric Indigo #5B50E6 (5.8:1 AAA on White) */
+  --accent-primary-subtle: color-mix(in oklch, var(--accent-primary) 10%, transparent);
+  --accent-indigo: oklch(0.520 0.220 275);
+  --accent-indigo-subtle: color-mix(in oklch, var(--accent-indigo) 10%, transparent);
+  --accent-success: oklch(0.520 0.220 275);
+  --accent-success-subtle: color-mix(in oklch, var(--accent-success) 10%, transparent);
+  --accent-warning: oklch(0.720 0.160 75);
+  --accent-warning-subtle: color-mix(in oklch, var(--accent-warning) 10%, transparent);
+  --accent-danger: oklch(0.580 0.190 25);
+  --accent-danger-subtle: color-mix(in oklch, var(--accent-danger) 10%, transparent);
 
   /* Competency Dimension Spectrum */
-  --comp-spatial: oklch(0.820 0.190 165);
-  --comp-computational: oklch(0.720 0.170 285);
-  --comp-quantitative: oklch(0.900 0.170 105);
-  --comp-scientific: oklch(0.780 0.140 205);
-  --comp-creative: oklch(0.740 0.170 55);
+  --comp-spatial: oklch(0.520 0.220 275);
+  --comp-computational: oklch(0.480 0.200 290);
+  --comp-quantitative: oklch(0.680 0.160 85);
+  --comp-scientific: oklch(0.540 0.160 215);
+  --comp-creative: oklch(0.620 0.180 45);
 
   /* True 8pt Spacing Rhythm (4px Base Unit) */
   --space-1: 4px;
@@ -76,10 +76,10 @@
   --font-heading: 'DM Sans Variable', 'DM Sans', var(--font-sans);
   --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
 
-  /* Shadows (Engineered, non-glowing) */
-  --shadow-subtle: 0 1px 2px rgb(0 0 0 / 0.18);
-  --shadow-raised: 0 8px 30px rgb(0 0 0 / 0.20);
-  --shadow-overlay: 0 20px 60px rgb(0 0 0 / 0.25);
+  /* Shadows (Engineered, ultra-clean neutral depth) */
+  --shadow-subtle: 0 1px 2px rgb(15 17 23 / 0.05);
+  --shadow-raised: 0 4px 20px rgb(15 17 23 / 0.07), 0 1px 3px rgb(15 17 23 / 0.04);
+  --shadow-overlay: 0 16px 48px rgb(15 17 23 / 0.12), 0 2px 8px rgb(15 17 23 / 0.06);
 
   /* Motion Curves (Fast, subtle, purposeful) */
   --duration-micro: 140ms;
@@ -89,49 +89,49 @@
 }
 
 .dark, [data-theme="dark"] {
-  --surface-canvas: oklch(0.135 0.018 255);
-  --surface-content: oklch(0.165 0.020 255);
-  --surface-raised: oklch(0.195 0.022 255);
-  --surface-overlay: oklch(0.225 0.024 255);
-  --surface-modal: oklch(0.195 0.022 255);
-  --surface-sunken: oklch(0.115 0.015 255);
-  --border-subtle: oklch(0.225 0.018 255);
-  --border-strong: oklch(0.285 0.022 255);
-  --border-focus: oklch(0.820 0.190 165);
-  --text-primary: oklch(0.955 0.012 255);
-  --text-secondary: oklch(0.780 0.018 255);
-  --text-muted: oklch(0.680 0.020 255);
-  --text-inverse: oklch(0.135 0.018 255);
-  --accent-primary: oklch(0.820 0.190 165);
-  --accent-indigo: oklch(0.720 0.170 285);
-  --accent-success: oklch(0.820 0.190 165);
-  --accent-warning: oklch(0.900 0.170 105);
-  --accent-danger: oklch(0.680 0.190 25);
+  --surface-canvas: oklch(0.205 0.012 265);      /* Comfortable Slate Canvas #1C1F2B */
+  --surface-content: oklch(0.245 0.014 265);     /* Soft Slate Panel #242837 */
+  --surface-raised: oklch(0.285 0.016 265);      /* Elevated Cards #2E3345 */
+  --surface-overlay: oklch(0.325 0.018 265);     /* Popovers #383E53 */
+  --surface-modal: oklch(0.285 0.016 265);       /* Dialogs #2E3345 */
+  --surface-sunken: oklch(0.170 0.010 265);      /* Inset Wells #161922 */
+  --border-subtle: oklch(0.285 0.012 265);       /* Subtle Divider #2E3345 */
+  --border-strong: oklch(0.420 0.018 265);       /* Structural Borders #4E5672 */
+  --border-focus: oklch(0.720 0.180 275);        /* Luminous Iris Ring #8882F9 */
+  --text-primary: oklch(0.965 0.005 265);        /* Crisp Chalk #F2F4F8 (11.5:1 AAA) */
+  --text-secondary: oklch(0.800 0.015 265);      /* Slate White #B9C1D2 (7.5:1 AAA) */
+  --text-muted: oklch(0.660 0.018 265);          /* Soft Slate #8B95AA (4.8:1 AA) */
+  --text-inverse: oklch(0.205 0.012 265);
+  --accent-primary: oklch(0.720 0.180 275);      /* Luminous Iris #8882F9 */
+  --accent-indigo: oklch(0.720 0.180 275);
+  --accent-success: oklch(0.720 0.180 275);
+  --accent-warning: oklch(0.880 0.160 85);
+  --accent-danger: oklch(0.720 0.190 25);
 }
 
 .light, [data-theme="light"] {
-  --surface-canvas: oklch(0.978 0.006 240);
-  --surface-content: oklch(0.965 0.008 240);
-  --surface-raised: oklch(1.000 0.000 0);
-  --surface-overlay: oklch(0.985 0.004 240);
-  --surface-modal: oklch(1.000 0.000 0);
-  --surface-sunken: oklch(0.945 0.010 240);
-  --border-subtle: oklch(0.925 0.006 240);
-  --border-strong: oklch(0.895 0.008 240);
-  --border-focus: oklch(0.520 0.170 165);
-  --text-primary: oklch(0.200 0.020 255);
-  --text-secondary: oklch(0.400 0.022 255);
-  --text-muted: oklch(0.480 0.018 255);
-  --text-inverse: oklch(0.990 0.002 240);
-  --accent-primary: oklch(0.520 0.170 165);
-  --accent-primary-subtle: oklch(0.950 0.030 165);
-  --accent-indigo: oklch(0.540 0.160 285);
-  --accent-indigo-subtle: oklch(0.950 0.030 285);
-  --accent-success: oklch(0.520 0.170 165);
-  --accent-success-subtle: oklch(0.950 0.030 165);
-  --accent-warning: oklch(0.680 0.150 75);
+  --surface-canvas: oklch(0.985 0.003 260);      /* Crisp Zinc Canvas #FAFAFB */
+  --surface-content: oklch(0.965 0.005 260);     /* Content Well #F4F5F7 */
+  --surface-raised: oklch(1.000 0.000 0);        /* Pure White Card Pop #FFFFFF */
+  --surface-overlay: oklch(0.995 0.002 260);     /* Elevated Popovers #FCFCFD */
+  --surface-modal: oklch(1.000 0.000 0);         /* Dialogs / Modals #FFFFFF */
+  --surface-sunken: oklch(0.950 0.006 260);      /* Inset Input Well #EEF0F3 */
+  --border-subtle: oklch(0.925 0.005 260);       /* Subtle Hairline #EAECEF */
+  --border-strong: oklch(0.800 0.010 260);       /* Structural Frame #CBD0D8 */
+  --border-focus: oklch(0.520 0.220 275);        /* Electric Indigo Ring #5B50E6 */
+  --text-primary: oklch(0.180 0.015 270);        /* Deep Slate Ink #0F1117 (15.5:1 AAA) */
+  --text-secondary: oklch(0.460 0.020 270);      /* Slate Grey #4F5464 (5.4:1 AAA) */
+  --text-muted: oklch(0.580 0.015 270);          /* Steel Muted #73798C (4.5:1 AA) */
+  --text-inverse: oklch(0.996 0.000 0);          /* Pure White on Accent */
+  --accent-primary: oklch(0.520 0.220 275);      /* Electric Indigo #5B50E6 */
+  --accent-primary-subtle: oklch(0.950 0.035 275);
+  --accent-indigo: oklch(0.520 0.220 275);
+  --accent-indigo-subtle: oklch(0.950 0.035 275);
+  --accent-success: oklch(0.520 0.220 275);
+  --accent-success-subtle: oklch(0.950 0.035 275);
+  --accent-warning: oklch(0.720 0.160 75);
   --accent-warning-subtle: oklch(0.960 0.030 75);
-  --accent-danger: oklch(0.560 0.180 25);
+  --accent-danger: oklch(0.580 0.190 25);
   --accent-danger-subtle: oklch(0.960 0.035 25);
 }
 

@@ -9,30 +9,42 @@
 
 ## 2. Token Palette
 
-### Light Mode (Warm Mineral Canvas)
-- **`--surface-canvas`:** `oklch(0.978 0.006 240)` (L0: Warm Mineral White base)
-- **`--surface-content`:** `oklch(0.965 0.008 240)` (L1: Soft Content Well)
-- **`--surface-raised`:** `oklch(1.000 0.000 0)` (L2: Pure White Raised Focus Card)
-- **`--surface-overlay`:** `oklch(0.985 0.004 240)` (L3: Popovers & Dropdowns)
-- **`--surface-modal`:** `oklch(1.000 0.000 0)` (L4: Focus Dialogs & Drawers)
-- **`--surface-sunken`:** `oklch(0.950 0.010 240)` (Inset Containers & Form Inputs)
+### Light Mode (Linear / Raycast Precision Palette)
+- **`--surface-canvas`:** `oklch(0.985 0.003 260)` (L0: Crisp Zinc Canvas `#FAFAFB` base canvas)
+- **`--surface-content`:** `oklch(0.965 0.005 260)` (L1: Content Well `#F4F5F7`)
+- **`--surface-raised`:** `oklch(1.000 0.000 0)` (L2: Pure White `#FFFFFF` Raised Card Pop)
+- **`--surface-overlay`:** `oklch(0.995 0.002 260)` (L3: Elevated Popovers & Dropdowns `#FCFCFD`)
+- **`--surface-modal`:** `oklch(1.000 0.000 0)` (L4: Focus Dialogs & Drawers `#FFFFFF`)
+- **`--surface-sunken`:** `oklch(0.950 0.006 260)` (Inset Containers & Form Inputs `#EEF0F3`)
+- **`--border-subtle`:** `oklch(0.925 0.005 260)` (Subtle Hairline `#EAECEF`)
+- **`--border`:** `oklch(0.895 0.008 260)` (Clean Divider `#E2E4E9`)
+- **`--border-strong`:** `oklch(0.800 0.010 260)` (Structural Frame Borders `#CBD0D8`)
+- **`--text-primary`:** `oklch(0.180 0.015 270)` (Deep Slate Ink `#0F1117`, 15.5:1 AAA contrast)
+- **`--text-secondary`:** `oklch(0.460 0.020 270)` (Slate Grey `#4F5464`, 5.4:1 AAA contrast)
+- **`--text-muted`:** `oklch(0.580 0.015 270)` (Steel Muted Metadata `#73798C`, 4.5:1 AA contrast)
 
-### Dark Mode (Deep Slate Studio / Nordic Night)
-- **`--surface-canvas`:** `oklch(0.145 0.018 250)` (L0: Deep Slate Base)
-- **`--surface-content`:** `oklch(0.180 0.020 250)` (L1: Soft Slate Well)
-- **`--surface-raised`:** `oklch(0.210 0.022 250)` (L2: Raised Tile)
-- **`--surface-overlay`:** `oklch(0.250 0.025 250)` (L3: Popovers)
-- **`--surface-modal`:** `oklch(0.220 0.022 250)` (L4: Drawers & Dialogs)
-- **`--surface-sunken`:** `oklch(0.120 0.015 250)` (Inset Wells)
+### Dark Mode (Slate Dimmed & Luminous Iris)
+- **`--surface-canvas`:** `oklch(0.205 0.012 265)` (L0: Slate Dimmed Canvas `#1C1F2B`)
+- **`--surface-content`:** `oklch(0.245 0.014 265)` (L1: Soft Slate Panel `#242837`)
+- **`--surface-raised`:** `oklch(0.285 0.016 265)` (L2: Elevated Dark Cards `#2E3345`)
+- **`--surface-overlay`:** `oklch(0.325 0.018 265)` (L3: Popovers `#383E53`)
+- **`--surface-modal`:** `oklch(0.285 0.016 265)` (L4: Focus Dialogs & Drawers `#2E3345`)
+- **`--surface-sunken`:** `oklch(0.170 0.010 265)` (Inset Wells `#161922`)
+- **`--border-subtle`:** `oklch(0.285 0.012 265)` (Subtle Divider `#2E3345`)
+- **`--border`:** `oklch(0.330 0.015 265)` (Hairline Divider `#393F55`)
+- **`--border-strong`:** `oklch(0.420 0.018 265)` (Structural Borders `#4E5672`)
+- **`--text-primary`:** `oklch(0.965 0.005 265)` (Primary Text — Crisp Chalk `#F2F4F8`, 11.5:1 AAA)
+- **`--text-secondary`:** `oklch(0.800 0.015 265)` (Secondary Text — Slate White `#B9C1D2`, 7.5:1 AAA)
+- **`--text-muted`:** `oklch(0.660 0.018 265)` (Tertiary Text — Soft Slate `#8B95AA`, 4.8:1 AA)
 
 ---
 
 ## 3. Semantic Accents
-- **Primary Teal (`--accent-primary`):** Main interactive controls, progress indicators, dominant action buttons (`oklch(0.550 0.140 215)`).
-- **AI Iris (`--accent-indigo`):** Socratic Guide, AI presence indicator, field exploration (`oklch(0.560 0.150 280)`).
-- **Growth Sage (`--accent-success`):** Demonstrated capabilities, verified consent, positive evidence strength (`oklch(0.600 0.140 150)`).
-- **Attention Ochre (`--accent-warning`):** Growth focus areas, pending notices, scaffold priority (`oklch(0.680 0.150 75)`).
-- **Critical Vermilion (`--accent-danger`):** Errors, DPDP consent revocations, safety blocks only (`oklch(0.580 0.180 25)`).
+- **Primary Hero Iris (`--accent-primary`, `--mint`, `--primary`):** Electric Indigo (`#5B50E6` / `oklch(0.520 0.220 275)` in light, `#8882F9` / `oklch(0.720 0.180 275)` in dark). Main interactive CTA buttons, focus rings, progress indicators.
+- **AI Iris (`--accent-indigo`, `--violet`):** Socratic Guide, AI presence indicator, field exploration (`oklch(0.520 0.220 275)` in light, `oklch(0.720 0.180 275)` in dark).
+- **Growth Sage (`--accent-success`):** Demonstrated capabilities, verified consent, positive evidence strength (`oklch(0.520 0.220 275)` / `oklch(0.720 0.180 275)`).
+- **Attention Ochre (`--accent-warning`):** Growth focus areas, pending notices (`oklch(0.720 0.160 75)` in light, `oklch(0.860 0.160 85)` in dark).
+- **Critical Coral (`--accent-danger`):** Errors, DPDP consent revocations, safety blocks (`oklch(0.580 0.190 25)` in light, `oklch(0.680 0.190 25)` in dark).
 
 ---
 

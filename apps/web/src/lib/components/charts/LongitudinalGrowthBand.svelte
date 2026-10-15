@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Chart, Svg, Area, Spline, Points, Axis, Grid } from 'layerchart';
-  // D3 continuous linear, point scales, and linear curve generator for Bayesian growth ribbon
-  import { scaleLinear, scalePoint } from 'd3-scale';
+  // D3 continuous linear scale and linear curve generator for Bayesian growth ribbon
+  import { scaleLinear } from 'd3-scale';
   import { curveLinear } from 'd3-shape';
   import { TrendingUp, ShieldCheck, Activity, Award, Info } from 'lucide-svelte';
 

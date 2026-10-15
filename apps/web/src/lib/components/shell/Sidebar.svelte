@@ -22,7 +22,8 @@
     FolderKanban,
     Wrench,
     CheckCircle2,
-    TerminalSquare
+    TerminalSquare,
+    Globe
   } from 'lucide-svelte';
   import CreedLogo from '$lib/components/brand/CreedLogo.svelte';
 
@@ -60,10 +61,11 @@
         return [
           { label: 'Today', href: '/student', icon: Compass },
           { label: 'Robotics IDE', href: '/ide', icon: TerminalSquare },
+          { label: 'Earth Observatory', href: '/observatory', icon: Globe, badge: '3D' },
           { label: 'Benchmark (30Q)', href: '/student/assessment', icon: Sparkles, badge: 'New' },
           { label: 'Diagnostic Report', href: '/student/report', icon: FileText },
           { label: 'My Map', href: '/student/pathways', icon: Layers },
-          { label: 'Missions Hub', href: '/student/missions', icon: Target, badge: '8 Labs' },
+          { label: 'Missions Hub', href: '/student/missions', icon: Target, badge: '11 Labs' },
           { label: 'Capabilities', href: '/student/progress', icon: Activity },
           { label: 'Evidence', href: '/student/progress#evidence', icon: CheckCircle2 },
           { label: 'Socratic Guide', href: '/student/mentor', icon: BrainCircuit }
@@ -81,6 +83,7 @@
         return [
           { label: 'Today', href: '/teacher', icon: Compass },
           { label: 'Robotics IDE', href: '/ide', icon: TerminalSquare },
+          { label: 'Earth Observatory', href: '/observatory', icon: Globe, badge: '3D' },
           { label: 'Global Benchmarks', href: '/teacher/benchmarks', icon: Sparkles, badge: '30Q' },
           { label: 'Lesson Plan Studio', href: '/teacher/lesson-plans', icon: BookOpen },
           { label: 'Pedagogy Guidance', href: '/teacher/guidance', icon: BrainCircuit },
@@ -111,6 +114,7 @@
         return [
           { label: 'Item Bank', href: '/studio', icon: FolderKanban },
           { label: 'Robotics IDE', href: '/ide', icon: TerminalSquare },
+          { label: 'Earth Observatory', href: '/observatory', icon: Globe },
           { label: 'Authoring', href: '/studio#authoring', icon: Wrench },
           { label: 'Calibration', href: '/studio#calibration', icon: Activity }
         ];

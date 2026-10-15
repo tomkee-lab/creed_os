@@ -6,13 +6,17 @@ import { toSafeLearnerProfileDTO, toSafeEvidenceDTO, deepSanitizePsychometrics }
 
 export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
   const currentPath = url.pathname;
-  const user = locals.user;
+  let user = locals.user;
 
   if (!user) {
-    throw redirect(303, `/login?next=${encodeURIComponent(url.pathname)}`);
+    if (currentPath.startsWith('/help') || currentPath.startsWith('/ide') || currentPath.startsWith('/observatory')) {
+      user = { id: 'guest', name: 'Guest Explorer', email: 'guest@core-os.app', role: 'student' } as any;
+    } else {
+      throw redirect(303, `/login?next=${encodeURIComponent(url.pathname)}`);
+    }
   }
 
-  const isUtilityRoute = currentPath.startsWith('/settings') || currentPath.startsWith('/help');
+  const isUtilityRoute = currentPath.startsWith('/settings') || currentPath.startsWith('/help') || currentPath.startsWith('/ide') || currentPath.startsWith('/observatory');
   const requestedRole = currentPath.startsWith('/admin')
     ? 'admin'
     : currentPath.startsWith('/teacher')

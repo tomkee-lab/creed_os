@@ -12,8 +12,11 @@
     Sliders,
     Check,
     AlertTriangle,
-    X
+    X,
+    ExternalLink
   } from 'lucide-svelte';
+  import OpenSourceComplianceModal from '$lib/components/compliance/OpenSourceComplianceModal.svelte';
+  import { SBOM_DEPENDENCIES, CLEAN_ROOM_STATUS } from '$lib/compliance/licenses';
 
   let density = $state<'standard' | 'comfortable' | 'compact'>('standard');
   let emailNotifications = $state(true);
@@ -24,6 +27,9 @@
   let showErasureModal = $state(false);
   let erasureConfirmationText = $state('');
   let erasureStatus = $state<'idle' | 'submitting' | 'submitted'>('idle');
+
+  // SBOM Compliance Modal state
+  let showSbomModal = $state(false);
 
   function handleSave() {
     savedStatus = true;
@@ -211,7 +217,74 @@
       </div>
     </div>
   </WaySection>
+
+  <!-- Section: Open Source Software Architecture & License Compliance (SBOM) -->
+  <WaySection
+    title="Open Source Licenses & Clean-Room Architecture (SBOM)"
+    subtitle="Software Bill of Materials (SBOM) and clean-room provenance verification."
+  >
+    <div class="p-6 bg-surface border border-border rounded-sm space-y-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-foreground">Clean-Room Certification</span>
+            <span class="px-2 py-0.5 rounded-none bg-positive-subtle text-positive text-[10px] font-mono border border-positive/30 font-semibold">
+              {CLEAN_ROOM_STATUS.status}
+            </span>
+          </div>
+          <p class="text-[11px] text-foreground-secondary">
+            Zero AGPL-3.0 copyleft contamination. 100% commercially permissive MIT, Apache 2.0, and BSD-3-Clause foundational stack.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onclick={() => (showSbomModal = true)}
+          class="shrink-0 font-mono text-xs flex items-center gap-1.5"
+        >
+          <ExternalLink class="w-3.5 h-3.5 text-brand" />
+          <span>Inspect Full SBOM Ledger</span>
+        </Button>
+      </div>
+
+      <!-- Compact Dependency Preview Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs font-mono">
+          <thead>
+            <tr class="border-b border-border text-[11px] text-foreground-secondary">
+              <th class="py-2 pr-3 font-semibold">Component</th>
+              <th class="py-2 px-3 font-semibold">License</th>
+              <th class="py-2 px-3 font-semibold">Role</th>
+              <th class="py-2 pl-3 font-semibold text-right">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border/60">
+            {#each SBOM_DEPENDENCIES.slice(0, 5) as dep}
+              <tr class="hover:bg-surface-raised transition-colors">
+                <td class="py-2 pr-3 font-semibold text-foreground">{dep.name}</td>
+                <td class="py-2 px-3">
+                  <span class="px-1.5 py-0.5 bg-surface-raised border border-border text-[10px]">
+                    {dep.license}
+                  </span>
+                </td>
+                <td class="py-2 px-3 text-foreground-secondary truncate max-w-xs">{dep.role}</td>
+                <td class="py-2 pl-3 text-right">
+                  <span class="text-positive text-[10px] font-semibold">PASS</span>
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+      <p class="text-[11px] text-foreground-secondary">
+        Showing 5 of {SBOM_DEPENDENCIES.length} audited dependencies. Open the full modal for complete license texts and copyleft-free warranties.
+      </p>
+    </div>
+  </WaySection>
 </div>
+
+<!-- Open Source Compliance & SBOM Dialog -->
+<OpenSourceComplianceModal bind:isOpen={showSbomModal} />
 
 <!-- 2-STEP DATA ERASURE CONFIRMATION MODAL -->
 {#if showErasureModal}

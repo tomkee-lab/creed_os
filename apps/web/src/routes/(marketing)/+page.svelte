@@ -20,18 +20,15 @@
     Sliders,
     Search,
     Info,
-    Calendar
+    Calendar,
+    ArrowLeft,
+    Shield
   } from 'lucide-svelte';
   import { Icon } from '$lib/components/icons';
   import { revealOnScroll } from '$lib/motion/reveal.js';
   import { magneticHover, countUp } from '$lib/motion/interaction.js';
   import { initScrollTrigger, isReducedMotion } from '$lib/motion/scroll.js';
   import {
-    Stepper,
-    DropdownCheckbox,
-    Breadcrumb,
-    Kbd,
-    ButtonGroup,
     EvidenceRating,
     GlyphMatrix
   } from '$lib/components';
@@ -39,13 +36,12 @@
 
   // --- Interactive State for Capability Studio ---
   const assessmentSteps = [
-    { id: 1, label: 'Baseline CAT', description: 'Adaptive 3PL Diagnostic' },
-    { id: 2, label: 'Maker Project', description: 'Kinematic Linkage Build' },
-    { id: 3, label: 'Socratic Dialogue', description: 'Inquiry Verification' },
+    { id: 1, label: 'Adaptive CAT', description: 'Item Response Diagnostics' },
+    { id: 2, label: 'Maker Build', description: 'Kinematic Linkage Fabrication' },
+    { id: 3, label: 'Socratic Inquiry', description: 'Dialogue & Deduction' },
     { id: 4, label: 'Growth Synthesis', description: 'Longitudinal Profiling' }
   ];
   let currentStep = $state(2);
-  let isAllCompleted = $state(false);
 
   async function handleExploreStudio(e: MouseEvent) {
     if (import.meta.env.DEV) {
@@ -68,19 +64,20 @@
       id: 1,
       badge: 'PHASE 01 // ADAPTIVE DIAGNOSTIC',
       code: 'EVD-CAT-01',
-      title: 'Baseline Computerized Adaptive Test',
+      title: 'Adaptive Item Response Convergence',
       subtitle: 'Deterministic 3-Parameter Logistic (3PL) Item Response Theory evaluation.',
-      metric1: { label: 'Ability Estimate (θ)', value: '+0.85', desc: 'Converged (SE: 0.28)' },
-      metric2: { label: 'Adaptive Items', value: '18 / 24', desc: 'Early stop criterion met' },
-      metric3: { label: 'Item Discrimination (a)', value: '1.42', desc: 'High Fisher information' },
+      metric1: { label: 'Ability Estimate', value: 'θ = +0.85', desc: 'SE < 0.28' },
+      metric2: { label: 'Convergence Pace', value: '18 Items', desc: 'Early stop criteria met' },
+      artifactType: 'Dynamic Item Response Trace',
+      artifactMeta: 'Item Discrimination a=1.42 · Fisher Info Peak',
       a: '1.42',
       b: '+0.38',
       c: '0.18',
       tag: 'Completed',
       status: 'completed',
-      rubricLabel: 'Quantitative & Proportional Reasoning demonstrated',
+      rubricLabel: 'Quantitative & Proportional Reasoning',
       rubricRating: 4,
-      rubricDesc: 'Student demonstrated stable item mastery across proportional tables without high-stakes ceiling fatigue.',
+      rubricDesc: 'Learner demonstrated stable item mastery across proportional tables without high-stakes ceiling fatigue.',
       evidenceHash: 'sha256: 3c81e9b23190dfca0199e31d45112dfc40a790101901ab210bde48123fae9912'
     },
     {
@@ -89,17 +86,18 @@
       code: 'EVD-MAK-02',
       title: 'Maker Project: Kinematic Linkage',
       subtitle: 'Hands-on spatial kinematics and 4-bar planar mechanical linkage fabrication.',
-      metric1: { label: 'Mechanical Assembly', value: '4-Bar Planar', desc: 'Rotational balance validated' },
-      metric2: { label: 'Gear Ratio Constraint', value: '3:1 Mesh', desc: 'Friction torque compensated' },
-      metric3: { label: 'Evidence Rigor', value: 'Level 4 / 5', desc: 'Independent fabrication' },
+      metric1: { label: 'Mechanism Architecture', value: '4-Bar Planar', desc: 'Rotational balance verified' },
+      metric2: { label: 'Gear Constraint', value: '3:1 Mesh', desc: 'Friction torque compensated' },
+      artifactType: 'Kinematic Linkage & Gear Mesh',
+      artifactMeta: 'Mechanical Simulation Validated · 0.02% Tolerance',
       a: '1.68',
       b: '+0.62',
       c: '0.12',
       tag: 'Demonstrated',
       status: 'completed',
-      rubricLabel: 'Rotational Mechanics demonstrated',
+      rubricLabel: 'Rotational Mechanics & Spatial Reasoning',
       rubricRating: 4,
-      rubricDesc: 'Student independently isolated rotational axis friction constraint and authored compensatory gear teeth mesh.',
+      rubricDesc: 'Learner independently isolated rotational friction constraints and authored compensatory gear teeth mesh.',
       evidenceHash: 'sha256: 7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069'
     },
     {
@@ -108,9 +106,10 @@
       code: 'EVD-SOC-03',
       title: 'Socratic Dialogue Verification',
       subtitle: 'Voice & text guided inquiry exploring counterfactual reasoning and gear trade-offs.',
-      metric1: { label: 'Scaffolding Turns', value: '6 Exchanges', desc: 'Zero test anxiety' },
-      metric2: { label: 'Deductive Precision', value: 'Level 5 / 5', desc: 'First-principles reasoning' },
-      metric3: { label: 'Autonomous Rebuttal', value: 'Demonstrated', desc: 'Torque vs velocity tradeoff' },
+      metric1: { label: 'Guided Exchanges', value: '6 Turns', desc: 'Zero test anxiety recorded' },
+      metric2: { label: 'Autonomous Rebuttal', value: 'Level 5 / 5', desc: 'First-principles reasoning' },
+      artifactType: 'Socratic Inquiry Exchange',
+      artifactMeta: 'Multi-Turn Audio & Text Triangulation',
       a: '1.85',
       b: '+0.91',
       c: '0.08',
@@ -127,54 +126,35 @@
       code: 'EVD-SYN-04',
       title: 'Growth Synthesis & Longitudinal Profiling',
       subtitle: 'Triangulation of psychometric ability, hands-on maker artifacts, and verbal reflection.',
-      metric1: { label: 'Modalities Triangulated', value: '3 Sources', desc: 'CAT + Maker + Socratic' },
-      metric2: { label: 'Developmental Band', value: 'Strong Foundation', desc: 'Qualitative growth classification' },
-      metric3: { label: 'Statutory Ledger', value: 'DPDP Active', desc: 'Cryptographically signed' },
+      metric1: { label: 'Triangulated Sources', value: '3 Channels', desc: 'CAT + Maker + Socratic' },
+      metric2: { label: 'Qualitative Band', value: 'Strong Foundation', desc: 'Zero career boxing' },
+      artifactType: 'Triangulated Learner Profile',
+      artifactMeta: 'DPDP Child Data Consent Cryptographically Signed',
       a: '1.92',
       b: '+0.88',
       c: '0.05',
-      tag: 'Ready to Synthesize',
+      tag: 'Synthesized',
       status: 'active',
       rubricLabel: 'Multi-Modal Evidence Synthesis',
       rubricRating: 5,
-      rubricDesc: 'Deterministic algorithm synthesized longitudinal proof without arbitrary IQ labeling or deterministic career exclusions.',
+      rubricDesc: 'Deterministic algorithms synthesized longitudinal evidence without arbitrary IQ labeling or career exclusions.',
       evidenceHash: 'sha256: a1f88c3904e2230a84128f09d8544e7c3011a091012fa89b2190cdbe78e0192a'
     }
   ];
 
   const activePhase = $derived(phaseDetails[currentStep - 1] ?? phaseDetails[0]);
-  const journeyProgressPercent = $derived(
-    isAllCompleted ? 100 : Math.round(((currentStep - 1) / assessmentSteps.length) * 100 + 25)
-  );
 
   function handleNextPhase() {
     if (currentStep < assessmentSteps.length) {
       currentStep += 1;
-    } else if (currentStep === assessmentSteps.length && !isAllCompleted) {
-      isAllCompleted = true;
+    } else {
+      currentStep = 1;
     }
   }
 
   function handlePrevPhase() {
-    if (isAllCompleted) {
-      isAllCompleted = false;
-      currentStep = 4;
-    } else {
-      currentStep = Math.max(1, currentStep - 1);
-    }
+    currentStep = Math.max(1, currentStep - 1);
   }
-
-  function handleReplayJourney() {
-    currentStep = 1;
-    isAllCompleted = false;
-  }
-
-  let competencyOptions = $state([
-    { id: 'kinematics', label: 'Spatial Kinematics', description: 'Mechanical linkage & rotational balance', checked: true },
-    { id: 'logic', label: 'Algorithmic Recursion', description: 'Branching tree traversal & base cases', checked: true },
-    { id: 'quantitative', label: 'Proportional Tables', description: 'Non-linear ratios & scaling laws', checked: false },
-    { id: 'inquiry', label: 'Socratic Deduction', description: 'Hypothesis framing & evidence rebuttal', checked: true }
-  ]);
 
   let drawerOpen = $state(false);
 
@@ -273,7 +253,7 @@
     mutationRate={0.035}
     interval={90}
     fadeBottom={0.65}
-    opacity={0.5}
+    opacity={0.05}
     class="z-0"
   />
   <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-full max-w-5xl h-80 bg-mint/5 blur-[120px] rounded-none pointer-events-none z-0"></div>
@@ -290,7 +270,7 @@
     <div class="space-y-3.5 max-w-2xl mx-auto">
       <h1 class="hero-reveal text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-ink leading-[1.12]">
         Understand how<br />
-        <span class="bg-clip-text text-transparent bg-linear-to-r from-ink via-mint to-ink">
+        <span class="text-brand">
           a learner grows.
         </span>
       </h1>
@@ -494,7 +474,7 @@
   <!-- ============================================================
        5. INTERACTIVE CAPABILITY STUDIO (Live Components Showcase)
        ============================================================ -->
-  <section use:revealOnScroll={{ stagger: 0.06 }} class="space-y-8 pt-8 border-t border-border-subtle">
+  <section use:revealOnScroll={{ stagger: 0.06 }} class="space-y-6 pt-8 border-t border-border-subtle">
     <div data-reveal-item class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
       <div class="space-y-1">
         <div class="flex items-center gap-2">
@@ -503,362 +483,376 @@
             04 · Interactive Capability Studio
           </span>
         </div>
-        <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-ink">
+        <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-ink font-heading">
           Interactive evaluation tools in action.
         </h2>
       </div>
       <p class="text-xs sm:text-sm text-ink-secondary max-w-sm sm:text-right leading-relaxed">
-        Test our zero-curve interactive primitives: multi-step evaluation journeys, domain filters, and rubric telemetry sheets.
+        Test our zero-curve multi-modal evaluation moments: adaptive diagnostics, physical maker builds, and Socratic deduction.
       </p>
     </div>
 
-    <!-- Interactive Frame Container -->
-    <div data-reveal-item class="studio-frame p-6 rounded-none bg-surface border border-border space-y-6 shadow-sm">
-      <!-- Breadcrumb Context Header -->
-      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
-        <Breadcrumb
-          items={[
-            { label: 'Evaluation Engine', href: '#observatory' },
-            { label: 'Classes 5–10 Sandbox' },
-            { label: 'Live Demonstration' }
-          ]}
-        />
-
-        <div class="flex items-center gap-2">
-          <span class="text-[11px] font-mono text-ink-muted">Shortcut:</span>
-          <Kbd>Tab</Kbd>
-          <span class="text-[11px] text-ink-muted">to navigate</span>
-        </div>
-      </div>
-
-      <!-- Live Stepper Component & Progress Indicator -->
-      <div class="space-y-3">
-        <div class="flex items-center justify-between text-xs">
-          <span class="font-medium text-ink">Multi-Phase Assessment Journey:</span>
-          {#if isAllCompleted}
-            <span class="font-mono text-mint flex items-center gap-1.5 font-semibold">
-              <CheckCircle2 class="size-3.5 stroke-[2.5]" />
-              All 4 Phases Completed · Synthesis Verified
-            </span>
-          {:else}
-            <span class="font-mono text-mint">
-              Phase {currentStep} of {assessmentSteps.length}
-            </span>
-          {/if}
-        </div>
-
-        <!-- Linear Motion Progress Indicator -->
-        <div class="h-1 bg-surface-subtle w-full border border-border overflow-hidden">
-          <div
-            class="h-full bg-mint transition-all duration-200 ease-out"
-            style="width: {journeyProgressPercent}%;"
-          ></div>
-        </div>
-
-        <Stepper
-          steps={assessmentSteps}
-          bind:current={currentStep}
-          completed={isAllCompleted}
-          clickable={true}
-          onStepClick={(idx) => {
-            currentStep = idx;
-            if (isAllCompleted && idx < 4) {
-              isAllCompleted = false;
-            }
-          }}
-        />
-      </div>
-
-      <!-- Active Phase Workbench & Dynamic Stage Display -->
-      {#if isAllCompleted}
-        <!-- All 4 Phases Completed Stage Banner & Final Synthesis View -->
-        <div class="p-5 rounded-none bg-mint-subtle border border-mint/40 space-y-4 animate-in fade-in duration-200">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-mint/20 pb-3">
-            <div class="flex items-center gap-2">
-              <div class="size-8 rounded-none bg-mint text-mint-foreground flex items-center justify-center font-bold shadow-xs">
-                <CheckCircle2 class="size-5 stroke-[2.5]" />
-              </div>
-              <div>
-                <div class="flex items-center gap-2">
-                  <span class="text-[10px] font-mono font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-none bg-canvas text-mint border border-mint/30">
-                    STAGE COMPLETE · VERIFIED
-                  </span>
-                  <span class="text-[10px] font-mono text-ink-muted">SYN-ALL-04</span>
-                </div>
-                <h3 class="text-base sm:text-lg font-semibold text-ink">
-                  Longitudinal Learner Record Synthesized
-                </h3>
-              </div>
+    <!-- Calm Capability Canvas Frame -->
+    <div data-reveal-item class="studio-frame p-4 sm:p-6 rounded-none bg-surface border border-border space-y-6 shadow-xs">
+      <!-- 4-Phase Segmented Interactive Rail -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 border-b border-border pb-4">
+        {#each assessmentSteps as step (step.id)}
+          <button
+            type="button"
+            onclick={() => { currentStep = step.id; }}
+            class="text-left p-3 rounded-none border transition-micro cursor-pointer flex flex-col justify-between {currentStep === step.id ? 'bg-surface-raised border-mint text-ink ring-1 ring-mint/30' : 'bg-surface/50 border-border hover:bg-surface text-ink-secondary hover:text-ink'}"
+            title="Switch to Phase 0{step.id}: {step.label}"
+          >
+            <div class="flex items-center justify-between text-[11px] font-mono">
+              <span class="{currentStep === step.id ? 'text-mint font-semibold' : 'text-ink-muted'}">0{step.id}</span>
+              {#if currentStep > step.id}
+                <Check class="size-3 text-mint stroke-[2.5]" />
+              {:else if currentStep === step.id}
+                <span class="size-1.5 rounded-none bg-mint animate-pulse"></span>
+              {/if}
             </div>
+            <div class="mt-2 space-y-0.5">
+              <span class="text-xs font-semibold block text-ink">{step.label}</span>
+              <span class="text-[11px] text-ink-muted block line-clamp-1">{step.description}</span>
+            </div>
+          </button>
+        {/each}
+      </div>
+
+      <!-- Split Evaluation Canvas -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        <!-- Left Column: Living Evaluation Artifact (Col 7 / 58%) -->
+        <div class="lg:col-span-7 rounded-none bg-canvas border border-border p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden min-h-80">
+          <!-- Artifact Header -->
+          <div class="flex items-center justify-between border-b border-border/60 pb-3 text-xs font-mono">
             <div class="flex items-center gap-2">
-              <span class="text-xs px-3 py-1 rounded-none bg-mint text-mint-foreground font-semibold">
-                4 / 4 Modalities Demonstrated
+              <span class="size-2 rounded-none bg-mint"></span>
+              <span class="text-ink font-semibold uppercase">{activePhase.artifactType}</span>
+            </div>
+            <span class="text-ink-muted text-[11px]">{activePhase.code}</span>
+          </div>
+
+          <!-- Dynamic Artifact Demonstration Display -->
+          <div class="flex-1 flex items-center justify-center py-5">
+            {#if currentStep === 1}
+              <!-- Phase 1: Adaptive CAT Item Convergence Trace -->
+              <div class="w-full max-w-md space-y-3 font-mono text-xs">
+                <div class="flex items-center justify-between text-[11px] text-ink-muted">
+                  <span>θ Latent Ability Convergence Trace</span>
+                  <span class="text-mint font-semibold">SE: 0.24 · Converged</span>
+                </div>
+                <div class="h-28 w-full bg-surface border border-border relative p-2 flex flex-col justify-between overflow-hidden">
+                  <!-- Confidence Interval Band -->
+                  <div class="absolute inset-x-0 top-1/4 h-1/2 bg-mint/10 border-y border-mint/20"></div>
+                  <!-- Center Convergence Axis -->
+                  <div class="absolute inset-x-0 top-1/2 border-t border-dashed border-border-strong"></div>
+                  
+                  <!-- Responsive Adaptive Step SVG Line -->
+                  <svg class="w-full h-full relative z-10" viewBox="0 0 400 90" fill="none" preserveAspectRatio="none">
+                    <!-- Target convergence path -->
+                    <path
+                      d="M 10 75 L 45 25 L 85 65 L 130 35 L 180 50 L 230 42 L 280 46 L 330 44 L 380 45"
+                      stroke="var(--color-ink-muted, #71717a)"
+                      stroke-width="1.5"
+                      stroke-dasharray="2 2"
+                    />
+                    <path
+                      d="M 180 50 L 230 42 L 280 46 L 330 44 L 380 45"
+                      stroke="var(--color-mint, #10b981)"
+                      stroke-width="2"
+                    />
+                    <!-- Item test points -->
+                    <circle cx="10" cy="75" r="3" fill="var(--color-ink, #fff)" />
+                    <circle cx="45" cy="25" r="3" fill="var(--color-ink, #fff)" />
+                    <circle cx="85" cy="65" r="3" fill="var(--color-ink, #fff)" />
+                    <circle cx="130" cy="35" r="3" fill="var(--color-ink, #fff)" />
+                    <circle cx="180" cy="50" r="3.5" fill="var(--color-mint, #10b981)" />
+                    <circle cx="230" cy="42" r="3.5" fill="var(--color-mint, #10b981)" />
+                    <circle cx="280" cy="46" r="3.5" fill="var(--color-mint, #10b981)" />
+                    <circle cx="330" cy="44" r="3.5" fill="var(--color-mint, #10b981)" />
+                    <circle cx="380" cy="45" r="4.5" fill="var(--color-mint, #10b981)" />
+                  </svg>
+                </div>
+                <div class="flex items-center justify-between text-[10px] text-ink-muted">
+                  <span>Item 1 (Initial seed)</span>
+                  <span>Item 18 (Early stopping threshold met)</span>
+                </div>
+              </div>
+            {:else if currentStep === 2}
+              <!-- Phase 2: Maker Project Kinematic Linkage Simulation -->
+              <div class="w-full max-w-md space-y-3 font-mono text-xs">
+                <div class="flex items-center justify-between text-[11px] text-ink-muted">
+                  <span>Planar Mechanical Assembly · Kinematics Engine</span>
+                  <span class="text-mint font-semibold">Mesh Ratio 3:1</span>
+                </div>
+                <div class="h-28 w-full bg-surface border border-border relative p-3 flex items-center justify-center overflow-hidden">
+                  <!-- Mechanical Gear & 4-Bar Assembly SVG -->
+                  <svg class="w-full h-full" viewBox="0 0 340 80" fill="none">
+                    <!-- Ground Link -->
+                    <line x1="50" y1="60" x2="290" y2="60" stroke="var(--color-border-strong, #3f3f46)" stroke-width="2" stroke-dasharray="4 4" />
+                    <!-- Driver Crank -->
+                    <line x1="70" y1="60" x2="110" y2="25" stroke="var(--color-mint, #10b981)" stroke-width="2.5" />
+                    <!-- Coupler Link -->
+                    <line x1="110" y1="25" x2="220" y2="35" stroke="var(--color-ink, #fff)" stroke-width="2.5" />
+                    <!-- Follower Rocker -->
+                    <line x1="220" y1="35" x2="260" y2="60" stroke="var(--color-brand, #6366f1)" stroke-width="2.5" />
+                    <!-- Mechanical Joints -->
+                    <circle cx="70" cy="60" r="4.5" fill="var(--color-surface, #18181b)" stroke="var(--color-mint, #10b981)" stroke-width="2" />
+                    <circle cx="110" cy="25" r="4" fill="var(--color-mint, #10b981)" />
+                    <circle cx="220" cy="35" r="4" fill="var(--color-brand, #6366f1)" />
+                    <circle cx="260" cy="60" r="4.5" fill="var(--color-surface, #18181b)" stroke="var(--color-brand, #6366f1)" stroke-width="2" />
+                    <!-- Mesh gear indicator -->
+                    <text x="145" y="52" fill="var(--color-mint, #10b981)" font-size="10" font-family="monospace">3:1 Planetary Gear</text>
+                  </svg>
+                </div>
+                <div class="flex items-center justify-between text-[10px] text-ink-muted">
+                  <span>Pivot A: Fixed Base</span>
+                  <span>Coupler Pivot B</span>
+                  <span>Rocker Pin C</span>
+                </div>
+              </div>
+            {:else if currentStep === 3}
+              <!-- Phase 3: Socratic Dialogue Verification -->
+              <div class="w-full max-w-md space-y-3 text-xs">
+                <!-- Mentor Prompt -->
+                <div class="p-3 rounded-none bg-surface border border-border border-l-2 border-l-mint space-y-1">
+                  <div class="flex items-center justify-between text-[10px] font-mono text-mint">
+                    <span>SOCRATIC MENTOR · TURN 05</span>
+                    <span class="text-ink-muted">Audio + Text</span>
+                  </div>
+                  <p class="text-xs text-ink-secondary leading-relaxed">
+                    "If the follower gear diameter triples, what happens to the output rotational speed and the motor torque requirement?"
+                  </p>
+                </div>
+
+                <!-- Student Rebuttal -->
+                <div class="p-3 rounded-none bg-surface-raised border border-border border-l-2 border-l-brand space-y-1">
+                  <div class="flex items-center justify-between text-[10px] font-mono text-brand">
+                    <span>LEARNER REBUTTAL · AUTONOMOUS</span>
+                    <span class="text-mint">Level 5 / 5 Verified</span>
+                  </div>
+                  <p class="text-xs text-ink leading-relaxed">
+                    "Output angular velocity drops to 1/3, but available mechanical torque triples to overcome the linkage friction threshold."
+                  </p>
+                </div>
+              </div>
+            {:else}
+              <!-- Phase 4: Longitudinal Growth Synthesis -->
+              <div class="w-full max-w-md space-y-3 font-mono text-xs">
+                <div class="flex items-center justify-between text-[11px] text-ink-muted">
+                  <span>Triangulated Multi-Modal Record</span>
+                  <span class="text-mint font-semibold">100% DPDP Verified</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center">
+                  <div class="p-2 bg-surface border border-border space-y-1">
+                    <span class="text-[10px] text-ink-muted block uppercase">Adaptive CAT</span>
+                    <span class="font-bold text-ink block text-xs">θ = +0.85</span>
+                    <span class="text-[10px] text-mint block">3PL Converged</span>
+                  </div>
+                  <div class="p-2 bg-surface border border-border space-y-1">
+                    <span class="text-[10px] text-ink-muted block uppercase">Maker Build</span>
+                    <span class="font-bold text-ink block text-xs">Level 4 / 5</span>
+                    <span class="text-[10px] text-mint block">Kinematic Mesh</span>
+                  </div>
+                  <div class="p-2 bg-surface border border-border space-y-1">
+                    <span class="text-[10px] text-ink-muted block uppercase">Socratic</span>
+                    <span class="font-bold text-ink block text-xs">6 Turns</span>
+                    <span class="text-[10px] text-mint block">High Precision</span>
+                  </div>
+                </div>
+                <div class="p-2 bg-surface border border-border flex items-center justify-between text-[11px]">
+                  <span class="text-ink-secondary">Developmental Growth Band:</span>
+                  <span class="font-bold text-mint font-sans">Strong Foundation</span>
+                </div>
+              </div>
+            {/if}
+          </div>
+
+          <!-- Artifact Telemetry Footer -->
+          <div class="pt-3 border-t border-border/60 flex items-center justify-between text-[11px] font-mono text-ink-secondary">
+            <span>{activePhase.artifactMeta}</span>
+            <span class="text-mint flex items-center gap-1">
+              <Shield class="size-3" />
+              Verified Telemetry
+            </span>
+          </div>
+        </div>
+
+        <!-- Right Column: Editorial Signal & Human-First Evidence (Col 5 / 42%) -->
+        <div class="lg:col-span-5 rounded-none bg-surface border border-border p-4 sm:p-5 flex flex-col justify-between space-y-4">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-none bg-surface-subtle border border-border text-mint font-semibold">
+                {activePhase.badge}
+              </span>
+              <span class="text-xs font-mono text-ink-muted">
+                Phase {currentStep} of {assessmentSteps.length}
               </span>
             </div>
-          </div>
 
-          <!-- 4 Phases Grid Readout -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs">
-            <div class="p-2 bg-surface border border-border space-y-1">
-              <div class="flex items-center justify-between text-[10px] text-ink-muted">
-                <span>01. Baseline CAT</span>
-                <Check class="size-3 text-mint stroke-[2.5]" />
-              </div>
-              <span class="font-bold text-ink block text-sm font-mono tabular-nums">θ = +0.85</span>
-              <span class="text-[10px] text-mint block">3PL Converged</span>
-            </div>
-
-            <div class="p-2 bg-surface border border-border space-y-1">
-              <div class="flex items-center justify-between text-[10px] text-ink-muted">
-                <span>02. Maker Linkage</span>
-                <Check class="size-3 text-mint stroke-[2.5]" />
-              </div>
-              <span class="font-bold text-ink block text-sm font-mono tabular-nums">Level 4 / 5</span>
-              <span class="text-[10px] text-mint block">4-Bar Meshed</span>
-            </div>
-
-            <div class="p-2 bg-surface border border-border space-y-1">
-              <div class="flex items-center justify-between text-[10px] text-ink-muted">
-                <span>03. Socratic Inquiry</span>
-                <Check class="size-3 text-mint stroke-[2.5]" />
-              </div>
-              <span class="font-bold text-ink block text-sm font-mono tabular-nums">6 Turns</span>
-              <span class="text-[10px] text-mint block">High Precision</span>
-            </div>
-
-            <div class="p-2 bg-surface border border-border space-y-1">
-              <div class="flex items-center justify-between text-[10px] text-ink-muted">
-                <span>04. Synthesis</span>
-                <Check class="size-3 text-mint stroke-[2.5]" />
-              </div>
-              <span class="font-bold text-ink block text-sm font-mono tabular-nums">Strong</span>
-              <span class="text-[10px] text-mint block">Longitudinal</span>
-            </div>
-          </div>
-
-          <!-- Narrative & Provenance Summary -->
-          <div class="p-3 bg-surface border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-            <div class="space-y-0.5 max-w-xl">
-              <span class="text-[10px] font-mono text-ink-muted uppercase tracking-wider block">Developmental Conclusion</span>
-              <p class="text-xs text-ink-secondary leading-relaxed">
-                Triangulation complete across adaptive psychometrics, physical maker artifacts, and verbal deduction. Zero deterministic career exclusions assigned.
-              </p>
-            </div>
-            <div class="shrink-0 flex items-center gap-1.5 font-mono text-[11px] text-positive">
-              <Lock class="size-3.5" />
-              <span>DPDP Verified Ledger</span>
-            </div>
-          </div>
-        </div>
-      {:else}
-        <!-- Active Phase Dynamic Workbench Card -->
-        <div class="p-5 rounded-none bg-surface-subtle border border-border space-y-4 transition-all duration-200">
-          <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-border pb-3">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="text-[10px] font-mono font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-none bg-surface border border-border text-mint">
-                  {activePhase.badge}
-                </span>
-                <span class="text-[10px] font-mono text-ink-muted">{activePhase.code}</span>
-              </div>
-              <h3 class="text-base sm:text-lg font-semibold text-ink">
+            <div class="space-y-1.5">
+              <h3 class="text-lg font-bold text-ink leading-snug font-heading">
                 {activePhase.title}
               </h3>
               <p class="text-xs text-ink-secondary leading-relaxed">
-                {activePhase.subtitle}
+                {activePhase.rubricDesc}
               </p>
             </div>
 
-            <div class="shrink-0">
-              <span class="inline-flex items-center gap-1 text-[11px] font-mono font-medium px-2 py-0.5 rounded-none bg-surface border border-border text-mint">
-                <span class="size-1.5 bg-mint rounded-none"></span>
-                {activePhase.tag}
-              </span>
+            <!-- Single Clean Inline Metric Strip -->
+            <div class="grid grid-cols-2 gap-3 py-2 border-y border-border/70 text-xs font-mono">
+              <div class="space-y-0.5">
+                <span class="text-[10px] text-ink-muted uppercase block tracking-wider">{activePhase.metric1.label}</span>
+                <span class="font-bold text-ink text-sm block">{activePhase.metric1.value}</span>
+                <span class="text-[10px] text-ink-muted block">{activePhase.metric1.desc}</span>
+              </div>
+              <div class="space-y-0.5">
+                <span class="text-[10px] text-ink-muted uppercase block tracking-wider">{activePhase.metric2.label}</span>
+                <span class="font-bold text-mint text-sm block">{activePhase.metric2.value}</span>
+                <span class="text-[10px] text-ink-muted block">{activePhase.metric2.desc}</span>
+              </div>
+            </div>
+
+            <!-- Rubric Competency Rating -->
+            <div class="space-y-1.5 pt-1">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-[11px] font-mono font-medium text-ink-secondary uppercase tracking-wider">
+                  Demonstrated Competency
+                </span>
+                <span class="text-[11px] font-mono font-bold text-mint">
+                  Level {activePhase.rubricRating} / 5
+                </span>
+              </div>
+              <EvidenceRating
+                rating={activePhase.rubricRating}
+                max={5}
+                label={activePhase.rubricLabel}
+              />
             </div>
           </div>
 
-          <!-- 3 Metrics Grid for Active Phase -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-            <div class="p-3 bg-surface border border-border space-y-1">
-              <span class="text-[10px] text-ink-muted block uppercase tracking-wider">{activePhase.metric1.label}</span>
-              <span class="font-bold font-mono tabular-nums text-ink text-sm block">{activePhase.metric1.value}</span>
-              <span class="text-[10px] text-ink-secondary block">{activePhase.metric1.desc}</span>
-            </div>
-            <div class="p-3 bg-surface border border-border space-y-1">
-              <span class="text-[10px] text-ink-muted block uppercase tracking-wider">{activePhase.metric2.label}</span>
-              <span class="font-bold font-mono tabular-nums text-ink text-sm block">{activePhase.metric2.value}</span>
-              <span class="text-[10px] text-ink-secondary block">{activePhase.metric2.desc}</span>
-            </div>
-            <div class="p-3 bg-surface border border-border space-y-1">
-              <span class="text-[10px] text-ink-muted block uppercase tracking-wider">{activePhase.metric3.label}</span>
-              <span class="font-bold font-mono tabular-nums text-ink text-sm block">{activePhase.metric3.value}</span>
-              <span class="text-[10px] text-ink-secondary block">{activePhase.metric3.desc}</span>
-            </div>
-          </div>
-
-          <!-- Active Rubric Demonstration Readout -->
-          <div class="p-3 bg-surface border border-border space-y-2">
-            <div class="flex items-center justify-between text-xs">
-              <span class="font-semibold text-[11px] uppercase tracking-wider text-brand">
-                Live Rubric Demonstration
-              </span>
-              <span class="text-[10px] font-mono text-positive flex items-center gap-1">
-                <Lock class="size-3" />
-                Tamper-evident
-              </span>
-            </div>
-            <EvidenceRating
-              rating={activePhase.rubricRating}
-              max={5}
-              label={activePhase.rubricLabel}
-            />
-            <p class="text-xs text-ink-secondary leading-relaxed pt-0.5">
-              {activePhase.rubricDesc}
-            </p>
-          </div>
-        </div>
-      {/if}
-
-      <!-- Interactive Controls Toolbar -->
-      <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-border">
-        <div class="flex flex-wrap items-center gap-3">
-          <!-- Selection Dropdown with Checkboxes -->
-          <DropdownCheckbox
-            title="Filter Competencies"
-            bind:items={competencyOptions}
-          />
-
-          <!-- Action Button Group with Full Completion & Replay -->
-          <ButtonGroup>
+          <!-- Progressive Disclosure Link for Technical Provenance -->
+          <div class="pt-2">
             <button
               type="button"
-              onclick={handlePrevPhase}
-              disabled={currentStep === 1 && !isAllCompleted}
-              class="px-3 py-1.5 text-xs font-medium bg-surface border border-border hover:bg-surface-subtle disabled:opacity-40 disabled:cursor-not-allowed text-ink transition-micro cursor-pointer active-press"
+              onclick={() => (drawerOpen = true)}
+              class="w-full inline-flex items-center justify-between px-3 py-2 bg-surface-subtle hover:bg-surface border border-border text-[11px] font-mono text-ink-secondary hover:text-ink transition-micro cursor-pointer rounded-none"
             >
-              Previous Phase
+              <span class="flex items-center gap-1.5">
+                <Sliders class="size-3 text-mint" />
+                Technical Provenance & 3PL Calibration
+              </span>
+              <ArrowRight class="size-3 text-ink-muted" />
             </button>
-
-            {#if currentStep < assessmentSteps.length && !isAllCompleted}
-              <button
-                type="button"
-                onclick={handleNextPhase}
-                class="px-3.5 py-1.5 text-xs font-medium bg-mint text-mint-foreground hover:bg-mint-hover transition-micro cursor-pointer active-press shadow-xs flex items-center gap-1.5"
-              >
-                <span>Next Phase</span>
-                <ArrowRight class="size-3.5" />
-              </button>
-            {:else if currentStep === assessmentSteps.length && !isAllCompleted}
-              <!-- Complete Phase 4 & Synthesize Entire Stage -->
-              <button
-                type="button"
-                onclick={handleNextPhase}
-                class="px-4 py-1.5 text-xs font-semibold bg-mint text-mint-foreground hover:bg-mint-hover transition-micro cursor-pointer active-press shadow-xs flex items-center gap-1.5"
-              >
-                <CheckCircle2 class="size-3.5 stroke-[2.5]" />
-                <span>Complete Phase 4 & Synthesize</span>
-              </button>
-            {:else}
-              <!-- Replay Journey when all completed -->
-              <button
-                type="button"
-                onclick={handleReplayJourney}
-                class="px-3.5 py-1.5 text-xs font-medium bg-surface border border-border hover:bg-surface-subtle text-ink transition-micro cursor-pointer active-press flex items-center gap-1.5"
-              >
-                <Icon icon="carbon:reset" class="size-3.5 text-mint" />
-                <span>Replay Journey</span>
-              </button>
-            {/if}
-          </ButtonGroup>
+          </div>
         </div>
+      </div>
 
-        <!-- Sheet / Drawer Trigger for Diagnostic Telemetry -->
-        <Sheet.Root bind:open={drawerOpen}>
-          <Sheet.Trigger>
-            {#snippet child({ props })}
-              <button
-                {...props}
-                use:magneticHover
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-brand text-brand-foreground hover:bg-brand/90 text-xs font-medium transition-micro cursor-pointer shadow-xs active-press"
-              >
-                <Sliders class="size-3.5" />
-                <span>Inspect Diagnostic Sheet</span>
-              </button>
-            {/snippet}
-          </Sheet.Trigger>
+      <!-- Action Primacy Navigation Bar -->
+      <div class="flex items-center justify-between pt-4 border-t border-border">
+        <button
+          type="button"
+          onclick={handlePrevPhase}
+          disabled={currentStep === 1}
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono bg-surface border border-border hover:bg-surface-subtle disabled:opacity-30 disabled:cursor-not-allowed text-ink transition-micro cursor-pointer rounded-none"
+        >
+          <ArrowLeft class="size-3.5" />
+          <span>Previous</span>
+        </button>
 
-          <!-- Right-Anchored Sheet Drawer Content (Strict 0px Sharp) -->
-          <Sheet.Content class="rounded-none w-full sm:max-w-md bg-surface-overlay border-l border-border p-6 space-y-6">
-            <Sheet.Header class="space-y-2 border-b border-border pb-4">
-              <Sheet.Title class="text-base font-semibold text-ink">
-                Item Calibration & Rubric Readout
-              </Sheet.Title>
-              <Sheet.Description class="text-xs text-ink-secondary">
-                Deterministic 3PL parameters and rubrics mapped to this active stage ({activePhase.code}).
-              </Sheet.Description>
-            </Sheet.Header>
+        <div class="flex items-center gap-2">
+          {#if currentStep < assessmentSteps.length}
+            <button
+              type="button"
+              onclick={handleNextPhase}
+              class="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold font-mono bg-mint text-mint-foreground hover:bg-mint-hover transition-micro cursor-pointer shadow-xs rounded-none"
+            >
+              <span>Next: {assessmentSteps[currentStep].label}</span>
+              <ArrowRight class="size-3.5" />
+            </button>
+          {:else}
+            <a
+              href="/observatory"
+              class="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold font-mono bg-mint text-mint-foreground hover:bg-mint-hover transition-micro shadow-xs rounded-none"
+            >
+              <span>Launch Observatory Studio ↗</span>
+            </a>
+          {/if}
+        </div>
+      </div>
 
-            <!-- Parameters Grid -->
-            <div class="space-y-4 font-mono text-xs">
-              <div class="p-3 bg-surface border border-border space-y-2">
-                <span class="font-semibold block text-[11px] uppercase tracking-wider text-mint">
-                  Active Item Calibration ({activePhase.code})
-                </span>
-                <div class="grid grid-cols-3 gap-2 text-center pt-1">
-                  <div class="bg-surface-subtle p-2 border border-border">
-                    <span class="text-[10px] text-ink-muted block">Discrimination (a)</span>
-                    <span class="font-bold text-ink">{activePhase.a}</span>
-                  </div>
-                  <div class="bg-surface-subtle p-2 border border-border">
-                    <span class="text-[10px] text-ink-muted block">Difficulty (b)</span>
-                    <span class="font-bold text-ink">{activePhase.b}</span>
-                  </div>
-                  <div class="bg-surface-subtle p-2 border border-border">
-                    <span class="text-[10px] text-ink-muted block">Guessing (c)</span>
-                    <span class="font-bold text-ink">{activePhase.c}</span>
-                  </div>
+      <!-- Progressive Disclosure Sheet: Psychometric Calibration & Cryptographic Evidence -->
+      <Sheet.Root bind:open={drawerOpen}>
+        <Sheet.Content class="rounded-none w-full sm:max-w-md bg-surface-overlay border-l border-border p-6 space-y-6">
+          <Sheet.Header class="space-y-2 border-b border-border pb-4">
+            <Sheet.Title class="text-base font-semibold text-ink">
+              Item Calibration & Rubric Readout
+            </Sheet.Title>
+            <Sheet.Description class="text-xs text-ink-secondary">
+              Deterministic 3PL parameters and rubrics mapped to this active stage ({activePhase.code}).
+            </Sheet.Description>
+          </Sheet.Header>
+
+          <!-- Parameters Grid -->
+          <div class="space-y-4 font-mono text-xs">
+            <div class="p-3 bg-surface border border-border space-y-2">
+              <span class="font-semibold block text-[11px] uppercase tracking-wider text-mint">
+                Active Item Calibration ({activePhase.code})
+              </span>
+              <div class="grid grid-cols-3 gap-2 text-center pt-1">
+                <div class="bg-surface-subtle p-2 border border-border">
+                  <span class="text-[10px] text-ink-muted block">Discrimination (a)</span>
+                  <span class="font-bold text-ink">{activePhase.a}</span>
                 </div>
-              </div>
-
-              <!-- Evidence Demonstrations -->
-              <div class="p-3 bg-surface border border-border space-y-2">
-                <span class="font-semibold block text-[11px] uppercase tracking-wider text-brand">
-                  Competency Rubric Rating
-                </span>
-                <EvidenceRating
-                  rating={activePhase.rubricRating}
-                  max={5}
-                  label={activePhase.rubricLabel}
-                />
-                <p class="font-sans text-[11px] text-ink-secondary leading-relaxed pt-1">
-                  {activePhase.rubricDesc}
-                </p>
-              </div>
-
-              <!-- Provenance Verification -->
-              <div class="p-3 bg-surface border border-border space-y-1 text-[11px]">
-                <div class="flex items-center gap-1.5 text-positive font-semibold">
-                  <Lock class="size-3" />
-                  <span>Verifiable Evidence Hash</span>
+                <div class="bg-surface-subtle p-2 border border-border">
+                  <span class="text-[10px] text-ink-muted block">Difficulty (b)</span>
+                  <span class="font-bold text-ink">{activePhase.b}</span>
                 </div>
-                <p class="text-ink-muted break-all text-[10px]">
-                  {activePhase.evidenceHash}
-                </p>
+                <div class="bg-surface-subtle p-2 border border-border">
+                  <span class="text-[10px] text-ink-muted block">Guessing (c)</span>
+                  <span class="font-bold text-ink">{activePhase.c}</span>
+                </div>
               </div>
             </div>
 
-            <Sheet.Footer class="border-t border-border pt-4">
-              <button
-                type="button"
-                onclick={() => (drawerOpen = false)}
-                class="w-full py-2 rounded-none bg-surface border border-border hover:bg-surface-subtle text-xs font-medium text-ink transition-micro cursor-pointer"
-              >
-                Close Diagnostic Sheet
-              </button>
-            </Sheet.Footer>
-          </Sheet.Content>
-        </Sheet.Root>
-      </div>
+            <!-- Evidence Demonstrations -->
+            <div class="p-3 bg-surface border border-border space-y-2">
+              <span class="font-semibold block text-[11px] uppercase tracking-wider text-brand">
+                Competency Rubric Rating
+              </span>
+              <EvidenceRating
+                rating={activePhase.rubricRating}
+                max={5}
+                label={activePhase.rubricLabel}
+              />
+              <p class="font-sans text-[11px] text-ink-secondary leading-relaxed pt-1">
+                {activePhase.rubricDesc}
+              </p>
+            </div>
+
+            <!-- Provenance Verification -->
+            <div class="p-3 bg-surface border border-border space-y-1 text-[11px]">
+              <div class="flex items-center gap-1.5 text-positive font-semibold">
+                <Lock class="size-3" />
+                <span>Verifiable Evidence Hash</span>
+              </div>
+              <p class="text-ink-muted break-all text-[10px]">
+                {activePhase.evidenceHash}
+              </p>
+            </div>
+          </div>
+
+          <Sheet.Footer class="border-t border-border pt-4">
+            <button
+              type="button"
+              onclick={() => (drawerOpen = false)}
+              class="w-full py-2 rounded-none bg-surface border border-border hover:bg-surface-subtle text-xs font-medium text-ink transition-micro cursor-pointer"
+            >
+              Close Diagnostic Sheet
+            </button>
+          </Sheet.Footer>
+        </Sheet.Content>
+      </Sheet.Root>
     </div>
   </section>
 
@@ -1215,11 +1209,11 @@
     box-shadow: 0 6px 24px rgb(0 0 0 / 0.08);
   }
 
-  .moment-arrow {
+  :global(.moment-arrow) {
     transition: transform var(--duration-standard, 200ms) var(--ease-lagom, cubic-bezier(0.16, 1, 0.3, 1));
   }
 
-  :global(.group:hover) .moment-arrow {
+  :global(.group:hover .moment-arrow) {
     transform: translateX(3px);
   }
 
@@ -1265,7 +1259,7 @@
     .metric-card,
     .studio-frame,
     .moment-card,
-    .moment-arrow,
+    :global(.moment-arrow),
     .testimonial-card,
     .ambient-vector,
     :global(.active-press:active) {

@@ -366,7 +366,8 @@
   let activeExtensionIds = $state<string[]>([
     'robot_performance',
     'acoustic_synth',
-    'turtle_pen'
+    'turtle_pen',
+    'space_telemetry'
   ]);
   let scratchFileInput = $state<HTMLInputElement>();
   let scratchToast = $state<string | null>(null);
@@ -1219,6 +1220,11 @@
       roverSensorActive = false;
       telemetryAction = 'Motors Stopped';
       addMissionLog('Motors halted.', 'action');
+    } else if (act.includes('align') || act.includes('planetary') || act.includes('azimuth') || act.includes('orbital')) {
+      const vec = hardwareBridge.getPlanetaryVector();
+      roverHeading = vec.azimuthDeg;
+      telemetryAction = `Aligned to ${vec.sourceName} (${vec.azimuthDeg}°)`;
+      addMissionLog(`Rover heading aligned with ${vec.sourceName} at ${vec.azimuthDeg}° azimuth.`, 'action');
     }
 
     if (act.includes('happy')) { currentMicrobitIcon = 'HAPPY'; robotEmotion = 'HAPPY'; }
@@ -1528,13 +1534,26 @@
       }
     } catch {}
 
+    if (typeof window !== 'undefined') {
+      (window as any).hardwareBridge = hardwareBridge;
+    }
+
     hardwareBridge.onStateChange((state) => {
       hardwareStreamState = state;
     });
     hardwareBridge.onTelemetry((t) => {
       roverDistance = Math.round(t.distanceCm);
       roverHeading = Math.round(t.headingDeg);
-      telemetryAction = `HW 20Hz: ${roverDistance}cm | ${roverHeading}°`;
+      if (t.planetaryVector) {
+        telemetryAction = `Tracking ${t.planetaryVector.sourceName} (${t.planetaryVector.azimuthDeg}°)`;
+      } else {
+        telemetryAction = `HW 20Hz: ${roverDistance}cm | ${roverHeading}°`;
+      }
+    });
+    hardwareBridge.onPlanetaryTelemetry((vec) => {
+      if (hardwareStreamState.planetaryTrackingActive) {
+        roverHeading = vec.azimuthDeg;
+      }
     });
 
     handleWindowResize = () => {

@@ -18,7 +18,8 @@
     ArrowRight,
     ExternalLink,
     Trophy,
-    Maximize2
+    Maximize2,
+    Globe
   } from 'lucide-svelte';
   import CreedLogo from '$lib/components/brand/CreedLogo.svelte';
   import BrowserIDE from '$lib/components/ide/BrowserIDE.svelte';
@@ -27,6 +28,8 @@
   import AdaptiveDiagnosticRunner from '$lib/components/assessment/AdaptiveDiagnosticRunner.svelte';
   import GlobalSTEMBenchmarking from '$lib/components/assessment/GlobalSTEMBenchmarking.svelte';
   import OpenSourceComplianceModal from '$lib/components/compliance/OpenSourceComplianceModal.svelte';
+  import ThreeLaunchpad from '$lib/components/telemetry/ThreeLaunchpad.svelte';
+  import LivePortalsModal from '$lib/components/telemetry/LivePortalsModal.svelte';
   import {
     SBOM_DEPENDENCIES,
     CLEAN_ROOM_STATUS,
@@ -43,8 +46,9 @@
   } from 'lucide-svelte';
 
   // Active Sandbox Section
-  let activeSection = $state<'ide' | 'mentor' | 'pathways' | 'psychometrics' | 'benchmarks' | 'compliance'>('ide');
+  let activeSection = $state<'mesh' | 'ide' | 'mentor' | 'pathways' | 'psychometrics' | 'benchmarks' | 'compliance'>('mesh');
   let isComplianceModalOpen = $state(false);
+  let isMeshModalOpen = $state(false);
 
   // License & Compliance Explorer State
   let sbomSearch = $state('');
@@ -149,6 +153,16 @@
         aria-label="Sandbox Sections"
       >
         <button
+          onclick={() => (activeSection = 'mesh')}
+          class="flex items-center gap-1.5 px-3 py-1 text-xs font-mono transition-micro {activeSection === 'mesh'
+            ? 'bg-surface-raised border border-border text-brand font-bold shadow-2xs'
+            : 'text-ink-secondary hover:text-ink'}"
+        >
+          <Globe class="size-3.5 text-cyan" />
+          <span>0. 3D Mesh</span>
+        </button>
+
+        <button
           onclick={() => (activeSection = 'ide')}
           class="flex items-center gap-1.5 px-3 py-1 text-xs font-mono transition-micro {activeSection === 'ide'
             ? 'bg-surface-raised border border-border text-brand font-bold shadow-2xs'
@@ -207,6 +221,14 @@
           <Scale class="size-3.5" />
           <span>6. Architecture & Licenses</span>
         </button>
+
+        <a
+          href="/sandbox/globe"
+          class="flex items-center gap-1.5 px-3 py-1 text-xs font-mono transition-micro text-ink-secondary hover:text-ink hover:bg-surface-raised border border-transparent hover:border-border"
+        >
+          <Globe class="size-3.5 text-brand" />
+          <span>7. Planetary Studio ↗</span>
+        </a>
       </nav>
 
       <!-- Right: Action & Theme Controls -->
@@ -225,10 +247,20 @@
           {/if}
         </button>
 
+        <!-- 3D Mesh Modal Quick Trigger -->
+        <button
+          onclick={() => (isMeshModalOpen = true)}
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none border border-border bg-surface hover:bg-surface-subtle text-xs font-mono text-cyan transition-micro shadow-2xs cursor-pointer"
+          title="Open interactive 3D Three.js Telemetry Mesh & Live Portals"
+        >
+          <Sparkles class="size-3.5" />
+          <span>3D Mesh</span>
+        </button>
+
         <!-- Quick Compliance Modal Trigger -->
         <button
           onclick={() => (isComplianceModalOpen = true)}
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none border border-border bg-surface hover:bg-surface-subtle text-xs font-mono text-mint transition-micro shadow-2xs"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none border border-border bg-surface hover:bg-surface-subtle text-xs font-mono text-mint transition-micro shadow-2xs cursor-pointer"
           title="Inspect Open Source Software Bill of Materials (SBOM) and License Notices"
         >
           <ShieldCheck class="size-3.5" />
@@ -248,6 +280,14 @@
 
     <!-- Mobile Navigation Bar (Horizontal Scroll for small viewports) -->
     <div class="sm:hidden flex items-center overflow-x-auto px-4 py-2 border-t border-border/60 bg-surface-subtle/40 gap-1">
+      <button
+        onclick={() => (activeSection = 'mesh')}
+        class="px-3 py-1 text-[11px] font-mono whitespace-nowrap border transition-micro {activeSection === 'mesh'
+          ? 'bg-brand text-brand-foreground font-bold border-brand'
+          : 'border-border text-ink-muted'}"
+      >
+        0. 3D Mesh
+      </button>
       <button
         onclick={() => (activeSection = 'ide')}
         class="px-3 py-1 text-[11px] font-mono whitespace-nowrap border transition-micro {activeSection === 'ide'
@@ -304,7 +344,68 @@
        Constrained to max-w-5xl (or max-w-6xl for IDE)
        ============================================================ -->
   <main class="w-full flex-1">
-    {#if activeSection === 'ide'}
+    {#if activeSection === 'mesh'}
+      <!-- ==========================================
+           SECTION 0: 3D THREE.JS TELEMETRY LAUNCHPAD
+           Full-width 3D spatial navigation & telemetry
+           ========================================== -->
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-6">
+        <!-- Section Kicker Header -->
+        <div class="space-y-2 pb-4 border-b border-border/60">
+          <div class="inline-flex items-center gap-2 px-3 py-0.5 rounded-none bg-surface/90 border border-border text-[11px] font-mono text-ink-secondary shadow-xs">
+            <span class="size-1.5 rounded-none bg-cyan animate-pulse"></span>
+            <span class="tracking-wide">00 · THREE.JS SPATIAL INTELLIGENCE & TELEMETRY MESH</span>
+          </div>
+
+          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight text-ink font-heading">
+                Interactive 3D Mission Launchpad
+              </h1>
+              <p class="text-xs sm:text-sm text-ink-secondary mt-1 max-w-xl leading-relaxed">
+                Hardware-accelerated Three.js WebGL telemetry mesh connecting Planetary Studio, Feature Sandbox, and Robotics IDE with live SGP4 orbital kinematics.
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+              <a
+                href="/sandbox/globe"
+                class="flex items-center gap-2 px-3.5 py-1.5 bg-brand hover:bg-brand/90 text-brand-foreground font-mono text-xs font-bold transition-micro shadow-xs"
+              >
+                <Globe class="size-3.5" />
+                <span>Full Cesium Globe ↗</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3D Three.js Launchpad Frame -->
+        <ThreeLaunchpad />
+
+        <!-- Architectural Highlights (3 Columns) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 text-xs">
+          <div class="p-4 border border-border bg-surface space-y-1.5 shadow-2xs">
+            <span class="font-mono text-cyan font-bold uppercase text-[10px]">Three.js WebGL Scene Graph</span>
+            <p class="text-ink-secondary leading-relaxed text-[11px]">
+              Geodesic wireframe Icosahedron with 180 constellation star points and real-time mouse parallax tilt damping.
+            </p>
+          </div>
+          <div class="p-4 border border-border bg-surface space-y-1.5 shadow-2xs">
+            <span class="font-mono text-mint font-bold uppercase text-[10px]">Keplerian Orbit Physics</span>
+            <p class="text-ink-secondary leading-relaxed text-[11px]">
+              Deterministic parametric orbits (LEO 51.6°, MEO 28.5°, Polar 98.2°) with real-time sinusoidal beacon pulses.
+            </p>
+          </div>
+          <div class="p-4 border border-border bg-surface space-y-1.5 shadow-2xs">
+            <span class="font-mono text-yellow font-bold uppercase text-[10px]">Lagom Motion Contract</span>
+            <p class="text-ink-secondary leading-relaxed text-[11px]">
+              Smooth GSAP camera transitions (240ms) and frame-rate adaptive lerping strictly adhering to WAY 2.1 motion rules.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    {:else if activeSection === 'ide'}
       <!-- ==========================================
            SECTION 1: BROWSER ROBOTICS IDE
            Max-w-6xl for comfortable dual-pane code space
@@ -856,3 +957,6 @@
 
 <!-- Global Open Source Licenses & Architecture Compliance Modal -->
 <OpenSourceComplianceModal bind:isOpen={isComplianceModalOpen} />
+
+<!-- Global 3D Three.js Telemetry Mesh Modal -->
+<LivePortalsModal bind:isOpen={isMeshModalOpen} />

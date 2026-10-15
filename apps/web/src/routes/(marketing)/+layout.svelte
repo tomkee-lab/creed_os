@@ -3,38 +3,37 @@
   import { page } from '$app/state';
   import { Sun, Moon, ArrowRight, Menu, X, ShieldCheck, ExternalLink } from 'lucide-svelte';
   import CreedLogo from '$lib/components/brand/CreedLogo.svelte';
+  import OpenSourceComplianceModal from '$lib/components/compliance/OpenSourceComplianceModal.svelte';
+  import { toggleTheme as toggleGlobalTheme } from '$lib/theme.js';
 
   let { children } = $props();
 
-  let isDarkMode = $state(true);
+  let isDarkMode = $state(false);
   let mobileMenuOpen = $state(false);
+  let complianceModalOpen = $state(false);
   let scrollY = $state(0);
   const isScrolled = $derived(scrollY > 12);
 
   onMount(() => {
-    const saved = localStorage.getItem('way_theme');
-    if (saved === 'light') {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-      isDarkMode = false;
-    } else {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-      isDarkMode = true;
-    }
+    isDarkMode = document.documentElement.classList.contains('dark') ||
+      document.documentElement.getAttribute('data-theme') === 'dark';
+
+    const handleThemeChange = (e: Event) => {
+      const ce = e as CustomEvent<{ theme: 'dark' | 'light' }>;
+      if (ce.detail?.theme) {
+        isDarkMode = ce.detail.theme === 'dark';
+      }
+    };
+
+    window.addEventListener('way_theme_change', handleThemeChange);
+    return () => {
+      window.removeEventListener('way_theme_change', handleThemeChange);
+    };
   });
 
   function toggleTheme() {
-    isDarkMode = !isDarkMode;
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-      localStorage.setItem('way_theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-      localStorage.setItem('way_theme', 'light');
-    }
+    const next = toggleGlobalTheme();
+    isDarkMode = next === 'dark';
   }
 
   const currentPath = $derived(page.url.pathname);
@@ -271,11 +270,11 @@
         <div class="space-y-3 font-sans">
           <h4 class="text-xs font-semibold text-ink uppercase tracking-wider">Science</h4>
           <ul class="space-y-2 text-xs">
-            <li><a href="/platform" class="footer-link">Deterministic IRT</a></li>
-            <li><a href="/platform" class="footer-link">Adaptive CAT Bounds</a></li>
-            <li><a href="/platform" class="footer-link">Evidence Provenance</a></li>
-            <li><a href="/about" class="footer-link">Pedagogical Safety</a></li>
-            <li><a href="/about" class="footer-link">Quiet Mentorship</a></li>
+            <li><a href="/platform#irt" class="footer-link">Deterministic IRT</a></li>
+            <li><a href="/platform#cat" class="footer-link">Adaptive CAT Bounds</a></li>
+            <li><a href="/platform#evidence" class="footer-link">Evidence Provenance</a></li>
+            <li><a href="/about#safety" class="footer-link">Pedagogical Safety</a></li>
+            <li><a href="/about#mentorship" class="footer-link">Quiet Mentorship</a></li>
           </ul>
         </div>
 
@@ -286,8 +285,8 @@
             <li><a href="/schools" class="footer-link">For Schools</a></li>
             <li><a href="/families" class="footer-link">For Families</a></li>
             <li><a href="/pricing" class="footer-link">Pricing & Plans</a></li>
-            <li><a href="/consent" class="footer-link">Consent Ledger</a></li>
-            <li><a href="/consent" class="footer-link">DPDP Compliance</a></li>
+            <li><a href="/consent#ledger" class="footer-link">Consent Ledger</a></li>
+            <li><a href="/consent#dpdp" class="footer-link">DPDP Compliance</a></li>
           </ul>
         </div>
       </div>
@@ -300,7 +299,14 @@
         <div class="flex items-center gap-5">
           <a href="/login" class="footer-link text-ink hover:text-brand font-medium">Access Workspace</a>
           <a href="/help" class="footer-link">Help & Documentation</a>
-          <a href="/consent" class="footer-link">Consent & Privacy</a>
+          <a href="/consent#privacy" class="footer-link">Consent & Privacy</a>
+          <button
+            type="button"
+            onclick={() => (complianceModalOpen = true)}
+            class="footer-link text-left bg-transparent border-none p-0 cursor-pointer font-sans"
+          >
+            Open Source & SBOM
+          </button>
           <a
             href="https://github.com/tomkee-lab/creed_os"
             target="_blank"
@@ -315,6 +321,9 @@
     </div>
   </footer>
 </div>
+
+<!-- Global Open Source Architecture & Compliance Modal -->
+<OpenSourceComplianceModal bind:isOpen={complianceModalOpen} />
 
 <style>
   /* ================================================================

@@ -102,7 +102,7 @@ export interface StemMission {
   difficulty: 'Foundational' | 'Intermediate' | 'Advanced' | 'Olympiad';
   brief: string;
   pedagogicalObjective: string;
-  simulatorType: 'truss' | 'grid_rover' | 'gear_train' | 'sensor_telemetry' | 'obstacle_avoidance' | 'winch_lift' | 'cv_vision' | 'pid_control';
+  simulatorType: 'truss' | 'grid_rover' | 'gear_train' | 'sensor_telemetry' | 'obstacle_avoidance' | 'winch_lift' | 'cv_vision' | 'pid_control' | 'planetary_space';
   alignedStandards: string[];
   prerequisites: string[];
   starterCode?: string;
@@ -288,6 +288,70 @@ export const STEM_MISSIONS: StemMission[] = [
       { criterion: 'Overshoot Damping', target: 'Maximum overshoot < 8% of step setpoint', importance: 'Primary' },
       { criterion: 'Settling Time', target: 'Step response settles within ± 2% in < 2.5s', importance: 'Mandatory' },
       { criterion: 'Steady-State Error', target: 'e_ss = 0 via integral action without windup', importance: 'Excellence' }
+    ]
+  },
+  {
+    id: 'mission-iss-speed',
+    title: 'Orbital Mechanics: Calculate the ISS Velocity',
+    code: 'MISSION-SPACE-01',
+    domain: 'quantitative_reasoning',
+    domainTitle: 'Quantitative Kinematics & Orbital Dynamics',
+    stage: 'secondary',
+    stageLabel: 'Secondary Stage (Classes 9–12)',
+    targetGrades: 'Classes 9–10',
+    estimatedMinutes: 20,
+    difficulty: 'Intermediate',
+    brief: 'Calculate the instantaneous orbital velocity of the International Space Station from its Keplerian ground fixes. The ISS orbits Earth every ~92 minutes at an altitude of approximately 418 kilometers.',
+    pedagogicalObjective: 'Understand Keplerian orbital mechanics, centrifugal-gravitational equilibrium, and ground-track propagation.',
+    simulatorType: 'planetary_space',
+    alignedStandards: ['CBSE Physics Class 11 Gravitation', 'PISA Scientific Literacy', 'TIMSS Advanced Physics'],
+    prerequisites: ['Uniform circular motion', 'Newtonian gravitation law'],
+    rubricCriteria: [
+      { criterion: 'Orbital Velocity Calculation', target: '27,600 km/h ± 6% tolerance', importance: 'Mandatory' },
+      { criterion: 'Orbital Period Verification', target: 'T ≈ 92.6 minutes', importance: 'Primary' },
+      { criterion: 'Evidence Provenance', target: 'State vectors captured from Cesium HUD', importance: 'Excellence' }
+    ]
+  },
+  {
+    id: 'mission-cyclone-path',
+    title: 'Tropical Cyclone Track & Landfall Horizon Estimation',
+    code: 'MISSION-SPACE-02',
+    domain: 'computational_thinking',
+    domainTitle: 'Computational Earth Science & Meteorology',
+    stage: 'middle',
+    stageLabel: 'Middle Stage (Classes 6–8)',
+    targetGrades: 'Classes 6–8',
+    estimatedMinutes: 20,
+    difficulty: 'Intermediate',
+    brief: 'Inspect advisory uncertainty cones and estimate the coastal landfall timeline for an active storm system in the Arabian Sea using geostationary satellite telemetry.',
+    pedagogicalObjective: 'Master vector tracking, isobaric gradient analysis, and risk uncertainty estimation on geospatial feeds.',
+    simulatorType: 'planetary_space',
+    alignedStandards: ['CBSE Geography Class 8 Natural Hazards', 'OECD Earth Systems Literacy'],
+    prerequisites: ['Speed, distance, time formula', 'Compass coordinates'],
+    rubricCriteria: [
+      { criterion: 'Landfall Timeline Estimation', target: '18 hours ± 15% tolerance', importance: 'Mandatory' },
+      { criterion: 'Translation Speed Vector', target: 'Forward propagation vector measured', importance: 'Primary' }
+    ]
+  },
+  {
+    id: 'mission-great-circle',
+    title: 'Aeronautics: Great-Circle Polar Routing vs Flat Mapping',
+    code: 'MISSION-SPACE-03',
+    domain: 'spatial_reasoning',
+    domainTitle: 'Spherical Geometry & Navigation',
+    stage: 'secondary',
+    stageLabel: 'Secondary Stage (Classes 9–12)',
+    targetGrades: 'Classes 11–12',
+    estimatedMinutes: 25,
+    difficulty: 'Advanced',
+    brief: 'Demonstrate spherical geodesic fuel and distance conservation across polar flight corridors comparing WGS84 geodesic arcs against Mercator projection lines.',
+    pedagogicalObjective: 'Understand non-Euclidean spherical trigonometry, map projection distortions, and flight fuel optimization.',
+    simulatorType: 'planetary_space',
+    alignedStandards: ['CBSE Mathematics Class 12 Vector Geometry', 'ICAO Polar Navigation Standards'],
+    prerequisites: ['Spherical coordinate systems', 'Map projection basics'],
+    rubricCriteria: [
+      { criterion: 'Distance Conservation Calculation', target: '1,850 km saved ± 10% tolerance', importance: 'Mandatory' },
+      { criterion: 'Geodesic Curvature Verification', target: 'Orthodromic route verified in 3D', importance: 'Primary' }
     ]
   }
 ];

@@ -228,3 +228,17 @@
 .status-offline {
   background-color: var(--foreground-muted);
 }
+
+/* --- Scrollbar Suppressions (shadcn/ui Docs Style) --- */
+.no-scrollbar,
+.docs-sidebar-scroll {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.no-scrollbar::-webkit-scrollbar,
+.docs-sidebar-scroll::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}

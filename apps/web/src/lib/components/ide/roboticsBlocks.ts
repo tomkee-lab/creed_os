@@ -2262,6 +2262,114 @@ export async function initializeRoboticsBlocks() {
       nextStatement: null,
       colour: 185,
       tooltip: 'Executes nested combat reward actions and combo streak updates when an enemy explodes.'
+    },
+
+    // --- EXTENSION: PLANETARY & ORBITAL TELEMETRY ---
+    {
+      type: 'orbital_bind_source',
+      message0: 'bind planetary tracking to %1',
+      args0: [
+        {
+          type: 'field_dropdown',
+          name: 'SOURCE',
+          options: [
+            ['ISS (Space Station) 🛰️', 'iss'],
+            ['Hubble Space Telescope 🔭', 'hst'],
+            ['NOAA-20 Weather 🌪️', 'noaa20'],
+            ['Cartosat-3 Optical 🛰️', 'cartosat'],
+            ['Air India 101 (B787) ✈️', 'fl-ai101'],
+            ['British Airways 142 (A350) ✈️', 'fl-ba142'],
+            ['United Airlines 890 (B777) ✈️', 'fl-ua890']
+          ]
+        }
+      ],
+      previousStatement: null,
+      nextStatement: null,
+      colour: 200,
+      tooltip: 'Binds active spatial telemetry pipeline to selected orbital satellite or commercial aircraft.'
+    },
+    {
+      type: 'orbital_read_telemetry',
+      message0: 'read %1 %2',
+      args0: [
+        {
+          type: 'field_dropdown',
+          name: 'SOURCE',
+          options: [
+            ['Active Target', 'active'],
+            ['ISS 🛰️', 'iss'],
+            ['Hubble 🔭', 'hst'],
+            ['NOAA-20 🌪️', 'noaa20'],
+            ['Cartosat-3 🛰️', 'cartosat'],
+            ['Flight AI101 ✈️', 'fl-ai101'],
+            ['Flight BA142 ✈️', 'fl-ba142']
+          ]
+        },
+        {
+          type: 'field_dropdown',
+          name: 'METRIC',
+          options: [
+            ['latitude (°)', 'lat'],
+            ['longitude (°)', 'lon'],
+            ['altitude (km)', 'alt'],
+            ['velocity (km/h)', 'speed'],
+            ['azimuth bearing (°)', 'azimuth'],
+            ['range to ground (km)', 'range']
+          ]
+        }
+      ],
+      output: 'Number',
+      colour: 200,
+      tooltip: 'Reads instantaneous spatial coordinates, orbital velocity, or ground-track range.'
+    },
+    {
+      type: 'orbital_is_overhead',
+      message0: '%1 is within %2 km of ground station',
+      args0: [
+        {
+          type: 'field_dropdown',
+          name: 'SOURCE',
+          options: [
+            ['Active Target', 'active'],
+            ['ISS 🛰️', 'iss'],
+            ['Hubble 🔭', 'hst'],
+            ['NOAA-20 🌪️', 'noaa20'],
+            ['Cartosat-3 🛰️', 'cartosat']
+          ]
+        },
+        {
+          type: 'field_number',
+          name: 'THRESHOLD',
+          value: 1500,
+          min: 100,
+          max: 10000
+        }
+      ],
+      output: 'Boolean',
+      colour: 200,
+      tooltip: 'Checks if satellite or aircraft ground track is within radio or optical line of sight.'
+    },
+    {
+      type: 'orbital_align_heading',
+      message0: 'align robot heading toward %1 🧭',
+      args0: [
+        {
+          type: 'field_dropdown',
+          name: 'SOURCE',
+          options: [
+            ['Active Target', 'active'],
+            ['ISS 🛰️', 'iss'],
+            ['Hubble 🔭', 'hst'],
+            ['NOAA-20 🌪️', 'noaa20'],
+            ['Cartosat-3 🛰️', 'cartosat'],
+            ['Flight AI101 ✈️', 'fl-ai101']
+          ]
+        }
+      ],
+      previousStatement: null,
+      nextStatement: null,
+      colour: 200,
+      tooltip: 'Turns the physical robot or arena rover to align directly with the azimuth vector of the spatial entity.'
     }
   ]);
 
@@ -2910,6 +3018,29 @@ export async function initializeRoboticsBlocks() {
     return `# On Enemy Defeated Combo Streak\nif arena.has_defeated_enemy():\n${branch}`;
   };
 
+  // Planetary & Orbital Telemetry Python Generators
+  pythonGenerator.forBlock['orbital_bind_source'] = function (block: any) {
+    const source = block.getFieldValue('SOURCE') || 'iss';
+    return `hardware_bridge.bind_planetary_source("${source}")\n`;
+  };
+
+  pythonGenerator.forBlock['orbital_read_telemetry'] = function (block: any) {
+    const source = block.getFieldValue('SOURCE') || 'active';
+    const metric = block.getFieldValue('METRIC') || 'lat';
+    return [`hardware_bridge.get_planetary_metric("${source}", "${metric}")`, PyOrder.FUNCTION_CALL];
+  };
+
+  pythonGenerator.forBlock['orbital_is_overhead'] = function (block: any) {
+    const source = block.getFieldValue('SOURCE') || 'active';
+    const thresh = block.getFieldValue('THRESHOLD') || 1500;
+    return [`hardware_bridge.is_planetary_overhead("${source}", ${thresh})`, PyOrder.FUNCTION_CALL];
+  };
+
+  pythonGenerator.forBlock['orbital_align_heading'] = function (block: any) {
+    const source = block.getFieldValue('SOURCE') || 'active';
+    return `azimuth = hardware_bridge.get_planetary_metric("${source}", "azimuth")\nrobot.turn_to(azimuth)\n`;
+  };
+
   // ==========================================
   // 5. Register JAVASCRIPT Code Generators
   // ==========================================
@@ -3512,6 +3643,29 @@ export async function initializeRoboticsBlocks() {
     const branch = javascriptGenerator.statementToCode(block, 'DO') || '';
     return `if (arena.hasDefeatedEnemy()) {\n${branch}}\n`;
   };
+
+  // Planetary & Orbital Telemetry JavaScript Generators
+  javascriptGenerator.forBlock['orbital_bind_source'] = function (block: any) {
+    const source = block.getFieldValue('SOURCE') || 'iss';
+    return `hardwareBridge.bindPlanetarySource("${source}");\n`;
+  };
+
+  javascriptGenerator.forBlock['orbital_read_telemetry'] = function (block: any) {
+    const source = block.getFieldValue('SOURCE') || 'active';
+    const metric = block.getFieldValue('METRIC') || 'lat';
+    return [`hardwareBridge.getPlanetaryMetric("${source}", "${metric}")`, JSOrder.FUNCTION_CALL];
+  };
+
+  javascriptGenerator.forBlock['orbital_is_overhead'] = function (block: any) {
+    const source = block.getFieldValue('SOURCE') || 'active';
+    const thresh = block.getFieldValue('THRESHOLD') || 1500;
+    return [`hardwareBridge.isPlanetaryOverhead("${source}", ${thresh})`, JSOrder.FUNCTION_CALL];
+  };
+
+  javascriptGenerator.forBlock['orbital_align_heading'] = function (block: any) {
+    const source = block.getFieldValue('SOURCE') || 'active';
+    return `const targetAzimuth = hardwareBridge.getPlanetaryMetric("${source}", "azimuth");\nrobot.turn("RIGHT", Math.round((targetAzimuth - robot.getHeading() + 360) % 360));\nawait new Promise(r => setTimeout(r, 600));\n`;
+  };
 }
 
 // ==========================================
@@ -3677,6 +3831,21 @@ export const EXTENSION_PACKS: ExtensionPack[] = [
       'robot_play_dance_beat',
       'robot_sync_cue',
       'robot_formation_step'
+    ]
+  },
+  {
+    id: 'space_telemetry',
+    name: 'Planetary & Orbital Telemetry',
+    description: 'Bind live satellite coordinates (ISS, Hubble, NOAA) and aircraft vectors directly into robot behaviors.',
+    icon: 'Globe',
+    categoryName: 'Space Telemetry 🛰️',
+    categoryColor: '#0ea5e9',
+    badge: 'Astro-Robotics',
+    blocks: [
+      'orbital_bind_source',
+      'orbital_read_telemetry',
+      'orbital_is_overhead',
+      'orbital_align_heading'
     ]
   }
 ];
@@ -4151,6 +4320,17 @@ export const EXTENSION_TOOLBOX_CATEGORIES: Record<string, any> = {
       { kind: 'block', type: 'robot_play_dance_beat' },
       { kind: 'block', type: 'robot_sync_cue' },
       { kind: 'block', type: 'robot_formation_step' }
+    ]
+  },
+  space_telemetry: {
+    kind: 'category',
+    name: 'Space Telemetry 🛰️',
+    colour: '#0ea5e9',
+    contents: [
+      { kind: 'block', type: 'orbital_bind_source' },
+      { kind: 'block', type: 'orbital_read_telemetry' },
+      { kind: 'block', type: 'orbital_is_overhead' },
+      { kind: 'block', type: 'orbital_align_heading' }
     ]
   }
 };

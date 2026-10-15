@@ -57,8 +57,8 @@
       // Dark mode: slate-100 crisp chalk (241, 245, 249)
       // Light mode: slate-800 deep mineral ink (30, 41, 59)
       return isDark
-        ? { r: 241, g: 245, b: 249, a: 1 }
-        : { r: 30, g: 41, b: 59, a: 1 };
+        ? { r: 241, g: 245, b: 249, a: 0.6 }
+        : { r: 99, g: 102, b: 241, a: 0.35 };
     }
 
     let color = resolveColor(customColor);

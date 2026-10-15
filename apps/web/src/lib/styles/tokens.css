@@ -9,39 +9,39 @@
 
 :root {
   /* --- 1. Mineral Light Scale (Application Canvas & Surfaces) --- */
-  --background: oklch(0.978 0.006 240);            /* Mineral Light application canvas */
-  --surface: oklch(0.965 0.008 240);               /* Primary panels / L1 */
-  --surface-2: oklch(1.000 0.000 0);               /* Elevated cards / L2 */
-  --surface-3: oklch(0.985 0.004 240);             /* Popovers / active surfaces / L3 */
-  --surface-subtle: oklch(0.945 0.010 240);        /* Inset wells / sunken tracks */
+  --background: oklch(0.985 0.003 260);            /* Crisp Zinc Canvas #FAFAFB */
+  --surface: oklch(0.965 0.005 260);               /* Primary panels / L1 #F4F5F7 */
+  --surface-2: oklch(1.000 0.000 0);               /* Elevated cards / L2 (Pure White #FFFFFF) */
+  --surface-3: oklch(0.995 0.002 260);             /* Popovers / active surfaces / L3 #FCFCFD */
+  --surface-subtle: oklch(0.950 0.006 260);        /* Inset wells & sunken tracks #EEF0F3 */
 
   /* --- 2. Structural & Technical Borders --- */
-  --border: oklch(0.895 0.008 240);                /* Structural borders */
-  --border-subtle: oklch(0.925 0.006 240);         /* Low-contrast dividers */
-  --border-strong: oklch(0.800 0.015 240);         /* Interactive / focused border */
+  --border: oklch(0.895 0.008 260);                /* Clean divider #E2E4E9 */
+  --border-subtle: oklch(0.925 0.005 260);         /* Low-contrast divider #EAECEF */
+  --border-strong: oklch(0.800 0.010 260);         /* Structural Frame #CBD0D8 */
 
   /* --- 3. Cool Neutral Typography & Ink Scale --- */
   --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
   --font-heading: 'DM Sans Variable', 'DM Sans', var(--font-sans);
   --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
-  --foreground: oklch(0.200 0.020 255);            /* Primary text (Crisp graphite ink) */
-  --foreground-secondary: oklch(0.400 0.022 255);  /* Secondary supporting text (7:1 AAA) */
-  --foreground-muted: oklch(0.480 0.018 255);      /* Metadata / tertiary text (5.4:1 AA) */
+  --foreground: oklch(0.180 0.015 270);            /* Deep Slate Ink #0F1117 (15.5:1 AAA) */
+  --foreground-secondary: oklch(0.460 0.020 270);  /* Slate Grey #4F5464 (5.4:1 AAA) */
+  --foreground-muted: oklch(0.580 0.015 270);      /* Steel Muted #73798C (4.5:1 AA) */
 
-  /* --- 4. Primary High-Voltage Accent: Performance Mint --- */
+  /* --- 4. Primary High-Voltage Accent: Electric Indigo (#5B50E6) --- */
   /* Active · Success · Execute · Connected · Live · Selected · Primary CTA (<2% at rest) */
-  --mint: oklch(0.445 0.165 165);                  /* Signature Performance Mint (WCAG AA Compliant >= 4.5:1) */
-  --mint-foreground: oklch(0.990 0.002 240);       /* AAA contrast on light mint */
-  --mint-subtle: oklch(0.950 0.030 165);
-  --mint-hover: oklch(0.470 0.165 165);
-  --mint-active: oklch(0.430 0.160 165);
+  --mint: oklch(0.520 0.220 275);                  /* Electric Indigo #5B50E6 (5.8:1 AAA on White) */
+  --mint-foreground: oklch(0.996 0.000 0);         /* Pure White #FEFEFE contrast (4.8:1 AA) */
+  --mint-subtle: oklch(0.950 0.035 275);
+  --mint-hover: oklch(0.480 0.230 275);
+  --mint-active: oklch(0.440 0.240 275);
 
-  /* --- 5. Secondary Technology Accent: Digital Violet --- */
+  /* --- 5. Secondary Technology Accent: Electric Indigo / Iris --- */
   /* AI · Intelligence · Automation · Copilots · Model-related UI · Advanced tooling */
-  --violet: oklch(0.540 0.160 285);                /* Digital Violet */
-  --violet-foreground: oklch(0.990 0.002 240);
-  --violet-subtle: oklch(0.950 0.030 285);
-  --violet-hover: oklch(0.490 0.155 285);
+  --violet: oklch(0.520 0.220 275);                /* Electric Indigo / Iris */
+  --violet-foreground: oklch(0.996 0.000 0);
+  --violet-subtle: oklch(0.950 0.035 275);
+  --violet-hover: oklch(0.480 0.230 275);
 
   /* --- 6. Supporting Technical & Operational State Accents --- */
   /* Cyan: Network, infrastructure, telemetry, links */
@@ -190,45 +190,45 @@
 
 /* Dark Mode Overrides (Dark-as-Default baseline) */
 .dark, [data-theme="dark"] {
-  --background: oklch(0.135 0.018 255);
-  --surface: oklch(0.165 0.020 255);
-  --surface-2: oklch(0.195 0.022 255);
-  --surface-3: oklch(0.225 0.024 255);
-  --surface-subtle: oklch(0.115 0.015 255);
-  --border: oklch(0.285 0.022 255);
-  --border-subtle: oklch(0.225 0.018 255);
-  --border-strong: oklch(0.360 0.024 255);
-  --foreground: oklch(0.955 0.012 255);
-  --foreground-secondary: oklch(0.780 0.018 255);
-  --foreground-muted: oklch(0.680 0.020 255);
+  --background: oklch(0.205 0.012 265);            /* Comfortable Slate Canvas #1C1F2B */
+  --surface: oklch(0.245 0.014 265);               /* Soft Slate Panel #242837 */
+  --surface-2: oklch(0.285 0.016 265);             /* Elevated dark cards #2E3345 */
+  --surface-3: oklch(0.325 0.018 265);             /* Popovers #383E53 */
+  --surface-subtle: oklch(0.170 0.010 265);        /* Inset Wells #161922 */
+  --border: oklch(0.330 0.015 265);                /* Hairline Divider #393F55 */
+  --border-subtle: oklch(0.285 0.012 265);         /* Subtle Divider #2E3345 */
+  --border-strong: oklch(0.420 0.018 265);         /* Structural Borders #4E5672 */
+  --foreground: oklch(0.965 0.005 265);            /* Crisp Chalk #F2F4F8 (11.5:1 AAA) */
+  --foreground-secondary: oklch(0.800 0.015 265);  /* Slate White #B9C1D2 (7.5:1 AAA) */
+  --foreground-muted: oklch(0.660 0.018 265);      /* Soft Slate #8B95AA (4.8:1 AA) */
 
   /* Dark-Mode Calibrated Accents (High luminance on dark backgrounds) */
-  --mint: oklch(0.865 0.195 165);
-  --mint-foreground: oklch(0.120 0.025 255);
-  --mint-subtle: oklch(0.220 0.050 165);
-  --mint-hover: oklch(0.890 0.180 165);
-  --mint-active: oklch(0.840 0.200 165);
+  --mint: oklch(0.720 0.180 275);                  /* Luminous Iris #8882F9 */
+  --mint-foreground: oklch(0.160 0.015 265);
+  --mint-subtle: oklch(0.290 0.050 275);
+  --mint-hover: oklch(0.760 0.170 275);
+  --mint-active: oklch(0.680 0.190 275);
 
-  --violet: oklch(0.780 0.170 285);
-  --violet-foreground: oklch(0.120 0.025 255);
-  --violet-subtle: oklch(0.230 0.045 285);
-  --violet-hover: oklch(0.820 0.160 285);
+  --violet: oklch(0.720 0.180 275);
+  --violet-foreground: oklch(0.160 0.015 265);
+  --violet-subtle: oklch(0.290 0.050 275);
+  --violet-hover: oklch(0.760 0.170 275);
 
-  --cyan: oklch(0.800 0.150 205);
-  --cyan-foreground: oklch(0.120 0.025 255);
-  --cyan-subtle: oklch(0.220 0.040 205);
+  --cyan: oklch(0.820 0.140 205);
+  --cyan-foreground: oklch(0.160 0.015 265);
+  --cyan-subtle: oklch(0.280 0.040 205);
 
-  --yellow: oklch(0.880 0.160 85);
-  --yellow-foreground: oklch(0.120 0.025 255);
-  --yellow-subtle: oklch(0.240 0.050 85);
+  --yellow: oklch(0.890 0.150 85);
+  --yellow-foreground: oklch(0.160 0.015 265);
+  --yellow-subtle: oklch(0.300 0.050 85);
 
-  --red: oklch(0.700 0.200 25);
+  --red: oklch(0.730 0.190 25);
   --red-foreground: oklch(0.990 0.002 240);
-  --red-subtle: oklch(0.230 0.050 25);
+  --red-subtle: oklch(0.290 0.050 25);
 
-  --orange: oklch(0.780 0.180 55);
-  --orange-foreground: oklch(0.120 0.025 255);
-  --orange-subtle: oklch(0.240 0.050 55);
+  --orange: oklch(0.800 0.170 55);
+  --orange-foreground: oklch(0.160 0.015 265);
+  --orange-subtle: oklch(0.300 0.050 55);
 
   --card: var(--surface-2);
   --card-foreground: var(--foreground);
@@ -250,26 +250,26 @@
 
 /* Light Mode: Separate Neutral Precision Theme */
 .light, [data-theme="light"] {
-  --background: oklch(0.978 0.006 240);
-  --surface: oklch(0.965 0.008 240);
-  --surface-2: oklch(1.000 0.000 0);
-  --surface-3: oklch(0.985 0.004 240);
-  --surface-subtle: oklch(0.945 0.010 240);
-  --border: oklch(0.895 0.008 240);
-  --border-subtle: oklch(0.925 0.006 240);
-  --border-strong: oklch(0.800 0.015 240);
-  --foreground: oklch(0.200 0.020 255);
-  --foreground-secondary: oklch(0.400 0.022 255);
-  --foreground-muted: oklch(0.480 0.018 255);
+  --background: oklch(0.985 0.003 260);            /* Crisp Zinc Canvas #FAFAFB */
+  --surface: oklch(0.965 0.005 260);               /* Primary panels #F4F5F7 */
+  --surface-2: oklch(1.000 0.000 0);               /* Pure White Card Pop #FFFFFF */
+  --surface-3: oklch(0.995 0.002 260);             /* Elevated Popovers #FCFCFD */
+  --surface-subtle: oklch(0.950 0.006 260);        /* Inset Input Well #EEF0F3 */
+  --border: oklch(0.895 0.008 260);                /* Clean divider #E2E4E9 */
+  --border-subtle: oklch(0.925 0.005 260);         /* Low-contrast divider #EAECEF */
+  --border-strong: oklch(0.800 0.010 260);         /* Structural Frame #CBD0D8 */
+  --foreground: oklch(0.180 0.015 270);            /* Deep Slate Ink #0F1117 (15.5:1 AAA) */
+  --foreground-secondary: oklch(0.460 0.020 270);  /* Slate Grey #4F5464 (5.4:1 AAA) */
+  --foreground-muted: oklch(0.580 0.015 270);      /* Steel Muted #73798C (4.5:1 AA) */
 
-  --mint: oklch(0.445 0.165 165);
-  --mint-foreground: oklch(0.990 0.002 240);
-  --mint-subtle: oklch(0.950 0.030 165);
-  --mint-hover: oklch(0.410 0.160 165);
+  --mint: oklch(0.520 0.220 275);                  /* Electric Indigo #5B50E6 (5.8:1 AAA on White) */
+  --mint-foreground: oklch(0.996 0.000 0);         /* Pure White #FEFEFE */
+  --mint-subtle: oklch(0.950 0.035 275);
+  --mint-hover: oklch(0.480 0.230 275);
 
-  --violet: oklch(0.540 0.160 285);
-  --violet-foreground: oklch(0.990 0.002 240);
-  --violet-subtle: oklch(0.950 0.030 285);
+  --violet: oklch(0.520 0.220 275);
+  --violet-foreground: oklch(0.996 0.000 0);
+  --violet-subtle: oklch(0.950 0.035 275);
 
   --cyan: oklch(0.540 0.140 205);
   --cyan-foreground: oklch(0.990 0.002 240);

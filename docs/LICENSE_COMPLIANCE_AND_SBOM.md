@@ -79,6 +79,8 @@ All production dependencies utilized in `apps/web` have been audited for licensi
 - **`@xterm/xterm` (v6.0.0):** Terminal emulator for WebAssembly execution stdout.
 - **`@xterm/addon-fit` (v0.11.0):** Responsive viewport sizing addon for terminal geometry.
 - **`monaco-editor` (v0.57.0):** Professional code editor powering the Secondary stage.
+- **`three` (v0.186.1):** Hardware-accelerated WebGL 3D scene graph, holographic orbital portal nodes, particle kinematics.
+- **`satellite.js` (v6.0.2):** Deterministic SGP4/SDP4 Keplerian orbital propagation engine.
 - **`lucide-svelte` / `@lucide/svelte` (v0.475.0 / v1.52.0):** Angular icon primitives.
 - **`bits-ui` (v2.19.5):** Headless accessible UI primitives for Svelte 5.
 - **`clsx` & `tailwind-merge`:** CSS utility composition helpers.
@@ -87,9 +89,12 @@ All production dependencies utilized in `apps/web` have been audited for licensi
 - **`layerchart` (v2.5.2):** Accessible visualization components for Svelte.
 
 ### Permissive Libraries (Apache License 2.0)
+- **`cesium` (v1.146.0):** 3D geospatial globe, WGS84 ellipsoid coordinates, high-precision camera kinematics, and photorealistic WebGL rendering.
 - **`blockly` (v13.3.0):** Core visual block graph, magnetic drag-and-drop workspace, and block event serialization.
 - **`@blockly/field-angle`:** Rotary angle selector input widget for turn blocks.
 - **`@blockly/field-slider`:** Numeric range input widget for motor speeds.
+- **`dapjs` (v2.3.0):** CMSIS-DAP WebUSB protocol for in-browser BBC micro:bit hex flashing.
+- **`esptool-js` (v0.7.0):** Web Serial flashing utility for ESP32/ESP8266 microcontrollers.
 - **`@supabase/supabase-js` (v2.117.2):** PostgreSQL client library with Row Level Security.
 
 ### Permissive Libraries (Mozilla Public License 2.0)

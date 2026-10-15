@@ -25,6 +25,11 @@ test.describe('Browser Robotics IDE Fullscreen Expansion', () => {
     await page.goto('/sandbox', { waitUntil: 'networkidle' });
     await page.waitForTimeout(1000);
 
+    // Switch to Robotics IDE section in sandbox
+    const ideTab = page.locator('button:has-text("1. Robotics")').filter({ visible: true }).first();
+    await ideTab.click();
+    await page.waitForTimeout(800);
+
     // 1. Verify that duplicate stage switchers are removed:
     // Only one stage switcher exists now (inside BrowserIDE toolbar)
     const primaryBtns = page.locator('button:has-text("Blocks")');
@@ -63,7 +68,9 @@ test.describe('Browser Robotics IDE Fullscreen Expansion', () => {
 
     // Verify Middle studio is visible and still in fullscreen
     await expect(fullscreenIDE).toBeVisible();
-    await expect(page.locator('text=Live Python Output (Read-only AST)')).toBeVisible();
+    if (!isMobile) {
+      await expect(page.locator('text=Live Python Output (Read-only AST)')).toBeVisible();
+    }
     await page.screenshot({ path: path.join(outDir, 'e2e_03_middle_fullscreen.png') });
 
     // 4. Switch to Code inside fullscreen

@@ -16,6 +16,7 @@
   import Sidebar from '$lib/components/shell/Sidebar.svelte';
   import TopBar from '$lib/components/shell/TopBar.svelte';
   import CommandMenu from '$lib/components/shell/CommandMenu.svelte';
+  import { toggleTheme as toggleGlobalTheme } from '$lib/theme.js';
 
   let { data, children } = $props();
 
@@ -24,28 +25,26 @@
   let isDarkMode = $state(false);
 
   onMount(() => {
-    // Theme preference
-    const saved = localStorage.getItem('way_theme');
-    const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
-    const shouldBeDark = saved === 'dark' || (saved === null && prefersDark);
+    isDarkMode = document.documentElement.classList.contains('dark') ||
+      document.documentElement.getAttribute('data-theme') === 'dark';
 
-    if (shouldBeDark) {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-      document.documentElement.setAttribute('data-theme', 'dark');
-      isDarkMode = true;
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-      document.documentElement.setAttribute('data-theme', 'light');
-      isDarkMode = false;
-    }
+    const handleThemeChange = (e: Event) => {
+      const ce = e as CustomEvent<{ theme: 'dark' | 'light' }>;
+      if (ce.detail?.theme) {
+        isDarkMode = ce.detail.theme === 'dark';
+      }
+    };
+    window.addEventListener('way_theme_change', handleThemeChange);
 
     // Sidebar collapse state preference
     const savedSidebar = localStorage.getItem('creed_sidebar_collapsed');
     if (savedSidebar !== null) {
       sidebarCollapsed = savedSidebar === 'true';
     }
+
+    return () => {
+      window.removeEventListener('way_theme_change', handleThemeChange);
+    };
   });
 
   function toggleSidebar() {
@@ -68,18 +67,8 @@
   }
 
   function toggleTheme() {
-    isDarkMode = !isDarkMode;
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-      document.documentElement.setAttribute('data-theme', 'dark');
-      localStorage.setItem('way_theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-      document.documentElement.setAttribute('data-theme', 'light');
-      localStorage.setItem('way_theme', 'light');
-    }
+    const next = toggleGlobalTheme();
+    isDarkMode = next === 'dark';
   }
 
   const currentPath = $derived(page.url.pathname);
@@ -132,10 +121,17 @@
         break;
     }
   }
+
+  const isHelpRoute = $derived(currentPath.startsWith('/help'));
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
 
+{#if isHelpRoute}
+  <div class="min-h-screen bg-canvas text-ink flex flex-col">
+    {@render children?.()}
+  </div>
+{:else}
 <!-- ============================================================
      AUTHENTICATED APPLICATION SHELL
      Sidebar (240px expanded / 64px collapsed) + TopBar + Workspace Grid
@@ -221,3 +217,4 @@
 
 <!-- Spotlight Command Palette Dialog (Cmd+K) -->
 <CommandMenu bind:open={commandMenuOpen} />
+{/if}
