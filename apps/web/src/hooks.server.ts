@@ -1,6 +1,5 @@
 import { auth } from '$lib/server/auth';
-import { redirect, error } from '@sveltejs/kit';
-import type { Handle } from '@sveltejs/kit';
+import { redirect, error, type Handle, type HandleServerError } from '@sveltejs/kit';
 
 // ---------------------------------------------------------------------------
 // Route Protection Manifest
@@ -257,4 +256,11 @@ export const handle: Handle = async ({ event, resolve }) => {
   }
 
   return resolve(event);
+};
+
+export const handleError: HandleServerError = ({ error: err, event }) => {
+  console.error('[handleError]', event.url.pathname, err);
+  return {
+    message: (err as any)?.message || 'Internal Error'
+  };
 };
