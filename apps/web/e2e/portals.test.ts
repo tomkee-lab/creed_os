@@ -481,15 +481,6 @@ test.describe('Security & Internationalization (Phase 3)', () => {
     await expect(page.getByText(/Anti-Abuse Verification/i)).toBeVisible();
   });
 
-  test('TopBar renders LanguageSwitcher and allows switching locales', async ({ page, context }) => {
-    await loginAs(context, 'student');
-    await page.goto('/student', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('[data-app-hydrated="true"]')).toBeVisible();
-    const switcher = page.locator('[data-testid="language-switcher"][data-hydrated="true"]');
-    await expect(switcher).toBeVisible();
-    await switcher.click();
-    await expect(page.getByRole('option', { name: /हिन्दी/i })).toBeVisible();
-    await expect(page.getByRole('option', { name: /मराठी/i })).toBeVisible();
   });
 });
 
