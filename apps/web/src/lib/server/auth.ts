@@ -3,19 +3,21 @@ import { organization, emailOTP } from 'better-auth/plugins';
 import { passkey } from '@better-auth/passkey';
 import { dash } from '@better-auth/infra';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
+import { building } from '$app/environment';
 import { getRequestEvent } from '$app/server';
 
 import { env } from '$env/dynamic/private';
 import pg from 'pg';
 const { Pool } = pg;
 
+const isBuilding = Boolean(building || process.env.BUILDING === 'true' || process.env.npm_lifecycle_event === 'build');
 const isProduction = process.env.NODE_ENV === 'production';
 const secret = env.BETTER_AUTH_SECRET || process.env.BETTER_AUTH_SECRET;
 
 const databaseUrl = env.DATABASE_URL || process.env.DATABASE_URL;
 let dbPool: pg.Pool | undefined = undefined;
 
-if (databaseUrl) {
+if (!isBuilding && databaseUrl) {
   dbPool = new Pool({
     connectionString: databaseUrl,
     connectionTimeoutMillis: 5000,
@@ -27,7 +29,7 @@ if (databaseUrl) {
   });
 }
 
-if (isProduction && !secret) {
+if (!isBuilding && isProduction && !secret) {
   throw new Error('FATAL: BETTER_AUTH_SECRET must be configured in production environments.');
 }
 
@@ -42,11 +44,13 @@ if (!process.env.BETTER_AUTH_SECRET && secret) {
   process.env.BETTER_AUTH_SECRET = secret;
 }
 
-if (!betterAuthApiKey) {
-  console.warn('[auth] BETTER_AUTH_API_KEY is not set — Better Auth dashboard monitoring will be disabled.');
-} else {
-  console.info('[auth] Active Better Auth API key ends with:', betterAuthApiKey.slice(-6));
-  console.info('[auth] Configured Base URL:', env.BETTER_AUTH_URL || process.env.BETTER_AUTH_URL || 'default localhost');
+if (!isBuilding) {
+  if (!betterAuthApiKey) {
+    console.warn('[auth] BETTER_AUTH_API_KEY is not set — Better Auth dashboard monitoring will be disabled.');
+  } else {
+    console.info('[auth] Active Better Auth API key ends with:', betterAuthApiKey.slice(-6));
+    console.info('[auth] Configured Base URL:', env.BETTER_AUTH_URL || process.env.BETTER_AUTH_URL || 'default localhost');
+  }
 }
 
 /**
