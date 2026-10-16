@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Compass, Bot, Cpu, Radio, Zap, Activity, CheckCircle2 } from 'lucide-svelte';
+  import { Compass, Bot, Cpu, Radio, Zap, Activity, CheckCircle2, Layers, RotateCcw, ChevronDown, X, Info } from 'lucide-svelte';
+  import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
   import { webAudioSynth } from './webAudioSynth';
 
   interface PenTrail {
@@ -46,6 +47,10 @@
     hideMicrobitBar?: boolean;
     viewMode?: 'field' | 'inspection' | 'arena' | 'companion';
     isDark?: boolean;
+    activeMissionTitle?: string;
+    activeMissionLevel?: number;
+    activeMissionIcon?: string;
+    onOpenMissionBrief?: () => void;
     onReset: () => void;
     onSetPosition?: (x: number, y: number) => void;
     onButtonPress?: (button: 'A' | 'B') => void;
@@ -83,6 +88,10 @@
     hideMicrobitBar = false,
     viewMode = 'arena',
     isDark = undefined,
+    activeMissionTitle = undefined,
+    activeMissionLevel = 1,
+    activeMissionIcon = '🚀',
+    onOpenMissionBrief = undefined,
     onReset,
     onSetPosition,
     onButtonPress
@@ -378,25 +387,43 @@
 <div class="relative w-full h-full flex flex-col bg-surface-subtle dark:bg-canvas overflow-hidden select-none transition-colors duration-200">
   <!-- 1. Technical Proving Ground Fixed Toolbar Strip (0% Canvas Occlusion) -->
   {#if !hideHeader}
-    <div class="shrink-0 px-2 py-1.5 bg-surface border-b border-border text-[9.5px] font-mono flex items-center justify-between text-ink-muted select-none gap-2 flex-wrap">
-      <!-- Left: Perspective Switcher -->
-      <div class="inline-flex p-0.5 bg-surface-subtle border border-border rounded-xs gap-0.5 shrink-0">
-        <button
-          type="button"
-          onclick={() => (arenaViewMode = 'field')}
-          class="px-2 py-0.5 rounded-2xs transition-micro font-bold flex items-center gap-1 {arenaViewMode === 'field' ? 'bg-surface text-cyan shadow-2xs' : 'text-ink-muted hover:text-ink'}"
-          title="Top-Down Autonomous Proving Ground Field"
-        >
-          <span>🗺️ Field</span>
-        </button>
-        <button
-          type="button"
-          onclick={() => (arenaViewMode = 'inspection')}
-          class="px-2 py-0.5 rounded-2xs transition-micro font-bold flex items-center gap-1 {arenaViewMode === 'inspection' ? 'bg-surface text-brand shadow-2xs' : 'text-ink-muted hover:text-ink'}"
-          title="ARES-Prime Vehicle Detail Inspection"
-        >
-          <span>🔍 Inspection</span>
-        </button>
+    <div class="shrink-0 px-2 py-1 bg-surface border-b border-border text-[9.5px] font-mono flex items-center justify-between text-ink-muted select-none gap-2 flex-wrap">
+      <!-- Left: Perspective Switcher & Mission Context -->
+      <div class="flex items-center gap-1.5 shrink-0">
+        <div class="inline-flex p-0.5 bg-surface-subtle border border-border rounded-xs gap-0.5 shrink-0">
+          <button
+            type="button"
+            onclick={() => (arenaViewMode = 'field')}
+            class="px-2 py-0.5 rounded-2xs transition-micro font-bold flex items-center gap-1 {arenaViewMode === 'field' ? 'bg-surface text-cyan shadow-2xs' : 'text-ink-muted hover:text-ink'}"
+            title="Top-Down Autonomous Proving Ground Field"
+          >
+            <span>🗺️ Field</span>
+          </button>
+          <button
+            type="button"
+            onclick={() => (arenaViewMode = 'inspection')}
+            class="px-2 py-0.5 rounded-2xs transition-micro font-bold flex items-center gap-1 {arenaViewMode === 'inspection' ? 'bg-surface text-brand shadow-2xs' : 'text-ink-muted hover:text-ink'}"
+            title="ARES-Prime Vehicle Detail Inspection"
+          >
+            <span>🔍 Inspection</span>
+          </button>
+        </div>
+
+        {#if activeMissionTitle}
+          <button
+            type="button"
+            onclick={onOpenMissionBrief}
+            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-xs bg-surface-subtle hover:bg-surface border border-border hover:border-cyan/40 text-[10px] font-mono transition-micro shrink-0 cursor-pointer group"
+            title="Open Mission Objective & PRIMM Checklist Dialog"
+          >
+            <span class="shrink-0">{activeMissionIcon || '🚀'}</span>
+            <span class="font-bold text-ink truncate max-w-32 sm:max-w-44 group-hover:text-cyan transition-colors">{activeMissionTitle}</span>
+            <span class="text-[9px] px-1 py-0.2 bg-surface border border-border rounded-xs text-ink-muted">
+              L{activeMissionLevel || 1}
+            </span>
+            <span class="text-[9px] text-amber-500 font-bold group-hover:translate-x-0.5 transition-transform">ℹ️</span>
+          </button>
+        {/if}
       </div>
 
       <!-- Right Controls for Field Proving Ground -->
@@ -434,33 +461,59 @@
             </button>
           {/if}
 
-          <!-- Layer Toggles -->
-          <div class="inline-flex p-0.5 bg-surface-subtle border border-border rounded-xs gap-0.5 shrink-0">
-            <button
-              type="button"
-              onclick={() => (showGridLines = !showGridLines)}
-              class="px-2 py-0.5 rounded-2xs transition-micro font-mono text-[9px] {showGridLines ? 'text-cyan font-bold bg-surface' : 'text-ink-muted opacity-50'}"
-              title="Toggle Coordinate Grid"
+          <!-- Display Layers Dropdown Menu -->
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger
+              class="h-6 px-2 border border-border bg-surface-subtle hover:bg-surface text-[9.5px] font-mono font-bold text-ink rounded-xs transition-micro flex items-center gap-1 cursor-pointer shrink-0"
+              title="Toggle Field Display Layers & Overlays"
             >
-              Grid
-            </button>
-            <button
-              type="button"
-              onclick={() => (showSonarBeam = !showSonarBeam)}
-              class="px-2 py-0.5 rounded-2xs transition-micro font-mono text-[9px] {showSonarBeam ? 'text-cyan font-bold bg-surface' : 'text-ink-muted opacity-50'}"
-              title="Toggle Sonar Beam"
-            >
-              Sonar
-            </button>
-            <button
-              type="button"
-              onclick={() => (showTrails = !showTrails)}
-              class="px-2 py-0.5 rounded-2xs transition-micro font-mono text-[9px] {showTrails ? 'text-cyan font-bold bg-surface' : 'text-ink-muted opacity-50'}"
-              title="Toggle Kinematic & Pen Trails"
-            >
-              Trails
-            </button>
-          </div>
+              <Layers class="size-3 text-cyan" />
+              <span>Layers</span>
+              <ChevronDown class="size-2.5 text-ink-muted opacity-70" />
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content align="end" class="w-48 p-1 bg-surface-overlay border border-border shadow-md rounded-xs font-sans text-xs">
+              <div class="px-2 py-1.5 border-b border-border mb-1">
+                <p class="text-[10px] font-mono uppercase tracking-wider text-ink-muted">Display Overlays</p>
+              </div>
+              <DropdownMenu.CheckboxItem
+                bind:checked={showGridLines}
+                class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer"
+              >
+                <span>Coordinate Grid</span>
+              </DropdownMenu.CheckboxItem>
+              <DropdownMenu.CheckboxItem
+                bind:checked={showSonarBeam}
+                class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer"
+              >
+                <span>LiDAR / Sonar Beam</span>
+              </DropdownMenu.CheckboxItem>
+              <DropdownMenu.CheckboxItem
+                bind:checked={showTrails}
+                class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer"
+              >
+                <span>Motion & Pen Trails</span>
+              </DropdownMenu.CheckboxItem>
+              {#if dynamicObstacles.length > 0 || targetWaypoint?.active}
+                <DropdownMenu.Separator class="my-1 border-t border-border" />
+              {/if}
+              {#if dynamicObstacles.length > 0}
+                <DropdownMenu.Item
+                  onclick={() => { dynamicObstacles = []; }}
+                  class="px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer text-rose-500 font-medium"
+                >
+                  Clear Obstacles ({dynamicObstacles.length})
+                </DropdownMenu.Item>
+              {/if}
+              {#if targetWaypoint?.active}
+                <DropdownMenu.Item
+                  onclick={() => { targetWaypoint = null; }}
+                  class="px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer text-ink-muted hover:text-ink"
+                >
+                  Clear Target Waypoint
+                </DropdownMenu.Item>
+              {/if}
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
         </div>
       {:else}
         <!-- Clean Subheader in Inspection Mode -->

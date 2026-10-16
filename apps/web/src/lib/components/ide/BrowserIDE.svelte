@@ -48,6 +48,7 @@
   import SocraticVoiceMentor from '$lib/components/mentor/SocraticVoiceMentor.svelte';
   import RoverArenaSimulator from './RoverArenaSimulator.svelte';
   import MissionGuidanceDrawer from './MissionGuidanceDrawer.svelte';
+  import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
   import { STEM_MISSIONS, evaluateMissionRubric } from './missionCurriculum';
 
   // Props & Mode State
@@ -443,6 +444,7 @@
   let activeTemplateLabel = $state('Wall-Follower 📡');
   let showComplianceModal = $state(false);
   let showMentorModal = $state(false);
+  let showMissionDialog = $state(false);
   let lastDropdownTrigger: HTMLElement | null = null;
 
   function dismissDropdowns(restoreFocus = true) {
@@ -2588,76 +2590,94 @@
           </div>
         {:else}
           <div class="flex items-center gap-1.5 shrink-0 text-[10px] text-ink-muted">
-            <!-- Scratch-style Stage Layout Toggle (Standard vs Extended Stage) -->
-            <div class="inline-flex p-0.5 bg-surface-subtle border border-border rounded-xs gap-0.5">
-              <button
-                type="button"
-                onclick={() => {
-                  dockStageSize = 'normal';
-                  setTimeout(() => { if (blocklyWorkspace && blocklyLib?.svgResize) blocklyLib.svgResize(blocklyWorkspace); if (editor) editor.layout(); }, 60);
-                }}
-                class="p-1 rounded-2xs transition-micro {dockStageSize === 'normal' ? 'bg-surface text-ink font-bold shadow-2xs' : 'text-ink-muted hover:text-ink'}"
-                title="Standard Stage (Scratch layout)"
-                aria-label="Standard Stage"
-              >
-                <svg class="size-3" viewBox="0 0 16 16" fill="currentColor">
-                  <rect x="1" y="2" width="9" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.2" />
-                  <rect x="11" y="2" width="4" height="12" rx="0.5" fill="currentColor" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onclick={() => {
-                  dockStageSize = 'expanded';
-                  setTimeout(() => { if (blocklyWorkspace && blocklyLib?.svgResize) blocklyLib.svgResize(blocklyWorkspace); if (editor) editor.layout(); }, 60);
-                }}
-                class="p-1 rounded-2xs transition-micro {dockStageSize === 'expanded' ? 'bg-surface text-cyan font-bold shadow-2xs' : 'text-ink-muted hover:text-ink'}"
-                title="Large Stage Mode (Extended Arena Space)"
-                aria-label="Large Stage Mode"
-              >
-                <svg class="size-3" viewBox="0 0 16 16" fill="currentColor">
-                  <rect x="1" y="2" width="5" height="12" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.2" />
-                  <rect x="7" y="2" width="8" height="12" rx="1" fill="currentColor" />
-                </svg>
-              </button>
-            </div>
-            <span class={batteryLevel < 25 ? 'text-red-500 font-bold' : 'text-ink'}>🔋 {Math.round(batteryLevel)}%</span>
+            <!-- Dedicated Prominent Reset Button (Never truncated, high touch affordance) -->
             <button
-              onclick={() => (playbackSpeed = playbackSpeed === '1x' ? '2x' : playbackSpeed === '2x' ? 'instant' : '1x')}
-              class="px-1.5 py-0.5 border border-border bg-surface-subtle hover:bg-surface text-[9px] font-bold text-ink rounded-xs transition-micro shadow-2xs"
-              title="Toggle Kinematic Playback Speed"
+              type="button"
+              onclick={resetRover}
+              class="shrink-0 px-2 py-0.5 text-[9.5px] font-mono font-bold rounded-xs border border-mint/40 bg-mint/10 text-mint hover:bg-mint/20 hover:border-mint transition-micro flex items-center gap-1 shadow-2xs cursor-pointer"
+              title="Reset simulated rover position and heading to origin"
+              aria-label="Reset rover to origin"
             >
-              {playbackSpeed}
+              <RotateCcw class="size-3 shrink-0" />
+              <span>Reset</span>
             </button>
-            <button onclick={resetRover} class="text-[9px] text-mint hover:underline font-mono">Reset</button>
+
+            <!-- Compact Sim Settings & Stage Layout Dropdown Menu -->
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger
+                class="h-6 px-1.5 border border-border bg-surface-subtle hover:bg-surface text-[9.5px] font-mono font-bold text-ink rounded-xs transition-micro flex items-center gap-1 cursor-pointer shrink-0"
+                title="Simulator Kinematics & Stage Settings"
+              >
+                <span>⚡ {playbackSpeed}</span>
+                <span class="text-border">·</span>
+                <span class={batteryLevel < 25 ? 'text-red-500 font-bold' : 'text-ink-muted'}>🔋{Math.round(batteryLevel)}%</span>
+                <ChevronDown class="size-2.5 text-ink-muted opacity-70" />
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content align="end" class="w-52 p-1 bg-surface-overlay border border-border shadow-md rounded-xs font-sans text-xs">
+                <div class="px-2 py-1.5 border-b border-border mb-1">
+                  <p class="text-[10px] font-mono uppercase tracking-wider text-ink-muted">Kinematic Playback Speed</p>
+                </div>
+                <DropdownMenu.Item
+                  onclick={() => (playbackSpeed = '1x')}
+                  class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer {playbackSpeed === '1x' ? 'text-cyan font-bold bg-surface-raised' : 'text-ink'}"
+                >
+                  <span>1x (Realtime)</span>
+                  {#if playbackSpeed === '1x'}<span class="text-cyan font-bold">✓</span>{/if}
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  onclick={() => (playbackSpeed = '2x')}
+                  class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer {playbackSpeed === '2x' ? 'text-cyan font-bold bg-surface-raised' : 'text-ink'}"
+                >
+                  <span>2x (High Speed)</span>
+                  {#if playbackSpeed === '2x'}<span class="text-cyan font-bold">✓</span>{/if}
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  onclick={() => (playbackSpeed = 'instant')}
+                  class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer {playbackSpeed === 'instant' ? 'text-cyan font-bold bg-surface-raised' : 'text-ink'}"
+                >
+                  <span>Instant (Skip Anim)</span>
+                  {#if playbackSpeed === 'instant'}<span class="text-cyan font-bold">✓</span>{/if}
+                </DropdownMenu.Item>
+
+                <div class="px-2 py-1.5 border-b border-t border-border my-1">
+                  <p class="text-[10px] font-mono uppercase tracking-wider text-ink-muted">Stage Layout</p>
+                </div>
+                <DropdownMenu.Item
+                  onclick={() => {
+                    dockStageSize = 'normal';
+                    setTimeout(() => { if (blocklyWorkspace && blocklyLib?.svgResize) blocklyLib.svgResize(blocklyWorkspace); if (editor) editor.layout(); }, 60);
+                  }}
+                  class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer {dockStageSize === 'normal' ? 'text-cyan font-bold bg-surface-raised' : 'text-ink'}"
+                >
+                  <span>Standard Stage</span>
+                  {#if dockStageSize === 'normal'}<span class="text-cyan font-bold">✓</span>{/if}
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  onclick={() => {
+                    dockStageSize = 'expanded';
+                    setTimeout(() => { if (blocklyWorkspace && blocklyLib?.svgResize) blocklyLib.svgResize(blocklyWorkspace); if (editor) editor.layout(); }, 60);
+                  }}
+                  class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer {dockStageSize === 'expanded' ? 'text-cyan font-bold bg-surface-raised' : 'text-ink'}"
+                >
+                  <span>Expanded Stage</span>
+                  {#if dockStageSize === 'expanded'}<span class="text-cyan font-bold">✓</span>{/if}
+                </DropdownMenu.Item>
+
+                <DropdownMenu.Separator class="my-1 border-t border-border" />
+                <DropdownMenu.Item
+                  onclick={clearPenTrails}
+                  class="px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer text-ink-muted hover:text-ink"
+                >
+                  Clear Trails & Path
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
           </div>
         {/if}
       </div>
 
-      <!-- TAB 1: Autonomous Robotics Proving Ground -->
+      <!-- TAB 1: Autonomous Robotics Proving Ground (Maximized 100% Canvas Space) -->
       <div class={auxiliaryTab === 'arena' ? 'flex-1 min-h-0 flex flex-col relative' : 'hidden'}>
-        <!-- Streamlined Mission Objective Strip (Full context, zero truncation, action links to PRIMM) -->
-        <div class="px-3 py-1.5 border-b border-border bg-surface-subtle flex items-center justify-between text-xs shrink-0 select-none gap-2">
-          <div class="flex items-center gap-1.5 min-w-0">
-            <span class="text-sm shrink-0">{activeMissionMeta.icon}</span>
-            <span class="font-bold text-ink text-[11px] shrink-0">{activeMissionMeta.title}</span>
-            <span class="text-[9px] font-mono px-1 py-0.2 bg-surface border border-border rounded-xs text-ink-muted shrink-0">
-              L{STEM_MISSIONS[activeMissionId]?.level || 1}
-            </span>
-            <span class="text-[10px] text-ink-muted truncate hidden sm:inline" title={activeMissionMeta.desc}>
-              — {activeMissionMeta.desc}
-            </span>
-          </div>
-          <button
-            onclick={() => (auxiliaryTab = 'guidance')}
-            class="px-2 py-0.5 text-[9.5px] font-mono rounded-xs border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 font-semibold transition-micro flex items-center gap-1 shrink-0"
-            title="Open full PRIMM guidance, step checklist, and rubric"
-          >
-            <span>PRIMM Guide</span>
-            <ChevronRight class="size-3" />
-          </button>
-        </div>
-
         <div class="flex-1 min-h-0 relative overflow-hidden flex flex-col p-0">
           <RoverArenaSimulator
             {roverX}
@@ -2685,6 +2705,10 @@
             hideMicrobitBar={true}
             viewMode={arenaSubView}
             isDark={isDarkTheme}
+            activeMissionTitle={activeMissionMeta.title}
+            activeMissionLevel={STEM_MISSIONS[activeMissionId]?.level || 1}
+            activeMissionIcon={activeMissionMeta.icon}
+            onOpenMissionBrief={() => (showMissionDialog = true)}
             onReset={resetRover}
             onSetPosition={handleSetRoverPosition}
             onButtonPress={handleMicrobitButtonPress}
@@ -3131,6 +3155,143 @@
         <SocraticVoiceMentor
           initialTopic={`Mission ${STEM_MISSIONS[activeMissionId]?.level || 1}: ${activeMissionMeta.title} (${STEM_MISSIONS[activeMissionId]?.cstaStandard || 'CSTA Standard'})`}
         />
+      </div>
+    </div>
+  </div>
+{/if}
+
+<!-- Mission Briefing & PRIMM Guide Modal Dialog -->
+{#if showMissionDialog}
+  {@const currentStemMission = STEM_MISSIONS[activeMissionId]}
+  <div
+    class="fixed inset-0 z-100 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in-0 duration-150 font-sans"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Mission Briefing & PRIMM Guide"
+    tabindex="-1"
+    onkeydown={(e) => { if (e.key === 'Escape') showMissionDialog = false; }}
+  >
+    <!-- Accessible backdrop click dismiss layer -->
+    <button
+      type="button"
+      class="fixed inset-0 bg-transparent -z-10 cursor-default"
+      onclick={() => (showMissionDialog = false)}
+      tabindex="-1"
+      aria-label="Dismiss mission dialog"
+    ></button>
+
+    <div class="w-full max-w-2xl bg-surface border border-border shadow-2xl rounded-md flex flex-col max-h-[85vh] overflow-hidden animate-in zoom-in-95 duration-150 relative z-10">
+      <!-- Dialog Header -->
+      <div class="flex items-center justify-between px-4 py-3 border-b border-border bg-surface shrink-0">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="text-2xl shrink-0">{activeMissionMeta.icon}</span>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="text-sm font-bold text-ink truncate">
+                {activeMissionMeta.title}
+              </h3>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 bg-surface-subtle border border-border rounded-xs text-ink-muted shrink-0">
+                Level {currentStemMission?.level || 1}
+              </span>
+              {#if currentStemMission?.stage}
+                <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 bg-brand/10 border border-brand/30 text-brand rounded-xs shrink-0">
+                  {currentStemMission.stage}
+                </span>
+              {/if}
+            </div>
+            {#if currentStemMission?.cstaStandard}
+              <p class="text-[10px] font-mono text-ink-muted truncate mt-0.5">
+                {currentStemMission.cstaStandard}
+              </p>
+            {/if}
+          </div>
+        </div>
+        <button
+          type="button"
+          onclick={() => (showMissionDialog = false)}
+          class="p-1 rounded-xs text-ink-muted hover:text-ink hover:bg-surface-subtle transition-micro"
+          aria-label="Close dialog"
+        >
+          <X class="size-4" />
+        </button>
+      </div>
+
+      <!-- Dialog Body -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-4 text-xs text-ink">
+        <!-- Objective & Pedagogical Context -->
+        <div class="p-3 bg-surface-subtle border border-border rounded-sm space-y-1.5">
+          <span class="text-[10px] font-mono uppercase tracking-wider text-cyan font-bold">Mission Objective</span>
+          <p class="text-xs leading-relaxed text-ink font-medium">
+            {currentStemMission?.objective || activeMissionMeta.desc}
+          </p>
+          {#if currentStemMission?.context}
+            <p class="text-[11px] leading-relaxed text-ink-muted">
+              {currentStemMission.context}
+            </p>
+          {/if}
+        </div>
+
+        <!-- PRIMM Progression Checklist -->
+        {#if currentStemMission?.primmSteps && currentStemMission.primmSteps.length > 0}
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono uppercase tracking-wider text-amber-500 font-bold">PRIMM Pedagogy Checklist</span>
+              <span class="text-[10px] font-mono text-ink-muted">Predict → Run → Investigate → Modify → Make</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {#each currentStemMission.primmSteps as step}
+                <div class="p-2 bg-surface border border-border rounded-sm space-y-1">
+                  <div class="flex items-center justify-between text-[10px]">
+                    <span class="font-bold font-mono text-brand">{step.phase}</span>
+                    <span class="text-ink-muted font-mono">{step.badge}</span>
+                  </div>
+                  <p class="text-[11px] font-semibold text-ink">{step.title}</p>
+                  <p class="text-[10px] text-ink-muted leading-normal">{step.instruction}</p>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
+
+        <!-- Scoring Rubric Criteria -->
+        {#if currentStemMission?.rubric && currentStemMission.rubric.length > 0}
+          <div class="space-y-2">
+            <span class="text-[10px] font-mono uppercase tracking-wider text-mint font-bold">Scoring Rubric Criteria</span>
+            <div class="space-y-1.5">
+              {#each currentStemMission.rubric as item}
+                <div class="flex items-start justify-between p-2 bg-surface border border-border rounded-sm text-[11px] gap-2">
+                  <div>
+                    <span class="font-semibold text-ink">{item.label}</span>
+                    <p class="text-[10px] text-ink-muted mt-0.5">{item.description}</p>
+                  </div>
+                  <span class="font-mono text-mint font-bold shrink-0">+{item.points} pts</span>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
+      </div>
+
+      <!-- Dialog Footer -->
+      <div class="px-4 py-2 border-t border-border bg-surface-subtle flex items-center justify-between shrink-0">
+        <button
+          type="button"
+          onclick={() => {
+            showMissionDialog = false;
+            auxiliaryTab = 'guidance';
+          }}
+          class="px-2 py-1 text-xs font-mono text-ink-muted hover:text-ink hover:underline flex items-center gap-1 cursor-pointer"
+        >
+          <span>Open Full Guidance Panel</span>
+          <ChevronRight class="size-3" />
+        </button>
+        <button
+          type="button"
+          onclick={() => (showMissionDialog = false)}
+          class="px-4 py-1.5 text-xs font-medium rounded-xs bg-ink text-surface hover:opacity-90 transition-micro cursor-pointer font-sans"
+        >
+          Return to Arena
+        </button>
       </div>
     </div>
   </div>
