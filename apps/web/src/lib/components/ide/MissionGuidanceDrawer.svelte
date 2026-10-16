@@ -13,6 +13,7 @@
     AlertCircle,
     Sparkles,
     ChevronRight,
+    ChevronDown,
     Play,
     RotateCcw,
     Compass,
@@ -24,7 +25,7 @@
     Check,
     Bot
   } from 'lucide-svelte';
-  import SocraticVoiceMentor from '$lib/components/mentor/SocraticVoiceMentor.svelte';
+
 
   interface Props {
     activeMissionId: string;
@@ -44,6 +45,7 @@
       message: string;
       score?: number;
     } | null;
+    showMentorModal?: boolean;
     onVerify?: () => void;
     onSelectMission?: (missionId: string) => void;
     onResetWorkspace?: () => void;
@@ -55,6 +57,7 @@
     roverState = { x: 100, y: 100, heading: 0, distance: 100, hasCollided: false, batteryLevel: 100, samplesCollected: 0 },
     isVerifying = false,
     verificationResult = null,
+    showMentorModal = $bindable(false),
     onVerify,
     onSelectMission,
     onResetWorkspace
@@ -80,8 +83,7 @@
   let activePrimmIndex = $state(0);
   let completedPrimmSteps = $state<number[]>([]);
 
-  // Socratic Mentor Modal State
-  let showMentorModal = $state(false);
+
 
   // Track completed PRIMM steps
   function togglePrimmStep(index: number) {
@@ -107,70 +109,59 @@
 
 <aside class="flex flex-col h-full bg-surface select-none overflow-hidden text-ink font-sans">
   <!-- LEVEL 1: SIGNAL HEADER (WAY 2.1 Law 1) -->
-  <header class="p-4 border-b border-border bg-surface shrink-0 space-y-2">
-    <div class="flex items-center justify-between gap-2 flex-wrap">
-      <div class="flex items-center gap-2">
-        <span class="text-xl" aria-hidden="true">{mission.icon}</span>
-        <div>
-          <div class="flex items-center gap-1.5 flex-wrap">
-            <span class="text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.2 border rounded-xs {getStageBadge(mission.stage).color}">
-              {mission.gradeBracket}
-            </span>
-            <span class="text-[10px] font-mono text-ink-muted">Level {mission.level}/10</span>
-          </div>
-          <h2 class="text-sm font-semibold tracking-tight text-ink mt-0.5">
-            {mission.title}
-          </h2>
-        </div>
+  <header class="p-3 border-b border-border bg-surface shrink-0 space-y-2">
+    <!-- Row 1: Mission Identity & Criteria Progress in one cohesive line -->
+    <div class="flex items-center justify-between gap-1.5">
+      <div class="flex items-center gap-1.5 min-w-0 flex-1">
+        <span class="text-base shrink-0" aria-hidden="true">{mission.icon}</span>
+        <h2 class="text-xs font-bold text-ink truncate">
+          {mission.title}
+        </h2>
+        <span class="text-[10px] font-mono text-ink-muted shrink-0">L{mission.level}/10</span>
       </div>
 
       <!-- Live Rubric Progress Chip -->
-      <div class="flex items-center gap-1.5 font-mono text-xs">
-        <div class="px-2 py-0.5 border border-border rounded-xs bg-surface-subtle flex items-center gap-1.5">
-          <span class="text-ink-muted">Progress:</span>
-          <strong class={rubricEval.passed ? 'text-positive font-bold' : 'text-attention font-bold'}>
-            {rubricEval.completedItems.length}/{rubricEval.totalItems} criteria ({rubricEval.score}/{rubricEval.maxScore} pts)
-          </strong>
-        </div>
+      <div class="px-1.5 py-0.5 border border-border rounded-xs bg-surface-subtle font-mono text-[9.5px] shrink-0 flex items-center gap-1 shadow-2xs">
+        <strong class={rubricEval.passed ? 'text-positive font-bold' : 'text-attention font-bold'}>
+          {rubricEval.completedItems.length}/{rubricEval.totalItems} criteria
+        </strong>
       </div>
     </div>
 
-    <!-- Level 1 Signal: Primary Mission Objective -->
-    <div class="p-2 bg-surface-subtle border border-border rounded-sm space-y-1">
-      <div class="flex items-center justify-between text-[11px] font-mono text-ink-muted">
-        <span class="font-bold text-ink flex items-center gap-1">
-          <Compass class="size-3 text-accent-primary" /> Primary Directive
-        </span>
-        <span class="text-[10px] text-accent-indigo">DPDP & CSTA Aligned</span>
-      </div>
-      <p class="text-xs text-ink leading-relaxed">
-        {mission.objective}
+    <!-- Row 2: Level 1 Signal: Primary Mission Directive (Crisp signal, no card bloat) -->
+    <div class="flex items-start gap-1.5 text-xs text-ink bg-surface-subtle border border-border p-1.5 px-2 rounded-sm shadow-2xs">
+      <span class="text-[9px] font-mono uppercase tracking-wider px-1 py-0.2 border rounded-xs shrink-0 mt-0.5 {getStageBadge(mission.stage).color}">
+        {mission.gradeBracket}
+      </span>
+      <p class="text-[11px] leading-snug flex-1 min-w-0 line-clamp-2">
+        <strong class="font-bold text-ink mr-1">Directive:</strong>{mission.objective}
       </p>
+      <span class="text-[9px] font-mono text-accent-indigo shrink-0 hidden sm:inline">CSTA Aligned</span>
     </div>
 
-    <!-- Primary Action Bar (Action-First UX) -->
-    <div class="flex items-center gap-2 pt-1">
+    <!-- Row 3: Primary Action Bar (Action-First UX) -->
+    <div class="flex items-center gap-1.5">
       <button
         onclick={() => onVerify?.()}
         disabled={isVerifying}
-        class="flex-1 px-3 py-1.5 bg-positive hover:bg-positive/90 active:bg-positive text-positive-foreground font-mono text-xs font-semibold rounded-sm transition-micro flex items-center justify-center gap-1.5 shadow-2xs disabled:opacity-50"
+        class="flex-1 px-3 py-1 bg-positive hover:bg-positive/90 active:bg-positive text-positive-foreground font-mono text-xs font-semibold rounded-sm transition-micro flex items-center justify-center gap-1.5 shadow-2xs disabled:opacity-50"
         title="Deterministically evaluate code and physical telemetry against mission rubric"
       >
         {#if isVerifying}
-          <div class="size-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+          <div class="size-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
           <span>Verifying Rubric...</span>
         {:else if rubricEval.passed}
           <CheckCircle2 class="size-3.5" />
           <span>Verify Solution & Record Evidence</span>
         {:else}
           <Play class="size-3.5" />
-          <span>Verify Solution ({rubricEval.completedItems.length}/{rubricEval.totalItems} criteria)</span>
+          <span>Verify ({rubricEval.completedItems.length}/{rubricEval.totalItems} criteria)</span>
         {/if}
       </button>
 
       <button
         onclick={() => (showMentorModal = true)}
-        class="px-3 py-1.5 border border-border hover:bg-surface-subtle text-accent-indigo font-mono text-xs rounded-sm transition-micro flex items-center gap-1 shrink-0"
+        class="px-2 py-1 border border-border hover:bg-surface-subtle text-accent-indigo font-mono text-xs rounded-sm transition-micro flex items-center gap-1 shrink-0 bg-surface"
         title="Open Socratic AI Mentor for guided questions without giving away answers"
       >
         <Bot class="size-3.5" />
@@ -179,7 +170,7 @@
 
       <button
         onclick={() => onResetWorkspace?.()}
-        class="p-1.5 border border-border hover:bg-surface-subtle text-ink-muted hover:text-ink rounded-sm transition-micro shrink-0"
+        class="p-1 border border-border hover:bg-surface-subtle text-ink-muted hover:text-ink rounded-sm transition-micro shrink-0 bg-surface"
         title="Reset workspace blocks to mission starter template"
         aria-label="Reset workspace to mission template"
       >
@@ -189,44 +180,50 @@
 
     <!-- Feedback Banner if Verification Run -->
     {#if verificationResult}
-      <div class="p-2 border rounded-xs text-xs font-mono flex items-start gap-2 {verificationResult.passed ? 'bg-positive-subtle border-positive/30 text-positive' : 'bg-attention-subtle border-attention/30 text-attention'}">
+      <div class="p-1.5 border rounded-xs text-xs font-mono flex items-start gap-1.5 {verificationResult.passed ? 'bg-positive-subtle border-positive/30 text-positive' : 'bg-attention-subtle border-attention/30 text-attention'}">
         {#if verificationResult.passed}
-          <CheckCircle2 class="size-4 shrink-0 text-positive mt-0.5" />
+          <CheckCircle2 class="size-3.5 shrink-0 text-positive mt-0.5" />
         {:else}
-          <AlertCircle class="size-4 shrink-0 text-attention mt-0.5" />
+          <AlertCircle class="size-3.5 shrink-0 text-attention mt-0.5" />
         {/if}
-        <div class="flex-1 min-w-0">
-          <div class="font-bold">{verificationResult.passed ? 'Mission Complete!' : 'Criteria Remaining'}</div>
-          <p class="text-[11px] opacity-90">{verificationResult.message}</p>
+        <div class="flex-1 min-w-0 text-[11px]">
+          <span class="font-bold mr-1">{verificationResult.passed ? 'Mission Complete!' : 'Criteria Remaining:'}</span>
+          <span class="opacity-90">{verificationResult.message}</span>
         </div>
       </div>
     {/if}
   </header>
 
   <!-- SCROLLABLE BODY: LEVEL 2 (CONTEXT) & LEVEL 3 (EVIDENCE) -->
-  <div class="flex-1 overflow-y-auto p-4 space-y-4">
-    <!-- LEVEL 2: CONTEXT CARD (Why It Matters) -->
-    <section class="space-y-1.5">
-      <div class="flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-ink-muted">
-        <BookOpen class="size-3 text-cyan" />
-        <span>Context & Scientific Significance</span>
-      </div>
-      <div class="p-3 bg-surface-subtle border border-border rounded-sm text-xs space-y-2">
-        <p class="text-ink leading-relaxed">
+  <div class="flex-1 overflow-y-auto p-3 space-y-3">
+    <!-- LEVEL 2: CONTEXT & CSTA DISCLOSURE (Progressive Disclosure - Saves 130px) -->
+    <details class="group bg-surface-subtle border border-border rounded-sm transition-micro">
+      <summary class="flex items-center justify-between p-2 cursor-pointer list-none select-none text-xs font-mono text-ink-muted hover:text-ink">
+        <div class="flex items-center gap-1.5 min-w-0">
+          <BookOpen class="size-3 text-cyan shrink-0" />
+          <span class="font-bold text-[11px] tracking-wide truncate">Context & Scientific Significance</span>
+        </div>
+        <div class="flex items-center gap-1.5 text-[10px] shrink-0">
+          <span class="text-ink-muted font-normal hidden md:inline truncate max-w-36">{mission.cstaStandard}</span>
+          <ChevronDown class="size-3 text-ink-muted transition-transform duration-150 group-open:rotate-180" />
+        </div>
+      </summary>
+      <div class="p-2 pt-1 text-xs space-y-2 border-t border-border/50">
+        <p class="text-ink leading-relaxed text-[11px]">
           {mission.context}
         </p>
-        <div class="pt-1 border-t border-border/60 flex items-start gap-1.5 text-ink-muted text-[11px]">
+        <div class="pt-1 border-t border-border/50 flex items-start gap-1.5 text-ink-muted text-[11px]">
           <span class="font-semibold text-accent-indigo shrink-0">Why It Matters:</span>
           <span>{mission.whyItMatters}</span>
         </div>
         <div class="text-[10px] font-mono text-ink-muted/80 pt-0.5">
-          Standard: <span class="text-ink">{mission.cstaStandard}</span>
+          Standard: <span class="text-ink font-semibold">{mission.cstaStandard}</span>
         </div>
       </div>
-    </section>
+    </details>
 
     <!-- LEVEL 3: PRIMM PEDAGOGY STEPPER (Predict -> Run -> Investigate -> Modify -> Make) -->
-    <section class="space-y-2">
+    <section class="space-y-1.5">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-ink-muted">
           <Sparkles class="size-3 text-attention" />
@@ -257,17 +254,17 @@
       <!-- Active PRIMM Step Content -->
       {#if mission.primmSteps[activePrimmIndex]}
         {@const curStep = mission.primmSteps[activePrimmIndex]}
-        <div class="p-3 border border-border bg-surface-subtle rounded-sm space-y-2">
+        <div class="p-2 border border-border bg-surface-subtle rounded-sm space-y-1.5">
           <div class="flex items-center justify-between gap-2">
             <span class="text-xs font-bold text-ink flex items-center gap-1.5">
-              <span class="size-5 rounded-xs bg-ai-subtle text-ai text-[11px] font-mono font-bold flex items-center justify-center">
+              <span class="size-4 rounded-xs bg-ai-subtle text-ai text-[10px] font-mono font-bold flex items-center justify-center">
                 {activePrimmIndex + 1}
               </span>
               {curStep.title}
             </span>
             <button
               onclick={() => togglePrimmStep(activePrimmIndex)}
-              class="px-2 py-0.5 text-[10.5px] font-mono rounded-xs border transition-micro flex items-center gap-1 {completedPrimmSteps.includes(activePrimmIndex) ? 'bg-positive-subtle border-positive/30 text-positive font-semibold' : 'border-border text-ink-muted hover:text-ink'}"
+              class="px-2 py-0.5 text-[10px] font-mono rounded-xs border transition-micro flex items-center gap-1 {completedPrimmSteps.includes(activePrimmIndex) ? 'bg-positive-subtle border-positive/30 text-positive font-semibold' : 'border-border text-ink-muted hover:text-ink bg-surface'}"
             >
               {#if completedPrimmSteps.includes(activePrimmIndex)}
                 <Check class="size-3" /> Step Done
@@ -276,7 +273,7 @@
               {/if}
             </button>
           </div>
-          <p class="text-xs text-ink leading-relaxed pl-6">
+          <p class="text-xs text-ink leading-relaxed pl-5">
             {curStep.instruction}
           </p>
         </div>
@@ -284,7 +281,7 @@
     </section>
 
     <!-- LEVEL 3: LIVE RUBRIC EVALUATION CHECKLIST -->
-    <section class="space-y-2">
+    <section class="space-y-1.5">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-ink-muted">
           <Award class="size-3 text-positive" />
@@ -295,10 +292,10 @@
         </span>
       </div>
 
-      <div class="space-y-1.5">
+      <div class="space-y-1">
         {#each mission.rubric as item}
           {@const isPassed = rubricEval.completedItems.includes(item.id)}
-          <div class="p-2 border rounded-xs transition-micro flex items-start gap-2 {isPassed ? 'bg-positive-subtle/50 border-positive/20' : 'bg-surface-subtle border-border'}">
+          <div class="p-1.5 px-2 border rounded-xs transition-micro flex items-start gap-2 {isPassed ? 'bg-positive-subtle/50 border-positive/20' : 'bg-surface-subtle border-border'}">
             <div class="pt-0.5 shrink-0">
               {#if isPassed}
                 <CheckCircle2 class="size-3.5 text-positive" />
@@ -375,31 +372,4 @@
   </div>
 </aside>
 
-<!-- Socratic Voice Mentor Modal Dialog -->
-{#if showMentorModal}
-  <div class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="w-full max-w-xl bg-surface border border-border shadow-xl rounded-md flex flex-col max-h-[85vh] overflow-hidden">
-      <div class="flex items-center justify-between px-4 py-3 border-b border-border bg-surface shrink-0">
-        <div class="flex items-center gap-2">
-          <Bot class="size-4 text-accent-indigo" />
-          <h3 class="text-sm font-semibold text-ink">
-            Socratic Mentor — {mission.title}
-          </h3>
-        </div>
-        <button
-          onclick={() => (showMentorModal = false)}
-          class="p-1 rounded-xs text-ink-muted hover:text-ink hover:bg-surface-subtle transition-micro"
-          aria-label="Close dialog"
-        >
-          ✕
-        </button>
-      </div>
 
-      <div class="flex-1 overflow-y-auto p-4 min-h-95">
-        <SocraticVoiceMentor
-          initialTopic={`Mission ${mission.level}: ${mission.title} (${mission.cstaStandard})`}
-        />
-      </div>
-    </div>
-  </div>
-{/if}

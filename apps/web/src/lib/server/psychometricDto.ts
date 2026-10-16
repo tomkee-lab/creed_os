@@ -221,6 +221,8 @@ export function toStudentBenchmarkReportDTO(
   report: any,
   options: BenchmarkGatingOptions = {}
 ): StudentBenchmarkReportDTO | null {
+  if (!report) return null;
+
   // Gate 4 Fail-Closed Security Policy:
   // Must strictly be boolean true. Any missing, undefined, null, string, or malformed config fails closed to false.
   const isGate4Calibrated = options?.enableGate4Outputs === true;

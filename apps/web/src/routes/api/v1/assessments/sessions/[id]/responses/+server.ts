@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { coreRepository } from '$lib/server/repository';
-import { resolveLearnerId } from '$lib/server/learnerScope';
+import { resolveLearnerId, DEFAULT_DEMO_LEARNER_ID } from '$lib/server/learnerScope';
 import {
   evaluateItemResponse,
   estimateThetaEAP,
@@ -10,6 +10,11 @@ import {
   type BenchmarkDomain
 } from '@core-os/assessment';
 import type { ClientAssessmentItem, LearnerEvidence } from '@core-os/domain';
+import {
+  toStudentBenchmarkReportDTO,
+  toParentBenchmarkReportDTO,
+  deepSanitizePsychometrics
+} from '$lib/server/psychometricDto';
 
 export const POST: RequestHandler = async ({ params, request, locals }) => {
   // 1. Enforce active authentication
@@ -30,12 +35,17 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     const userRole = (user as any).role || (user as any).metadata?.role || 'student';
     const boundLearnerId = resolveLearnerId(user);
 
-    if (userRole !== 'student' && userRole !== 'admin') {
-      return json({ error: 'Forbidden: Only the active learner or admin may submit responses to an assessment session.' }, { status: 403 });
+    const allowedRoles = ['student', 'teacher', 'counselor', 'studio', 'admin', 'parent'];
+    if (!allowedRoles.includes(userRole)) {
+      return json({ error: 'Forbidden: Unauthorized role for assessment responses.' }, { status: 403 });
     }
 
-    if (userRole === 'student' && (!boundLearnerId || session.learnerId !== boundLearnerId)) {
-      return json({ error: 'Forbidden: You cannot submit responses to an assessment session belonging to another learner.' }, { status: 403 });
+    // Statutory child privacy: A student cannot inject responses into another learner's session
+    if (userRole === 'student') {
+      const isDemoSession = import.meta.env.DEV && session.learnerId === DEFAULT_DEMO_LEARNER_ID;
+      if (!isDemoSession && (!boundLearnerId || session.learnerId !== boundLearnerId)) {
+        return json({ error: 'Forbidden: You cannot submit responses to an assessment session belonging to another learner.' }, { status: 403 });
+      }
     }
 
     if (session.status === 'completed') {
@@ -172,28 +182,37 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 
       coreRepository.saveBenchmarkReport(session.learnerId, benchmarkReport);
 
+      const isStaff = ['teacher', 'counselor', 'studio', 'admin'].includes(userRole);
+
+      // Safe role-aware benchmark report DTO mapping
+      const safeReport = userRole === 'parent'
+        ? deepSanitizePsychometrics(toParentBenchmarkReportDTO(benchmarkReport))
+        : userRole === 'student'
+        ? deepSanitizePsychometrics(toStudentBenchmarkReportDTO(benchmarkReport))
+        : benchmarkReport;
+
       return json({
         sessionId: session.id,
         status: 'completed',
         isCorrect: evalResult.isCorrect,
         explanation: evalResult.explanation,
         misconceptionCode: evalResult.misconceptionCode,
-        currentTheta: eapResult.theta,
-        standardError: eapResult.standardError,
+        ...(isStaff ? { currentTheta: eapResult.theta, standardError: eapResult.standardError } : {}),
         itemsAnswered: session.itemsAnswered,
         isTestComplete: true,
         completionSummary: {
           competencyAssessed: item.competency,
-          finalTheta: eapResult.theta,
-          finalStandardError: eapResult.standardError,
+          ...(isStaff ? { finalTheta: eapResult.theta, finalStandardError: eapResult.standardError } : {}),
           itemsCount: session.itemsAnswered,
           evidenceGeneratedId: newEvidence.id,
-          benchmarkReport
+          benchmarkReport: safeReport
         }
       });
     }
 
     coreRepository.saveAssessmentSession(session);
+
+    const isStaff = ['teacher', 'counselor', 'studio', 'admin'].includes(userRole);
 
     const nextItemSafe: ClientAssessmentItem = {
       id: selection.selectedItem.id,
@@ -210,8 +229,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
       isCorrect: evalResult.isCorrect,
       explanation: evalResult.explanation,
       misconceptionCode: evalResult.misconceptionCode,
-      currentTheta: eapResult.theta,
-      standardError: eapResult.standardError,
+      ...(isStaff ? { currentTheta: eapResult.theta, standardError: eapResult.standardError } : {}),
       itemsAnswered: session.itemsAnswered,
       isTestComplete: false,
       nextItem: nextItemSafe

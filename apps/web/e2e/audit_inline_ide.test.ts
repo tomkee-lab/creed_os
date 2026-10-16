@@ -24,6 +24,11 @@ test('inspect inline IDE layout, toolbar, dropdowns, and arena dimensions', asyn
   await page.goto('/sandbox', { waitUntil: 'networkidle' });
   await page.waitForTimeout(1000);
 
+  // Switch to Robotics IDE section in sandbox
+  const ideTab = page.locator('button:has-text("1. Robotics")').filter({ visible: true }).first();
+  await ideTab.click();
+  await page.waitForTimeout(800);
+
   // Scroll IDE into center view
   const ideLocator = page.locator('div.flex.flex-col.w-full.border.border-border');
   await ideLocator.scrollIntoViewIfNeeded();

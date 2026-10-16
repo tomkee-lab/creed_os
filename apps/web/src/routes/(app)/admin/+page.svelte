@@ -183,8 +183,8 @@
   {/snippet}
 
   <!-- 2. TABLE: High-Density Operational Consent Ledger (TanStack Table) -->
-  <section id="consent" class="space-y-4">
-    <div id="learners">
+  <section id="consent" class="space-y-4 scroll-mt-16">
+    <div id="learners" class="scroll-mt-16">
       <DataTable
         data={filteredLedger}
         {columns}
@@ -197,7 +197,7 @@
   </section>
 
   <!-- 4. AUDIT TRAIL: Statutory Compliance Audit Ledger -->
-  <section id="audit" class="space-y-4">
+  <section id="audit" class="space-y-4 scroll-mt-16">
     <div class="flex items-center justify-between">
       <h2 class="text-base font-semibold text-ink">
         Statutory Compliance & Audit Trail
@@ -214,7 +214,7 @@
   </section>
 
   <!-- 5. ORGANIZATIONS / TENANTS -->
-  <section id="orgs" class="space-y-4">
+  <section id="orgs" class="space-y-4 scroll-mt-16">
     <div class="flex items-center justify-between">
       <h2 class="text-base font-semibold text-ink">
         Campus Configuration & Scope

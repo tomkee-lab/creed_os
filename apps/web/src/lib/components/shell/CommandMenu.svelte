@@ -23,18 +23,22 @@
   let searchQuery = $state('');
 
   const searchItems = [
-    { category: 'Workspaces', title: 'Learner Growth & Progress', subtitle: 'Longitudinal competency trajectory and evidence', href: '/student/progress' },
+    { category: 'Workspaces', title: 'Today’s Mission Dashboard', subtitle: 'Daily mission, focus challenges, and next actions', href: '/student' },
+    { category: 'Workspaces', title: 'Capabilities & Progress', subtitle: 'Demonstrated strengths and qualitative developmental tiers', href: '/student/progress' },
+    { category: 'Workspaces', title: 'Evidence Ledger', subtitle: 'Verified longitudinal demonstrations across projects and diagnostics', href: '/student/progress#evidence' },
+    { category: 'Workspaces', title: 'Pathway Explorer', subtitle: 'Experience authentic project missions before choosing streams', href: '/student/pathways' },
+    { category: 'Workspaces', title: 'Adaptive Benchmark', subtitle: 'International calibrated 30Q diagnostic assessment', href: '/student/assessment' },
+    { category: 'Workspaces', title: 'Diagnostic Report', subtitle: 'International benchmark report and 4-week growth roadmap', href: '/student/report' },
     { category: 'Workspaces', title: 'Classroom Cohort Roster', subtitle: 'Learner performance matrix and gap interventions', href: '/teacher#roster' },
     { category: 'Workspaces', title: 'Counselor Advisory Caseload', subtitle: 'Priority case management and developmental plans', href: '/counselor#priority' },
-    { category: 'Pathways', title: 'Robotics & Autonomous Systems', subtitle: 'Engineering · 3 Verified Missions', href: '/student/pathways' },
-    { category: 'Pathways', title: 'Data Intelligence & Machine Learning', subtitle: 'Computing & AI · 1 Mission', href: '/student/pathways' },
-    { category: 'Pathways', title: 'Space Science & Orbital Mechanics', subtitle: 'Natural Sciences · Celestial Dynamics', href: '/student/pathways' },
-    { category: 'Missions', title: 'RoboBridge Structural Optimization', subtitle: 'Robotics · Intermediate 45 min', href: '/student/assessment' },
-    { category: 'Missions', title: 'Autonomous Maze Rover Navigation', subtitle: 'Robotics · Introductory 30 min', href: '/student/assessment' },
-    { category: 'Missions', title: 'Urban Climate Heat-Island Discovery', subtitle: 'Data AI · Intermediate 35 min', href: '/student/assessment' },
-    { category: 'Tools', title: 'Guided Thinking Studio', subtitle: 'Socratic Mentorship & Voice reasoning', href: '/student/mentor' },
-    { category: 'Tools', title: 'Verified Consent Ledger', subtitle: 'DPDP Act compliance audit records', href: '/admin#consent' },
-    { category: 'Tools', title: 'Item Bank & Calibration Studio', subtitle: 'Psychometric 3PL IRT authoring', href: '/studio' }
+    { category: 'Tools', title: 'Robotics IDE', subtitle: 'Zero-install browser robotics IDE and Python translation', href: '/ide' },
+    { category: 'Tools', title: 'Planetary Observatory', subtitle: 'Cesium 3D telemetry and Earth observation studio', href: '/observatory' },
+    { category: 'Tools', title: 'Socratic Mentor Studio', subtitle: 'Voice mentor reasoning and Socratic synthesis', href: '/student/mentor' },
+    { category: 'Tools', title: 'Item Bank & Calibration Studio', subtitle: 'Psychometric 3PL IRT authoring and item bank', href: '/studio' },
+    { category: 'Tools', title: 'Verified Consent Ledger', subtitle: 'DPDP Act statutory compliance audit records', href: '/admin#consent' },
+    { category: 'Missions', title: 'RoboBridge Structural Optimization', subtitle: 'Spatial Reasoning & Statics · Intermediate 20 min', href: '/student/missions' },
+    { category: 'Missions', title: 'Urban Climate Heat-Island Discovery', subtitle: 'Data Intelligence & AI · Intermediate 25 min', href: '/student/missions' },
+    { category: 'Missions', title: 'Autonomous Maze Rover Navigation', subtitle: 'Robotics Kinematics · Introductory 30 min', href: '/student/missions' }
   ];
 
   const filteredItems = $derived.by(() => {

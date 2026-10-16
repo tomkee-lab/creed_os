@@ -114,11 +114,11 @@
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
     <div class="space-y-1">
       <div class="flex items-center gap-2">
-        <span class="text-[11px] font-semibold uppercase tracking-wider text-muted font-mono">
+        <span class="text-[11px] font-semibold uppercase tracking-wider text-ink-secondary font-mono">
           WAY Console • Faculty Instruction Studio
         </span>
-        <span class="text-xs text-muted">•</span>
-        <span class="text-xs text-muted">Tiered Pedagogy</span>
+        <span class="text-xs text-ink-muted">•</span>
+        <span class="text-xs text-ink-secondary font-medium">Tiered Pedagogy</span>
       </div>
       <h1 class="text-xl sm:text-2xl font-bold text-foreground">
         Adaptive 3-Tier Differentiated Lesson Plan Studio
@@ -150,7 +150,7 @@
           <Sparkles class="w-4 h-4 text-ai" />
           <span>Author Adaptive 3-Tier Lesson Plan</span>
         </h2>
-        <p class="text-xs text-muted">
+        <p class="text-xs text-ink-secondary">
           Synthesize a targeted lesson plan directly addressing cohort misconception clusters with Tier 1 Remediation, Tier 2 Core, and Tier 3 Extension.
         </p>
       </div>
@@ -207,11 +207,11 @@
 
       <!-- Tier Customization -->
       <div class="space-y-4 pt-2 border-t border-border">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-muted">Tiered Scaffolding Specification</h3>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-ink-secondary font-mono">Tiered Scaffolding Specification</h3>
 
         <div class="space-y-3">
           <div class="p-4 bg-surface-raised border border-border rounded-none space-y-1.5">
-            <span class="text-[10px] font-bold uppercase text-attention">Tier 1 Remediation Strategy (Concrete / Tactile)</span>
+            <span class="text-[10px] font-bold uppercase text-attention font-mono">Tier 1 Remediation Strategy (Concrete / Tactile)</span>
             <input
               type="text"
               bind:value={newTier1Strategy}
@@ -220,7 +220,7 @@
           </div>
 
           <div class="p-4 bg-surface-raised border border-border rounded-none space-y-1.5">
-            <span class="text-[10px] font-bold uppercase text-ai">Tier 2 Core Task (Representational / Modeling)</span>
+            <span class="text-[10px] font-bold uppercase text-ai font-mono">Tier 2 Core Task (Representational / Modeling)</span>
             <input
               type="text"
               bind:value={newTier2Task}
@@ -229,7 +229,7 @@
           </div>
 
           <div class="p-4 bg-surface-raised border border-border rounded-none space-y-1.5">
-            <span class="text-[10px] font-bold uppercase text-positive">Tier 3 Extension Challenge (Synthesis / Competition)</span>
+            <span class="text-[10px] font-bold uppercase text-positive font-mono">Tier 3 Extension Challenge (Synthesis / Competition)</span>
             <input
               type="text"
               bind:value={newTier3Challenge}
@@ -242,7 +242,7 @@
       <div class="flex items-center justify-end gap-2 pt-4 border-t border-border">
         <button
           onclick={() => (isCreatingNew = false)}
-          class="px-4 py-2 border border-border hover:bg-surface-raised text-xs text-muted rounded-none transition-colors cursor-pointer"
+          class="px-4 py-2 border border-border hover:bg-surface-raised text-xs text-ink-secondary rounded-none transition-colors cursor-pointer"
         >
           Cancel
         </button>
@@ -262,7 +262,7 @@
       <!-- Left: Plan Selector List (4 cols) -->
       <div class="lg:col-span-4 space-y-3">
         <div class="flex items-center justify-between pb-1">
-          <span class="text-xs font-bold uppercase tracking-wider text-muted font-mono">
+          <span class="text-xs font-bold uppercase tracking-wider text-ink-secondary font-mono">
             Available Lesson Plans ({plans.length})
           </span>
         </div>
@@ -276,11 +276,11 @@
             >
               <div class="space-y-1.5">
                 <div class="flex items-center justify-between">
-                  <span class="text-[10px] uppercase font-mono font-semibold px-1.5 py-0.5 bg-surface border border-border text-muted">
+                  <span class="text-[10px] uppercase font-mono font-bold px-2 py-0.5 bg-surface-subtle border border-border text-ink-secondary">
                     {plan.subject}
                   </span>
-                  <span class="text-[10px] text-muted flex items-center gap-1">
-                    <Clock class="w-3 h-3" />
+                  <span class="text-[11px] font-mono text-ink-secondary flex items-center gap-1">
+                    <Clock class="w-3 h-3 text-ink-muted" />
                     <span>{plan.durationMinutes}m</span>
                   </span>
                 </div>
@@ -289,8 +289,8 @@
                   {plan.title}
                 </h3>
 
-                <p class="text-[11px] text-muted line-clamp-1">
-                  Remediation: {plan.targetedMisconception.label}
+                <p class="text-[11px] text-ink-secondary line-clamp-1">
+                  Remediation: <span class="font-medium text-ink">{plan.targetedMisconception.label}</span>
                 </p>
               </div>
             </button>
@@ -304,39 +304,39 @@
           <div class="p-6 bg-surface border border-border rounded-none space-y-6">
             <!-- Header -->
             <div class="border-b border-border pb-4 space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold px-2 py-0.5 bg-surface-raised border border-border text-ai font-mono">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <span class="text-xs font-semibold px-2 py-0.5 bg-surface-raised border border-ai/40 text-ai font-mono">
                   {selectedPlan.pedagogicalFramework}
                 </span>
-                <span class="text-xs text-muted font-mono">{selectedPlan.alignedStandards.join(' • ')}</span>
+                <span class="text-xs text-ink-secondary font-mono">{selectedPlan.alignedStandards.join(' • ')}</span>
               </div>
 
               <h2 class="text-lg font-bold text-foreground">
                 {selectedPlan.title}
               </h2>
 
-              <p class="text-xs text-muted">
-                Target Cohort: {selectedPlan.targetGrade} • Duration: {selectedPlan.durationMinutes} Minutes
+              <p class="text-xs text-ink-secondary">
+                Target Cohort: <span class="font-medium text-ink">{selectedPlan.targetGrade}</span> • Duration: <span class="font-medium text-ink">{selectedPlan.durationMinutes} Minutes</span>
               </p>
             </div>
 
             <!-- Targeted Misconception Box -->
-            <div class="p-4 bg-attention-subtle border border-attention/30 rounded-none space-y-1">
-              <div class="flex items-center gap-1.5 text-attention text-xs font-semibold">
-                <AlertCircle class="w-4 h-4" />
+            <div class="p-4 bg-attention-subtle border border-attention/30 rounded-none space-y-1.5">
+              <div class="flex items-center gap-1.5 text-attention text-xs font-bold uppercase tracking-wider font-mono">
+                <AlertCircle class="w-4 h-4 text-attention" />
                 <span>Targeted Misconception Diagnosis</span>
               </div>
-              <p class="text-xs text-foreground/90 font-medium">
+              <p class="text-xs text-ink font-bold">
                 {selectedPlan.targetedMisconception.label}
               </p>
-              <p class="text-[11px] text-muted leading-relaxed">
+              <p class="text-xs text-ink-secondary leading-relaxed font-sans">
                 {selectedPlan.targetedMisconception.diagnosis}
               </p>
             </div>
 
             <!-- 3-TIER SCAFFOLDING ARCHITECTURE -->
             <div class="space-y-4">
-              <h3 class="text-xs font-bold uppercase tracking-wider text-muted font-mono">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-ink-secondary font-mono">
                 3-Tier Differentiated Classroom Scaffolding
               </h3>
 
@@ -344,12 +344,12 @@
               <div class="p-4 bg-surface-raised border-l-4 border-l-attention border border-border rounded-none space-y-2">
                 <div class="flex items-center justify-between text-xs">
                   <span class="font-bold text-foreground">{selectedPlan.tier1Remediation.tierTitle}</span>
-                  <span class="text-[10px] text-attention font-semibold uppercase tracking-wider">Concrete / Tactile</span>
+                  <span class="text-[10px] text-attention font-bold uppercase tracking-wider font-mono">Concrete / Tactile</span>
                 </div>
-                <p class="text-xs text-muted">Target: {selectedPlan.tier1Remediation.studentTarget}</p>
-                <div class="text-xs text-foreground space-y-1 pt-1 border-t border-border">
-                  <div><strong>Tactile Lab:</strong> {selectedPlan.tier1Remediation.tactileActivity}</div>
-                  <div><strong>Check Question:</strong> <span class="italic text-muted">"{selectedPlan.tier1Remediation.checkQuestion}"</span></div>
+                <p class="text-xs text-ink-secondary"><strong class="text-ink">Target:</strong> {selectedPlan.tier1Remediation.studentTarget}</p>
+                <div class="text-xs text-foreground space-y-1.5 pt-1.5 border-t border-border">
+                  <div><strong class="font-semibold text-ink">Tactile Lab:</strong> <span class="text-ink-secondary">{selectedPlan.tier1Remediation.tactileActivity}</span></div>
+                  <div><strong class="font-semibold text-ink">Check Question:</strong> <span class="italic text-ink-secondary">"{selectedPlan.tier1Remediation.checkQuestion}"</span></div>
                 </div>
               </div>
 
@@ -357,12 +357,12 @@
               <div class="p-4 bg-surface-raised border-l-4 border-l-ai border border-border rounded-none space-y-2">
                 <div class="flex items-center justify-between text-xs">
                   <span class="font-bold text-foreground">{selectedPlan.tier2Core.tierTitle}</span>
-                  <span class="text-[10px] text-ai font-semibold uppercase tracking-wider">Representational / Core</span>
+                  <span class="text-[10px] text-ai font-bold uppercase tracking-wider font-mono">Representational / Core</span>
                 </div>
-                <p class="text-xs text-muted">Target: {selectedPlan.tier2Core.studentTarget}</p>
-                <div class="text-xs text-foreground space-y-1 pt-1 border-t border-border">
-                  <div><strong>Collaborative Task:</strong> {selectedPlan.tier2Core.collaborativeTask}</div>
-                  <div><strong>Evidence Checkpoint:</strong> {selectedPlan.tier2Core.evidenceCheckpoint}</div>
+                <p class="text-xs text-ink-secondary"><strong class="text-ink">Target:</strong> {selectedPlan.tier2Core.studentTarget}</p>
+                <div class="text-xs text-foreground space-y-1.5 pt-1.5 border-t border-border">
+                  <div><strong class="font-semibold text-ink">Collaborative Task:</strong> <span class="text-ink-secondary">{selectedPlan.tier2Core.collaborativeTask}</span></div>
+                  <div><strong class="font-semibold text-ink">Evidence Checkpoint:</strong> <span class="text-ink-secondary">{selectedPlan.tier2Core.evidenceCheckpoint}</span></div>
                 </div>
               </div>
 
@@ -370,12 +370,12 @@
               <div class="p-4 bg-surface-raised border-l-4 border-l-positive border border-border rounded-none space-y-2">
                 <div class="flex items-center justify-between text-xs">
                   <span class="font-bold text-foreground">{selectedPlan.tier3Extension.tierTitle}</span>
-                  <span class="text-[10px] text-positive font-semibold uppercase tracking-wider">Synthesis / Advanced</span>
+                  <span class="text-[10px] text-positive font-bold uppercase tracking-wider font-mono">Synthesis / Advanced</span>
                 </div>
-                <p class="text-xs text-muted">Target: {selectedPlan.tier3Extension.studentTarget}</p>
-                <div class="text-xs text-foreground space-y-1 pt-1 border-t border-border">
-                  <div><strong>Inquiry Challenge:</strong> {selectedPlan.tier3Extension.inquiryChallenge}</div>
-                  <div><strong>Evaluation Rubric:</strong> {selectedPlan.tier3Extension.evaluationRubric}</div>
+                <p class="text-xs text-ink-secondary"><strong class="text-ink">Target:</strong> {selectedPlan.tier3Extension.studentTarget}</p>
+                <div class="text-xs text-foreground space-y-1.5 pt-1.5 border-t border-border">
+                  <div><strong class="font-semibold text-ink">Inquiry Challenge:</strong> <span class="text-ink-secondary">{selectedPlan.tier3Extension.inquiryChallenge}</span></div>
+                  <div><strong class="font-semibold text-ink">Evaluation Rubric:</strong> <span class="text-ink-secondary">{selectedPlan.tier3Extension.evaluationRubric}</span></div>
                 </div>
               </div>
             </div>
@@ -385,7 +385,7 @@
               <span class="text-xs font-bold text-foreground block">
                 Teacher Facilitator Notes (Lagom Protocol):
               </span>
-              <ul class="space-y-1 text-xs text-muted">
+              <ul class="space-y-1.5 text-xs text-ink-secondary">
                 {#each selectedPlan.teacherFacilitatorNotes as note}
                   <li class="flex items-start gap-2">
                     <CheckCircle2 class="w-3.5 h-3.5 text-ai shrink-0 mt-0.5" />

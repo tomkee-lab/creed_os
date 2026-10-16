@@ -41,7 +41,7 @@
     { id: 3, label: 'Socratic Inquiry', description: 'Dialogue & Deduction' },
     { id: 4, label: 'Growth Synthesis', description: 'Longitudinal Profiling' }
   ];
-  let currentStep = $state(2);
+  let currentStep = $state(1);
 
   async function handleExploreStudio(e: MouseEvent) {
     if (import.meta.env.DEV) {
@@ -70,6 +70,8 @@
       metric2: { label: 'Convergence Pace', value: '18 Items', desc: 'Early stop criteria met' },
       artifactType: 'Dynamic Item Response Trace',
       artifactMeta: 'Item Discrimination a=1.42 · Fisher Info Peak',
+      imageSrc: '/images/illustrations/capability_studio_scientific.jpg',
+      imageAlt: 'Asian students examining scientific physics diagnostics and calibration curves',
       a: '1.42',
       b: '+0.38',
       c: '0.18',
@@ -90,6 +92,8 @@
       metric2: { label: 'Gear Constraint', value: '3:1 Mesh', desc: 'Friction torque compensated' },
       artifactType: 'Kinematic Linkage & Gear Mesh',
       artifactMeta: 'Mechanical Simulation Validated · 0.02% Tolerance',
+      imageSrc: '/images/illustrations/student_workshop.jpg',
+      imageAlt: 'Asian female student assembling kinematic linkage in engineering workshop',
       a: '1.68',
       b: '+0.62',
       c: '0.12',
@@ -110,6 +114,8 @@
       metric2: { label: 'Autonomous Rebuttal', value: 'Level 5 / 5', desc: 'First-principles reasoning' },
       artifactType: 'Socratic Inquiry Exchange',
       artifactMeta: 'Multi-Turn Audio & Text Triangulation',
+      imageSrc: '/images/illustrations/socratic_inquiry.jpg',
+      imageAlt: 'Asian student and mentor in calm Socratic dialogue',
       a: '1.85',
       b: '+0.91',
       c: '0.08',
@@ -130,6 +136,8 @@
       metric2: { label: 'Qualitative Band', value: 'Strong Foundation', desc: 'Zero career boxing' },
       artifactType: 'Triangulated Learner Profile',
       artifactMeta: 'DPDP Child Data Consent Cryptographically Signed',
+      imageSrc: '/images/illustrations/pathway_bio.jpg',
+      imageAlt: 'Asian student synthesizing multi-modal laboratory and biological evidence',
       a: '1.92',
       b: '+0.88',
       c: '0.05',
@@ -521,157 +529,28 @@
 
       <!-- Split Evaluation Canvas -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        <!-- Left Column: Living Evaluation Artifact (Col 7 / 58%) -->
-        <div class="lg:col-span-7 rounded-none bg-canvas border border-border p-4 sm:p-5 flex flex-col justify-between relative overflow-hidden min-h-80">
-          <!-- Artifact Header -->
-          <div class="flex items-center justify-between border-b border-border/60 pb-3 text-xs font-mono">
-            <div class="flex items-center gap-2">
-              <span class="size-2 rounded-none bg-mint"></span>
-              <span class="text-ink font-semibold uppercase">{activePhase.artifactType}</span>
+        <!-- Left Column: Architectural Artwork Frame (Col 7 / 58%) -->
+        <div class="lg:col-span-7 rounded-none border border-border bg-surface overflow-hidden shadow-xs relative flex flex-col justify-between">
+          <div class="relative w-full aspect-16/10 overflow-hidden bg-surface-subtle">
+            <img
+              src={activePhase.imageSrc}
+              alt={activePhase.imageAlt}
+              class="w-full h-full object-cover transition-opacity duration-200"
+            />
+            <!-- Calm Provenance Badge Overlay -->
+            <div class="absolute top-3 left-3 flex items-center gap-2 px-2 py-1 bg-surface/90 backdrop-blur-xs border border-border text-[11px] font-mono font-medium text-ink">
+              <span class="size-1.5 rounded-none bg-mint"></span>
+              <span class="uppercase tracking-wider">{activePhase.artifactType}</span>
             </div>
-            <span class="text-ink-muted text-[11px]">{activePhase.code}</span>
+            <div class="absolute top-3 right-3 px-2 py-1 bg-surface/90 backdrop-blur-xs border border-border text-[10px] font-mono text-ink-muted">
+              {activePhase.code}
+            </div>
           </div>
 
-          <!-- Dynamic Artifact Demonstration Display -->
-          <div class="flex-1 flex items-center justify-center py-5">
-            {#if currentStep === 1}
-              <!-- Phase 1: Adaptive CAT Item Convergence Trace -->
-              <div class="w-full max-w-md space-y-3 font-mono text-xs">
-                <div class="flex items-center justify-between text-[11px] text-ink-muted">
-                  <span>θ Latent Ability Convergence Trace</span>
-                  <span class="text-mint font-semibold">SE: 0.24 · Converged</span>
-                </div>
-                <div class="h-28 w-full bg-surface border border-border relative p-2 flex flex-col justify-between overflow-hidden">
-                  <!-- Confidence Interval Band -->
-                  <div class="absolute inset-x-0 top-1/4 h-1/2 bg-mint/10 border-y border-mint/20"></div>
-                  <!-- Center Convergence Axis -->
-                  <div class="absolute inset-x-0 top-1/2 border-t border-dashed border-border-strong"></div>
-                  
-                  <!-- Responsive Adaptive Step SVG Line -->
-                  <svg class="w-full h-full relative z-10" viewBox="0 0 400 90" fill="none" preserveAspectRatio="none">
-                    <!-- Target convergence path -->
-                    <path
-                      d="M 10 75 L 45 25 L 85 65 L 130 35 L 180 50 L 230 42 L 280 46 L 330 44 L 380 45"
-                      stroke="var(--color-ink-muted, #71717a)"
-                      stroke-width="1.5"
-                      stroke-dasharray="2 2"
-                    />
-                    <path
-                      d="M 180 50 L 230 42 L 280 46 L 330 44 L 380 45"
-                      stroke="var(--color-mint, #10b981)"
-                      stroke-width="2"
-                    />
-                    <!-- Item test points -->
-                    <circle cx="10" cy="75" r="3" fill="var(--color-ink, #fff)" />
-                    <circle cx="45" cy="25" r="3" fill="var(--color-ink, #fff)" />
-                    <circle cx="85" cy="65" r="3" fill="var(--color-ink, #fff)" />
-                    <circle cx="130" cy="35" r="3" fill="var(--color-ink, #fff)" />
-                    <circle cx="180" cy="50" r="3.5" fill="var(--color-mint, #10b981)" />
-                    <circle cx="230" cy="42" r="3.5" fill="var(--color-mint, #10b981)" />
-                    <circle cx="280" cy="46" r="3.5" fill="var(--color-mint, #10b981)" />
-                    <circle cx="330" cy="44" r="3.5" fill="var(--color-mint, #10b981)" />
-                    <circle cx="380" cy="45" r="4.5" fill="var(--color-mint, #10b981)" />
-                  </svg>
-                </div>
-                <div class="flex items-center justify-between text-[10px] text-ink-muted">
-                  <span>Item 1 (Initial seed)</span>
-                  <span>Item 18 (Early stopping threshold met)</span>
-                </div>
-              </div>
-            {:else if currentStep === 2}
-              <!-- Phase 2: Maker Project Kinematic Linkage Simulation -->
-              <div class="w-full max-w-md space-y-3 font-mono text-xs">
-                <div class="flex items-center justify-between text-[11px] text-ink-muted">
-                  <span>Planar Mechanical Assembly · Kinematics Engine</span>
-                  <span class="text-mint font-semibold">Mesh Ratio 3:1</span>
-                </div>
-                <div class="h-28 w-full bg-surface border border-border relative p-3 flex items-center justify-center overflow-hidden">
-                  <!-- Mechanical Gear & 4-Bar Assembly SVG -->
-                  <svg class="w-full h-full" viewBox="0 0 340 80" fill="none">
-                    <!-- Ground Link -->
-                    <line x1="50" y1="60" x2="290" y2="60" stroke="var(--color-border-strong, #3f3f46)" stroke-width="2" stroke-dasharray="4 4" />
-                    <!-- Driver Crank -->
-                    <line x1="70" y1="60" x2="110" y2="25" stroke="var(--color-mint, #10b981)" stroke-width="2.5" />
-                    <!-- Coupler Link -->
-                    <line x1="110" y1="25" x2="220" y2="35" stroke="var(--color-ink, #fff)" stroke-width="2.5" />
-                    <!-- Follower Rocker -->
-                    <line x1="220" y1="35" x2="260" y2="60" stroke="var(--color-brand, #6366f1)" stroke-width="2.5" />
-                    <!-- Mechanical Joints -->
-                    <circle cx="70" cy="60" r="4.5" fill="var(--color-surface, #18181b)" stroke="var(--color-mint, #10b981)" stroke-width="2" />
-                    <circle cx="110" cy="25" r="4" fill="var(--color-mint, #10b981)" />
-                    <circle cx="220" cy="35" r="4" fill="var(--color-brand, #6366f1)" />
-                    <circle cx="260" cy="60" r="4.5" fill="var(--color-surface, #18181b)" stroke="var(--color-brand, #6366f1)" stroke-width="2" />
-                    <!-- Mesh gear indicator -->
-                    <text x="145" y="52" fill="var(--color-mint, #10b981)" font-size="10" font-family="monospace">3:1 Planetary Gear</text>
-                  </svg>
-                </div>
-                <div class="flex items-center justify-between text-[10px] text-ink-muted">
-                  <span>Pivot A: Fixed Base</span>
-                  <span>Coupler Pivot B</span>
-                  <span>Rocker Pin C</span>
-                </div>
-              </div>
-            {:else if currentStep === 3}
-              <!-- Phase 3: Socratic Dialogue Verification -->
-              <div class="w-full max-w-md space-y-3 text-xs">
-                <!-- Mentor Prompt -->
-                <div class="p-3 rounded-none bg-surface border border-border border-l-2 border-l-mint space-y-1">
-                  <div class="flex items-center justify-between text-[10px] font-mono text-mint">
-                    <span>SOCRATIC MENTOR · TURN 05</span>
-                    <span class="text-ink-muted">Audio + Text</span>
-                  </div>
-                  <p class="text-xs text-ink-secondary leading-relaxed">
-                    "If the follower gear diameter triples, what happens to the output rotational speed and the motor torque requirement?"
-                  </p>
-                </div>
-
-                <!-- Student Rebuttal -->
-                <div class="p-3 rounded-none bg-surface-raised border border-border border-l-2 border-l-brand space-y-1">
-                  <div class="flex items-center justify-between text-[10px] font-mono text-brand">
-                    <span>LEARNER REBUTTAL · AUTONOMOUS</span>
-                    <span class="text-mint">Level 5 / 5 Verified</span>
-                  </div>
-                  <p class="text-xs text-ink leading-relaxed">
-                    "Output angular velocity drops to 1/3, but available mechanical torque triples to overcome the linkage friction threshold."
-                  </p>
-                </div>
-              </div>
-            {:else}
-              <!-- Phase 4: Longitudinal Growth Synthesis -->
-              <div class="w-full max-w-md space-y-3 font-mono text-xs">
-                <div class="flex items-center justify-between text-[11px] text-ink-muted">
-                  <span>Triangulated Multi-Modal Record</span>
-                  <span class="text-mint font-semibold">100% DPDP Verified</span>
-                </div>
-                <div class="grid grid-cols-3 gap-2 text-center">
-                  <div class="p-2 bg-surface border border-border space-y-1">
-                    <span class="text-[10px] text-ink-muted block uppercase">Adaptive CAT</span>
-                    <span class="font-bold text-ink block text-xs">θ = +0.85</span>
-                    <span class="text-[10px] text-mint block">3PL Converged</span>
-                  </div>
-                  <div class="p-2 bg-surface border border-border space-y-1">
-                    <span class="text-[10px] text-ink-muted block uppercase">Maker Build</span>
-                    <span class="font-bold text-ink block text-xs">Level 4 / 5</span>
-                    <span class="text-[10px] text-mint block">Kinematic Mesh</span>
-                  </div>
-                  <div class="p-2 bg-surface border border-border space-y-1">
-                    <span class="text-[10px] text-ink-muted block uppercase">Socratic</span>
-                    <span class="font-bold text-ink block text-xs">6 Turns</span>
-                    <span class="text-[10px] text-mint block">High Precision</span>
-                  </div>
-                </div>
-                <div class="p-2 bg-surface border border-border flex items-center justify-between text-[11px]">
-                  <span class="text-ink-secondary">Developmental Growth Band:</span>
-                  <span class="font-bold text-mint font-sans">Strong Foundation</span>
-                </div>
-              </div>
-            {/if}
-          </div>
-
-          <!-- Artifact Telemetry Footer -->
-          <div class="pt-3 border-t border-border/60 flex items-center justify-between text-[11px] font-mono text-ink-secondary">
+          <!-- Clean Provenance Telemetry Bar -->
+          <div class="p-3 border-t border-border flex items-center justify-between text-[11px] font-mono text-ink-secondary bg-surface">
             <span>{activePhase.artifactMeta}</span>
-            <span class="text-mint flex items-center gap-1">
+            <span class="text-mint flex items-center gap-1 font-semibold">
               <Shield class="size-3" />
               Verified Telemetry
             </span>

@@ -47,6 +47,7 @@
   }
 
   const currentPath = $derived(page.url.pathname);
+  const currentHash = $derived(page.url.hash);
 
   interface NavItem {
     label: string;
@@ -61,14 +62,14 @@
         return [
           { label: 'Today', href: '/student', icon: Compass },
           { label: 'Robotics IDE', href: '/ide', icon: TerminalSquare },
-          { label: 'Earth Observatory', href: '/observatory', icon: Globe, badge: '3D' },
-          { label: 'Benchmark (30Q)', href: '/student/assessment', icon: Sparkles, badge: 'New' },
+          { label: 'Planetary Observatory', href: '/observatory', icon: Globe, badge: '3D' },
+          { label: 'Adaptive Benchmark', href: '/student/assessment', icon: Sparkles, badge: '30Q' },
           { label: 'Diagnostic Report', href: '/student/report', icon: FileText },
-          { label: 'My Map', href: '/student/pathways', icon: Layers },
-          { label: 'Missions Hub', href: '/student/missions', icon: Target, badge: '11 Labs' },
+          { label: 'Pathway Explorer', href: '/student/pathways', icon: Layers },
+          { label: 'Missions Studio', href: '/student/missions', icon: Target, badge: '11 Labs' },
           { label: 'Capabilities', href: '/student/progress', icon: Activity },
-          { label: 'Evidence', href: '/student/progress#evidence', icon: CheckCircle2 },
-          { label: 'Socratic Guide', href: '/student/mentor', icon: BrainCircuit }
+          { label: 'Evidence Ledger', href: '/student/progress#evidence', icon: CheckCircle2 },
+          { label: 'Socratic Mentor', href: '/student/mentor', icon: BrainCircuit }
         ];
       case 'parent':
         return [
@@ -83,14 +84,14 @@
         return [
           { label: 'Today', href: '/teacher', icon: Compass },
           { label: 'Robotics IDE', href: '/ide', icon: TerminalSquare },
-          { label: 'Earth Observatory', href: '/observatory', icon: Globe, badge: '3D' },
+          { label: 'Planetary Observatory', href: '/observatory', icon: Globe, badge: '3D' },
           { label: 'Global Benchmarks', href: '/teacher/benchmarks', icon: Sparkles, badge: '30Q' },
           { label: 'Lesson Plan Studio', href: '/teacher/lesson-plans', icon: BookOpen },
           { label: 'Pedagogy Guidance', href: '/teacher/guidance', icon: BrainCircuit },
           { label: 'Classes', href: '/teacher#classes', icon: Users },
           { label: 'Learners', href: '/teacher#roster', icon: GraduationCap },
           { label: 'Interventions', href: '/teacher#interventions', icon: Layers, badge: '3' },
-          { label: 'Missions Hub', href: '/student/missions', icon: Target },
+          { label: 'Missions Studio', href: '/student/missions', icon: Target, badge: '11 Labs' },
           { label: 'Evidence', href: '/teacher#evidence', icon: FileText }
         ];
       case 'counselor':
@@ -114,7 +115,7 @@
         return [
           { label: 'Item Bank', href: '/studio', icon: FolderKanban },
           { label: 'Robotics IDE', href: '/ide', icon: TerminalSquare },
-          { label: 'Earth Observatory', href: '/observatory', icon: Globe },
+          { label: 'Planetary Observatory', href: '/observatory', icon: Globe, badge: '3D' },
           { label: 'Authoring', href: '/studio#authoring', icon: Wrench },
           { label: 'Calibration', href: '/studio#calibration', icon: Activity }
         ];
@@ -124,19 +125,41 @@
   });
 
   function isItemActive(href: string): boolean {
-    if (href === currentPath) return true;
-    if (
-      href !== '/student' &&
-      href !== '/parent' &&
-      href !== '/teacher' &&
-      href !== '/counselor' &&
-      href !== '/admin' &&
-      href !== '/studio' &&
-      href !== '/author'
-    ) {
-      return currentPath.startsWith(href);
+    const [targetPath, targetHash] = href.split('#');
+
+    // If item href contains a hash, require exact pathname and hash match
+    if (targetHash) {
+      return currentPath === targetPath && currentHash === `#${targetHash}`;
     }
-    return false;
+
+    // If current URL has an active hash that belongs to a sibling nav item,
+    // do not highlight the parent/base route nav item
+    if (currentHash && currentHash !== '#') {
+      const siblingMatchesHash = roleNavItems.some((item) => {
+        const [p, h] = item.href.split('#');
+        return p === currentPath && Boolean(h) && currentHash === `#${h}`;
+      });
+      if (siblingMatchesHash) {
+        return false;
+      }
+    }
+
+    // Exact matches for top-level role dashboards to prevent /student matching /student/missions, etc.
+    const exactMatchRoutes = [
+      '/student',
+      '/parent',
+      '/teacher',
+      '/counselor',
+      '/admin',
+      '/studio',
+      '/author'
+    ];
+    if (exactMatchRoutes.includes(targetPath)) {
+      return currentPath === targetPath;
+    }
+
+    if (targetPath === currentPath) return true;
+    return currentPath.startsWith(`${targetPath}/`);
   }
 </script>
 

@@ -337,7 +337,7 @@
     </aside>
 
     <!-- PANE 2: Item Authoring Editor (Col 5) -->
-    <main id="authoring" class="col-span-5 rounded-none bg-surface border border-border flex flex-col min-h-0 overflow-y-auto p-4 space-y-4">
+    <main id="authoring" class="col-span-5 rounded-none bg-surface border border-border flex flex-col min-h-0 overflow-y-auto p-4 space-y-4 scroll-mt-16">
       <div class="flex items-center justify-between text-xs font-mono font-semibold text-ink pb-2 border-b border-border">
         <span>AUTHORING SURFACE</span>
         <span class="text-[11px] text-ink-muted">ID: {$form.id}</span>
@@ -426,7 +426,7 @@
     </main>
 
     <!-- PANE 3: Psychometric Calibration (Col 4) -->
-    <aside id="calibration" class="col-span-4 rounded-none bg-surface border border-border flex flex-col min-h-0 overflow-y-auto p-4 space-y-4 font-mono text-xs">
+    <aside id="calibration" class="col-span-4 rounded-none bg-surface border border-border flex flex-col min-h-0 overflow-y-auto p-4 space-y-4 font-mono text-xs scroll-mt-16">
       <div class="flex items-center justify-between font-semibold text-ink pb-2 border-b border-border">
         <div class="flex items-center gap-1.5">
           <Icon icon="carbon:sigma" class="w-3.5 h-3.5 text-brand" />

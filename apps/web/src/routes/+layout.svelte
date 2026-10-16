@@ -16,7 +16,7 @@
   });
 </script>
 
-<div data-app-hydrated={hydrated} class="min-h-screen bg-canvas text-ink font-sans selection:bg-brand-subtle selection:text-brand">
+<div data-app-hydrated={hydrated ? 'true' : 'false'} class="min-h-screen bg-canvas text-ink font-sans selection:bg-brand-subtle selection:text-brand">
   <TooltipProvider delayDuration={150}>
     {@render children?.()}
   </TooltipProvider>

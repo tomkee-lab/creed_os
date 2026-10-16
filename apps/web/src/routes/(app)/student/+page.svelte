@@ -67,7 +67,7 @@
   </header>
 
   <!-- 2. ACT: DOMINANT TODAY FOCUS (<= 80 words before action) -->
-  <section id="missions" class="p-6 sm:p-8 rounded-none bg-surface border border-border space-y-6">
+  <section id="missions" class="p-6 sm:p-8 rounded-none bg-surface border border-border space-y-6 scroll-mt-16">
     <div class="flex items-center justify-between text-xs font-semibold tracking-wider uppercase text-brand">
       <div class="flex items-center gap-2">
         <span class="px-2 py-0.5 rounded-none bg-brand-subtle text-brand font-mono text-[11px]">Mission Active</span>

@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { coreRepository } from '$lib/server/repository';
-import { resolveLearnerId } from '$lib/server/learnerScope';
+import { resolveLearnerId, DEFAULT_DEMO_LEARNER_ID } from '$lib/server/learnerScope';
 import { selectNextAdaptiveItem } from '@core-os/assessment';
 import type { ClientAssessmentItem } from '@core-os/domain';
 
@@ -24,7 +24,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
     const effectiveLearnerId = ['student', 'parent'].includes(userRole)
       ? boundLearnerId!
-      : (body.learnerId || boundLearnerId);
+      : (body.learnerId && body.learnerId !== boundLearnerId && !body.learnerId.startsWith('usr_')
+          ? body.learnerId
+          : DEFAULT_DEMO_LEARNER_ID);
 
     if (!effectiveLearnerId) {
       return json({ error: 'Bad Request: Valid learner ID required' }, { status: 400 });
@@ -75,12 +77,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       options: selection.selectedItem.options
     };
 
+    const isStaff = ['teacher', 'counselor', 'studio', 'admin'].includes(userRole);
+
     return json({
       sessionId: session.id,
       status: session.status,
       domain: session.domain,
-      currentTheta: session.currentTheta,
-      standardError: session.standardError,
+      ...(isStaff ? { currentTheta: session.currentTheta, standardError: session.standardError } : {}),
       itemsAnswered: 0,
       firstItem: firstItemSafe
     }, { status: 201 });

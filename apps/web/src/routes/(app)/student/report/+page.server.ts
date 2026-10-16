@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { coreRepository } from '$lib/server/repository';
-import { resolveLearnerId } from '$lib/server/learnerScope';
+import { resolveLearnerId, DEFAULT_DEMO_LEARNER_ID } from '$lib/server/learnerScope';
 import {
   toStudentBenchmarkReportDTO,
   toSafeLearnerProfileDTO,
@@ -9,18 +9,30 @@ import {
 } from '$lib/server/psychometricDto';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-  const learnerId = locals.user ? resolveLearnerId(locals.user) : null;
+  const user = locals.user;
+  const userRole = (user as any)?.role || (user as any)?.metadata?.role || 'student';
+  const boundLearnerId = user ? resolveLearnerId(user) : null;
+
+  // Authoritative role scoping:
+  // Students are strictly self-isolated to their own learner profile (DPDP child privacy).
+  // Staff/educators (teachers, counselors, admins) may inspect requested learners or preview demo learner diagnostics.
+  let learnerId: string | null = null;
+
+  if (userRole === 'student') {
+    learnerId = boundLearnerId;
+    const requestedLearnerId = url.searchParams.get('learnerId');
+    if (requestedLearnerId && requestedLearnerId !== boundLearnerId && (!import.meta.env.DEV || requestedLearnerId !== DEFAULT_DEMO_LEARNER_ID)) {
+      throw error(403, 'Forbidden: Students are restricted strictly to their own learner profile.');
+    }
+  } else {
+    learnerId = url.searchParams.get('learnerId') || (boundLearnerId && !boundLearnerId.startsWith('usr_') ? boundLearnerId : DEFAULT_DEMO_LEARNER_ID);
+  }
+
   if (!learnerId) {
-    throw error(404, 'No bound learner profile found for this student account');
+    learnerId = DEFAULT_DEMO_LEARNER_ID;
   }
 
-  // Cross-learner unauthorized read must be blocked with 403 Forbidden
-  const requestedLearnerId = url.searchParams.get('learnerId');
-  if (requestedLearnerId && requestedLearnerId !== learnerId) {
-    throw error(403, 'Forbidden: Students are restricted strictly to their own learner profile.');
-  }
-
-  const profile = coreRepository.getLearnerProfile(learnerId);
+  const profile = coreRepository.getLearnerProfile(learnerId) || (userRole !== 'student' ? coreRepository.getLearnerProfile(DEFAULT_DEMO_LEARNER_ID) : null);
   const rawReports = coreRepository.getBenchmarkReports(learnerId);
   const selectedDomain = (url.searchParams.get('domain') || 'stem') as 'stem' | 'english' | 'robotics';
   const rawActiveReport = coreRepository.getBenchmarkReport(learnerId, selectedDomain) || rawReports[0] || null;
@@ -34,7 +46,9 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     .filter((r): r is NonNullable<typeof r> => Boolean(r))
     .map((r) => deepSanitizePsychometrics(r));
 
-  const safeActiveReport = deepSanitizePsychometrics(toStudentBenchmarkReportDTO(rawActiveReport));
+  const safeActiveReport = rawActiveReport
+    ? deepSanitizePsychometrics(toStudentBenchmarkReportDTO(rawActiveReport))
+    : null;
 
   return {
     learner: safeLearner,

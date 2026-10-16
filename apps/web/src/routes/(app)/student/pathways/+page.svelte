@@ -67,6 +67,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Pathway Explorer — CREED OS</title>
+</svelte:head>
+
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
   <!-- 1. EDITORIAL HEADER: 1 title, 1 sentence, no giant walls of text -->
   <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">

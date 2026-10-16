@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-  <title>Guided Thinking Studio — CREED OS</title>
+  <title>Socratic Mentor Studio — CREED OS</title>
 </svelte:head>
 
 <div class="max-w-4xl mx-auto py-6 px-4 space-y-6">
@@ -20,7 +20,7 @@
 
     <div class="text-right">
       <h1 class="text-lg font-bold tracking-tight text-foreground">
-        Guided Reasoning Studio
+        Socratic Mentor Studio
       </h1>
       <p class="text-xs text-foreground-secondary">
         Kinematics & Gear Ratio Balancing • Real-time Socratic Dialogue

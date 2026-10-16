@@ -30,7 +30,8 @@
     Undo2,
     Redo2,
     Search,
-    ArrowLeft
+    ArrowLeft,
+    Bot
   } from 'lucide-svelte';
   import {
     initializeRoboticsBlocks,
@@ -44,6 +45,7 @@
   import { hardwareBridge, type BridgeState } from './hardwareTelemetryBridge';
   import { evaluateBlocklyWorkspace, type AlgorithmicEvaluation } from './competencyEvaluator';
   import OpenSourceComplianceModal from '$lib/components/compliance/OpenSourceComplianceModal.svelte';
+  import SocraticVoiceMentor from '$lib/components/mentor/SocraticVoiceMentor.svelte';
   import RoverArenaSimulator from './RoverArenaSimulator.svelte';
   import MissionGuidanceDrawer from './MissionGuidanceDrawer.svelte';
   import { STEM_MISSIONS, evaluateMissionRubric } from './missionCurriculum';
@@ -248,6 +250,7 @@
   let arenaSubView = $state<'field' | 'inspection'>('field');
   let playbackSpeed = $state<'1x' | '2x' | 'instant'>('1x');
   let isDarkTheme = $state(false);
+  let dockStageSize = $state<'normal' | 'expanded'>('normal');
 
   // Extension Studio Filter & Search State
   let extensionSearchQuery = $state('');
@@ -391,8 +394,8 @@
   let showCompetencyDrawer = $state(false);
 
   // Simulated 2D Rover Arena State
-  let roverX = $state(150);
-  let roverY = $state(150);
+  let roverX = $state(240);
+  let roverY = $state(220);
   let roverHeading = $state(0); // 0 = North, 90 = East, 180 = South, 270 = West
   let roverDistance = $state(38); // Ultrasonic cm
   let roverSensorActive = $state(true);
@@ -439,6 +442,7 @@
   let showTemplateDropdown = $state(false);
   let activeTemplateLabel = $state('Wall-Follower 📡');
   let showComplianceModal = $state(false);
+  let showMentorModal = $state(false);
   let lastDropdownTrigger: HTMLElement | null = null;
 
   function dismissDropdowns(restoreFocus = true) {
@@ -907,8 +911,8 @@
   }
 
   function resetRover() {
-    roverX = 150;
-    roverY = 150;
+    roverX = 240;
+    roverY = 220;
     roverHeading = 0;
     roverDistance = 38;
     roverSensorActive = true;
@@ -927,7 +931,7 @@
     telemetryAction = 'Reset to Origin';
     penTrails = [];
     motionPath = [];
-    addMissionLog('Simulated rover reset to origin (150, 150, 0°).', 'info');
+    addMissionLog('Simulated rover reset to origin (240, 220, 0°).', 'info');
   }
 
   // Step-by-Step Kinematic Playback Engine
@@ -1138,8 +1142,8 @@
         }
         const delta = (step.move === 'BACKWARD' ? -1 : 1) * (step.steps || 2) * 12;
         const rad = ((roverHeading - 90) * Math.PI) / 180;
-        const newX = Math.max(30, Math.min(270, roverX + Math.cos(rad) * delta));
-        const newY = Math.max(30, Math.min(270, roverY + Math.sin(rad) * delta));
+        const newX = Math.max(20, Math.min(460, roverX + Math.cos(rad) * delta));
+        const newY = Math.max(20, Math.min(340, roverY + Math.sin(rad) * delta));
         motionPath = [
           ...motionPath,
           { x1: Math.round(roverX), y1: Math.round(roverY), x2: Math.round(newX), y2: Math.round(newY) }
@@ -1187,8 +1191,8 @@
       const oldX = roverX;
       const oldY = roverY;
       const rad = ((roverHeading - 90) * Math.PI) / 180;
-      roverX = Math.max(30, Math.min(270, roverX + Math.cos(rad) * 28));
-      roverY = Math.max(30, Math.min(270, roverY + Math.sin(rad) * 28));
+      roverX = Math.max(20, Math.min(460, roverX + Math.cos(rad) * 28));
+      roverY = Math.max(20, Math.min(340, roverY + Math.sin(rad) * 28));
       motionPath = [
         ...motionPath,
         { x1: Math.round(oldX), y1: Math.round(oldY), x2: Math.round(roverX), y2: Math.round(roverY) }
@@ -1200,8 +1204,8 @@
       const oldX = roverX;
       const oldY = roverY;
       const rad = ((roverHeading - 90) * Math.PI) / 180;
-      roverX = Math.max(30, Math.min(270, roverX - Math.cos(rad) * 20));
-      roverY = Math.max(30, Math.min(270, roverY - Math.sin(rad) * 20));
+      roverX = Math.max(20, Math.min(460, roverX - Math.cos(rad) * 20));
+      roverY = Math.max(20, Math.min(340, roverY - Math.sin(rad) * 20));
       motionPath = [
         ...motionPath,
         { x1: Math.round(oldX), y1: Math.round(oldY), x2: Math.round(roverX), y2: Math.round(roverY) }
@@ -1907,6 +1911,10 @@
         showComplianceModal = false;
         return;
       }
+      if (showMentorModal) {
+        showMentorModal = false;
+        return;
+      }
       // 2. Second priority: dismiss active dropdown menu and restore focus to trigger
       const anyDropdownOpen = showMissionDropdown || showProjectDropdown || showHardwareDropdown || showTemplateDropdown;
       if (anyDropdownOpen) {
@@ -1932,7 +1940,7 @@
     : 'flex flex-col w-full h-[clamp(460px,calc(100vh-10rem),920px)] min-h-115 max-h-230 border border-border bg-surface shadow-xs rounded-none font-sans overflow-hidden transition-all duration-200'}
 >
   <!-- IDE Toolbar (WAY 2.1 Unified Engineering Header - Responsive Clusters) -->
-  <header class="min-h-12 px-3 py-1.5 border-b border-border bg-surface flex flex-wrap items-center justify-between gap-2 shrink-0 relative z-30 select-none">
+  <header class="min-h-12 px-3 py-1.5 border-b border-border bg-surface flex flex-wrap items-center justify-between gap-2 shrink-0 relative z-40 select-none">
     <!-- ZONE 1 (Left): Workbench / Studio Title, Mission Selector, Mode Pill -->
     <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
       {#if isFullscreen}
@@ -1973,7 +1981,7 @@
           title="Select guided robotics mission"
         >
           <span class="text-sm">{activeMissionMeta.icon}</span>
-          <span class="font-bold text-ink max-w-28 md:max-w-none truncate">{activeMissionMeta.title}</span>
+          <span class="font-bold text-ink max-w-28 sm:max-w-44 md:max-w-56 lg:max-w-64 truncate">{activeMissionMeta.title}</span>
           <span class="text-[9px] font-mono px-1 py-0.2 bg-surface-subtle border border-border rounded-xs text-ink-muted hidden md:inline">
             L{STEM_MISSIONS[activeMissionId]?.level || 1}
           </span>
@@ -2210,7 +2218,7 @@
             onclick={(e) => e.stopPropagation()}
             onkeydown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); dismissDropdowns(true); } }}
             tabindex="-1"
-            class="absolute right-0 top-full mt-1 w-56 bg-surface border border-border shadow-lg rounded-sm z-50 py-1 text-xs font-mono animate-in fade-in-0 zoom-in-95 duration-100"
+            class="absolute left-0 top-full mt-1 w-56 bg-surface border border-border shadow-lg rounded-sm z-50 py-1 text-xs font-mono animate-in fade-in-0 zoom-in-95 duration-100"
             role="menu"
           >
             <div class="px-3 py-1.5 border-b border-border text-[10px] uppercase tracking-wider text-ink-muted font-bold">
@@ -2284,7 +2292,7 @@
             onclick={(e) => e.stopPropagation()}
             onkeydown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); dismissDropdowns(true); } }}
             tabindex="-1"
-            class="absolute right-0 top-full mt-1 w-56 bg-surface border border-border shadow-lg rounded-sm z-50 py-1 text-xs font-mono animate-in fade-in-0 zoom-in-95 duration-100"
+            class="absolute left-0 top-full mt-1 w-56 bg-surface border border-border shadow-lg rounded-sm z-50 py-1 text-xs font-mono animate-in fade-in-0 zoom-in-95 duration-100"
             role="menu"
           >
             <div class="px-3 py-1 border-b border-border text-[10px] uppercase tracking-wider text-ink-muted font-bold">
@@ -2388,14 +2396,14 @@
   </header>
 
   <!-- Persistent 3-Stage Responsive Workspace (Zero Canvas Overlap) -->
-  <div class="flex flex-1 overflow-hidden relative z-0">
+  <div class="flex flex-1 overflow-hidden relative z-10">
 
     <!-- PANEL 1: Visual Blockly Workspace (Unconditionally Mounted in DOM) -->
     <div
       class={stage === 'primary'
-        ? (isFullscreen ? 'w-[64%] h-full relative transition-all duration-200' : 'w-full lg:w-[62%] h-full relative transition-all duration-200')
+        ? (isFullscreen ? (dockStageSize === 'expanded' ? 'w-[46%]' : 'w-[64%]') + ' h-full relative transition-all duration-200' : (dockStageSize === 'expanded' ? 'w-full lg:w-[46%]' : 'w-full lg:w-[62%]') + ' h-full relative transition-all duration-200')
         : stage === 'middle'
-        ? (isFullscreen ? 'w-full md:w-1/2 lg:w-[35%] min-w-0 h-full relative border-r border-border transition-all duration-200' : 'w-full sm:w-1/2 xl:w-[35%] min-w-0 h-full relative border-r border-border transition-all duration-200')
+        ? (isFullscreen ? (dockStageSize === 'expanded' ? 'w-full md:w-1/2 lg:w-[28%]' : 'w-full md:w-1/2 lg:w-[35%]') + ' min-w-0 h-full relative border-r border-border transition-all duration-200' : (dockStageSize === 'expanded' ? 'w-full sm:w-1/2 xl:w-[28%]' : 'w-full sm:w-1/2 xl:w-[35%]') + ' min-w-0 h-full relative border-r border-border transition-all duration-200')
         : 'hidden'}
     >
       <div bind:this={blocklyContainer} class="absolute inset-0"></div>
@@ -2500,10 +2508,10 @@
     <!-- PANEL 3: Unified Resizable Auxiliary Dock (Single Authoritative Instance) -->
     <div
       class={stage === 'primary'
-        ? (isFullscreen ? 'w-[36%] min-w-75 h-full border-l border-border bg-surface flex flex-col transition-all duration-200' : 'hidden lg:flex lg:flex-col lg:w-[38%] min-w-75 h-full border-l border-border bg-surface transition-all duration-200')
+        ? (isFullscreen ? (dockStageSize === 'expanded' ? 'w-[54%]' : 'w-[36%]') + ' min-w-75 h-full border-l border-border bg-surface flex flex-col transition-all duration-200' : 'hidden lg:flex lg:flex-col ' + (dockStageSize === 'expanded' ? 'lg:w-[54%]' : 'lg:w-[38%]') + ' min-w-75 h-full border-l border-border bg-surface transition-all duration-200')
         : stage === 'middle'
-        ? (isFullscreen ? 'hidden lg:flex lg:flex-col lg:w-[32%] min-w-70 h-full border-l border-border bg-surface transition-all duration-200' : 'hidden xl:flex xl:flex-col xl:w-[32%] min-w-70 h-full border-l border-border bg-surface transition-all duration-200')
-        : 'w-[38%] min-w-75 h-full border-l border-border bg-surface flex flex-col transition-all duration-200'}
+        ? (isFullscreen ? 'hidden lg:flex lg:flex-col ' + (dockStageSize === 'expanded' ? 'lg:w-[42%]' : 'lg:w-[32%]') + ' min-w-70 h-full border-l border-border bg-surface transition-all duration-200' : 'hidden xl:flex xl:flex-col ' + (dockStageSize === 'expanded' ? 'xl:w-[42%]' : 'xl:w-[32%]') + ' min-w-70 h-full border-l border-border bg-surface transition-all duration-200')
+        : (dockStageSize === 'expanded' ? 'w-[54%]' : 'w-[38%]') + ' min-w-75 h-full border-l border-border bg-surface flex flex-col transition-all duration-200'}
     >
       <!-- Level 1 Integrated Dock Tab Bar & Telemetry Strip (36px) -->
       <div class="h-9 px-2 border-b border-border bg-surface flex items-center justify-between text-[10.5px] font-mono shrink-0 select-none gap-1">
@@ -2580,6 +2588,39 @@
           </div>
         {:else}
           <div class="flex items-center gap-1.5 shrink-0 text-[10px] text-ink-muted">
+            <!-- Scratch-style Stage Layout Toggle (Standard vs Extended Stage) -->
+            <div class="inline-flex p-0.5 bg-surface-subtle border border-border rounded-xs gap-0.5">
+              <button
+                type="button"
+                onclick={() => {
+                  dockStageSize = 'normal';
+                  setTimeout(() => { if (blocklyWorkspace && blocklyLib?.svgResize) blocklyLib.svgResize(blocklyWorkspace); if (editor) editor.layout(); }, 60);
+                }}
+                class="p-1 rounded-2xs transition-micro {dockStageSize === 'normal' ? 'bg-surface text-ink font-bold shadow-2xs' : 'text-ink-muted hover:text-ink'}"
+                title="Standard Stage (Scratch layout)"
+                aria-label="Standard Stage"
+              >
+                <svg class="size-3" viewBox="0 0 16 16" fill="currentColor">
+                  <rect x="1" y="2" width="9" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.2" />
+                  <rect x="11" y="2" width="4" height="12" rx="0.5" fill="currentColor" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onclick={() => {
+                  dockStageSize = 'expanded';
+                  setTimeout(() => { if (blocklyWorkspace && blocklyLib?.svgResize) blocklyLib.svgResize(blocklyWorkspace); if (editor) editor.layout(); }, 60);
+                }}
+                class="p-1 rounded-2xs transition-micro {dockStageSize === 'expanded' ? 'bg-surface text-cyan font-bold shadow-2xs' : 'text-ink-muted hover:text-ink'}"
+                title="Large Stage Mode (Extended Arena Space)"
+                aria-label="Large Stage Mode"
+              >
+                <svg class="size-3" viewBox="0 0 16 16" fill="currentColor">
+                  <rect x="1" y="2" width="5" height="12" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.2" />
+                  <rect x="7" y="2" width="8" height="12" rx="1" fill="currentColor" />
+                </svg>
+              </button>
+            </div>
             <span class={batteryLevel < 25 ? 'text-red-500 font-bold' : 'text-ink'}>🔋 {Math.round(batteryLevel)}%</span>
             <button
               onclick={() => (playbackSpeed = playbackSpeed === '1x' ? '2x' : playbackSpeed === '2x' ? 'instant' : '1x')}
@@ -2653,6 +2694,8 @@
         <!-- Level 2 & 3 Telemetry Strip with Docked micro:bit Display Chip -->
         <div class="px-3 py-1.5 border-t border-border bg-surface text-[10px] font-mono flex items-center justify-between text-ink-muted shrink-0 select-none">
           <div class="flex items-center gap-2 min-w-0">
+            <span class="text-ink font-bold">X: {Math.round(roverX)} <span class="text-ink-muted font-normal">Y:</span> {Math.round(roverY)}</span>
+            <span class="text-border">·</span>
             <span>HDG: <strong class="text-ink">{roverHeading}°</strong></span>
             <span class={roverDistance < 20 ? 'text-red-500 font-bold' : 'text-cyan font-bold'}>LiDAR: {roverDistance}cm</span>
             {#if penTrails.length > 0 || motionPath.length > 0}
@@ -2721,65 +2764,60 @@
       </div>
 
       <!-- TAB 3: Hardware Controller & Diagnostics -->
-      <div class={auxiliaryTab === 'hardware' ? 'flex-1 min-h-0 flex flex-col p-3 overflow-y-auto font-mono text-xs gap-3 bg-surface-subtle' : 'hidden'}>
-        <!-- Board Target Info Card -->
-        <div class="border border-border bg-surface p-3 rounded-sm flex flex-col gap-2 shadow-2xs">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <Cpu class="size-4 text-brand" />
-              <span class="font-bold text-ink">{targetHardware === 'esp32' ? 'ESP32 MCU' : 'BBC micro:bit v2'}</span>
+      <div class={auxiliaryTab === 'hardware' ? 'flex-1 min-h-0 flex flex-col p-2 overflow-y-auto font-mono text-xs gap-2 bg-surface' : 'hidden'}>
+        <!-- Board Target Info Bar (High-density header) -->
+        <div class="p-2 border border-border bg-surface-subtle rounded-sm flex items-center justify-between gap-2 shadow-2xs">
+          <div class="flex items-center gap-2 min-w-0">
+            <Cpu class="size-3.5 text-brand shrink-0" />
+            <div class="flex flex-col min-w-0">
+              <div class="flex items-center gap-1.5">
+                <span class="font-bold text-ink text-xs truncate">{targetHardware === 'esp32' ? 'ESP32 MCU' : 'BBC micro:bit v2'}</span>
+                <span class="px-1.5 py-0.5 text-[9px] uppercase font-bold rounded-xs {hardwareStreamState.isConnected ? 'bg-mint/10 text-mint border border-mint/30' : 'bg-surface text-ink-muted border border-border'}">
+                  {hardwareStreamState.isConnected ? 'Connected' : 'Simulation'}
+                </span>
+              </div>
+              <span class="text-[10px] text-ink-muted truncate">
+                {hardwareStreamState.isConnected ? `Port: ${hardwareStreamState.portName} (${hardwareStreamState.fps}Hz)` : (targetHardware === 'esp32' ? 'Web Serial · 115200 baud' : 'WebUSB CMSIS-DAP')}
+              </span>
             </div>
-            <span class="px-1.5 py-0.5 text-[9px] uppercase font-bold rounded-xs {hardwareStreamState.isConnected ? 'bg-mint/10 text-mint border border-mint/30' : 'bg-surface-subtle text-ink-muted border border-border'}">
-              {hardwareStreamState.isConnected ? 'Connected' : 'Simulation'}
-            </span>
           </div>
-          <p class="text-[10px] text-ink-muted font-sans leading-relaxed">
-            {targetHardware === 'esp32'
-              ? 'ESP32 dual-core microcontroller connected via Web Serial at 115200 baud for motor control and telemetry streaming.'
-              : 'BBC micro:bit v2 connected via WebUSB CMSIS-DAP interface for 5x5 LED array and motion sensor bridge.'}
-          </p>
-          <div class="pt-2 border-t border-border flex items-center justify-between">
-            <span class="text-[10px] text-ink-muted">
-              {hardwareStreamState.isConnected ? `Port: ${hardwareStreamState.portName} (${hardwareStreamState.fps}Hz)` : 'Bridge Disconnected'}
-            </span>
-            <button
-              onclick={toggleHardwareStream}
-              class="px-3 py-1 text-xs border rounded-sm transition-micro {hardwareStreamState.isConnected ? 'border-red-500/30 text-red-500 hover:bg-red-500/10' : 'border-mint text-mint hover:bg-mint/10 font-bold'}"
-            >
-              {hardwareStreamState.isConnected ? 'Disconnect' : 'Connect Bridge'}
-            </button>
-          </div>
+          <button
+            onclick={toggleHardwareStream}
+            class="px-3 py-1 text-xs border rounded-sm transition-micro shrink-0 {hardwareStreamState.isConnected ? 'border-red-500/30 text-red-500 hover:bg-red-500/10' : 'border-mint text-mint hover:bg-mint/10 font-bold bg-surface'}"
+          >
+            {hardwareStreamState.isConnected ? 'Disconnect' : 'Connect Bridge'}
+          </button>
         </div>
 
         <!-- micro:bit V2 Interactive Stage -->
-        <div class="border border-border bg-surface p-3 rounded-sm flex flex-col gap-2 shadow-2xs">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-ink text-xs flex items-center gap-1.5">
-              <Layers class="size-3.5 text-mint" />
-              5x5 LED Display & Tactile Buttons
+        <div class="p-2 border border-border bg-surface-subtle rounded-sm flex flex-col gap-1.5 shadow-2xs">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-bold text-ink text-[11px] flex items-center gap-1.5">
+              <Layers class="size-3 text-mint" />
+              5x5 LED Matrix & Tactile Buttons
             </span>
-            <span class="text-[10px] text-mint uppercase font-bold">{robotEmotion}</span>
+            <span class="text-[10px] text-mint uppercase font-bold tracking-wider">{robotEmotion}</span>
           </div>
 
-          <div class="flex items-center justify-center gap-4 py-2 bg-surface-subtle rounded-sm border border-border">
+          <div class="flex items-center justify-center gap-3 py-1.5 bg-surface rounded-sm border border-border">
             <!-- Button A -->
             <button
               type="button"
               onclick={() => handleMicrobitButtonPress('A')}
-              class="w-7 h-7 bg-surface hover:bg-surface-subtle active:scale-95 border border-border rounded-sm flex items-center justify-center text-xs font-mono font-bold text-ink shadow-xs transition-micro"
+              class="w-6 h-6 bg-surface-subtle hover:bg-surface active:scale-95 border border-border rounded-sm flex items-center justify-center text-xs font-mono font-bold text-ink shadow-2xs transition-micro"
               title="Press Button A"
             >
               A
             </button>
 
             <!-- 5x5 LED Grid -->
-            <div class="p-1.5 bg-canvas border border-border rounded-sm grid grid-cols-5 gap-1 shadow-inner">
+            <div class="p-1 bg-canvas border border-border rounded-sm grid grid-cols-5 gap-0.5 shadow-inner">
               {#each activeMicrobitGrid as row}
                 {#each row as pixel}
                   <div
-                    class="w-2.5 h-2.5 rounded-xs transition-colors duration-150 {pixel === 1
+                    class="w-2 h-2 rounded-xs transition-colors duration-150 {pixel === 1
                       ? 'bg-red-500 shadow-xs'
-                      : 'bg-zinc-300 dark:bg-zinc-800 border border-zinc-400/30 dark:border-zinc-700/50'}"
+                      : 'bg-zinc-300 dark:bg-zinc-800'}"
                   ></div>
                 {/each}
               {/each}
@@ -2789,20 +2827,20 @@
             <button
               type="button"
               onclick={() => handleMicrobitButtonPress('B')}
-              class="w-7 h-7 bg-surface hover:bg-surface-subtle active:scale-95 border border-border rounded-sm flex items-center justify-center text-xs font-mono font-bold text-ink shadow-xs transition-micro"
+              class="w-6 h-6 bg-surface-subtle hover:bg-surface active:scale-95 border border-border rounded-sm flex items-center justify-center text-xs font-mono font-bold text-ink shadow-2xs transition-micro"
               title="Press Button B"
             >
               B
             </button>
           </div>
 
-          <!-- Pins Bus -->
-          <div class="flex items-center justify-between px-3 py-1 bg-surface-subtle border border-border rounded-sm text-[10px]">
-            <span class="text-ink-muted">Edge Connector:</span>
-            <div class="flex items-center gap-2">
-              <span class="text-amber-600 dark:text-amber-400 font-bold">P0</span>
-              <span class="text-amber-600 dark:text-amber-400 font-bold">P1</span>
-              <span class="text-amber-600 dark:text-amber-400 font-bold">P2</span>
+          <!-- Integrated Pins Bus -->
+          <div class="flex items-center justify-between px-2 py-0.5 bg-surface border border-border rounded-xs text-[10px]">
+            <span class="text-ink-muted text-[9px] uppercase tracking-wider">Edge Connector:</span>
+            <div class="flex items-center gap-2 font-mono font-bold">
+              <span class="text-amber-600 dark:text-amber-400">P0</span>
+              <span class="text-amber-600 dark:text-amber-400">P1</span>
+              <span class="text-amber-600 dark:text-amber-400">P2</span>
               <span class="text-amber-600 dark:text-amber-400 font-semibold">3V</span>
               <span class="text-ink-muted">GND</span>
             </div>
@@ -2810,25 +2848,25 @@
         </div>
 
         <!-- Firmware Flashing Console Card -->
-        <div class="border border-border bg-surface p-3 rounded-sm flex flex-col gap-2 shadow-2xs">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-ink text-xs">Firmware Flasher</span>
-            <span class="text-[10px] text-ink-muted">{targetHardware === 'esp32' ? 'esptool.js' : 'dapjs hex'}</span>
+        <div class="p-2 border border-border bg-surface-subtle rounded-sm flex flex-col gap-1.5 shadow-2xs">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-bold text-ink text-[11px] flex items-center gap-1.5">
+              <Cpu class="size-3 text-cyan" />
+              Firmware Flasher
+            </span>
+            <span class="text-[9px] font-mono text-ink-muted">{targetHardware === 'esp32' ? 'esptool.js' : 'dapjs hex'}</span>
           </div>
-          <p class="text-[10px] text-ink-muted font-sans leading-relaxed">
-            Compile active visual blocks into optimized MicroPython binary and deploy directly to physical flash memory.
-          </p>
           {#if isFlashing}
-            <div class="w-full bg-surface-subtle h-2 rounded-xs overflow-hidden border border-border">
+            <div class="w-full bg-surface h-1.5 rounded-xs overflow-hidden border border-border">
               <div class="bg-brand h-full transition-all duration-200" style="width: {flashProgress}%;"></div>
             </div>
           {/if}
           <button
             onclick={flashToDevice}
             disabled={isFlashing || isExecuting}
-            class="w-full py-1.5 bg-brand hover:bg-brand/90 text-brand-foreground font-bold text-xs rounded-sm transition-micro disabled:opacity-50 shadow-xs flex items-center justify-center gap-1.5"
+            class="w-full py-1 bg-brand hover:bg-brand/90 text-brand-foreground font-bold text-xs rounded-sm transition-micro disabled:opacity-50 shadow-2xs flex items-center justify-center gap-1.5"
           >
-            <Cpu class="size-3.5" />
+            <Cpu class="size-3" />
             <span>{isFlashing ? `Flashing ${flashProgress}%...` : `Flash Firmware to ${targetHardware === 'esp32' ? 'ESP32' : 'micro:bit'}`}</span>
           </button>
         </div>
@@ -2850,6 +2888,7 @@
           }}
           isVerifying={isSubmittingEvidence}
           {verificationResult}
+          bind:showMentorModal
           onVerify={submitMissionForVerification}
           onSelectMission={selectMission}
           onResetWorkspace={resetMissionWorkspace}
@@ -3051,6 +3090,51 @@
 
 <!-- Open Source Licenses & Architecture Compliance Modal -->
 <OpenSourceComplianceModal bind:isOpen={showComplianceModal} />
+
+<!-- Socratic Voice Mentor Modal Dialog (Global Viewport Overlay: z-100, unclipped by IDE toolbar) -->
+{#if showMentorModal}
+  <div
+    class="fixed inset-0 z-100 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in-0 duration-150 font-sans"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Socratic Voice Mentor"
+    tabindex="-1"
+    onkeydown={(e) => { if (e.key === 'Escape') showMentorModal = false; }}
+  >
+    <!-- Accessible backdrop click dismiss layer -->
+    <button
+      type="button"
+      class="fixed inset-0 bg-transparent -z-10 cursor-default"
+      onclick={() => (showMentorModal = false)}
+      tabindex="-1"
+      aria-label="Dismiss Socratic Mentor dialog"
+    ></button>
+
+    <div class="w-full max-w-xl bg-surface border border-border shadow-2xl rounded-md flex flex-col max-h-[85vh] overflow-hidden animate-in zoom-in-95 duration-150 relative z-10">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-border bg-surface shrink-0">
+        <div class="flex items-center gap-2">
+          <Bot class="size-4 text-accent-indigo" />
+          <h3 class="text-sm font-semibold text-ink">
+            Socratic Mentor — {activeMissionMeta.title}
+          </h3>
+        </div>
+        <button
+          onclick={() => (showMentorModal = false)}
+          class="p-1 rounded-xs text-ink-muted hover:text-ink hover:bg-surface-subtle transition-micro"
+          aria-label="Close dialog"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-4 min-h-95">
+        <SocraticVoiceMentor
+          initialTopic={`Mission ${STEM_MISSIONS[activeMissionId]?.level || 1}: ${activeMissionMeta.title} (${STEM_MISSIONS[activeMissionId]?.cstaStandard || 'CSTA Standard'})`}
+        />
+      </div>
+    </div>
+  </div>
+{/if}
 
 <style>
   /* stylelint-disable selector-class-pattern */
@@ -3335,8 +3419,46 @@
     background-color: #182030 !important;
     border: 1px solid rgb(255 255 255 / 0.12) !important;
     color: #f1f5f9 !important;
-    border-radius: 0 !important;
+    border-radius: 4px !important;
     box-shadow: 0 8px 32px rgb(0 0 0 / 0.5) !important;
+    padding: 4px 0 !important;
+  }
+
+  :global(.dark) :global(.blocklyMenu),
+  :global([data-theme="dark"]) :global(.blocklyMenu) {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  :global(.dark) :global(.blocklyMenuItem),
+  :global([data-theme="dark"]) :global(.blocklyMenuItem) {
+    color: #f1f5f9 !important;
+    font-family: var(--font-sans), system-ui, sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    padding: 6px 14px !important;
+    cursor: pointer !important;
+    transition: background-color 140ms ease !important;
+  }
+
+  :global(.dark) :global(.blocklyMenuItemContent),
+  :global([data-theme="dark"]) :global(.blocklyMenuItemContent) {
+    color: #f1f5f9 !important;
+    font-family: inherit !important;
+  }
+
+  :global(.dark) :global(.blocklyMenuItem:hover),
+  :global(.dark) :global(.blocklyMenuItemHighlight),
+  :global([data-theme="dark"]) :global(.blocklyMenuItem:hover),
+  :global([data-theme="dark"]) :global(.blocklyMenuItemHighlight) {
+    background-color: rgb(255 255 255 / 0.08) !important;
+    color: #fff !important;
+  }
+
+  :global(.dark) :global(.blocklyMenuItemCheckbox),
+  :global([data-theme="dark"]) :global(.blocklyMenuItemCheckbox) {
+    color: var(--mint, #5B50E6) !important;
   }
 
   :global(html.light) :global(.blocklyDropDownDiv),
@@ -3348,8 +3470,52 @@
     background-color: #fff !important;
     border: 1px solid #cbd5e1 !important;
     color: #0f172a !important;
-    border-radius: 0 !important;
+    border-radius: 4px !important;
     box-shadow: 0 8px 24px rgb(0 0 0 / 0.12) !important;
+    padding: 4px 0 !important;
+  }
+
+  :global(html.light) :global(.blocklyMenu),
+  :global([data-theme="light"]) :global(.blocklyMenu),
+  :global(html:not(.dark)) :global(.blocklyMenu) {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  :global(html.light) :global(.blocklyMenuItem),
+  :global([data-theme="light"]) :global(.blocklyMenuItem),
+  :global(html:not(.dark)) :global(.blocklyMenuItem) {
+    color: #0f172a !important;
+    font-family: var(--font-sans), system-ui, sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    padding: 6px 14px !important;
+    cursor: pointer !important;
+    transition: background-color 140ms ease !important;
+  }
+
+  :global(html.light) :global(.blocklyMenuItemContent),
+  :global([data-theme="light"]) :global(.blocklyMenuItemContent),
+  :global(html:not(.dark)) :global(.blocklyMenuItemContent) {
+    color: #0f172a !important;
+    font-family: inherit !important;
+  }
+
+  :global(html.light) :global(.blocklyMenuItem:hover),
+  :global(html.light) :global(.blocklyMenuItemHighlight),
+  :global([data-theme="light"]) :global(.blocklyMenuItem:hover),
+  :global([data-theme="light"]) :global(.blocklyMenuItemHighlight),
+  :global(html:not(.dark)) :global(.blocklyMenuItem:hover),
+  :global(html:not(.dark)) :global(.blocklyMenuItemHighlight) {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+  }
+
+  :global(html.light) :global(.blocklyMenuItemCheckbox),
+  :global([data-theme="light"]) :global(.blocklyMenuItemCheckbox),
+  :global(html:not(.dark)) :global(.blocklyMenuItemCheckbox) {
+    color: #0f172a !important;
   }
 
   :global(.blocklyTooltipDiv) {

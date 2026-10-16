@@ -66,7 +66,7 @@
   </header>
 
   <!-- 2. DECIDE: The Three Core Insights (Strength / Growing / At Home) -->
-  <section id="growth" class="space-y-6 pt-4 border-t border-border">
+  <section id="growth" class="space-y-6 pt-4 border-t border-border scroll-mt-16">
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
       <!-- Strength -->
       <div class="space-y-2 p-4 rounded-none bg-surface border border-border">
@@ -143,7 +143,7 @@
   </section>
 
   <!-- 3. EXPLORE: Shared Horizons -->
-  <section id="horizons" class="p-6 sm:p-8 rounded-none bg-surface border border-border space-y-4">
+  <section id="horizons" class="p-6 sm:p-8 rounded-none bg-surface border border-border space-y-4 scroll-mt-16">
     <div class="flex items-center justify-between">
       <span class="text-xs font-semibold uppercase tracking-wider text-brand">
         Shared Horizon
@@ -188,7 +188,7 @@
   </section>
 
   <!-- 4. PROVE: Verified Evidence Summary -->
-  <section id="evidence" class="space-y-4">
+  <section id="evidence" class="space-y-4 scroll-mt-16">
     <div class="flex items-center justify-between">
       <div>
         <h2 class="text-base font-semibold text-ink">
@@ -227,7 +227,7 @@
   </section>
 
   <!-- 5. MESSAGES: School & Counselor Communication -->
-  <section id="messages" class="space-y-4 pt-4 border-t border-border">
+  <section id="messages" class="space-y-4 pt-4 border-t border-border scroll-mt-16">
     <div class="flex items-center justify-between">
       <h2 class="text-base font-semibold text-ink">
         Messages & Advisory

@@ -17,7 +17,6 @@
     PanelLeft
   } from 'lucide-svelte';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-  import LanguageSwitcher from '$lib/components/i18n/LanguageSwitcher.svelte';
   import { authClient } from '$lib/auth-client';
 
   let {
@@ -76,19 +75,70 @@
   }
 
   const currentPath = $derived(page.url.pathname);
+  const currentHash = $derived(page.url.hash);
 
   // Contextual breadcrumb text derived from route and role
   const breadcrumbText = $derived.by(() => {
+    // Student Workspace
     if (currentPath === '/student') return 'Today’s Mission';
-    if (currentPath.startsWith('/student/progress')) return 'Capability Map';
+    if (currentPath === '/student/progress' && currentHash === '#evidence') return 'Evidence Ledger';
+    if (currentPath.startsWith('/student/progress')) return 'Capabilities';
     if (currentPath.startsWith('/student/pathways')) return 'Pathway Explorer';
-    if (currentPath.startsWith('/student/mentor')) return 'Guided Thinking Studio';
-    if (currentPath.startsWith('/student/assessment')) return 'Adaptive Diagnostic';
-    if (currentPath === '/parent') return 'Family Overview';
-    if (currentPath === '/teacher') return 'Instructional Priority Workspace';
-    if (currentPath === '/counselor') return 'Caseload Management';
-    if (currentPath === '/admin') return 'Institutional Administration';
+    if (currentPath.startsWith('/student/mentor')) return 'Socratic Mentor';
+    if (currentPath.startsWith('/student/assessment')) return 'Adaptive Benchmark';
+    if (currentPath.startsWith('/student/report')) return 'Diagnostic Report';
+    if (currentPath.startsWith('/student/missions')) return 'Missions Studio';
+
+    // Shared Workbenches & Tools
+    if (currentPath.startsWith('/ide')) return 'Robotics IDE';
+    if (currentPath.startsWith('/observatory')) return 'Planetary Observatory';
+
+    // Parent Guardian Workspace
+    if (currentPath === '/parent') {
+      if (currentHash === '#growth') return 'Learner Growth';
+      if (currentHash === '#horizons') return 'Shared Horizons';
+      if (currentHash === '#evidence') return 'Verified Evidence';
+      if (currentHash === '#messages') return 'Guardian Messages';
+      return 'Family Overview';
+    }
+    if (currentPath.startsWith('/parent/report')) return 'Growth Report';
+
+    // Teacher Educator Workspace
+    if (currentPath === '/teacher') {
+      if (currentHash === '#interventions') return 'Targeted Interventions';
+      if (currentHash === '#roster') return 'Classroom Roster';
+      if (currentHash === '#evidence') return 'Evidence Ledger';
+      if (currentHash === '#classes') return 'Classes Directory';
+      return 'Instructional Priority Workspace';
+    }
+    if (currentPath.startsWith('/teacher/benchmarks')) return 'Global Benchmarks';
+    if (currentPath.startsWith('/teacher/lesson-plans')) return 'Lesson Plan Studio';
+    if (currentPath.startsWith('/teacher/guidance')) return 'Pedagogy Guidance';
+
+    // Counselor Advisory Workspace
+    if (currentPath === '/counselor') {
+      if (currentHash === '#priority') return 'Priority Cases';
+      if (currentHash === '#learners') return 'Caseload Directory';
+      if (currentHash === '#evidence' || currentHash === '#conversations') return 'Dialogue Logs & Evidence';
+      return 'Caseload Management';
+    }
+
+    // Institutional Admin Workspace
+    if (currentPath === '/admin') {
+      if (currentHash === '#consent') return 'Consent Ledger';
+      if (currentHash === '#learners') return 'Learner Records';
+      if (currentHash === '#audit') return 'Statutory Audit Trail';
+      if (currentHash === '#orgs') return 'Campus Configuration';
+      return 'Institutional Administration';
+    }
+
+    // Item Authoring & Studio
     if (currentPath === '/studio' || currentPath === '/author') return 'Item Studio & Calibration';
+
+    // System Utilities
+    if (currentPath.startsWith('/settings')) return 'Settings';
+    if (currentPath.startsWith('/help')) return 'Help & Documentation';
+
     return 'Workspace';
   });
 
@@ -161,9 +211,6 @@
 
   <!-- Right: Controls & User Profile -->
   <div class="flex items-center gap-2">
-    <!-- Language Switcher -->
-    <LanguageSwitcher />
-
     <!-- Dark Mode Toggle with Celestial Rotation -->
     <button
       onclick={handleToggleTheme}

@@ -41,7 +41,7 @@
 </script>
 
 <svelte:head>
-  <title>Student Diagnostic Benchmark Report & Roadmap — CREED OS</title>
+  <title>Diagnostic Report & Roadmap — CREED OS</title>
 </svelte:head>
 
 <div class="max-w-5xl mx-auto space-y-6 pb-20">
@@ -53,10 +53,10 @@
           Learner Intelligence Diagnostic
         </span>
         <span class="text-xs text-foreground-muted">•</span>
-        <span class="text-xs text-foreground-muted font-mono">{data.learner.fullName}</span>
+        <span class="text-xs text-foreground-muted font-mono">{data.learner?.fullName || data.learner?.name || 'Student Learner'}</span>
       </div>
       <h1 class="text-xl sm:text-2xl font-bold text-foreground">
-        International Benchmark Report & Growth Roadmap
+        Diagnostic Report & Growth Roadmap
       </h1>
     </div>
 

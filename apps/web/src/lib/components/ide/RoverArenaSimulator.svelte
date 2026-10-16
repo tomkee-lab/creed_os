@@ -52,8 +52,8 @@
   }
 
   let {
-    roverX = 150,
-    roverY = 150,
+    roverX = 240,
+    roverY = 220,
     roverHeading = 0,
     roverDistance = 38,
     roverSensorActive = false,
@@ -278,10 +278,7 @@
     return Math.round((deg + 360) % 360);
   });
 
-  let dynamicObstacles = $state<Array<{ id: string; x: number; y: number; radius: number }>>([
-    { id: 'obs-1', x: 215, y: 80, radius: 18 },
-    { id: 'obs-2', x: 70, y: 195, radius: 20 }
-  ]);
+  let dynamicObstacles = $state<Array<{ id: string; x: number; y: number; radius: number }>>([]);
 
   function pointToSegmentDistance(px: number, py: number, x1: number, y1: number, x2: number, y2: number): number {
     const l2 = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
@@ -308,9 +305,9 @@
   function handleContainerClick(event: MouseEvent) {
     const target = event.currentTarget as HTMLElement;
     const rect = target.getBoundingClientRect();
-    const x = Math.round(((event.clientX - rect.left) / rect.width) * 300);
-    const y = Math.round(((event.clientY - rect.top) / rect.height) * 300);
-    if (x < 15 || x > 285 || y < 15 || y > 285) return;
+    const x = Math.round(((event.clientX - rect.left) / rect.width) * 480);
+    const y = Math.round(((event.clientY - rect.top) / rect.height) * 360);
+    if (x < 15 || x > 465 || y < 15 || y > 345) return;
 
     if (gridInteractionMode === 'obstacle') {
       // Check if clicking existing obstacle to remove
@@ -442,49 +439,33 @@
             <button
               type="button"
               onclick={() => (showGridLines = !showGridLines)}
-              class="px-1.5 py-0.5 rounded-2xs transition-micro {showGridLines ? 'text-cyan font-bold bg-surface' : 'text-ink-muted opacity-40'}"
+              class="px-2 py-0.5 rounded-2xs transition-micro font-mono text-[9px] {showGridLines ? 'text-cyan font-bold bg-surface' : 'text-ink-muted opacity-50'}"
               title="Toggle Coordinate Grid"
             >
-              📐
+              Grid
             </button>
             <button
               type="button"
               onclick={() => (showSonarBeam = !showSonarBeam)}
-              class="px-1.5 py-0.5 rounded-2xs transition-micro {showSonarBeam ? 'text-amber-500 font-bold bg-surface' : 'text-ink-muted opacity-40'}"
-              title="Toggle Sonar & LiDAR Beam"
+              class="px-2 py-0.5 rounded-2xs transition-micro font-mono text-[9px] {showSonarBeam ? 'text-cyan font-bold bg-surface' : 'text-ink-muted opacity-50'}"
+              title="Toggle Sonar Beam"
             >
-              📡
-            </button>
-            <button
-              type="button"
-              onclick={() => (showWaypoints = !showWaypoints)}
-              class="px-1.5 py-0.5 rounded-2xs transition-micro {showWaypoints ? 'text-cyan font-bold bg-surface' : 'text-ink-muted opacity-40'}"
-              title="Toggle Waypoint Target Beacon"
-            >
-              📍
-            </button>
-            <button
-              type="button"
-              onclick={() => (showHazards = !showHazards)}
-              class="px-1.5 py-0.5 rounded-2xs transition-micro {showHazards ? 'text-critical font-bold bg-surface' : 'text-ink-muted opacity-40'}"
-              title="Toggle Dynamic Hazards"
-            >
-              🛑
+              Sonar
             </button>
             <button
               type="button"
               onclick={() => (showTrails = !showTrails)}
-              class="px-1.5 py-0.5 rounded-2xs transition-micro {showTrails ? 'text-fuchsia-500 font-bold bg-surface' : 'text-ink-muted opacity-40'}"
+              class="px-2 py-0.5 rounded-2xs transition-micro font-mono text-[9px] {showTrails ? 'text-cyan font-bold bg-surface' : 'text-ink-muted opacity-50'}"
               title="Toggle Kinematic & Pen Trails"
             >
-              🎨
+              Trails
             </button>
           </div>
         </div>
       {:else}
-        <!-- Quick Telemetry in Inspection Mode -->
-        <div class="flex items-center gap-2 text-[9px] text-ink-muted">
-          <span>LiDAR: <strong class="text-cyan font-bold">{effectiveSonarDistance}cm</strong></span>
+        <!-- Clean Subheader in Inspection Mode -->
+        <div class="flex items-center gap-2 text-[9px] font-mono text-ink-muted">
+          <span class="text-ink font-bold">CAD Blueprint</span>
           <span class="text-border">·</span>
           <button
             type="button"
@@ -515,13 +496,13 @@
 
       <button
         type="button"
-        class="w-full h-full max-w-full max-h-full aspect-square p-0 border-0 bg-transparent cursor-crosshair focus-visible:outline-2 focus-visible:outline-brand flex items-center justify-center rounded-none"
+        class="w-full h-full max-w-full max-h-full aspect-4/3 p-0 border-0 bg-transparent cursor-crosshair focus-visible:outline-2 focus-visible:outline-brand flex items-center justify-center rounded-none"
         onclick={handleContainerClick}
         aria-label="Mars Surface Exploration Proving Ground Simulator"
       >
         <svg
-          class="w-full h-full max-w-full max-h-full aspect-square object-contain pointer-events-none"
-          viewBox="0 0 300 300"
+          class="w-full h-full max-w-full max-h-full aspect-4/3 object-contain pointer-events-none"
+          viewBox="0 0 480 360"
           preserveAspectRatio="xMidYMid meet"
         >
         <defs>
@@ -545,34 +526,14 @@
           </radialGradient>
         </defs>
 
-        <!-- Planetary Surface Floor -->
-        <rect width="300" height="300" fill={arenaFloorFill} />
+        <!-- Planetary Surface Floor (480x360 Scratch-compatible 4:3 arena) -->
+        <rect width="480" height="360" fill={arenaFloorFill} />
         {#if showGridLines}
-          <rect width="300" height="300" fill="url(#aresSurfaceGrid)" />
+          <rect width="480" height="360" fill="url(#aresSurfaceGrid)" />
 
-          <!-- Minimalist Technical Coordinate Crosshairs & Distance Rings -->
-          <circle cx="150" cy="150" r="50" fill="none" stroke={gridLineStroke} stroke-width="0.75" stroke-dasharray="2,4" />
-          <circle cx="150" cy="150" r="100" fill="none" stroke={gridLineStroke} stroke-width="0.75" stroke-dasharray="2,4" />
-          <circle cx="150" cy="150" r="135" fill="none" stroke={gridLineStroke} stroke-width="0.75" stroke-dasharray="2,4" />
-
-          <!-- Axis Center Crosshairs -->
-          <line x1="145" y1="150" x2="155" y2="150" stroke={gridDotFill} stroke-width="1" />
-          <line x1="150" y1="145" x2="150" y2="155" stroke={gridDotFill} stroke-width="1" />
-
-          <!-- Technical Millimeter / Centimeter Tick Coordinates along Border -->
-          <g font-size="5.5" font-family="monospace" fill={perimeterTextColor} text-anchor="middle">
-            <text x="50" y="9">50</text>
-            <text x="100" y="9">100</text>
-            <text x="150" y="9">150</text>
-            <text x="200" y="9">200</text>
-            <text x="250" y="9">250</text>
-
-            <text x="7" y="52">50</text>
-            <text x="7" y="102">100</text>
-            <text x="7" y="152">150</text>
-            <text x="7" y="202">200</text>
-            <text x="7" y="252">250</text>
-          </g>
+          <!-- Center Reference Crosshair (240, 180) -->
+          <line x1="234" y1="180" x2="246" y2="180" stroke={gridDotFill} stroke-width="1" />
+          <line x1="240" y1="174" x2="240" y2="186" stroke={gridDotFill} stroke-width="1" />
         {/if}
 
         <!-- Kinematic Navigation Trajectory Path (Precision Vector Breadcrumbs) -->
@@ -839,35 +800,26 @@
           </g>
         {/if}
 
-        <!-- Perimeter Technical Border -->
-        <rect x="4" y="4" width="292" height="292" fill="none" stroke={perimeterOuterStroke} stroke-width="1" />
-        <rect x="7" y="7" width="286" height="286" fill="none" stroke={perimeterInnerStroke} stroke-width="0.75" stroke-dasharray="12,6" />
-        <text x="12" y="293" font-size="6" font-family="monospace" fill={perimeterTextColor}>
-          SECTOR: ARES-PRIME // K-12 ROBOTICS ARENA
-        </text>
+        <!-- Clean Perimeter Technical Border (480x360) -->
+        <rect x="2" y="2" width="476" height="356" rx="2" fill="none" stroke={perimeterOuterStroke} stroke-width="1" stroke-dasharray="6,4" />
       </svg>
       </button>
     </div>
   {:else}
     <!-- ARES-PRIME VEHICLE DETAIL INSPECTION STAGE: High-Tech Educational Robotics Blueprint -->
     <div class="flex-1 min-h-0 relative flex flex-col justify-between p-2 overflow-hidden bg-surface-subtle dark:bg-canvas">
-      <!-- 1. Header: Technical Specification & Status Bar -->
-      <div class="w-full flex items-center justify-between border-b border-border pb-1.5 shrink-0 select-none">
-        <div class="flex items-center gap-2">
-          <span class="size-1.5 rounded-none bg-cyan shadow-xs"></span>
-          <span class="font-mono text-[10px] font-bold text-ink uppercase tracking-wider">
-            ARES-Prime Mk-III // Blueprint Inspection
-          </span>
-          <span class="px-1.5 py-0.2 bg-cyan/10 border border-cyan/30 text-cyan text-[8px] font-mono font-bold uppercase rounded-2xs">
-            CAD REV 3.4
+      <!-- 1. Header: Technical Specification & Status Bar (Clean Single-Line Typography) -->
+      <div class="w-full flex items-center justify-between border-b border-border pb-1 shrink-0 select-none text-[9.5px] font-mono">
+        <div class="flex items-center gap-1.5 min-w-0">
+          <span class="size-1.5 rounded-none bg-cyan shadow-xs shrink-0"></span>
+          <span class="font-bold text-ink truncate">ARES-Prime Mk-III Blueprint</span>
+          <span class="px-1 py-0.2 bg-cyan/10 border border-cyan/30 text-cyan text-[8px] font-bold uppercase rounded-2xs shrink-0">
+            v3.4
           </span>
         </div>
-        <div class="flex items-center gap-2 text-[9px] font-mono">
-          <span class="text-ink-muted">CHASSIS:</span>
-          <span class="text-mint font-bold flex items-center gap-1">
-            <span class="size-1 rounded-none bg-mint animate-pulse"></span>
-            NOMINAL
-          </span>
+        <div class="flex items-center gap-1 text-[9px] shrink-0 text-mint font-bold">
+          <span class="size-1.5 rounded-none bg-mint animate-pulse"></span>
+          <span>NOMINAL</span>
         </div>
       </div>
 
@@ -882,11 +834,11 @@
         </div>
       {/if}
 
-      <!-- 2. Central Technical CAD Blueprint Visualizer (SVG) -->
+      <!-- 2. Central Technical CAD Blueprint Visualizer (SVG 480x360 Widescreen) -->
       <div class="flex-1 w-full min-h-0 flex items-center justify-center relative my-1 overflow-hidden">
         <svg
-          class="w-full h-full max-h-75 object-contain select-none"
-          viewBox="0 0 360 270"
+          class="w-full h-full aspect-4/3 object-contain select-none"
+          viewBox="0 0 480 360"
           preserveAspectRatio="xMidYMid meet"
         >
           <defs>
@@ -910,19 +862,19 @@
           </defs>
 
           <!-- Background Technical CAD Grid -->
-          <rect x="0" y="0" width="360" height="270" fill="url(#cadGrid)" />
+          <rect x="0" y="0" width="480" height="360" fill="url(#cadGrid)" />
 
           <!-- CAD Frame & Dimension Labels -->
-          <rect x="4" y="4" width="352" height="262" fill="none" stroke={isDarkTheme ? 'rgba(56, 189, 248, 0.20)' : 'rgba(2, 132, 199, 0.25)'} stroke-width="0.8" stroke-dasharray="4,4" />
-          <text x="10" y="15" font-size="7" font-family="monospace" fill={isDarkTheme ? '#38bdf8' : '#0284c7'} opacity="0.7">SCALE: 1:1 [140mm x 115mm]</text>
-          <text x="350" y="15" text-anchor="end" font-size="7" font-family="monospace" fill={isDarkTheme ? '#38bdf8' : '#0284c7'} opacity="0.7">DATUM: CHASSIS_CENTER</text>
+          <rect x="4" y="4" width="472" height="352" fill="none" stroke={isDarkTheme ? 'rgba(56, 189, 248, 0.20)' : 'rgba(2, 132, 199, 0.25)'} stroke-width="0.8" stroke-dasharray="4,4" />
+          <text x="12" y="16" font-size="7" font-family="monospace" fill={isDarkTheme ? '#38bdf8' : '#0284c7'} opacity="0.7">SCALE: 1:1 [140mm x 115mm]</text>
+          <text x="468" y="16" text-anchor="end" font-size="7" font-family="monospace" fill={isDarkTheme ? '#38bdf8' : '#0284c7'} opacity="0.7">DATUM: CHASSIS_CENTER (240, 180)</text>
 
           <!-- Center Reference Crosshair -->
-          <line x1="180" y1="20" x2="180" y2="245" stroke={isDarkTheme ? 'rgba(56, 189, 248, 0.15)' : 'rgba(2, 132, 199, 0.20)'} stroke-width="0.7" stroke-dasharray="2,4" />
-          <line x1="40" y1="130" x2="320" y2="130" stroke={isDarkTheme ? 'rgba(56, 189, 248, 0.15)' : 'rgba(2, 132, 199, 0.20)'} stroke-width="0.7" stroke-dasharray="2,4" />
+          <line x1="240" y1="20" x2="240" y2="340" stroke={isDarkTheme ? 'rgba(56, 189, 248, 0.15)' : 'rgba(2, 132, 199, 0.20)'} stroke-width="0.7" stroke-dasharray="2,4" />
+          <line x1="20" y1="180" x2="460" y2="180" stroke={isDarkTheme ? 'rgba(56, 189, 248, 0.15)' : 'rgba(2, 132, 199, 0.20)'} stroke-width="0.7" stroke-dasharray="2,4" />
 
-          <!-- ARES-Prime Chassis Master Group (Centered at 180, 130) -->
-          <g transform="translate(180, 130)">
+          <!-- ARES-Prime Chassis Master Group (Centered at 240, 180) -->
+          <g transform="translate(240, 180)">
             <!-- Sonar / LiDAR Acoustic Wave Pulses (when tested or active) -->
             {#if sonarPulseActive || activeDiagnosticSubsystem === 'sonar'}
               <path d="M -20 -95 A 100 100 0 0 1 20 -95" fill="none" stroke="#06b6d4" stroke-width="1.8" opacity="0.9" />
@@ -931,7 +883,14 @@
             {/if}
 
             <!-- LiDAR / Ultrasonic Transceiver Horn (Front Sensor Array) -->
-            <g transform="translate(0, -68)">
+            <g
+              transform="translate(0, -68)"
+              class="cursor-pointer hover:opacity-80 transition-micro"
+              role="button"
+              tabindex="0"
+              onclick={() => triggerSubsystemDiagnostic('sonar')}
+              onkeydown={(e) => { if (e.key === 'Enter') triggerSubsystemDiagnostic('sonar'); }}
+            >
               <polygon points="-14,0 -20,-12 20,-12 14,0" fill={isDarkTheme ? '#1e293b' : '#cbd5e1'} stroke="#06b6d4" stroke-width="1.2" />
               <!-- Transceiver Emitters (Dual Eyes) -->
               <circle cx="-7" cy="-6" r="4" fill={isDarkTheme ? '#020617' : '#0f172a'} stroke="#06b6d4" stroke-width="0.8" />
@@ -941,7 +900,14 @@
             </g>
 
             <!-- Left All-Terrain Track / Geared Stepper Assembly -->
-            <g transform="translate(-62, -45)">
+            <g
+              transform="translate(-62, -45)"
+              class="cursor-pointer hover:opacity-80 transition-micro"
+              role="button"
+              tabindex="0"
+              onclick={() => triggerSubsystemDiagnostic('motor')}
+              onkeydown={(e) => { if (e.key === 'Enter') triggerSubsystemDiagnostic('motor'); }}
+            >
               <rect x="-14" y="0" width="24" height="90" rx="3" fill="url(#blueprintTrackGrad)" stroke={motorPulseActive ? '#10b981' : isDarkTheme ? '#38bdf8' : '#0284c7'} stroke-width={motorPulseActive ? 2 : 1.2} />
               <!-- Wheel Bogies / Sprockets -->
               <circle cx="-2" cy="16" r="7" fill={isDarkTheme ? '#0f172a' : '#1e293b'} stroke="#64748b" stroke-width="1" />
@@ -954,7 +920,14 @@
             </g>
 
             <!-- Right All-Terrain Track / Geared Stepper Assembly -->
-            <g transform="translate(62, -45)">
+            <g
+              transform="translate(62, -45)"
+              class="cursor-pointer hover:opacity-80 transition-micro"
+              role="button"
+              tabindex="0"
+              onclick={() => triggerSubsystemDiagnostic('motor')}
+              onkeydown={(e) => { if (e.key === 'Enter') triggerSubsystemDiagnostic('motor'); }}
+            >
               <rect x="-10" y="0" width="24" height="90" rx="3" fill="url(#blueprintTrackGrad)" stroke={motorPulseActive ? '#10b981' : isDarkTheme ? '#38bdf8' : '#0284c7'} stroke-width={motorPulseActive ? 2 : 1.2} />
               <!-- Wheel Bogies / Sprockets -->
               <circle cx="2" cy="16" r="7" fill={isDarkTheme ? '#0f172a' : '#1e293b'} stroke="#64748b" stroke-width="1" />
@@ -1008,7 +981,14 @@
             </g>
 
             <!-- Central BBC micro:bit v2 Subsystem Module (Authentic 5x5 Matrix) -->
-            <g transform="translate(0, 0)">
+            <g
+              transform="translate(0, 0)"
+              class="cursor-pointer hover:opacity-80 transition-micro"
+              role="button"
+              tabindex="0"
+              onclick={() => triggerSubsystemDiagnostic('led')}
+              onkeydown={(e) => { if (e.key === 'Enter') triggerSubsystemDiagnostic('led'); }}
+            >
               <!-- micro:bit Board Frame -->
               <rect x="-24" y="-14" width="48" height="34" rx="2" fill={isDarkTheme ? '#020617' : '#0f172a'} stroke="#f59e0b" stroke-width="1.2" />
               <!-- Edge Connector Pins (Gold) -->
@@ -1041,7 +1021,14 @@
             </g>
 
             <!-- Rear Solenoid Pen Actuator Mechanism (Trail Marker) -->
-            <g transform="translate(0, 42)">
+            <g
+              transform="translate(0, 42)"
+              class="cursor-pointer hover:opacity-80 transition-micro"
+              role="button"
+              tabindex="0"
+              onclick={() => triggerSubsystemDiagnostic('pen')}
+              onkeydown={(e) => { if (e.key === 'Enter') triggerSubsystemDiagnostic('pen'); }}
+            >
               <rect x="-8" y="0" width="16" height="14" fill={isDarkTheme ? '#1e293b' : '#cbd5e1'} stroke={penActuatorActive ? '#10b981' : '#f59e0b'} stroke-width="1.2" />
               <circle cx="0" cy="7" r="3.5" fill={penActuatorActive ? '#10b981' : penTrails.length > 0 ? '#38bdf8' : isDarkTheme ? '#020617' : '#64748b'} />
               <text x="0" y="21" font-size="6" font-family="monospace" font-weight="bold" fill={penActuatorActive ? '#10b981' : '#94a3b8'} text-anchor="middle">
@@ -1050,7 +1037,14 @@
             </g>
 
             <!-- RF Radio Telemetry Antenna Beacon (Top Right) -->
-            <g transform="translate(28, -50)">
+            <g
+              transform="translate(28, -50)"
+              class="cursor-pointer hover:opacity-80 transition-micro"
+              role="button"
+              tabindex="0"
+              onclick={() => triggerSubsystemDiagnostic('radio')}
+              onkeydown={(e) => { if (e.key === 'Enter') triggerSubsystemDiagnostic('radio'); }}
+            >
               <line x1="0" y1="0" x2="16" y2="-18" stroke={radioTxActive ? '#10b981' : '#06b6d4'} stroke-width="1.4" />
               <circle cx="16" cy="-18" r="2.5" fill={radioTxActive ? '#10b981' : '#06b6d4'} />
               {#if radioTxActive}
@@ -1059,117 +1053,95 @@
             </g>
           </g>
 
-          <!-- Technical CAD Callout Annotations -->
+          <!-- Technical CAD Callout Annotations (Arranged cleanly outside track perimeters in 480x360 space) -->
           <!-- Callout 01: LiDAR / Ultrasonic Array -->
-          <g transform="translate(10, 50)">
+          <g transform="translate(16, 60)">
             <text x="0" y="0" font-size="7.5" font-family="monospace" font-weight="bold" fill="#06b6d4">[01] LiDAR / ToF Rangefinder</text>
             <text x="0" y="9" font-size="6.5" font-family="monospace" fill={isDarkTheme ? '#94a3b8' : '#64748b'}>60° FoV // 5–200cm Range</text>
-            <polyline points="105,-4 140,-4 165,65" fill="none" stroke="#06b6d4" stroke-width="0.8" stroke-dasharray="2,2" />
-            <circle cx="165" cy="65" r="1.5" fill="#06b6d4" />
+            <polyline points="138,-4 190,-4 224,52" fill="none" stroke="#06b6d4" stroke-width="0.8" stroke-dasharray="2,2" />
+            <circle cx="224" cy="52" r="1.5" fill="#06b6d4" />
           </g>
 
           <!-- Callout 02: BBC micro:bit v2 Core -->
-          <g transform="translate(10, 160)">
+          <g transform="translate(16, 215)">
             <text x="0" y="0" font-size="7.5" font-family="monospace" font-weight="bold" fill="#f59e0b">[02] micro:bit v2 Processor</text>
             <text x="0" y="9" font-size="6.5" font-family="monospace" fill={isDarkTheme ? '#94a3b8' : '#64748b'}>64MHz ARM Cortex-M4 // 5x5 LED</text>
-            <polyline points="105,-4 135,-4 156,130" fill="none" stroke="#f59e0b" stroke-width="0.8" stroke-dasharray="2,2" />
-            <circle cx="156" cy="130" r="1.5" fill="#f59e0b" />
+            <polyline points="142,-4 180,-4 200,-35" fill="none" stroke="#f59e0b" stroke-width="0.8" stroke-dasharray="2,2" />
+            <circle cx="200" cy="-35" r="1.5" fill="#f59e0b" />
           </g>
 
           <!-- Callout 03: Dual DC Stepper Drives -->
-          <g transform="translate(230, 50)">
+          <g transform="translate(325, 60)">
             <text x="0" y="0" font-size="7.5" font-family="monospace" font-weight="bold" fill="#38bdf8">[03] Dual DC Stepper Drives</text>
             <text x="0" y="9" font-size="6.5" font-family="monospace" fill={isDarkTheme ? '#94a3b8' : '#64748b'}>High-Torque All-Terrain Treads</text>
-            <polyline points="-5,-4 -25,-4 -40,85" fill="none" stroke="#38bdf8" stroke-width="0.8" stroke-dasharray="2,2" />
-            <circle cx="-40" cy="85" r="1.5" fill="#38bdf8" />
+            <polyline points="-6,-4 -20,-4 -33,55" fill="none" stroke="#38bdf8" stroke-width="0.8" stroke-dasharray="2,2" />
+            <circle cx="-33" cy="55" r="1.5" fill="#38bdf8" />
           </g>
 
           <!-- Callout 04: Solenoid Precision Pen -->
-          <g transform="translate(230, 200)">
+          <g transform="translate(325, 260)">
             <text x="0" y="0" font-size="7.5" font-family="monospace" font-weight="bold" fill="#10b981">[04] Solenoid Trail Marker</text>
             <text x="0" y="9" font-size="6.5" font-family="monospace" fill={isDarkTheme ? '#94a3b8' : '#64748b'}>Sub-Millimeter Vector Plotting</text>
-            <polyline points="-5,-4 -25,-4 -45,172" fill="none" stroke="#10b981" stroke-width="0.8" stroke-dasharray="2,2" />
-            <circle cx="-45" cy="172" r="1.5" fill="#10b981" />
+            <polyline points="-6,-4 -35,-4 -77,-38" fill="none" stroke="#10b981" stroke-width="0.8" stroke-dasharray="2,2" />
+            <circle cx="-77" cy="-38" r="1.5" fill="#10b981" />
           </g>
         </svg>
       </div>
 
-      <!-- 3. Hardware Diagnostic Command Deck (Replacing Toy Emoji Soundboard) -->
+      <!-- 3. Streamlined Subsystem Diagnostic Deck (WAY 2.1 Single-Line Control Strip) -->
       <div class="w-full shrink-0 border-t border-border pt-1.5 flex flex-col gap-1 select-none">
-        <div class="flex items-center justify-between text-[9px] font-mono text-ink-muted">
+        <div class="flex items-center justify-between text-[9px] font-mono">
           <span class="flex items-center gap-1 font-bold text-ink uppercase tracking-wider">
             <Cpu class="size-3 text-cyan" />
-            <span>Subsystem Diagnostic Deck</span>
+            <span>Diagnostics</span>
           </span>
-          <span class="text-mint font-bold uppercase">
-            {activeDiagnosticSubsystem ? `TEST: ${activeDiagnosticSubsystem.toUpperCase()}...` : 'ALL SYSTEMS READY'}
+          <span class="{activeDiagnosticSubsystem ? 'text-cyan font-bold animate-pulse' : 'text-mint font-bold'} text-[8.5px] uppercase">
+            {activeDiagnosticSubsystem ? `TESTING ${activeDiagnosticSubsystem.toUpperCase()}...` : 'ALL SYSTEMS NOMINAL'}
           </span>
         </div>
 
-        <!-- 5 High-Tech Diagnostic Trigger Buttons -->
-        <div class="grid grid-cols-2 sm:grid-cols-5 gap-1">
+        <!-- 5 Compact Interactive Action Chips -->
+        <div class="grid grid-cols-5 gap-1">
           <button
             type="button"
             onclick={() => triggerSubsystemDiagnostic('sonar')}
-            class="px-2 py-1 bg-surface hover:bg-surface-subtle active:scale-95 border border-border rounded-xs text-[9px] font-mono font-bold transition-micro flex items-center justify-center gap-1 {activeDiagnosticSubsystem === 'sonar' ? 'border-cyan text-cyan bg-cyan/10' : 'text-ink'}"
+            class="px-1 py-1 bg-surface hover:bg-surface-subtle active:scale-95 border rounded-xs text-[8.5px] font-mono font-bold transition-micro flex items-center justify-center gap-1 truncate {activeDiagnosticSubsystem === 'sonar' ? 'border-cyan text-cyan bg-cyan/10' : 'border-border text-ink'}"
             title="Ping ultrasonic sonar / LiDAR distance array"
           >
-            <span>📡 Ping LiDAR</span>
+            <span>📡 LiDAR</span>
           </button>
           <button
             type="button"
             onclick={() => triggerSubsystemDiagnostic('led')}
-            class="px-2 py-1 bg-surface hover:bg-surface-subtle active:scale-95 border border-border rounded-xs text-[9px] font-mono font-bold transition-micro flex items-center justify-center gap-1 {activeDiagnosticSubsystem === 'led' ? 'border-amber-500 text-amber-500 bg-amber-500/10' : 'text-ink'}"
+            class="px-1 py-1 bg-surface hover:bg-surface-subtle active:scale-95 border rounded-xs text-[8.5px] font-mono font-bold transition-micro flex items-center justify-center gap-1 truncate {activeDiagnosticSubsystem === 'led' ? 'border-amber-500 text-amber-500 bg-amber-500/10' : 'border-border text-ink'}"
             title="Cycle 5x5 micro:bit LED matrix diagnostic patterns"
           >
-            <span>💡 Test Matrix</span>
+            <span>💡 Matrix</span>
           </button>
           <button
             type="button"
             onclick={() => triggerSubsystemDiagnostic('motor')}
-            class="px-2 py-1 bg-surface hover:bg-surface-subtle active:scale-95 border border-border rounded-xs text-[9px] font-mono font-bold transition-micro flex items-center justify-center gap-1 {activeDiagnosticSubsystem === 'motor' ? 'border-mint text-mint bg-mint/10' : 'text-ink'}"
+            class="px-1 py-1 bg-surface hover:bg-surface-subtle active:scale-95 border rounded-xs text-[8.5px] font-mono font-bold transition-micro flex items-center justify-center gap-1 truncate {activeDiagnosticSubsystem === 'motor' ? 'border-mint text-mint bg-mint/10' : 'border-border text-ink'}"
             title="Perform brief dual-motor drive pulse"
           >
-            <span>⚙️ Motor Pulse</span>
+            <span>⚙️ Motors</span>
           </button>
           <button
             type="button"
             onclick={() => triggerSubsystemDiagnostic('pen')}
-            class="px-2 py-1 bg-surface hover:bg-surface-subtle active:scale-95 border border-border rounded-xs text-[9px] font-mono font-bold transition-micro flex items-center justify-center gap-1 {activeDiagnosticSubsystem === 'pen' ? 'border-brand text-brand bg-brand/10' : 'text-ink'}"
+            class="px-1 py-1 bg-surface hover:bg-surface-subtle active:scale-95 border rounded-xs text-[8.5px] font-mono font-bold transition-micro flex items-center justify-center gap-1 truncate {activeDiagnosticSubsystem === 'pen' ? 'border-brand text-brand bg-brand/10' : 'border-border text-ink'}"
             title="Test solenoid pen actuator up/down stroke"
           >
-            <span>🖋️ Pen Pulse</span>
+            <span>🖋️ Pen</span>
           </button>
           <button
             type="button"
             onclick={() => triggerSubsystemDiagnostic('radio')}
-            class="px-2 py-1 bg-surface hover:bg-surface-subtle active:scale-95 border border-border rounded-xs text-[9px] font-mono font-bold transition-micro flex items-center justify-center gap-1 {activeDiagnosticSubsystem === 'radio' ? 'border-positive text-positive bg-positive-subtle' : 'text-ink'}"
+            class="px-1 py-1 bg-surface hover:bg-surface-subtle active:scale-95 border rounded-xs text-[8.5px] font-mono font-bold transition-micro flex items-center justify-center gap-1 truncate {activeDiagnosticSubsystem === 'radio' ? 'border-positive text-positive bg-positive-subtle' : 'border-border text-ink'}"
             title="Broadcast test packet over 2.4GHz micro:bit radio"
           >
-            <span>📻 Radio Ping</span>
+            <span>📻 Radio</span>
           </button>
-        </div>
-
-        <!-- 4. Subsystem Telemetry Metric Readout Deck -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-1 pt-0.5 border-t border-border/50 text-[9px] font-mono">
-          <div class="bg-surface px-1.5 py-0.5 border border-border/60 flex items-center justify-between">
-            <span class="text-ink-muted">LOGIC BUS:</span>
-            <span class="font-bold text-ink">3.3V / 7.4V</span>
-          </div>
-          <div class="bg-surface px-1.5 py-0.5 border border-border/60 flex items-center justify-between">
-            <span class="text-ink-muted">HEADING:</span>
-            <span class="font-bold text-cyan">{roverHeading}°</span>
-          </div>
-          <div class="bg-surface px-1.5 py-0.5 border border-border/60 flex items-center justify-between">
-            <span class="text-ink-muted">PROXIMITY:</span>
-            <span class="font-bold text-amber-500">{effectiveSonarDistance}cm</span>
-          </div>
-          <div class="bg-surface px-1.5 py-0.5 border border-border/60 flex items-center justify-between">
-            <span class="text-ink-muted">PEN ACTUATOR:</span>
-            <span class="font-bold {penTrails.length > 0 || penActuatorActive ? 'text-mint' : 'text-ink-muted'}">
-              {penActuatorActive ? 'ENGAGED' : penTrails.length > 0 ? 'DEPLOYED' : 'STANDBY'}
-            </span>
-          </div>
         </div>
       </div>
     </div>

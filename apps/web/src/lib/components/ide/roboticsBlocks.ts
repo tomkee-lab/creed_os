@@ -1003,11 +1003,11 @@ export async function initializeRoboticsBlocks() {
     },
     {
       type: 'robot_position_reset',
-      message0: 'reset rover to origin (150, 150) 📍',
+      message0: 'reset rover to origin (240, 220) 📍',
       previousStatement: null,
       nextStatement: null,
       colour: 160,
-      tooltip: 'Reposition rover to the center hub origin.'
+      tooltip: 'Reposition rover to the origin point.'
     },
 
     // --- SENSORS & PROBING ENHANCEMENTS ---
@@ -2189,7 +2189,7 @@ export async function initializeRoboticsBlocks() {
           options: [
             ['Mouse Cursor 🖱️', 'CURSOR'],
             ['Nearest Enemy 👾', 'NEAREST_ENEMY'],
-            ['Arena Center (150, 150)', 'CENTER'],
+            ['Arena Center (240, 180)', 'CENTER'],
             ['Boss Core 👑', 'BOSS']
           ]
         }

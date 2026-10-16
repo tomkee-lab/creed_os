@@ -57,7 +57,9 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     .filter((r): r is NonNullable<typeof r> => Boolean(r))
     .map((r) => deepSanitizePsychometrics(r));
 
-  const safeActiveReport = deepSanitizePsychometrics(toParentBenchmarkReportDTO(rawActiveReport, gatingOptions));
+  const safeActiveReport = rawActiveReport
+    ? deepSanitizePsychometrics(toParentBenchmarkReportDTO(rawActiveReport, gatingOptions))
+    : null;
 
   return {
     learner: sanitizeLearner(profile),

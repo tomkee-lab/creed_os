@@ -126,7 +126,7 @@
   </header>
 
   <!-- 2. DECIDE / ACT: Priority Cases List -->
-  <section id="priority" class="space-y-4">
+  <section id="priority" class="space-y-4 scroll-mt-16">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
         <h2 class="text-base font-semibold text-ink">
@@ -195,7 +195,7 @@
   </section>
 
   <!-- 3. LEARNERS CASELOAD ROSTER -->
-  <section id="learners" class="space-y-4">
+  <section id="learners" class="space-y-4 scroll-mt-16">
     <div class="flex items-center justify-between">
       <h2 class="text-base font-semibold text-ink">
         Active Caseload Directory
@@ -208,8 +208,8 @@
   </section>
 
   <!-- 4. CONVERSATIONS & EVIDENCE -->
-  <section id="conversations" class="space-y-4">
-    <div id="evidence" class="flex items-center justify-between">
+  <section id="conversations" class="space-y-4 scroll-mt-16">
+    <div id="evidence" class="flex items-center justify-between scroll-mt-16">
       <h2 class="text-base font-semibold text-ink">
         Tripartite Dialogue Logs & Evidence
       </h2>

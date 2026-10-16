@@ -186,7 +186,7 @@
 
 <div class="max-w-5xl mx-auto space-y-10 py-2">
   <!-- 1. ORIENT: Single Purpose Workspace Header -->
-  <header id="classes" class="space-y-3 pb-3 border-b border-border">
+  <header id="classes" class="space-y-3 pb-3 border-b border-border scroll-mt-16">
     <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
       <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight text-ink">
         Today
@@ -239,7 +239,7 @@
 
   <!-- 2. DECIDE: Priority Actions Layout (Queue + Quick Tools) -->
   {#if viewMode === 'all' || viewMode === 'priority'}
-    <section id="interventions" class="space-y-4">
+    <section id="interventions" class="space-y-4 scroll-mt-16">
       <div class="flex items-center justify-between">
         <h2 class="text-base font-semibold text-ink">
           Priority Actions
@@ -295,7 +295,7 @@
 
   <!-- 3. ACT / PROVE: Class Overview Roster (Clean Workspace Table) -->
   {#if viewMode === 'all' || viewMode === 'roster'}
-    <section id="roster" class="space-y-4">
+    <section id="roster" class="space-y-4 scroll-mt-16">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 class="text-base font-semibold text-ink">
@@ -409,7 +409,7 @@
     </section>
 
     <!-- 5. EVIDENCE TRAIL: Teacher observations & verified artefacts -->
-    <section id="evidence" class="space-y-4">
+    <section id="evidence" class="space-y-4 scroll-mt-16">
       <div class="flex items-center justify-between">
         <div>
           <h2 class="text-base font-semibold text-ink">

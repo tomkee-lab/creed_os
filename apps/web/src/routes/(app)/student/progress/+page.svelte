@@ -85,7 +85,7 @@
 </script>
 
 <svelte:head>
-  <title>Capabilities — CREED OS</title>
+  <title>Capabilities & Evidence Ledger — CREED OS</title>
 </svelte:head>
 
 <div class="max-w-4xl mx-auto space-y-10 py-4 pb-16">
@@ -101,7 +101,7 @@
 
     <div class="space-y-1">
       <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-        Capabilities & Verified Evidence
+        Capabilities & Evidence Ledger
       </h1>
       <p class="text-xs sm:text-sm text-foreground-secondary">
         What you're demonstrating across projects and diagnostics, grounded in verified evidence.
@@ -140,7 +140,7 @@
   </section>
 
   <!-- 3. DECIDE: Demonstrated Strengths (Qualitative Developmental Bands) -->
-  <section class="space-y-4">
+  <section id="capabilities" class="space-y-4 scroll-mt-16">
     <div class="flex items-center justify-between">
       <div>
         <h2 class="text-base font-bold text-foreground">
@@ -241,7 +241,7 @@
   </section>
 
   <!-- 4. PROVE: Evidence Trail (Drawer/Inspector Powered) -->
-  <section class="space-y-4">
+  <section id="evidence" class="space-y-4 scroll-mt-16">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
       <div>
         <h2 class="text-base font-bold text-foreground">

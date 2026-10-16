@@ -3,10 +3,15 @@ import {
   generateDeterministicSocraticResponse,
   type SocraticTurn
 } from '../mentor/socratic.js';
+import {
+  generateSocraticSystemPrompt,
+  type SocraticPromptConfig
+} from '../socratic.js';
 
 export interface MentorChatOptions {
   apiKey?: string;
   model?: string;
+  promptConfig?: SocraticPromptConfig;
 }
 
 export interface MentorChatResponse {
@@ -16,7 +21,7 @@ export interface MentorChatResponse {
 }
 
 /**
- * Handles Socratic mentor dialogue, calling Gemini API when configured,
+ * Handles Socratic mentor dialogue, calling Google Gemini API when configured,
  * or using the local deterministic Socratic engine when key is missing or network fails.
  */
 export async function chatWithSocraticMentor(
@@ -40,21 +45,48 @@ export async function chatWithSocraticMentor(
   }
 
   try {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${
-      options.model || 'gemini-1.5-flash'
-    }:generateContent?key=${apiKey}`;
+    const model =
+      options.model ||
+      (typeof process !== 'undefined' && typeof process.env !== 'undefined'
+        ? (process.env as Record<string, string | undefined>)['GEMINI_MODEL']
+        : undefined) ||
+      'gemini-2.5-flash';
 
-    const contents = [
-      {
-        role: 'user',
-        parts: [{ text: `${SOCRATIC_SYSTEM_PROMPT}\n\nStudent Query: ${userQuery}` }]
+    // Use header-based authentication rather than leaking key in query string
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+
+    // Construct active system instruction (with dynamic trust protocol & misconception de-individualization if configured)
+    const systemPromptText = options.promptConfig
+      ? generateSocraticSystemPrompt(options.promptConfig)
+      : SOCRATIC_SYSTEM_PROMPT;
+
+    // Map conversation history preserving user / model dialogue context
+    const contents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
+
+    for (const turn of history) {
+      if (turn.content && typeof turn.content === 'string') {
+        contents.push({
+          role: turn.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: turn.content }]
+        });
       }
-    ];
+    }
+
+    contents.push({
+      role: 'user',
+      parts: [{ text: userQuery }]
+    });
 
     const res = await fetch(endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey
+      },
       body: JSON.stringify({
+        system_instruction: {
+          parts: [{ text: systemPromptText }]
+        },
         contents,
         generationConfig: {
           temperature: 0.4,

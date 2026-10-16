@@ -37,13 +37,13 @@
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
     <div class="space-y-1">
       <div class="flex items-center gap-2">
-        <span class="text-[11px] font-semibold uppercase tracking-wider text-muted font-mono">
+        <span class="text-[11px] font-semibold uppercase tracking-wider text-ink-secondary font-mono">
           WAY Console • Faculty Pedagogy Engine
         </span>
-        <span class="text-xs text-muted">•</span>
-        <span class="text-xs text-muted">Teaching the Right Way</span>
+        <span class="text-xs text-ink-muted">•</span>
+        <span class="text-xs text-ink-secondary font-medium">Teaching the Right Way</span>
       </div>
-      <h1 class="text-xl sm:text-2xl font-bold text-foreground">
+      <h1 class="text-xl sm:text-2xl font-bold text-ink">
         Teacher Pedagogical Guidance & Remediation Playbooks
       </h1>
     </div>
@@ -51,14 +51,14 @@
     <div class="flex items-center gap-2">
       <a
         href="/teacher/lesson-plans"
-        class="px-4 py-2 bg-foreground text-background hover:bg-foreground/90 text-xs font-medium rounded-none transition-colors flex items-center gap-1.5 cursor-pointer"
+        class="px-4 py-2 bg-ink text-surface hover:bg-ink/90 text-xs font-semibold rounded-none transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
       >
         <Sparkles class="w-3.5 h-3.5" />
         <span>Lesson Plan Studio</span>
       </a>
       <a
         href="/teacher/benchmarks"
-        class="px-4 py-2 border border-border hover:bg-surface-raised text-xs font-medium text-foreground rounded-none transition-colors cursor-pointer"
+        class="px-4 py-2 border border-border bg-surface hover:bg-surface-subtle text-xs font-medium text-ink rounded-none transition-colors cursor-pointer"
       >
         Cohort Benchmarks
       </a>
@@ -74,13 +74,13 @@
         class="p-4 text-left border rounded-none transition-all cursor-pointer {isSelected ? 'bg-surface-raised border-ai ring-1 ring-ai' : 'bg-surface border-border hover:border-border-strong'}"
       >
         <div class="space-y-1.5">
-          <span class="text-[10px] uppercase font-mono font-semibold px-1.5 py-0.5 bg-surface border border-border text-muted">
+          <span class="text-[10px] uppercase font-mono font-semibold px-1.5 py-0.5 bg-surface-subtle border border-border text-ink-secondary">
             {pb.domain}
           </span>
-          <h3 class="text-xs font-bold text-foreground leading-snug">
+          <h3 class="text-xs font-bold text-ink leading-snug">
             {pb.frameworkName}
           </h3>
-          <p class="text-[11px] text-muted line-clamp-2">
+          <p class="text-[11px] text-ink-secondary line-clamp-2">
             {pb.tagline}
           </p>
         </div>
@@ -95,28 +95,28 @@
       <div class="border-b border-border pb-4 space-y-1">
         <div class="flex items-center gap-2">
           <BrainCircuit class="w-4 h-4 text-ai" />
-          <h2 class="text-base font-bold text-foreground">
+          <h2 class="text-base font-bold text-ink">
             {selectedPlaybook.frameworkName}
           </h2>
         </div>
-        <p class="text-xs text-muted leading-relaxed">
+        <p class="text-xs text-ink-secondary leading-relaxed">
           {selectedPlaybook.tagline}
         </p>
       </div>
 
       <!-- Core Principles Grid -->
       <div class="space-y-3">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-muted font-mono">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-ink-secondary font-mono">
           Core Principles & Cognitive Rationale
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           {#each selectedPlaybook.corePrinciples as cp}
             <div class="p-3.5 bg-surface-raised border border-border rounded-none space-y-1.5">
-              <span class="text-xs font-semibold text-foreground flex items-center gap-1.5">
+              <span class="text-xs font-semibold text-ink flex items-center gap-1.5">
                 <Lightbulb class="w-3.5 h-3.5 text-ai" />
                 <span>{cp.principle}</span>
               </span>
-              <p class="text-[11px] text-muted leading-relaxed">
+              <p class="text-[11px] text-ink-secondary leading-relaxed">
                 {cp.explanation}
               </p>
             </div>
@@ -126,15 +126,15 @@
 
       <!-- Classroom Implementation Steps -->
       <div class="space-y-3 pt-2 border-t border-border">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-muted font-mono">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-ink-secondary font-mono">
           Chronological Classroom Implementation Steps
         </h3>
 
         <div class="space-y-2">
           {#each selectedPlaybook.classroomImplementationSteps as step}
             <div class="p-4 bg-surface-raised border border-border rounded-none space-y-2">
-              <div class="flex items-center gap-2 text-xs font-bold text-foreground">
-                <span class="w-5 h-5 rounded-none bg-foreground text-background flex items-center justify-center font-mono text-[10px]">
+              <div class="flex items-center gap-2 text-xs font-bold text-ink">
+                <span class="w-5 h-5 rounded-none bg-ink text-surface flex items-center justify-center font-mono text-[10px]">
                   {step.step}
                 </span>
                 <span>{step.title}</span>
@@ -143,11 +143,11 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1 border-t border-border">
                 <div class="space-y-0.5">
                   <span class="text-[10px] uppercase font-bold text-ai tracking-wider">Teacher Action</span>
-                  <p class="text-muted leading-relaxed">{step.teacherAction}</p>
+                  <p class="text-ink-secondary leading-relaxed">{step.teacherAction}</p>
                 </div>
                 <div class="space-y-0.5">
                   <span class="text-[10px] uppercase font-bold text-positive tracking-wider">Student Action</span>
-                  <p class="text-muted leading-relaxed">{step.studentAction}</p>
+                  <p class="text-ink-secondary leading-relaxed">{step.studentAction}</p>
                 </div>
               </div>
             </div>
@@ -157,14 +157,14 @@
 
       <!-- What NOT To Do vs Recommended Intervention -->
       <div class="space-y-3 pt-2 border-t border-border">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-muted font-mono">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-ink-secondary font-mono">
           Diagnostic Misconception Interventions: What to Avoid vs What to Do
         </h3>
 
         <div class="space-y-3">
           {#each selectedPlaybook.misconceptionInterventions as item}
             <div class="p-4 bg-surface-raised border border-border rounded-none space-y-2">
-              <span class="text-xs font-bold text-foreground block">
+              <span class="text-xs font-bold text-ink block">
                 Observed Symptom: {item.misconception}
               </span>
 
@@ -174,7 +174,7 @@
                     <ShieldAlert class="w-3.5 h-3.5" />
                     <span>What NOT To Do (Ineffective)</span>
                   </span>
-                  <p class="text-critical/90 leading-relaxed text-[11px]">{item.whatNotToDo}</p>
+                  <p class="text-critical leading-relaxed text-[11px] font-medium">{item.whatNotToDo}</p>
                 </div>
 
                 <div class="p-2 bg-positive-subtle border border-positive/30 rounded-none space-y-1">
@@ -182,7 +182,7 @@
                     <CheckCircle2 class="w-3.5 h-3.5" />
                     <span>Recommended Pedagogical Intervention</span>
                   </span>
-                  <p class="text-positive/90 leading-relaxed text-[11px]">{item.recommendedIntervention}</p>
+                  <p class="text-positive leading-relaxed text-[11px] font-medium">{item.recommendedIntervention}</p>
                 </div>
               </div>
             </div>

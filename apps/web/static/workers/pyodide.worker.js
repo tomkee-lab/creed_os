@@ -13,8 +13,8 @@ import time
 
 class RobotMock:
     def __init__(self):
-        self.x = 150.0
-        self.y = 150.0
+        self.x = 240.0
+        self.y = 220.0
         self.heading = 0.0
         self.distance = 38.0
         self.light = 72.0
@@ -50,8 +50,8 @@ class RobotMock:
         if direction.upper() == "BACKWARD":
             dist = -dist
         old_x, old_y = self.x, self.y
-        self.x = max(25.0, min(275.0, self.x + math.cos(rad) * dist))
-        self.y = max(25.0, min(275.0, self.y + math.sin(rad) * dist))
+        self.x = max(20.0, min(460.0, self.x + math.cos(rad) * dist))
+        self.y = max(20.0, min(340.0, self.y + math.sin(rad) * dist))
         self.battery = max(10.0, round(self.battery - (dur * 0.2), 1))
         self._update_distance()
         self.last_action = f"drive:{direction}:{speed}:{duration}"
@@ -91,8 +91,8 @@ class RobotMock:
         if direction.upper() == "BACKWARD":
             dist_px = -dist_px
         old_x, old_y = self.x, self.y
-        self.x = max(25.0, min(275.0, self.x + math.cos(rad) * dist_px))
-        self.y = max(25.0, min(275.0, self.y + math.sin(rad) * dist_px))
+        self.x = max(20.0, min(460.0, self.x + math.cos(rad) * dist_px))
+        self.y = max(20.0, min(340.0, self.y + math.sin(rad) * dist_px))
         self.battery = max(10.0, round(self.battery - (dur * 0.15), 1))
         self._update_distance()
         self.last_action = f"drive_dist:{direction}:{dist_cm}:{speed}"
@@ -176,8 +176,8 @@ class RobotMock:
             self.heading = (self.heading + deg) % 360
             turn_rad = math.radians((old_h - 90 + (deg / 2)) % 360)
         step_dist = rad_val * 1.2
-        self.x = max(25.0, min(275.0, self.x + math.cos(turn_rad) * step_dist))
-        self.y = max(25.0, min(275.0, self.y + math.sin(turn_rad) * step_dist))
+        self.x = max(20.0, min(460.0, self.x + math.cos(turn_rad) * step_dist))
+        self.y = max(20.0, min(340.0, self.y + math.sin(turn_rad) * step_dist))
         self._update_distance()
         trail_entry = None
         if self.pen_is_down:
@@ -210,8 +210,8 @@ class RobotMock:
         if direction.upper() == "BACKWARD":
             dist = -dist
         old_x, old_y = self.x, self.y
-        self.x = max(25.0, min(275.0, self.x + math.cos(rad) * dist))
-        self.y = max(25.0, min(275.0, self.y + math.sin(rad) * dist))
+        self.x = max(20.0, min(460.0, self.x + math.cos(rad) * dist))
+        self.y = max(20.0, min(340.0, self.y + math.sin(rad) * dist))
         self._update_distance()
         self.last_action = f"drive_cont:{direction}:{speed}"
         trail_entry = None
@@ -249,8 +249,8 @@ class RobotMock:
 
     def reset_position(self):
         old_x, old_y = self.x, self.y
-        self.x = 150.0
-        self.y = 150.0
+        self.x = 240.0
+        self.y = 220.0
         self.heading = 0.0
         self._update_distance()
         self.last_action = "reset_position"
@@ -260,13 +260,13 @@ class RobotMock:
             "speed": 100,
             "duration": 0.3,
             "fromX": round(old_x, 1), "fromY": round(old_y, 1),
-            "toX": 150.0, "toY": 150.0,
+            "toX": 240.0, "toY": 220.0,
             "fromHeading": round(self.heading, 1), "toHeading": 0.0,
             "heading": 0.0,
             "distance": round(self.distance, 1),
-            "action": "Rover Position Reset to Origin (150, 150) 📍"
+            "action": "Rover Position Reset to Origin (240, 220) 📍"
         })
-        print("[ROBOT] Reset position to center origin (150, 150) 📍")
+        print("[ROBOT] Reset position to center origin (240, 220) 📍")
 
     def set_motors(self, left=0, right=0):
         left_spd = float(left)
@@ -279,8 +279,8 @@ class RobotMock:
             self.heading = (self.heading + turn_bias * 0.4 + 360) % 360
         rad = math.radians((self.heading - 90) % 360)
         dist = (avg_spd / 100.0) * 18.0
-        self.x = max(25.0, min(275.0, self.x + math.cos(rad) * dist))
-        self.y = max(25.0, min(275.0, self.y + math.sin(rad) * dist))
+        self.x = max(20.0, min(460.0, self.x + math.cos(rad) * dist))
+        self.y = max(20.0, min(340.0, self.y + math.sin(rad) * dist))
         self._update_distance()
         trail_entry = None
         if self.pen_is_down:
@@ -307,18 +307,16 @@ class RobotMock:
         print(f"[ROBOT] Differential Drive: Left={left}%, Right={right}% -> Pos: ({self.x:.1f}, {self.y:.1f})")
 
     def _update_distance(self):
-        d_crater = math.hypot(self.x - 215.0, self.y - 80.0)
-        d_ridge = math.hypot(self.x - 55.0, self.y - 185.0)
         rad = math.radians((self.heading - 90) % 360)
         vx = math.cos(rad)
         vy = math.sin(rad)
-        border_d = 120.0
-        if vx > 0.05: border_d = min(border_d, (275.0 - self.x) / vx)
-        elif vx < -0.05: border_d = min(border_d, (self.x - 25.0) / -vx)
-        if vy > 0.05: border_d = min(border_d, (275.0 - self.y) / vy)
-        elif vy < -0.05: border_d = min(border_d, (self.y - 25.0) / -vy)
-        measured = min(border_d, max(5.0, d_crater - 24.0), max(5.0, d_ridge - 20.0))
-        self.distance = max(5.0, min(120.0, round(measured, 1)))
+        border_d = 180.0
+        if vx > 0.05: border_d = min(border_d, (460.0 - self.x) / vx)
+        elif vx < -0.05: border_d = min(border_d, (self.x - 20.0) / -vx)
+        if vy > 0.05: border_d = min(border_d, (340.0 - self.y) / vy)
+        elif vy < -0.05: border_d = min(border_d, (self.y - 20.0) / -vy)
+        measured = border_d
+        self.distance = max(5.0, min(180.0, round(measured, 1)))
 
     def get_distance_cm(self):
         self._update_distance()
@@ -841,8 +839,8 @@ self.onmessage = async (event) => {
     });
 
     await self.pyodide.runPythonAsync(`
-robot.x = 150.0
-robot.y = 150.0
+robot.x = 240.0
+robot.y = 220.0
 robot.heading = 0.0
 robot.distance = 38.0
 robot.battery = 94.0

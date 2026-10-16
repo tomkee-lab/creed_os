@@ -89,6 +89,7 @@ export const handle: Handle = async ({ event, resolve }) => {
       import.meta.env.DEV &&
       (event.url.hostname === 'localhost' || event.url.hostname === '127.0.0.1') &&
       (event.cookies.get('creed_dev_session') === 'true' ||
+        event.url.searchParams.has('devRole') ||
         (process.env.CREED_DEV_AUTOLOGIN === 'true' &&
           !pathname.startsWith('/login') &&
           !pathname.startsWith('/signup') &&
@@ -116,6 +117,12 @@ export const handle: Handle = async ({ event, resolve }) => {
 
       if (queryRole && validDevRoles.includes(queryRole)) {
         event.cookies.set('creed_dev_role', queryRole, {
+          path: '/',
+          httpOnly: true,
+          sameSite: 'lax',
+          maxAge: 7 * 24 * 60 * 60
+        });
+        event.cookies.set('creed_dev_session', 'true', {
           path: '/',
           httpOnly: true,
           sameSite: 'lax',

@@ -180,7 +180,7 @@
   />
 </svelte:head>
 
-<div data-hydrated={hydrated} class="space-y-6">
+<div data-hydrated={hydrated ? 'true' : 'false'} class="space-y-6">
   <!-- Governance Portal Navigation Tabs -->
   <div class="border-b border-border flex items-center gap-1 sm:gap-2 overflow-x-auto pb-1 text-xs">
     <button

@@ -233,10 +233,17 @@
     <Field>
       <button
         type="button"
-        onclick={() => {
+        onclick={async () => {
           // Fast-track demo login with active role
+          if (import.meta.env.DEV) {
+            await fetch('/api/auth/dev-switch', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ role: selectedRole })
+            }).catch(() => {});
+          }
           const found = ROLES.find(r => r.value === selectedRole) || ROLES[0];
-          goto(nextUrl || found.path);
+          window.location.href = nextUrl || found.path;
         }}
         class="w-full cursor-pointer h-8 rounded-none text-xs font-medium gap-2 border border-border bg-surface hover:bg-surface-subtle hover:border-border-strong text-ink active:scale-[0.99] transition-all duration-140 flex items-center justify-center"
       >

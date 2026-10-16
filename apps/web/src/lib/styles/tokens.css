@@ -25,8 +25,8 @@
   --font-heading: 'DM Sans Variable', 'DM Sans', var(--font-sans);
   --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
   --foreground: oklch(0.180 0.015 270);            /* Deep Slate Ink #0F1117 (15.5:1 AAA) */
-  --foreground-secondary: oklch(0.460 0.020 270);  /* Slate Grey #4F5464 (5.4:1 AAA) */
-  --foreground-muted: oklch(0.580 0.015 270);      /* Steel Muted #73798C (4.5:1 AA) */
+  --foreground-secondary: oklch(0.420 0.020 270);  /* Slate Grey #4F5464 (6.0:1 AAA) */
+  --foreground-muted: oklch(0.480 0.018 270);      /* Steel Muted #73798C (5.0:1 AAA) */
 
   /* --- 4. Primary High-Voltage Accent: Electric Indigo (#5B50E6) --- */
   /* Active · Success · Execute · Connected · Live · Selected · Primary CTA (<2% at rest) */
@@ -45,14 +45,14 @@
 
   /* --- 6. Supporting Technical & Operational State Accents --- */
   /* Cyan: Network, infrastructure, telemetry, links */
-  --cyan: oklch(0.540 0.140 205);
+  --cyan: oklch(0.480 0.130 215);
   --cyan-foreground: oklch(0.990 0.002 240);
   --cyan-subtle: oklch(0.950 0.025 205);
 
-  /* Electric Yellow: Warning, attention, pending state, elevated risk */
-  --yellow: oklch(0.680 0.150 75);
+  /* Electric Yellow: Warning, attention, pending state, elevated risk (Darker amber for light mode contrast) */
+  --yellow: oklch(0.520 0.160 65);
   --yellow-foreground: oklch(0.990 0.002 240);
-  --yellow-subtle: oklch(0.960 0.030 75);
+  --yellow-subtle: oklch(0.965 0.025 75);
 
   /* Signal Red: Destructive actions, errors, failed deployments, outages */
   --red: oklch(0.560 0.180 25);

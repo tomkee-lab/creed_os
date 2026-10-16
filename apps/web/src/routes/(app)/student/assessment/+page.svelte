@@ -17,6 +17,14 @@
   import type { ClientAssessmentItem } from '@core-os/domain';
   import type { BenchmarkDomain } from '@core-os/assessment';
 
+  let { data }: { data?: any } = $props();
+
+  const currentLearnerId = $derived(
+    (data?.user?.role === 'student' ? (data?.learner?.id || data?.user?.learnerId || data?.user?.id) : null) ||
+    data?.learner?.id ||
+    '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+  );
+
   // Domain selection state
   let selectedDomain = $state<BenchmarkDomain>('stem');
   let assessmentMode = $state<'benchmark' | 'rapid'>('benchmark');
@@ -29,8 +37,6 @@
   let currentItem = $state<ClientAssessmentItem | null>(null);
   let selectedOptionId = $state<string | null>(null);
   let itemsAnswered = $state(0);
-  let currentTheta = $state(0.0);
-  let standardError = $state(1.0);
   let errorMessage = $state<string | null>(null);
 
   // Result state for current question
@@ -42,8 +48,6 @@
 
   // Completion summary
   let completionSummary = $state<{
-    finalTheta: number;
-    finalStandardError: number;
     itemsCount: number;
     evidenceGeneratedId?: string;
     benchmarkReport?: any;
@@ -105,19 +109,20 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          learnerId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          learnerId: currentLearnerId,
           domain,
           mode
         })
       });
 
-      if (!res.ok) throw new Error('Could not initialize adaptive assessment session');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Could not initialize adaptive assessment session');
+      }
 
       const data = await res.json();
       sessionId = data.sessionId;
       currentItem = data.firstItem;
-      currentTheta = data.currentTheta;
-      standardError = data.standardError;
       itemsAnswered = 0;
       status = 'active';
     } catch (err: any) {
@@ -142,7 +147,10 @@
         })
       });
 
-      if (!res.ok) throw new Error('Failed to evaluate response');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to evaluate response');
+      }
 
       const data = await res.json();
 
@@ -152,14 +160,10 @@
         misconceptionCode: data.misconceptionCode
       };
 
-      currentTheta = data.currentTheta;
-      standardError = data.standardError;
       itemsAnswered = data.itemsAnswered;
 
       if (data.isTestComplete) {
         completionSummary = data.completionSummary || {
-          finalTheta: data.currentTheta,
-          finalStandardError: data.standardError,
           itemsCount: data.itemsAnswered,
           benchmarkReport: data.benchmarkReport
         };
@@ -185,7 +189,7 @@
 </script>
 
 <svelte:head>
-  <title>Global Benchmarking Assessment — CREED OS</title>
+  <title>Adaptive Benchmark Assessment — CREED OS</title>
 </svelte:head>
 
 <div class="max-w-4xl mx-auto space-y-6 pb-16">
@@ -196,7 +200,7 @@
         Diagnostic & Benchmarking Engine
       </span>
       <h1 class="text-xl sm:text-2xl font-bold text-foreground">
-        International Calibrated Assessment
+        Adaptive Benchmark Assessment
       </h1>
     </div>
 
@@ -242,12 +246,12 @@
         {#if showCalibrationDetails}
           <div class="pt-3 border-t border-border text-xs text-foreground-secondary space-y-2 animate-in fade-in-0 duration-140">
             <p>
-              Each assessment is calibrated using Item Response Theory (IRT 3PL). Scores map directly to international scales (PISA, TIMSS, CEFR, and CSTA K-12) to generate an authentic growth diagnostic and 4-week roadmap.
+              Each assessment adapts to your learning pace using evidence-backed diagnostic standards. Questions map to national and international frameworks (PISA, TIMSS, CEFR, and CSTA K-12) to generate an authentic growth profile and 4-week practice roadmap.
             </p>
             <div class="flex flex-wrap gap-2 text-[11px] font-mono text-ink-secondary">
-              <span class="px-2 py-0.5 bg-surface-raised border border-border">IRT 3PL EAP Scoring</span>
-              <span class="px-2 py-0.5 bg-surface-raised border border-border">Confidence Intervals Protected</span>
-              <span class="px-2 py-0.5 bg-surface-raised border border-border">Zero Fixed IQ Labeling</span>
+              <span class="px-2 py-0.5 bg-surface-raised border border-border">Adaptive Questioning</span>
+              <span class="px-2 py-0.5 bg-surface-raised border border-border">Evidence-Based Mastery</span>
+              <span class="px-2 py-0.5 bg-surface-raised border border-border">Zero Fixed Ability Labeling</span>
             </div>
           </div>
         {/if}
@@ -339,13 +343,30 @@
   {:else if status === 'error'}
     <div class="p-8 bg-surface border-l-4 border-l-critical border border-border rounded-none text-center space-y-4">
       <AlertCircle class="w-8 h-8 text-critical mx-auto" />
-      <p class="text-sm font-medium text-foreground">{errorMessage}</p>
-      <button
-        onclick={() => startBenchmarkSession(selectedDomain, assessmentMode)}
-        class="px-4 py-2 bg-foreground text-background text-xs font-medium rounded-sm cursor-pointer hover:bg-foreground/90 transition-colors"
-      >
-        Retry Session
-      </button>
+      <p class="text-sm font-medium text-foreground max-w-lg mx-auto">{errorMessage}</p>
+      {#if errorMessage?.includes('parental consent') || errorMessage?.includes('DPDP')}
+        <div class="flex items-center justify-center gap-3 pt-2">
+          <a
+            href="/consent"
+            class="px-4 py-2 bg-brand text-brand-foreground text-xs font-semibold rounded-sm hover:bg-brand/90 transition-colors cursor-pointer shadow-xs"
+          >
+            Obtain Parental Consent ↗
+          </a>
+          <button
+            onclick={() => startBenchmarkSession(selectedDomain, assessmentMode)}
+            class="px-4 py-2 border border-border bg-surface text-ink text-xs font-medium rounded-sm cursor-pointer hover:bg-surface-subtle transition-colors"
+          >
+            Retry Session
+          </button>
+        </div>
+      {:else}
+        <button
+          onclick={() => startBenchmarkSession(selectedDomain, assessmentMode)}
+          class="px-4 py-2 bg-foreground text-background text-xs font-medium rounded-sm cursor-pointer hover:bg-foreground/90 transition-colors"
+        >
+          Retry Session
+        </button>
+      {/if}
     </div>
 
   <!-- STATE 4: COMPLETED SUMMARY -->
@@ -356,40 +377,40 @@
           <Award class="w-7 h-7" />
         </div>
         <span class="text-xs font-semibold uppercase tracking-wider text-positive block">
-          Assessment Complete & Calibrated
+          Assessment Complete & Recorded
         </span>
         <h2 class="text-2xl font-bold text-foreground">
           {currentConfig.title}
         </h2>
         <p class="text-sm text-foreground-secondary max-w-md mx-auto leading-relaxed">
-          Your responses have been processed deterministically through our IRT 3PL psychometric engine. Your international benchmark standings and growth roadmap are ready.
+          Your responses have been processed through our diagnostic assessment engine. Your curriculum standings and growth roadmap are ready.
         </p>
       </div>
 
       <!-- Quick Metrics Grid -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-y border-border py-6">
         <div class="p-4 bg-surface-raised border border-border rounded-sm space-y-1">
-          <span class="text-[10px] uppercase font-semibold text-foreground-secondary tracking-wider">Calibrated Standing</span>
+          <span class="text-[10px] uppercase font-semibold text-foreground-secondary tracking-wider">Demonstrated Level</span>
           <p class="text-lg font-bold text-foreground">
-            {completionSummary?.benchmarkReport?.scaleFormatted || 'Secure Calibration'}
+            {completionSummary?.benchmarkReport?.internationalTier || 'Foundational Competency'}
           </p>
           <span class="text-xs text-foreground-secondary block">
-            {completionSummary?.benchmarkReport?.internationalTier || 'International Standard Verified'}
+            {completionSummary?.benchmarkReport?.scaleName || 'Standard Framework'}
           </span>
         </div>
 
         <div class="p-4 bg-surface-raised border border-border rounded-sm space-y-1">
-          <span class="text-[10px] uppercase font-semibold text-foreground-secondary tracking-wider">Global Percentile</span>
+          <span class="text-[10px] uppercase font-semibold text-foreground-secondary tracking-wider">Diagnostic Evidence</span>
           <p class="text-lg font-bold text-positive">
-            {completionSummary?.benchmarkReport?.percentileRank ? `${completionSummary.benchmarkReport.percentileRank}th Percentile` : 'Top Tier'}
+            {completionSummary?.itemsCount ? `${completionSummary.itemsCount} Items Verified` : 'Demonstration Verified'}
           </p>
-          <span class="text-xs text-foreground-secondary block">Against International Norms</span>
+          <span class="text-xs text-foreground-secondary block">Formative Portfolio Evidence</span>
         </div>
 
         <div class="p-4 bg-surface-raised border border-border rounded-sm space-y-1">
           <span class="text-[10px] uppercase font-semibold text-foreground-secondary tracking-wider">Developmental Band</span>
           <p class="text-lg font-bold text-ai">
-            {completionSummary?.benchmarkReport?.developmentalBand || 'Competent Practitioner'}
+            {completionSummary?.benchmarkReport?.developmentalBand || 'Developing Foundation'}
           </p>
           <span class="text-xs text-foreground-secondary block">Qualitative Mastery</span>
         </div>

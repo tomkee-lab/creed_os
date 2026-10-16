@@ -106,13 +106,13 @@
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
     <div class="space-y-1">
       <div class="flex items-center gap-2">
-        <span class="text-[11px] font-semibold uppercase tracking-wider text-muted font-mono">
+        <span class="text-[11px] font-semibold uppercase tracking-wider text-ink-secondary font-mono">
           WAY Console • Faculty Cockpit
         </span>
-        <span class="text-xs text-muted">•</span>
-        <span class="text-xs text-muted">{data.cohort.name}</span>
+        <span class="text-xs text-ink-muted">•</span>
+        <span class="text-xs text-ink-secondary font-medium">{data.cohort.name}</span>
       </div>
-      <h1 class="text-xl sm:text-2xl font-bold text-foreground">
+      <h1 class="text-xl sm:text-2xl font-bold text-ink">
         Classroom Global Benchmarks & Misconception Heatmap
       </h1>
     </div>
@@ -120,14 +120,14 @@
     <div class="flex items-center gap-2">
       <a
         href="/teacher/lesson-plans"
-        class="px-4 py-2 bg-foreground text-background hover:bg-foreground/90 text-xs font-medium rounded-none transition-colors flex items-center gap-1.5 cursor-pointer"
+        class="px-4 py-2 bg-ink text-surface hover:bg-ink/90 text-xs font-semibold rounded-none transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
       >
         <Sparkles class="w-3.5 h-3.5" />
         <span>Lesson Plan Studio</span>
       </a>
       <a
         href="/teacher/guidance"
-        class="px-4 py-2 border border-border hover:bg-surface-raised text-xs font-medium text-foreground rounded-none transition-colors cursor-pointer"
+        class="px-4 py-2 border border-border bg-surface hover:bg-surface-subtle text-xs font-medium text-ink rounded-none transition-colors cursor-pointer"
       >
         Pedagogy Guidance
       </a>
@@ -139,12 +139,12 @@
     {#each cohortStats as stat}
       {@const Icon = stat.icon}
       <div class="p-5 bg-surface border border-border rounded-none space-y-2">
-        <div class="flex items-center justify-between text-muted">
+        <div class="flex items-center justify-between text-ink-secondary">
           <span class="text-[10px] uppercase font-semibold tracking-wider">{stat.title}</span>
-          <Icon class="w-4 h-4" />
+          <Icon class="w-4 h-4 text-ink-muted" />
         </div>
-        <p class="text-2xl font-extrabold text-foreground tracking-tight">{stat.value}</p>
-        <p class="text-xs text-muted leading-relaxed">{stat.sub}</p>
+        <p class="text-2xl font-extrabold text-ink tracking-tight">{stat.value}</p>
+        <p class="text-xs text-ink-secondary leading-relaxed">{stat.sub}</p>
       </div>
     {/each}
   </section>
@@ -153,15 +153,15 @@
   <section class="p-6 bg-surface border border-border rounded-none space-y-4">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
       <div>
-        <h2 class="text-sm font-bold text-foreground flex items-center gap-2">
+        <h2 class="text-sm font-bold text-ink flex items-center gap-2">
           <AlertTriangle class="w-4 h-4 text-attention" />
           <span>Active Misconception Clusters (Cohort Gaps)</span>
         </h2>
-        <p class="text-xs text-muted">
+        <p class="text-xs text-ink-secondary">
           Aggregated common error patterns across recent STEM, English, and Robotics assessments
         </p>
       </div>
-      <span class="text-xs text-muted font-mono">{misconceptionClustersExtended.length} Clusters Identified</span>
+      <span class="text-xs text-ink-secondary font-mono font-medium">{misconceptionClustersExtended.length} Clusters Identified</span>
     </div>
 
     <!-- Cluster Heatmap Grid -->
@@ -170,20 +170,20 @@
         <div class="p-4 bg-surface-raised border border-border rounded-none space-y-3 flex flex-col justify-between">
           <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-foreground">{cluster.clusterName}</span>
+              <span class="text-xs font-bold text-ink">{cluster.clusterName}</span>
               <span
-                class="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded-none border {cluster.severity === 'High' ? 'bg-critical-subtle border-critical/30 text-critical' : cluster.severity === 'Moderate' ? 'bg-attention-subtle border-attention/30 text-attention' : 'bg-surface border-border text-muted'}"
+                class="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded-none border {cluster.severity === 'High' ? 'bg-critical-subtle border-critical/30 text-critical' : cluster.severity === 'Moderate' ? 'bg-attention-subtle border-attention/30 text-attention font-bold' : 'bg-surface-subtle border-border text-ink-secondary'}"
               >
                 {cluster.studentCount} Students ({cluster.severity})
               </span>
             </div>
 
-            <div class="text-[11px] text-muted space-y-1">
-              <div>Domain: <strong class="text-foreground">{cluster.domain}</strong></div>
-              <div>Diagnostic Anchor: <span class="font-mono text-foreground/80">{cluster.diagnosticItem}</span></div>
+            <div class="text-[11px] text-ink-secondary space-y-1">
+              <div>Domain: <strong class="text-ink">{cluster.domain}</strong></div>
+              <div>Diagnostic Anchor: <span class="font-mono text-ink/80">{cluster.diagnosticItem}</span></div>
             </div>
 
-            <div class="p-2 bg-surface border border-border rounded-none text-xs text-muted leading-relaxed">
+            <div class="p-2 bg-surface border border-border rounded-none text-xs text-ink-secondary leading-relaxed">
               <strong class="text-ai block text-[10px] uppercase font-semibold tracking-wider">
                 Targeted Remediation Strategy:
               </strong>
@@ -194,7 +194,7 @@
           <div class="pt-2 border-t border-border flex items-center justify-end">
             <a
               href="/teacher/lesson-plans?target={encodeURIComponent(cluster.clusterName)}"
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-foreground text-background hover:bg-foreground/90 text-xs font-medium rounded-none transition-colors cursor-pointer"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-ink text-surface hover:bg-ink/90 text-xs font-semibold rounded-none transition-colors cursor-pointer shadow-xs"
             >
               <Sparkles class="w-3.5 h-3.5" />
               <span>Generate Differentiated Lesson Plan</span>
@@ -210,20 +210,20 @@
   <section class="p-6 bg-surface border border-border rounded-none space-y-4">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-3">
       <div>
-        <h3 class="text-sm font-bold text-foreground">
+        <h3 class="text-sm font-bold text-ink">
           Learner Roster & International Percentiles
         </h3>
-        <p class="text-xs text-muted">Individual standing and assigned remediation sprints</p>
+        <p class="text-xs text-ink-secondary">Individual standing and assigned remediation sprints</p>
       </div>
 
       <!-- Search Input -->
       <div class="relative w-full sm:w-64">
-        <Search class="w-3.5 h-3.5 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
+        <Search class="w-3.5 h-3.5 text-ink-muted absolute left-3 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           bind:value={searchQuery}
           placeholder="Search learner name or ID..."
-          class="w-full pl-9 pr-3 py-1.5 bg-surface-raised border border-border text-xs rounded-none text-foreground placeholder:text-muted focus:outline-hidden focus:border-border-focus"
+          class="w-full pl-9 pr-3 py-1.5 bg-surface-raised border border-border text-xs rounded-none text-ink placeholder:text-ink-muted focus:outline-hidden focus:border-border-focus"
         />
       </div>
     </div>
@@ -231,7 +231,7 @@
     <!-- Data Table (Zero-radius 0px) -->
     <div class="border border-border overflow-x-auto rounded-none">
       <table class="w-full text-left text-xs border-collapse">
-        <thead class="bg-surface-raised border-b border-border text-muted font-mono uppercase text-[10px]">
+        <thead class="bg-surface-raised border-b border-border text-ink-secondary font-mono uppercase text-[10px]">
           <tr>
             <th class="p-3">Learner ID</th>
             <th class="p-3">Name</th>
@@ -245,26 +245,26 @@
         <tbody class="divide-y divide-border">
           {#each filteredStudents as student}
             <tr class="hover:bg-surface-raised transition-colors">
-              <td class="p-3 font-mono text-muted">{student.id}</td>
-              <td class="p-3 font-semibold text-foreground">{student.name}</td>
+              <td class="p-3 font-mono text-ink-secondary">{student.id}</td>
+              <td class="p-3 font-semibold text-ink">{student.name}</td>
               <td class="p-3">
-                <span class="px-2 py-0.5 bg-surface-raised border border-border rounded-none text-[11px] font-medium text-foreground">
+                <span class="px-2 py-0.5 bg-surface-raised border border-border rounded-none text-[11px] font-medium text-ink">
                   {student.overallReadiness}
                 </span>
               </td>
-              <td class="p-3 text-positive font-medium">
+              <td class="p-3 text-positive font-semibold">
                 {student.strongestCompetency.replace(/_/g, ' ')}
               </td>
-              <td class="p-3 text-attention font-medium">
+              <td class="p-3 text-attention font-semibold">
                 {student.weakestCompetency.replace(/_/g, ' ')}
               </td>
-              <td class="p-3 text-muted">
+              <td class="p-3 text-ink-secondary">
                 {student.activeGapRemediation}
               </td>
               <td class="p-3 text-right">
                 <a
                   href="/student/report?domain=stem"
-                  class="text-ai hover:underline font-medium inline-flex items-center gap-1 cursor-pointer"
+                  class="text-ai hover:underline font-semibold inline-flex items-center gap-1 cursor-pointer"
                 >
                   <span>Inspect</span>
                   <ArrowRight class="w-3 h-3" />

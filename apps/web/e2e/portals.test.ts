@@ -265,8 +265,8 @@ test.describe('Socratic AI Mentor (/student/mentor)', () => {
   test('renders the mentor interface with thinking moves and dialogue', async ({ page, context }) => {
     await loginAs(context, 'student');
     await page.goto('/student/mentor', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText(/Socratic Mentor/i)).toBeVisible();
-    await expect(page.getByRole('heading', { level: 1 })).toContainText(/Guided Reasoning Studio/i);
+    await expect(page.getByText(/Socratic Mentor/i).first()).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(/Socratic Mentor Studio/i);
     await expect(page.getByRole('button', { name: /Decompose/i })).toBeVisible();
   });
 
@@ -482,14 +482,11 @@ test.describe('Security & Internationalization (Phase 3)', () => {
     await expect(page.getByText(/Anti-Abuse Verification/i)).toBeVisible();
   });
 
-  test('TopBar renders LanguageSwitcher and allows switching locales', async ({ page, context }) => {
+  test('TopBar adheres to English-only architecture with no locale switcher', async ({ page, context }) => {
     await loginAs(context, 'student');
     await page.goto('/student');
-    const switcher = page.locator('[data-testid="language-switcher"][data-hydrated="true"]');
-    await expect(switcher).toBeVisible();
-    await switcher.click();
-    await expect(page.getByRole('option', { name: /हिन्दी/i })).toBeVisible();
-    await expect(page.getByRole('option', { name: /मराठी/i })).toBeVisible();
+    const switcher = page.locator('[data-testid="language-switcher"]');
+    await expect(switcher).toHaveCount(0);
   });
 });
 
@@ -509,7 +506,8 @@ test.describe('Bits UI v1 Primitives & Iconify Architecture', () => {
   test('Parental Consent Gate (/consent) renders Bits UI v1 PinInput after OTP request', async ({ page, context }) => {
     await loginAs(context, 'parent');
     await page.goto('/consent', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('[data-hydrated="true"]')).toBeVisible();
+    await expect(page.locator('[data-app-hydrated="true"]')).toBeVisible();
+    await expect(page.locator('#guardian-name')).toBeVisible();
     await page.fill('#guardian-name', 'Parent Guardian');
     const randomContact = `+91 98765 ${Math.floor(10000 + Math.random() * 90000)}`;
     await page.fill('#guardian-contact', randomContact);
@@ -530,7 +528,7 @@ test.describe('Applied Maker Missions & Pedagogical Actions', () => {
   test('Student can launch and simulate RoboBridge maker mission (/student/missions/robobridge)', async ({ page, context }) => {
     await loginAs(context, 'student');
     await page.goto('/student/missions/robobridge', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('[data-testid="language-switcher"][data-hydrated="true"]')).toBeVisible();
+    await expect(page.locator('[data-app-hydrated="true"]')).toBeVisible();
     await expect(page.getByRole('heading', { level: 1 })).toContainText(/RoboBridge Structural Optimization/i);
     await expect(page.getByText(/LEVEL 4 APPLIED TASK/i)).toBeVisible();
     await expect(page.getByText(/Bridge Mass/i)).toBeVisible();
@@ -554,7 +552,7 @@ test.describe('Applied Maker Missions & Pedagogical Actions', () => {
   test('Teacher can log classroom observation and see it appended to evidence trail', async ({ page, context }) => {
     await loginAs(context, 'teacher');
     await page.goto('/teacher', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('[data-testid="language-switcher"][data-hydrated="true"]')).toBeVisible();
+    await expect(page.locator('[data-app-hydrated="true"]')).toBeVisible();
 
     // Open observation drawer via top priority tool
     await page.getByRole('button', { name: /Log observation/i }).first().click();
@@ -575,7 +573,7 @@ test.describe('Applied Maker Missions & Pedagogical Actions', () => {
   test('Item Studio can trigger QTI 3.0 XML export', async ({ page, context }) => {
     await loginAs(context, 'studio');
     await page.goto('/studio', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('[data-testid="language-switcher"][data-hydrated="true"]')).toBeVisible();
+    await expect(page.locator('[data-app-hydrated="true"]')).toBeVisible();
     await expect(page.getByRole('menubar')).toBeVisible();
     const itemMenu = page.getByRole('menuitem', { name: 'Item', exact: true });
     await expect(itemMenu).toBeVisible();
