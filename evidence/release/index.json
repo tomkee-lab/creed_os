@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "CREED OS Master Release Verification Index",
   "description": "Append-only master ledger indexing all release verification runs across candidate tags",
-  "lastUpdated": "2026-10-15T12:12:00Z",
+  "lastUpdated": "2026-10-16T13:20:00Z",
   "releases": [
     {
       "releaseId": "v1.0.0-rc1",
@@ -17,11 +17,21 @@
     {
       "releaseId": "v1.0.0-rc2",
       "targetVersion": "1.0.0-rc.2",
-      "status": "VERIFIED_READY_FOR_GOVERNANCE",
+      "status": "SUPERSEDED",
       "sourceCommit": "5b93474df46ae8d3cd525f0a19bc261a385ae7b7",
       "manifestPath": "evidence/release/v1.0.0-rc2/manifest.json",
       "summary": "Release Candidate 2 Verification Run — Milestones 1-4 Complete, Socratic Trust, Full SBB Engine, Digital Ecotones, Evidence Graph, Clean-Room SBOM Gated.",
       "createdAt": "2026-10-15T12:12:00Z",
+      "closedAt": "2026-10-16T13:20:00Z"
+    },
+    {
+      "releaseId": "v1.0.0-rc3",
+      "targetVersion": "1.0.0-rc.3",
+      "status": "VERIFIED_READY_FOR_GOVERNANCE",
+      "sourceCommit": "86394ff0b02c0a9a7af50772f75f68a76a06adb1",
+      "manifestPath": "evidence/release/v1.0.0-rc3/manifest.json",
+      "summary": "Release Candidate 3 Verification Run — Statutory DPDP Consent Gating, Sanitized Psychometric Exposure, Inlang Multi-Language Vernacular Expansion (English, Hindi, Marathi), and WAY 2.1 LanguageSwitcher.",
+      "createdAt": "2026-10-16T13:20:00Z",
       "closedAt": null
     }
   ]
