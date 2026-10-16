@@ -1,0 +1,22 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "app_title": "CREED OS",
+  "app_tagline": "एआई-संचालित शिक्षार्थी प्रज्ञा एवं मार्ग नेविगेशन प्लेटफॉर्म",
+  "nav_today": "आज",
+  "nav_map": "मेरा मानचित्र",
+  "nav_missions": "लक्ष्य / मिशन",
+  "nav_capabilities": "क्षमताएं",
+  "nav_evidence": "प्रमाण व साक्ष्य",
+  "nav_mentor": "सुकराती मार्गदर्शक",
+  "nav_settings": "सेटिंग्स",
+  "nav_help": "सहायता व दस्तावेज़",
+  "today_mission_title": "आज का मिशन",
+  "today_mission_action": "आज का मिशन शुरू करें",
+  "security_pow_verifying": "कार्य-प्रमाण (PoW) सत्यापित किया जा रहा है...",
+  "security_pow_verified": "सत्यापित (PoW: SHA-256)",
+  "security_pow_protected": "Altcha कार्य-प्रमाण द्वारा सुरक्षित",
+  "dev_band_baseline": "आधारभूत समझ निर्मित",
+  "dev_band_developing": "विकासशील आधार",
+  "dev_band_advancing": "प्रवाह में प्रगति",
+  "dev_band_mastery": "सक्रिय निपुणता"
+}

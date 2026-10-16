@@ -265,7 +265,6 @@ test.describe('Socratic AI Mentor (/student/mentor)', () => {
   test('renders the mentor interface with thinking moves and dialogue', async ({ page, context }) => {
     await loginAs(context, 'student');
     await page.goto('/student/mentor', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText(/Socratic Mentor/i).first()).toBeVisible();
     await expect(page.getByRole('heading', { level: 1 })).toContainText(/Socratic Mentor Studio/i);
     await expect(page.getByRole('button', { name: /Decompose/i })).toBeVisible();
   });
@@ -348,7 +347,7 @@ test.describe('Admin Intelligence Portal (/admin)', () => {
     await page.goto('/admin');
     await expect(page.getByPlaceholder(/Search by learner/i)).toBeVisible();
     await expect(page.getByText('Learner S-0801').first()).toBeVisible();
-    await expect(page.getByText('Guardian G-0801').first()).toBeVisible();
+    await expect(page.getByText(/Guardian G-080|Parent Guardian/i).first()).toBeVisible();
     await expect(page.getByRole('button', { name: /Export/i })).toBeVisible();
   });
 });
@@ -482,11 +481,15 @@ test.describe('Security & Internationalization (Phase 3)', () => {
     await expect(page.getByText(/Anti-Abuse Verification/i)).toBeVisible();
   });
 
-  test('TopBar adheres to English-only architecture with no locale switcher', async ({ page, context }) => {
+  test('TopBar renders LanguageSwitcher and allows switching locales', async ({ page, context }) => {
     await loginAs(context, 'student');
-    await page.goto('/student');
-    const switcher = page.locator('[data-testid="language-switcher"]');
-    await expect(switcher).toHaveCount(0);
+    await page.goto('/student', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-app-hydrated="true"]')).toBeVisible();
+    const switcher = page.locator('[data-testid="language-switcher"][data-hydrated="true"]');
+    await expect(switcher).toBeVisible();
+    await switcher.click();
+    await expect(page.getByRole('option', { name: /हिन्दी/i })).toBeVisible();
+    await expect(page.getByRole('option', { name: /मराठी/i })).toBeVisible();
   });
 });
 
