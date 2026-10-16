@@ -480,8 +480,6 @@ test.describe('Security & Internationalization (Phase 3)', () => {
     await expect(page.getByTestId('altcha-widget')).toBeVisible();
     await expect(page.getByText(/Anti-Abuse Verification/i)).toBeVisible();
   });
-
-  });
 });
 
 // ── 16. Bits UI v1 & Universal Iconify Architecture ─────────────────────────
