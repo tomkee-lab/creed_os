@@ -51,14 +51,16 @@
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
   import { STEM_MISSIONS, evaluateMissionRubric } from './missionCurriculum';
 
+  interface Props {
+    stage?: 'primary' | 'middle' | 'secondary';
+    isFullscreen?: boolean;
+  }
+
   // Props & Mode State
   let {
     stage = $bindable('primary'),
     isFullscreen = $bindable(false)
-  } = $props<{
-    stage?: 'primary' | 'middle' | 'secondary';
-    isFullscreen?: boolean;
-  }>();
+  }: Props = $props();
   let activeCode = $state(
     `# CREED OS Robotics Controller\nimport time\n\nprint("Robotics controller ready.")\nfor step in range(3):\n    print(f"Executing motion step {step + 1}...")\n    time.sleep(0.5)\nprint("Autonomous mission complete!")\n`
   );
