@@ -527,6 +527,15 @@ class RobotMock:
         })
         print("[MISSION SCIENCE] Solar Arrays Deployed ☀️ -> Battery: 100%")
 
+    def send_telemetry(self):
+        self.timeline.append({"type": "telemetry_send", "action": "Telemetry Packet Transmitted 📡"})
+        print("[DATA LOG] Telemetry stream transmitted to mission control 📡")
+
+    def record_telemetry(self, key, val):
+        self.datalog_entries.append({"key": str(key), "value": val, "time": self.get_timer()})
+        self.timeline.append({"type": "telemetry", "key": str(key), "value": val, "action": f"DataLog: {key}={val} 📊"})
+        print(f"[DATA LOG] Record: {key} = {val}")
+
     def get_battery_level(self):
         print(f"[MISSION SCIENCE] Rover Battery Level: {self.battery}% 🔋")
         return self.battery

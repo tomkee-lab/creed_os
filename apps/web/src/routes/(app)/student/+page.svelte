@@ -127,7 +127,7 @@
     </div>
 
     <a
-      href="/student/mentor"
+      href="/student/missions/mission-gear-train"
       class="inline-flex items-center gap-2 px-4 py-2 rounded-none bg-surface hover:bg-surface-raised border border-border text-xs font-semibold text-ink shrink-0 transition-colors shadow-2xs hover:border-border-strong cursor-pointer"
     >
       <Bot class="w-3.5 h-3.5 text-ai" />
@@ -143,7 +143,7 @@
         You're getting good at
       </h2>
       <a
-        href="/student/progress"
+        href="/student/growth"
         class="text-xs font-medium text-brand hover:underline inline-flex items-center gap-1"
       >
         <span>View capabilities</span>
@@ -200,7 +200,7 @@
         Explore something
       </h2>
       <a
-        href="/student/pathways"
+        href="/student/growth?tab=pathways"
         class="text-xs font-medium text-brand hover:underline inline-flex items-center gap-1"
       >
         <span>All pathways</span>
@@ -210,7 +210,7 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
       <a
-        href="/student/pathways"
+        href="/student/growth?tab=pathways"
         class="p-4 rounded-none bg-surface hover:bg-surface-subtle border border-border transition-colors duration-140 group space-y-2 block"
       >
         <div class="flex items-center justify-between">
@@ -227,7 +227,7 @@
       </a>
 
       <a
-        href="/student/pathways"
+        href="/student/growth?tab=pathways"
         class="p-4 rounded-none bg-surface hover:bg-surface-subtle border border-border transition-colors duration-140 group space-y-2 block"
       >
         <div class="flex items-center justify-between">
@@ -244,7 +244,7 @@
       </a>
 
       <a
-        href="/student/pathways"
+        href="/student/growth?tab=pathways"
         class="p-4 rounded-none bg-surface hover:bg-surface-subtle border border-border transition-colors duration-140 group space-y-2 block"
       >
         <div class="flex items-center justify-between">
@@ -272,7 +272,7 @@
         <p class="text-xs text-ink-muted">Experience real-world thinking before choosing streams</p>
       </div>
       <a
-        href="/student/pathways"
+        href="/student/missions"
         class="text-xs font-medium text-brand hover:underline inline-flex items-center gap-1"
       >
         <span>All missions</span>
@@ -321,11 +321,11 @@
           </p>
         </div>
         <a
-          href="/student/mentor"
-          class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-none bg-surface-subtle hover:bg-surface-raised border border-border text-ink font-medium text-xs transition-colors cursor-pointer"
+          href="/student/missions/mission-telemetry-filter"
+          class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-none bg-surface hover:bg-surface-subtle border border-border hover:border-ai/40 text-ink hover:text-ai font-medium text-xs transition-colors cursor-pointer group shadow-xs active-press"
         >
-          <span>Launch Socratic Mentor</span>
-          <ArrowRight class="w-3.5 h-3.5 text-ink-muted" />
+          <span>Launch Socratic Workbench</span>
+          <ArrowRight class="w-3.5 h-3.5 text-ink-muted group-hover:text-ai transition-transform group-hover:translate-x-0.5" />
         </a>
       </div>
     </div>
@@ -343,7 +343,7 @@
         </p>
       </div>
       <a
-        href="/student/progress"
+        href="/student/growth"
         class="text-xs font-medium text-brand hover:underline inline-flex items-center gap-1"
       >
         <span>View journey</span>
@@ -447,7 +447,7 @@
 
       <div class="pt-4 border-t border-border">
         <a
-          href="/student/progress"
+          href="/student/growth"
           class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-none bg-surface-subtle hover:bg-surface-raised border border-border text-xs font-medium text-ink transition-colors"
         >
           <span>View in complete capability timeline</span>

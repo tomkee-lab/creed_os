@@ -58,6 +58,33 @@
     }
   ];
 
+  const caseloadProfiles = [
+    { id: 'S-0801', name: 'Learner S-0801', class: 'Class 8-A', track: 'Applied Robotics', status: 'Active Support', tier: 'Strong Foundation', lastTouch: 'Oct 15, 2026', caseRef: cases[0] },
+    { id: 'S-0802', name: 'Learner S-0802', class: 'Class 8-A', track: 'Spatial & Mechanical', status: 'Monitoring', tier: 'Developing', lastTouch: 'Oct 22, 2026', caseRef: cases[2] },
+    { id: 'S-0803', name: 'Learner S-0803', class: 'Class 8-A', track: 'Computational Logic', status: 'Accelerated', tier: 'Advanced Foundation', lastTouch: 'Oct 12, 2026', caseRef: cases[1] },
+    { id: 'S-0804', name: 'Learner S-0804', class: 'Class 8-A', track: 'Data & Sensing', status: 'Balanced', tier: 'Strong Foundation', lastTouch: 'Oct 04, 2026', caseRef: cases[0] },
+    { id: 'S-0805', name: 'Learner S-0805', class: 'Class 8-A', track: 'Biomimicry & Physics', status: 'Balanced', tier: 'Developing', lastTouch: 'Sep 28, 2026', caseRef: cases[2] }
+  ];
+
+  const dialogueLogs = [
+    {
+      id: 'dlg-101',
+      title: 'Tripartite Pathway Alignment: Engineering vs Pure Mathematics',
+      participants: 'Parent (R. Sharma) • Learner S-0801 • Counselor (Dr. V. Menon)',
+      date: 'Oct 15, 2026',
+      consensus: 'Agreement reached to anchor preparation in hands-on mechatronics rather than high-stakes exam drills.',
+      status: 'Consensus Reached'
+    },
+    {
+      id: 'dlg-102',
+      title: 'Acceleration Consultation: Modular Advanced Algorithms',
+      participants: 'Parent (A. Desai) • Learner S-0803 • Faculty (Ms. Nair)',
+      date: 'Oct 12, 2026',
+      consensus: 'Approved parallel enrollment in Class 9 algorithmic decomposition sprint to prevent disengagement.',
+      status: 'Plan Approved'
+    }
+  ];
+
   import type { DropdownCheckboxItem } from '$lib/components/DropdownCheckbox.svelte';
 
   // Multi-facet filtering
@@ -170,7 +197,7 @@
               <span class="text-xs font-medium px-2 py-0.5 rounded-none bg-surface-subtle text-brand">
                 {item.caseType}
               </span>
-              <span class="text-[11px] font-medium px-1.5 py-0.2 rounded-none border border-border text-ink-muted">
+              <span class="text-[11px] font-medium px-1.5 py-0.5 rounded-none border border-border text-ink-muted">
                 {item.priority}
               </span>
             </div>
@@ -197,26 +224,96 @@
   <!-- 3. LEARNERS CASELOAD ROSTER -->
   <section id="learners" class="space-y-4 scroll-mt-16">
     <div class="flex items-center justify-between">
-      <h2 class="text-base font-semibold text-ink">
-        Active Caseload Directory
-      </h2>
-      <span class="text-xs text-ink-muted">24 Tracked Profiles</span>
+      <div>
+        <h2 class="text-base font-semibold text-ink">
+          Active Caseload Directory
+        </h2>
+        <p class="text-xs text-ink-muted">24 Tracked Profiles • Longitudinal capability status</p>
+      </div>
+      <span class="text-xs text-ink-muted">Class 8-A Cohort</span>
     </div>
-    <div class="p-4 rounded-none bg-surface border border-border text-xs space-y-2">
-      <p class="text-ink-secondary">Developmental profiles monitored for asynchronous growth jumps, ceiling effects, or cross-domain dissonance.</p>
+
+    <div class="border border-border rounded-none overflow-x-auto bg-surface">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-surface-subtle border-b border-border text-[11px] text-ink-muted uppercase font-mono">
+          <tr>
+            <th class="py-2 px-3 font-medium">Learner</th>
+            <th class="py-2 px-3 font-medium">Cohort</th>
+            <th class="py-2 px-3 font-medium">Pathway Focus</th>
+            <th class="py-2 px-3 font-medium">Foundation Status</th>
+            <th class="py-2 px-3 font-medium">Last Review</th>
+            <th class="py-2 px-3 font-medium text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border">
+          {#each caseloadProfiles as profile}
+            <tr class="hover:bg-surface-subtle/60 transition-colors">
+              <td class="py-2 px-3 font-semibold text-ink">
+                {profile.name}
+              </td>
+              <td class="py-2 px-3 text-ink-muted">
+                {profile.class}
+              </td>
+              <td class="py-2 px-3 text-ink-secondary">
+                {profile.track}
+              </td>
+              <td class="py-2 px-3">
+                <span class="px-2 py-0.5 rounded-none text-[11px] font-medium {profile.status === 'Accelerated' ? 'bg-mint-subtle text-mint' : profile.status === 'Active Support' ? 'bg-attention-subtle text-attention' : 'bg-surface-subtle text-ink-secondary'}">
+                  {profile.tier}
+                </span>
+              </td>
+              <td class="py-2 px-3 text-ink-muted">
+                {profile.lastTouch}
+              </td>
+              <td class="py-2 px-3 text-right">
+                <button
+                  type="button"
+                  onclick={() => openCase(profile.caseRef || cases[0])}
+                  class="font-medium text-brand hover:underline cursor-pointer"
+                >
+                  Inspect
+                </button>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
     </div>
   </section>
 
   <!-- 4. CONVERSATIONS & EVIDENCE -->
   <section id="conversations" class="space-y-4 scroll-mt-16">
     <div id="evidence" class="flex items-center justify-between scroll-mt-16">
-      <h2 class="text-base font-semibold text-ink">
-        Tripartite Dialogue Logs & Evidence
-      </h2>
-      <span class="text-xs text-ink-muted">Parent • Learner • Faculty</span>
+      <div>
+        <h2 class="text-base font-semibold text-ink">
+          Tripartite Dialogue Logs & Evidence
+        </h2>
+        <p class="text-xs text-ink-muted">Synchronized conference notes between Parent, Learner, and Faculty</p>
+      </div>
+      <span class="text-xs text-ink-muted font-mono">{dialogueLogs.length} Recorded Sessions</span>
     </div>
-    <div class="p-4 rounded-none bg-surface border border-border text-xs space-y-2">
-      <p class="text-ink-secondary">Synchronized conference notes and empirical psychometric assessments anchoring guidance recommendations.</p>
+
+    <div class="space-y-3">
+      {#each dialogueLogs as log}
+        <div class="p-4 rounded-none bg-surface border border-border space-y-2 text-xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2 border-b border-border">
+            <span class="font-semibold text-ink">{log.title}</span>
+            <div class="flex items-center gap-2">
+              <span class="text-ink-muted text-[11px]">{log.date}</span>
+              <span class="px-2 py-0.5 rounded-none bg-positive-subtle text-positive font-medium text-[10px]">
+                {log.status}
+              </span>
+            </div>
+          </div>
+          <p class="text-ink-secondary leading-relaxed">
+            {log.consensus}
+          </p>
+          <div class="flex items-center gap-1.5 text-ink-muted text-[11px] pt-1">
+            <MessageSquare class="w-3.5 h-3.5 text-brand" />
+            <span>{log.participants}</span>
+          </div>
+        </div>
+      {/each}
     </div>
   </section>
 </div>

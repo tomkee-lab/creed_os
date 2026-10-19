@@ -419,7 +419,7 @@
       <!-- Action Primacy CTAs -->
       <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
         <a
-          href="/student/report?domain={selectedDomain}"
+          href="/student/growth?tab=report&domain={selectedDomain}"
           class="w-full sm:w-auto px-6 py-2 bg-brand text-brand-foreground hover:bg-brand/90 font-semibold text-xs sm:text-sm rounded-sm transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
         >
           <span>View Full International Report & 4-Week Roadmap</span>

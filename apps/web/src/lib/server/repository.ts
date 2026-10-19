@@ -7,7 +7,9 @@ import type {
   CompetencyDomain,
   ConsentRecord
 } from '@core-os/domain';
-import { isConsentActive } from '@core-os/domain';
+import { isConsentActive, StatutoryConsentError } from '@core-os/domain';
+import crypto from 'node:crypto';
+import { queryDb, getDbPool, isCloudDatabaseEnabled } from './supabase';
 import {
   CALIBRATED_ITEM_BANK,
   STEM_BENCHMARK_ITEMS,
@@ -73,6 +75,9 @@ export interface TeacherStudentSummary {
   weakestScore: number;
   strongestCompetency: CompetencyDomain;
   activeGapRemediation: string;
+  stemScore?: string;
+  englishScore?: string;
+  roboticsScore?: string;
 }
 
 export interface ClassCohort {
@@ -309,7 +314,7 @@ export const STEM_MISSIONS: StemMission[] = [
     rubricCriteria: [
       { criterion: 'Orbital Velocity Calculation', target: '27,600 km/h ± 6% tolerance', importance: 'Mandatory' },
       { criterion: 'Orbital Period Verification', target: 'T ≈ 92.6 minutes', importance: 'Primary' },
-      { criterion: 'Evidence Provenance', target: 'State vectors captured from Cesium HUD', importance: 'Excellence' }
+      { criterion: 'Evidence Provenance', target: 'State vectors captured from Orbital SGP4 Telemetry HUD', importance: 'Excellence' }
     ]
   },
   {
@@ -753,7 +758,10 @@ class LocalCoreRepository {
           weakestCompetency: 'quantitative_reasoning',
           weakestScore: 2.8,
           strongestCompetency: 'spatial_reasoning',
-          activeGapRemediation: 'Proportional Equations Sprint'
+          activeGapRemediation: 'Proportional Equations Sprint',
+          stemScore: '540 (Mountain)',
+          englishScore: '910L (B1+)',
+          roboticsScore: '550 (Regional)'
         },
         {
           id: 's2',
@@ -762,7 +770,10 @@ class LocalCoreRepository {
           weakestCompetency: 'spatial_reasoning',
           weakestScore: 2.5,
           strongestCompetency: 'quantitative_reasoning',
-          activeGapRemediation: '3D Orthographic Projection Lab'
+          activeGapRemediation: '3D Orthographic Projection Lab',
+          stemScore: '580 (Advanced)',
+          englishScore: '860L (B1)',
+          roboticsScore: '490 (State)'
         },
         {
           id: 's3',
@@ -771,7 +782,10 @@ class LocalCoreRepository {
           weakestCompetency: 'computational_thinking',
           weakestScore: 2.9,
           strongestCompetency: 'logical_deduction',
-          activeGapRemediation: 'Algorithmic Loop Decomposition'
+          activeGapRemediation: 'Algorithmic Loop Decomposition',
+          stemScore: '520 (Proficient)',
+          englishScore: '980L (B2)',
+          roboticsScore: '510 (Regional)'
         },
         {
           id: 's4',
@@ -780,7 +794,10 @@ class LocalCoreRepository {
           weakestCompetency: 'scientific_inquiry',
           weakestScore: 3.1,
           strongestCompetency: 'quantitative_reasoning',
-          activeGapRemediation: 'Independent Variable Isolation'
+          activeGapRemediation: 'Independent Variable Isolation',
+          stemScore: '500 (Baseline)',
+          englishScore: '890L (B1)',
+          roboticsScore: '505 (Regional)'
         }
       ],
       misconceptionClusters: [
@@ -1392,15 +1409,29 @@ class LocalCoreRepository {
     return this.evidenceStore.get(learnerId) || [];
   }
 
-  addEvidence(evidence: LearnerEvidence) {
+  getEvidence(learnerId: string): LearnerEvidence[] {
+    return this.getLearnerEvidence(learnerId);
+  }
+
+  addEvidence(evidence: LearnerEvidence): LearnerEvidence {
     const existing = this.evidenceStore.get(evidence.learnerId) || [];
-    existing.unshift(evidence);
+    const prevHash = (existing[0] as any)?.chainHash || 'GENESIS_EVIDENCE_HASH_0000000000000000';
+    const ev = evidence as any;
+    const scoreVal = ev.score ?? ev.observedValue?.scoreFraction ?? 1.0;
+    const timestampVal = ev.timestamp ?? ev.observedAt ?? Date.now();
+    const chainHash = crypto.createHash('sha256')
+      .update(`${prevHash}:${ev.learnerId}:${ev.competency}:${scoreVal}:${timestampVal}`)
+      .digest('hex');
+
+    const chainedEvidence = { ...evidence, chainHash } as LearnerEvidence;
+    existing.unshift(chainedEvidence);
     this.evidenceStore.set(evidence.learnerId, existing);
 
     const profile = this.learnerProfiles.get(evidence.learnerId);
     if (profile) {
       profile.recentEvidence = existing;
     }
+    return chainedEvidence;
   }
 
   // --- Assessment Operations ---
@@ -1785,4 +1816,239 @@ class LocalCoreRepository {
   }
 }
 
-export const coreRepository = new LocalCoreRepository();
+export class PostgresCoreRepository extends LocalCoreRepository {
+  /**
+   * Executes a database transaction with RLS tenant identity and verified statutory consent gating.
+   */
+  async withVerifiedConsentTransaction<T>(
+    learnerId: string,
+    actorSub: string,
+    operation: (client: any) => Promise<T>
+  ): Promise<T> {
+    const pool = getDbPool();
+    if (!pool) {
+      if (!this.hasActiveConsent(learnerId)) {
+        throw new StatutoryConsentError(`Statutory consent under DPDP Act 2023 Section 9 missing for learner ${learnerId}`);
+      }
+      return operation(null);
+    }
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      // 1. Bind request.jwt.claim.sub for RLS tenant isolation
+      await client.query("SELECT set_config('request.jwt.claim.sub', $1, true)", [actorSub]);
+
+      // 2. Check public.consents status (VERIFIED_ACTIVE / verified)
+      const consentCheck = await client.query(
+        `SELECT 1 FROM consents 
+         WHERE learner_id = $1 
+           AND status IN ('verified', 'VERIFIED_ACTIVE')
+           AND (withdrawn_at IS NULL)
+           AND (expires_at IS NULL OR expires_at > NOW())
+         LIMIT 1`,
+        [learnerId]
+      );
+
+      if (consentCheck.rowCount === 0) {
+        const profileCheck = await client.query(
+          `SELECT age FROM profiles WHERE id = $1`,
+          [learnerId]
+        );
+        const age = profileCheck.rows[0]?.age;
+        if (age === undefined || age === null || age < 18) {
+          throw new StatutoryConsentError(
+            `Statutory parental consent under DPDP Act 2023 Section 9 missing or not active for minor learner ${learnerId}`
+          );
+        }
+      }
+
+      // 3. Execute payload operation inside transaction
+      const result = await operation(client);
+      await client.query('COMMIT');
+      return result;
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+  }
+
+  override addEvidence(evidence: LearnerEvidence, actorSub: string = evidence.learnerId): any {
+    const chained = super.addEvidence(evidence);
+
+    if (isCloudDatabaseEnabled()) {
+      this.withVerifiedConsentTransaction(evidence.learnerId, actorSub, async (client) => {
+        if (!client) return;
+        let prevHash = 'GENESIS_EVIDENCE_HASH_0000000000000000';
+        const lastRow = await client.query(
+          `SELECT observed_value->>'chainHash' as chain_hash FROM learner_evidence WHERE learner_id = $1 ORDER BY observed_at DESC LIMIT 1`,
+          [evidence.learnerId]
+        );
+        if (lastRow.rows[0]?.chain_hash) {
+          prevHash = lastRow.rows[0].chain_hash;
+        }
+
+        const ev = evidence as any;
+        const scoreVal = ev.score ?? ev.observedValue?.scoreFraction ?? 1.0;
+        const timestampVal = ev.timestamp ?? ev.observedAt ?? Date.now();
+        const chainHash = crypto.createHash('sha256')
+          .update(`${prevHash}:${ev.learnerId}:${ev.competency}:${scoreVal}:${timestampVal}`)
+          .digest('hex');
+
+        await client.query(
+          `INSERT INTO learner_evidence (
+            learner_id, competency_id, evidence_type, source_type, source_id, source_title,
+            summary, observed_value, confidence, evidence_strength, status, visibility, observed_at
+          ) VALUES (
+            $1, (SELECT id FROM competencies WHERE code = $2 LIMIT 1),
+            $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW()
+          )`,
+          [
+            ev.learnerId,
+            ev.competency,
+            ev.evidenceType || ev.type || 'applied_simulation',
+            ev.sourceType || 'project_mission',
+            ev.id || crypto.randomUUID(),
+            ev.sourceTitle || ev.title || 'Maker Simulator Artifact',
+            ev.summary || ev.claim || 'Competency demonstration',
+            JSON.stringify({ ...evidence, chainHash }),
+            ev.confidence || 0.9,
+            ev.evidenceStrength || ev.level || 4,
+            'validated',
+            'learner_only'
+          ]
+        );
+      }).catch((err) => {
+        console.warn('[PostgresCoreRepository] Async evidence write warning:', err.message);
+      });
+    }
+
+    return chained;
+  }
+
+  override createAssessmentSession(
+    learnerId: string,
+    domain: string = 'stem_reasoning',
+    mode: 'rapid' | 'benchmark' | 'diagnostic' = 'diagnostic'
+  ): AssessmentSession {
+    const session = super.createAssessmentSession(learnerId, domain, mode);
+
+    if (isCloudDatabaseEnabled()) {
+      const pool = getDbPool();
+      if (pool) {
+        pool.query(
+          `INSERT INTO assessment_sessions (
+            id, learner_id, domain, status, current_theta, standard_error, items_answered, administered_item_ids, started_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+          ON CONFLICT (id) DO NOTHING`,
+          [
+            session.id,
+            session.learnerId,
+            session.domain,
+            session.status,
+            session.currentTheta,
+            session.standardError,
+            session.itemsAnswered,
+            session.administeredItemIds
+          ]
+        ).catch((err: any) => {
+          console.warn('[PostgresCoreRepository] Async session creation write warning:', err.message);
+        });
+      }
+    }
+
+    return session;
+  }
+
+  override saveAssessmentSession(session: AssessmentSession): void {
+    super.saveAssessmentSession(session);
+
+    if (isCloudDatabaseEnabled()) {
+      const pool = getDbPool();
+      if (pool) {
+        const completedAt = session.status === 'completed' ? new Date().toISOString() : null;
+        pool.query(
+          `UPDATE assessment_sessions
+           SET status = $2,
+               current_theta = $3,
+               standard_error = $4,
+               items_answered = $5,
+               administered_item_ids = $6,
+               completed_at = COALESCE($7, completed_at)
+           WHERE id = $1`,
+          [
+            session.id,
+            session.status,
+            session.currentTheta,
+            session.standardError,
+            session.itemsAnswered,
+            session.administeredItemIds,
+            completedAt
+          ]
+        ).catch((err: any) => {
+          console.warn('[PostgresCoreRepository] Async session update write warning:', err.message);
+        });
+
+        // Also persist the latest response into assessment_responses table
+        const latestHistory = session.history[session.history.length - 1];
+        if (latestHistory) {
+          pool.query(
+            `INSERT INTO assessment_responses (
+              session_id, item_id, selected_option_id, is_correct, time_spent_seconds,
+              misconception_code, theta_after, standard_error_after, created_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+            ON CONFLICT DO NOTHING`,
+            [
+              session.id,
+              latestHistory.itemId,
+              latestHistory.selectedOptionId,
+              latestHistory.isCorrect,
+              latestHistory.timeSpentSeconds || 15,
+              latestHistory.misconceptionCode || null,
+              latestHistory.thetaAfter,
+              latestHistory.standardErrorAfter
+            ]
+          ).catch((err: any) => {
+            console.warn('[PostgresCoreRepository] Async response insert write warning:', err.message);
+          });
+        }
+      }
+    }
+  }
+
+  override saveBenchmarkReport(learnerId: string, report: GlobalBenchmarkReport): void {
+    super.saveBenchmarkReport(learnerId, report);
+
+    if (isCloudDatabaseEnabled()) {
+      this.addEvidence({
+        id: crypto.randomUUID(),
+        learnerId,
+        competency: 'quantitative_reasoning',
+        evidenceType: 'diagnostic_response',
+        sourceType: 'cat_assessment',
+        sourceId: `report_${report.domain}_${Date.now()}`,
+        sourceTitle: `${report.domainTitle} Diagnostic Benchmark Report`,
+        summary: `Standard Scale: ${report.scaleFormatted}. Developmental Tier: ${report.developmentalBand}.`,
+        observedValue: {
+          theta: report.theta,
+          standardError: report.se,
+          scoreFraction: report.percentileRank / 100,
+          qualitativeNotes: `Domain: ${report.domain}. Scale: ${report.scaleFormatted}. Tier: ${report.developmentalBand}.`
+        },
+        confidence: 0.95,
+        evidenceStrength: 4,
+        status: 'validated',
+        visibility: 'guardian',
+        observedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString()
+      });
+    }
+  }
+}
+
+export const coreRepository =
+  process.env.DATABASE_MODE === 'memory' || !isCloudDatabaseEnabled()
+    ? new LocalCoreRepository()
+    : new PostgresCoreRepository();

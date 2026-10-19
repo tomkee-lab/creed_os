@@ -312,7 +312,7 @@
             type="text"
             bind:value={searchQuery}
             placeholder="Filter items..."
-            class="w-full pl-7 pr-2 py-1 rounded-none bg-surface-subtle border border-border text-xs font-mono text-ink placeholder-ink-muted focus:outline-hidden"
+            class="w-full pl-7 pr-2 py-1 rounded-none bg-surface-subtle border border-border text-xs font-mono text-ink placeholder-ink-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-focus focus-visible:border-focus transition-colors"
           />
         </div>
       </div>
@@ -354,7 +354,7 @@
           id="prompt-input"
           bind:value={$form.prompt}
           rows={4}
-          class="w-full p-2 rounded-none bg-surface-subtle border {$errors.prompt ? 'border-negative ring-1 ring-negative/30' : 'border-border'} text-xs font-sans text-ink leading-relaxed focus:outline-hidden"
+          class="w-full p-2 rounded-none bg-surface-subtle border {$errors.prompt ? 'border-negative ring-1 ring-negative/30' : 'border-border'} text-xs font-sans text-ink leading-relaxed focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-focus focus-visible:border-focus transition-colors"
         ></textarea>
         {#if $errors.prompt}
           <span class="text-[11px] font-mono text-negative flex items-center gap-1 mt-0.5">
@@ -410,14 +410,14 @@
                 <input
                   type="text"
                   bind:value={opt.text}
-                  class="flex-1 px-2 py-0.5 rounded-none bg-surface border border-border text-xs text-ink"
+                  class="flex-1 px-2 py-0.5 rounded-none bg-surface border border-border text-xs text-ink focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-focus focus-visible:border-focus transition-colors"
                 />
               </div>
               <input
                 type="text"
                 bind:value={opt.misconception}
                 placeholder="Misconception rationale (or leave empty if key)..."
-                class="w-full px-2 py-0.5 rounded-none bg-surface border border-border text-[11px] text-ink-secondary placeholder-ink-muted"
+                class="w-full px-2 py-0.5 rounded-none bg-surface border border-border text-[11px] text-ink-secondary placeholder-ink-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-focus focus-visible:border-focus transition-colors"
               />
             </div>
           {/each}
@@ -426,7 +426,7 @@
     </main>
 
     <!-- PANE 3: Psychometric Calibration (Col 4) -->
-    <aside id="calibration" class="col-span-4 rounded-none bg-surface border border-border flex flex-col min-h-0 overflow-y-auto p-4 space-y-4 font-mono text-xs scroll-mt-16">
+    <aside id="calibration" class="col-span-4 rounded-none bg-surface border border-border flex flex-col min-h-0 overflow-y-auto overflow-x-hidden p-4 space-y-4 font-mono text-xs scroll-mt-16">
       <div class="flex items-center justify-between font-semibold text-ink pb-2 border-b border-border">
         <div class="flex items-center gap-1.5">
           <Icon icon="carbon:sigma" class="w-3.5 h-3.5 text-brand" />

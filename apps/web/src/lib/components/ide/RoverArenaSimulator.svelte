@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Compass, Bot, Cpu, Radio, Zap, Activity, CheckCircle2, Layers, RotateCcw, ChevronDown, X, Info } from 'lucide-svelte';
+  import { Compass, Bot, Cpu, Radio, Zap, Activity, CheckCircle2, Layers, RotateCcw, ChevronDown, X, Info, Volume2, VolumeX, Sparkles } from 'lucide-svelte';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
   import { webAudioSynth } from './webAudioSynth';
 
@@ -133,6 +133,83 @@
   let effectiveIsDancing = $derived(localDancing || isDancing);
   let effectiveDanceStyle = $derived(localDancing ? localDanceStyle : (danceStyle || 'TWIRL'));
   let effectiveSpeech = $derived(localSpeech || speechBubbleText);
+
+  // Audio & Delight Micro-Interaction States
+  let isSoundMuted = $state(webAudioSynth.getMuted());
+
+  function toggleSound() {
+    isSoundMuted = webAudioSynth.toggleMute();
+  }
+
+  // Celebratory Sample Collection Delight State
+  let previousSampleCount = $state<number | null>(null);
+  let showCelebrationToast = $state(false);
+  let celebrationCoords = $state<{ x: number; y: number } | null>(null);
+
+  $effect(() => {
+    if (previousSampleCount !== null && samplesCollected > previousSampleCount) {
+      celebrationCoords = { x: roverX, y: roverY };
+      showCelebrationToast = true;
+      webAudioSynth.playEffect('SUCCESS');
+      const timer = setTimeout(() => {
+        showCelebrationToast = false;
+        celebrationCoords = null;
+      }, 1500);
+      previousSampleCount = samplesCollected;
+      return () => clearTimeout(timer);
+    }
+    previousSampleCount = samplesCollected;
+  });
+
+  // Motor Stepping Tactile Sound
+  let lastPos = $state<{ x: number; y: number; heading: number } | null>(null);
+  let lastMotorAudioTime = 0;
+
+  $effect(() => {
+    if (lastPos !== null) {
+      const moved = Math.hypot(roverX - lastPos.x, roverY - lastPos.y) > 1 || Math.abs(roverHeading - lastPos.heading) > 2;
+      if (moved) {
+        const now = Date.now();
+        if (now - lastMotorAudioTime > 100) {
+          webAudioSynth.playEffect('MOTOR_STEP');
+          lastMotorAudioTime = now;
+        }
+        lastPos = { x: roverX, y: roverY, heading: roverHeading };
+      }
+    } else {
+      lastPos = { x: roverX, y: roverY, heading: roverHeading };
+    }
+  });
+
+  // Proximity Alert Sonar Ping (polite rate limit)
+  let lastSonarPingTime = 0;
+  $effect(() => {
+    if (effectiveSonarDistance < 28 && (roverSensorActive || showSonarBeam)) {
+      const now = Date.now();
+      if (now - lastSonarPingTime > 1800) {
+        webAudioSynth.playEffect('SONAR_PING');
+        lastSonarPingTime = now;
+      }
+    }
+  });
+
+  // Jump Audio Trigger
+  let wasJumping = $state(false);
+  $effect(() => {
+    if (effectiveIsJumping && !wasJumping) {
+      webAudioSynth.playJumpBoing();
+    }
+    wasJumping = effectiveIsJumping;
+  });
+
+  // Dance Audio Trigger
+  let wasDancing = $state(false);
+  $effect(() => {
+    if (effectiveIsDancing && !wasDancing) {
+      webAudioSynth.playDanceRhythm(effectiveDanceStyle);
+    }
+    wasDancing = effectiveIsDancing;
+  });
 
   // Visor color token based on active emotion
   let visorBorderColor = $derived.by(() => {
@@ -418,7 +495,7 @@
           >
             <span class="shrink-0">{activeMissionIcon || '🚀'}</span>
             <span class="font-bold text-ink truncate max-w-32 sm:max-w-44 group-hover:text-cyan transition-colors">{activeMissionTitle}</span>
-            <span class="text-[9px] px-1 py-0.2 bg-surface border border-border rounded-xs text-ink-muted">
+            <span class="text-[9px] px-1 py-0.5 bg-surface border border-border rounded-xs text-ink-muted">
               L{activeMissionLevel || 1}
             </span>
             <span class="text-[9px] text-amber-500 font-bold group-hover:translate-x-0.5 transition-transform">ℹ️</span>
@@ -514,6 +591,22 @@
               {/if}
             </DropdownMenu.Content>
           </DropdownMenu.Root>
+
+          <!-- Audio Micro-interactions Toggle -->
+          <button
+            type="button"
+            onclick={toggleSound}
+            class="h-6 px-2 border rounded-xs text-[9.5px] font-mono font-bold transition-micro flex items-center gap-1 cursor-pointer shrink-0 {isSoundMuted ? 'border-border bg-surface-subtle text-ink-muted hover:text-ink' : 'border-cyan/40 bg-cyan/10 text-cyan hover:bg-cyan/20'}"
+            title={isSoundMuted ? 'Unmute Audio Micro-interactions' : 'Mute Audio Micro-interactions'}
+          >
+            {#if isSoundMuted}
+              <VolumeX class="size-3 text-ink-muted" />
+              <span>Muted</span>
+            {:else}
+              <Volume2 class="size-3 text-cyan" />
+              <span>Audio</span>
+            {/if}
+          </button>
         </div>
       {:else}
         <!-- Clean Subheader in Inspection Mode -->
@@ -544,6 +637,14 @@
             <span class="truncate">{activeActionText}</span>
           </div>
           <span class="text-[9px] text-ink-muted shrink-0 font-normal">X:{Math.round(roverX)} Y:{Math.round(roverY)} {roverHeading}°</span>
+        </div>
+      {/if}
+
+      <!-- Celebratory Sample Collection Delight Banner (Lagom 140ms in / 200ms out) -->
+      {#if showCelebrationToast}
+        <div class="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-1 bg-surface-raised/95 backdrop-blur-xs border border-amber-500/50 text-amber-500 rounded-sm shadow-md flex items-center gap-1.5 text-[10px] font-mono font-bold select-none pointer-events-none animate-in fade-in zoom-in-95 duration-150">
+          <Sparkles class="size-3 text-amber-500 animate-spin" />
+          <span>SAMPLE SECURED · +10 KINEMATIC XP</span>
         </div>
       {/if}
 
@@ -701,6 +802,10 @@
             stroke-dasharray="3,3"
           />
           <circle cx={beamEndX} cy={beamEndY} r="3" fill={sensorColor} />
+          {#if effectiveSonarDistance < 28}
+            <circle cx={beamEndX} cy={beamEndY} r="6" fill="none" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="2,2" opacity="0.85" />
+            <circle cx={beamEndX} cy={beamEndY} r="11" fill="none" stroke="#ef4444" stroke-width="0.75" opacity="0.45" />
+          {/if}
         {/if}
 
         <!-- ============================================== -->
@@ -716,6 +821,18 @@
             fill={roverShadowFill}
             opacity={effectiveIsJumping ? Math.max(0.12, 0.5 - effectiveJumpHeight * 0.3) : (isDarkTheme ? 0.6 : 0.25)}
           />
+          {#if effectiveIsJumping && effectiveJumpHeight > 0.3}
+            <ellipse
+              cx="0"
+              cy="1"
+              rx={18 + effectiveJumpHeight * 6}
+              ry={8 + effectiveJumpHeight * 3}
+              fill="none"
+              stroke={isDarkTheme ? 'rgba(56, 189, 248, 0.35)' : 'rgba(2, 132, 199, 0.35)'}
+              stroke-width="0.8"
+              stroke-dasharray="3,3"
+            />
+          {/if}
         </g>
 
         <!-- Cyber-Bot Core Entity (Elevated with squash & stretch kinematics during jumps) -->
@@ -853,6 +970,35 @@
           </g>
         {/if}
 
+        <!-- Rhythmic Musical Notes (floating joyfully during dance moves) -->
+        {#if effectiveIsDancing}
+          <g transform="translate({roverX}, {roverY - 28})" class="dance-notes pointer-events-none select-none">
+            <text x="-14" y="-2" font-size="9" fill="#38bdf8" class="animate-bounce">♪</text>
+            <text x="12" y="-6" font-size="10" fill="#a855f7" class="animate-bounce" style="animation-delay: 80ms;">♫</text>
+            <text x="-2" y="-14" font-size="8" fill="#10b981" class="animate-bounce" style="animation-delay: 160ms;">♪</text>
+          </g>
+        {/if}
+
+        <!-- Celebratory Sample Burst (Micro-diamond geometric stars) -->
+        {#if showCelebrationToast && celebrationCoords}
+          <g transform="translate({celebrationCoords.x}, {celebrationCoords.y})" class="pointer-events-none select-none">
+            <circle cx="0" cy="0" r="18" fill="none" stroke="#eab308" stroke-width="1.2" class="animate-ping" opacity="0.75" />
+            <circle cx="0" cy="0" r="28" fill="none" stroke="#fbbf24" stroke-width="0.7" stroke-dasharray="3,2" opacity="0.5" />
+            {#each [0, 60, 120, 180, 240, 300] as angle}
+              {@const rad = (angle * Math.PI) / 180}
+              {@const px = Math.cos(rad) * 16}
+              {@const py = Math.sin(rad) * 16}
+              <polygon
+                points="{px},{py - 3} {px + 2.5},{py} {px},{py + 3} {px - 2.5},{py}"
+                fill="#fbbf24"
+                stroke="#d97706"
+                stroke-width="0.5"
+                class="celebration-particle"
+              />
+            {/each}
+          </g>
+        {/if}
+
         <!-- Clean Perimeter Technical Border (480x360) -->
         <rect x="2" y="2" width="476" height="356" rx="2" fill="none" stroke={perimeterOuterStroke} stroke-width="1" stroke-dasharray="6,4" />
       </svg>
@@ -866,7 +1012,7 @@
         <div class="flex items-center gap-1.5 min-w-0">
           <span class="size-1.5 rounded-none bg-cyan shadow-xs shrink-0"></span>
           <span class="font-bold text-ink truncate">ARES-Prime Mk-III Blueprint</span>
-          <span class="px-1 py-0.2 bg-cyan/10 border border-cyan/30 text-cyan text-[8px] font-bold uppercase rounded-2xs shrink-0">
+          <span class="px-1 py-0.5 bg-cyan/10 border border-cyan/30 text-cyan text-[8px] font-bold uppercase rounded-2xs shrink-0">
             v3.4
           </span>
         </div>
@@ -1209,12 +1355,12 @@
         <span class="font-mono text-[9.5px] font-bold text-ink tracking-tight uppercase shrink-0">
           micro:bit
         </span>
-        <span class="px-1 py-0.2 bg-surface-subtle border border-border text-[8.5px] font-mono text-mint font-bold uppercase truncate max-w-16 tracking-wider">
+        <span class="px-1 py-0.5 bg-surface-subtle border border-border text-[8.5px] font-mono text-mint font-bold uppercase truncate max-w-16 tracking-wider">
           {effectiveEmotion}
         </span>
         {#if isHardwareBridgeConnected}
           <span
-            class="px-1 py-0.2 bg-mint/15 border border-mint/40 text-[8px] font-mono font-bold text-mint uppercase tracking-wider animate-pulse flex items-center gap-1 shrink-0"
+            class="px-1 py-0.5 bg-mint/15 border border-mint/40 text-[8px] font-mono font-bold text-mint uppercase tracking-wider animate-pulse flex items-center gap-1 shrink-0"
             title="Web Serial Physical Hardware Bridge Connected & Streaming"
           >
             LIVE
@@ -1269,3 +1415,14 @@
     </div>
   {/if}
 </div>
+
+<style>
+  @media (prefers-reduced-motion: reduce) {
+    :global(.celebration-particle) {
+      animation: none !important;
+    }
+    :global(.dance-notes text) {
+      animation: none !important;
+    }
+  }
+</style>

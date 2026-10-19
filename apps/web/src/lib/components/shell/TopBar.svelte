@@ -79,21 +79,16 @@
 
   // Contextual breadcrumb text derived from route and role
   const breadcrumbText = $derived.by(() => {
-    // Student Workspace
+    // Student Workspace (4 Canonical Routes)
     if (currentPath === '/student') return 'Today’s Mission';
-    if (currentPath === '/student/progress' && currentHash === '#evidence') return 'Evidence Ledger';
-    if (currentPath.startsWith('/student/progress')) return 'Capabilities';
-    if (currentPath.startsWith('/student/pathways')) return 'Pathway Explorer';
-    if (currentPath.startsWith('/student/mentor')) return 'Socratic Mentor';
     if (currentPath.startsWith('/student/assessment')) return 'Adaptive Benchmark';
-    if (currentPath.startsWith('/student/report')) return 'Diagnostic Report';
     if (currentPath.startsWith('/student/missions')) return 'Missions Studio';
+    if (currentPath.startsWith('/student/growth')) return 'Capabilities & Growth';
 
     // Shared Workbenches & Tools
     if (currentPath.startsWith('/ide')) return 'Robotics IDE';
-    if (currentPath.startsWith('/observatory')) return 'Planetary Observatory';
 
-    // Parent Guardian Workspace
+    // Parent Guardian Workspace (1 Canonical Route)
     if (currentPath === '/parent') {
       if (currentHash === '#growth') return 'Learner Growth';
       if (currentHash === '#horizons') return 'Shared Horizons';
@@ -101,9 +96,8 @@
       if (currentHash === '#messages') return 'Guardian Messages';
       return 'Family Overview';
     }
-    if (currentPath.startsWith('/parent/report')) return 'Growth Report';
 
-    // Teacher Educator Workspace
+    // Teacher Educator Workspace (3 Canonical Routes)
     if (currentPath === '/teacher') {
       if (currentHash === '#interventions') return 'Targeted Interventions';
       if (currentHash === '#roster') return 'Classroom Roster';
@@ -111,9 +105,8 @@
       if (currentHash === '#classes') return 'Classes Directory';
       return 'Instructional Priority Workspace';
     }
-    if (currentPath.startsWith('/teacher/benchmarks')) return 'Global Benchmarks';
-    if (currentPath.startsWith('/teacher/lesson-plans')) return 'Lesson Plan Studio';
-    if (currentPath.startsWith('/teacher/guidance')) return 'Pedagogy Guidance';
+    if (currentPath.startsWith('/teacher/lessons')) return 'Lesson Studio & Playbooks';
+    if (currentPath.startsWith('/teacher/roster')) return 'PARAKH HPC Roster';
 
     // Counselor Advisory Workspace
     if (currentPath === '/counselor') {
@@ -133,7 +126,7 @@
     }
 
     // Item Authoring & Studio
-    if (currentPath === '/studio' || currentPath === '/author') return 'Item Studio & Calibration';
+    if (currentPath === '/studio') return 'Item Studio & Calibration';
 
     // System Utilities
     if (currentPath.startsWith('/settings')) return 'Settings';
@@ -229,7 +222,7 @@
 
     <!-- User Profile Dropdown Menu -->
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger class="flex items-center gap-1.5 p-1 rounded-none hover:bg-surface-subtle transition-colors cursor-pointer outline-hidden border border-transparent hover:border-border">
+      <DropdownMenu.Trigger class="flex items-center gap-1.5 p-1 rounded-none hover:bg-surface-subtle transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-focus border border-transparent hover:border-border">
         <div class="w-7 h-7 rounded-none bg-surface-subtle border border-border text-ink flex items-center justify-center font-mono font-medium text-xs">
           {userProfile.initials}
         </div>

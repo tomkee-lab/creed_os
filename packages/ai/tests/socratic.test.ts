@@ -140,3 +140,32 @@ describe('Howson C. (2024) Socio-Psychological Trust Protocol & De-individualiza
     expect(secPrompt).toContain('computational abstractions');
   });
 });
+
+describe('Telemetry-Grounded Socratic Bridge', () => {
+  it('generates physical failure Socratic guidance strictly under 45 words', async () => {
+    const { getDeterministicTelemetryResponse, queryTelemetrySocraticMentor } = await import(
+      '../src/socratic/telemetry-mentor.js'
+    );
+
+    const deflectionReply = getDeterministicTelemetryResponse({
+      failedMemberId: 'strut_4',
+      maxDeflectionMm: 24.5
+    });
+    expect(deflectionReply).toContain('strut_4');
+    expect(deflectionReply.split(/\s+/).length).toBeLessThanOrEqual(45);
+
+    const gearReply = getDeterministicTelemetryResponse({
+      activeMisconceptionCode: 'MISC_RATIO_INVERSION'
+    });
+    expect(gearReply).toContain('torque');
+    expect(gearReply.split(/\s+/).length).toBeLessThanOrEqual(45);
+
+    const response = await queryTelemetrySocraticMentor({
+      failedMemberId: 'truss_node_2',
+      maxDeflectionMm: 18.2
+    });
+    expect(response.source).toBe('deterministic_playbook');
+    expect(response.wordCount).toBeLessThanOrEqual(45);
+    expect(response.telemetryGrounded).toBe(true);
+  });
+});

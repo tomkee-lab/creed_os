@@ -20,4 +20,5 @@ export { default as Kbd } from './Kbd.svelte';
 export { default as ButtonGroup } from './ButtonGroup.svelte';
 export { default as EvidenceRating } from './EvidenceRating.svelte';
 export { default as GlyphMatrix } from './GlyphMatrix.svelte';
-
+export { default as AstralShell } from './AstralShell.svelte';
+export { default as StripedPattern } from './StripedPattern.svelte';

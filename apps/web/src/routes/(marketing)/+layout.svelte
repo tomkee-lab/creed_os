@@ -3,14 +3,12 @@
   import { page } from '$app/state';
   import { Sun, Moon, ArrowRight, Menu, X, ShieldCheck, ExternalLink } from 'lucide-svelte';
   import CreedLogo from '$lib/components/brand/CreedLogo.svelte';
-  import OpenSourceComplianceModal from '$lib/components/compliance/OpenSourceComplianceModal.svelte';
   import { toggleTheme as toggleGlobalTheme } from '$lib/theme.js';
 
   let { children } = $props();
 
   let isDarkMode = $state(false);
   let mobileMenuOpen = $state(false);
-  let complianceModalOpen = $state(false);
   let scrollY = $state(0);
   const isScrolled = $derived(scrollY > 12);
 
@@ -300,13 +298,6 @@
           <a href="/login" class="footer-link text-ink hover:text-brand font-medium">Access Workspace</a>
           <a href="/help" class="footer-link">Help & Documentation</a>
           <a href="/consent#privacy" class="footer-link">Consent & Privacy</a>
-          <button
-            type="button"
-            onclick={() => (complianceModalOpen = true)}
-            class="footer-link text-left bg-transparent border-none p-0 cursor-pointer font-sans"
-          >
-            Open Source & SBOM
-          </button>
           <a
             href="https://github.com/tomkee-lab/creed_os"
             target="_blank"
@@ -321,9 +312,6 @@
     </div>
   </footer>
 </div>
-
-<!-- Global Open Source Architecture & Compliance Modal -->
-<OpenSourceComplianceModal bind:isOpen={complianceModalOpen} />
 
 <style>
   /* ================================================================

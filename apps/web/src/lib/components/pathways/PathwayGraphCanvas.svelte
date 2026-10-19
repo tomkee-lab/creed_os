@@ -70,8 +70,8 @@
         id: `skill-${key}`,
         type: 'skillNode',
         position: {
-          x: isCol1 ? 40 : 280,
-          y: row * 110 + 60
+          x: isCol1 ? 30 : 310,
+          y: row * 115 + 45
         },
         data: {
           ...skill,
@@ -94,8 +94,8 @@
         id: pathway.id,
         type: 'pathwayNode',
         position: {
-          x: 560,
-          y: pIndex * 180 + 70
+          x: 630,
+          y: pIndex * 170 + 55
         },
         data: {
           id: pathway.id,
@@ -107,7 +107,7 @@
         }
       });
 
-      // Connect skill nodes to this pathway
+      // Connect skill nodes to this pathway with high-contrast edges in both themes
       (pathway.requirements || []).forEach((req: any) => {
         const demonstrated = learner?.competencies?.[req.competency]?.score ?? 2.5;
         const isMet = demonstrated >= req.minimumLevel;
@@ -120,9 +120,9 @@
           animated: isSelected && isMet,
           style: isSelected
             ? isMet
-              ? 'stroke: var(--mint); stroke-width: 2px;'
-              : 'stroke: var(--yellow); stroke-width: 1.5px; stroke-dasharray: 4,4;'
-            : 'stroke: var(--border-subtle); stroke-width: 1px;'
+              ? 'stroke: var(--mint); stroke-width: 2.5px;'
+              : 'stroke: var(--attention); stroke-width: 2px; stroke-dasharray: 4,4;'
+            : 'stroke: var(--border-strong); stroke-width: 1.25px; opacity: 0.75;'
         });
       });
     });
@@ -137,7 +137,7 @@
   }
 </script>
 
-<div class="w-full h-135 rounded-none border border-border-subtle bg-background relative overflow-hidden">
+<div class="w-full h-140 rounded-sm border border-border bg-surface dark:bg-canvas relative overflow-hidden shadow-xs">
   <SvelteFlow
     nodes={graphData.nodes}
     edges={graphData.edges}
@@ -150,32 +150,31 @@
     class="carbon-flow-canvas"
   >
     <Controls
-      class="bg-surface-2! border! border-border-subtle! rounded-none! shadow-hairline! [&>button]:bg-surface-2! [&>button]:border-border-subtle! [&>button]:text-foreground! hover:[&>button]:bg-surface-3!"
+      class="bg-surface! border! border-border! rounded-sm! shadow-sm! [&>button]:bg-surface! [&>button]:border-border! [&>button]:text-ink! hover:[&>button]:bg-surface-raised!"
     />
     <Background
-      gap={20}
-      size={1}
-      patternColor="oklch(0.285 0.022 255 / 0.5)"
+      gap={24}
+      size={1.2}
     />
     <MiniMap
-      nodeColor={(n) => (n.type === 'pathwayNode' ? 'oklch(0.82 0.19 165)' : 'oklch(0.285 0.022 255)')}
-      class="bg-surface-2! border! border-border-subtle! rounded-none! overflow-hidden"
+      nodeColor={(n) => (n.type === 'pathwayNode' ? 'var(--brand)' : 'var(--border-strong)')}
+      class="bg-surface! border! border-border! rounded-sm! overflow-hidden shadow-xs"
     />
   </SvelteFlow>
 
-  <!-- Legend Overlay -->
-  <div class="absolute bottom-3 left-3 z-10 px-3 py-1.5 rounded-none bg-surface-2/90 backdrop-blur-xs border border-border-subtle text-[11px] flex items-center gap-3">
-    <div class="flex items-center gap-1.5 text-foreground-secondary">
-      <span class="w-2 h-2 rounded-none bg-mint"></span>
-      <span>Demonstrated Foundation</span>
+  <!-- High-Contrast Legend Overlay -->
+  <div class="absolute bottom-3 left-3 z-10 px-3 py-1.5 rounded-sm bg-surface/95 dark:bg-surface-raised/95 backdrop-blur-xs border border-border text-[10px] font-mono flex items-center gap-4 text-ink select-none shadow-xs">
+    <div class="flex items-center gap-1.5">
+      <span class="w-2.5 h-2.5 rounded-2xs bg-mint shadow-2xs"></span>
+      <span class="font-medium">Demonstrated Foundation</span>
     </div>
-    <div class="flex items-center gap-1.5 text-foreground-secondary">
-      <span class="w-2 h-2 rounded-none bg-yellow"></span>
-      <span>In Progress</span>
+    <div class="flex items-center gap-1.5">
+      <span class="w-2.5 h-2.5 rounded-2xs bg-attention shadow-2xs"></span>
+      <span class="font-medium">In Progress</span>
     </div>
-    <div class="flex items-center gap-1.5 text-foreground-secondary">
-      <span class="w-2 h-2 rounded-none border border-mint"></span>
-      <span>Target Milestone</span>
+    <div class="flex items-center gap-1.5">
+      <span class="w-2.5 h-2.5 rounded-2xs border-2 border-brand bg-brand-subtle"></span>
+      <span class="font-medium">Target Pathway</span>
     </div>
   </div>
 </div>
@@ -183,6 +182,6 @@
 <style>
   /* stylelint-disable-next-line selector-class-pattern */
   :global(.carbon-flow-canvas .svelte-flow__edge-path) {
-    transition: stroke var(--motion-micro) ease;
+    transition: stroke var(--duration-standard, 200ms) ease;
   }
 </style>

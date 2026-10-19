@@ -23,7 +23,7 @@
     title="Strengths & Foundational Demonstrations"
     subtitle="Observable competencies validated across classroom assessments and studio projects."
     actionLabel="View Detailed Competency Matrix"
-    actionHref="/student/pathways"
+    actionHref="/student/growth"
   >
     <div class="p-6 bg-surface-raised rounded-none border border-border space-y-2">
       <p class="text-sm text-ink font-medium">Demonstrated competence across 4 core domains.</p>

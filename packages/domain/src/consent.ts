@@ -45,6 +45,13 @@ export class ConsentStateError extends Error {
   }
 }
 
+export class StatutoryConsentError extends Error {
+  constructor(message: string = 'Statutory consent under DPDP Act 2023 Section 9 is required before recording evidence or assessment data.') {
+    super(message);
+    this.name = 'StatutoryConsentError';
+  }
+}
+
 /**
  * Deterministic transition function for DPDP consent lifecycle.
  * Throws ConsentStateError if an illegal transition is attempted.

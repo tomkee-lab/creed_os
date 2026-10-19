@@ -33,7 +33,7 @@
   args={{
     items: [
       { label: 'Console', href: '/teacher' },
-      { label: 'Cohort Benchmarks', href: '/teacher/benchmarks' },
+      { label: 'Cohort Benchmarks', href: '/teacher/roster' },
       { label: 'Class 8-A Diagnostic Dossier' }
     ]
   }}

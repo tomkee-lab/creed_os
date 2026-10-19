@@ -9,6 +9,8 @@
 @import "./lib/styles/motion.css";
 @import "./lib/styles/utilities.css";
 
+@source "../../../packages/ui/src";
+
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================================

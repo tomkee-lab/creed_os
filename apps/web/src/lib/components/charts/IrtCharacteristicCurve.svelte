@@ -61,24 +61,24 @@
   });
 </script>
 
-<div class="rounded-none border border-border-subtle bg-surface-2 p-4 space-y-4">
+<div class="rounded-none border border-border-subtle bg-surface-2 p-3 sm:p-4 space-y-4">
   <!-- Chart Header -->
-  <div class="flex items-center justify-between pb-2 border-b border-border-subtle">
-    <div class="flex items-center gap-2">
-      <Activity class="w-4 h-4 text-mint" />
+  <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-border-subtle">
+    <div class="flex items-center gap-1.5 min-w-0">
+      <Activity class="w-3.5 h-3.5 text-mint shrink-0" />
       <span class="text-xs font-semibold text-foreground tracking-tight">
-        Item Characteristic Curve (3PL IRT)
+        Item Characteristic (3PL)
       </span>
     </div>
 
-    <div class="flex items-center gap-3 text-[11px] font-mono">
-      <div class="flex items-center gap-1.5 text-foreground-secondary">
+    <div class="flex flex-wrap items-center gap-2 text-[10px] font-mono">
+      <div class="flex items-center gap-1 text-foreground-secondary">
         <span class="w-2.5 h-0.5 bg-mint rounded-none"></span>
         <span>P(θ) Response</span>
       </div>
-      <div class="flex items-center gap-1.5 text-foreground-secondary">
+      <div class="flex items-center gap-1 text-foreground-secondary">
         <span class="w-2.5 h-0.5 bg-violet border-b border-violet rounded-none"></span>
-        <span>I(θ) Information</span>
+        <span>I(θ) Info</span>
       </div>
     </div>
   </div>

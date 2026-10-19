@@ -9,14 +9,14 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
   let user = locals.user;
 
   if (!user) {
-    if (currentPath.startsWith('/help') || currentPath.startsWith('/ide') || currentPath.startsWith('/observatory')) {
+    if (currentPath.startsWith('/help') || currentPath.startsWith('/ide')) {
       user = { id: 'guest', name: 'Guest Explorer', email: 'guest@core-os.app', role: 'student' } as any;
     } else {
       throw redirect(303, `/login?next=${encodeURIComponent(url.pathname)}`);
     }
   }
 
-  const isUtilityRoute = currentPath.startsWith('/settings') || currentPath.startsWith('/help') || currentPath.startsWith('/ide') || currentPath.startsWith('/observatory');
+  const isUtilityRoute = currentPath.startsWith('/settings') || currentPath.startsWith('/help') || currentPath.startsWith('/ide');
   const requestedRole = currentPath.startsWith('/admin')
     ? 'admin'
     : currentPath.startsWith('/teacher')

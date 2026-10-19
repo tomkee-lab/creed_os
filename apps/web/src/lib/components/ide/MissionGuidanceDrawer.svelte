@@ -130,7 +130,7 @@
 
     <!-- Row 2: Level 1 Signal: Primary Mission Directive (Crisp signal, no card bloat) -->
     <div class="flex items-start gap-1.5 text-xs text-ink bg-surface-subtle border border-border p-1.5 px-2 rounded-sm shadow-2xs">
-      <span class="text-[9px] font-mono uppercase tracking-wider px-1 py-0.2 border rounded-xs shrink-0 mt-0.5 {getStageBadge(mission.stage).color}">
+      <span class="text-[9px] font-mono uppercase tracking-wider px-1 py-0.5 border rounded-xs shrink-0 mt-0.5 {getStageBadge(mission.stage).color}">
         {mission.gradeBracket}
       </span>
       <p class="text-[11px] leading-snug flex-1 min-w-0 line-clamp-2">

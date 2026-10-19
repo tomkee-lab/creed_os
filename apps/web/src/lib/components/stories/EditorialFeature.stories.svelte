@@ -29,7 +29,7 @@
     description:
       'Immerse in hardware prototyping, sensor fusion, and algorithmic motor control with industry mentor feedback.',
     actionLabel: 'Explore Pathway Syllabus',
-    actionHref: '/student/pathways',
+    actionHref: '/student/growth?tab=pathways',
     secondaryLabel: 'View Evidence Rubric',
     secondaryHref: '#'
   }}
@@ -47,6 +47,6 @@
     description:
       'Explore ecological data modeling, genetics foundations, and statistical inference through real-world biological datasets.',
     actionLabel: 'Launch Bio Module',
-    actionHref: '/student/pathways'
+    actionHref: '/student/missions'
   }}
 />

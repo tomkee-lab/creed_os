@@ -13,4 +13,5 @@ export * from './workflows/mismatch_pipeline.js';
 export * from './workflows/pathway.js';
 export * from './mismatch.js';
 export * from './evidence.js';
+export * from './presenters/persona-mapper.js';
 

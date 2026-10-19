@@ -82,7 +82,7 @@
             bind:value={email}
             required
             placeholder="you@school.org"
-            class="w-full pl-3 pr-3 py-2 rounded-none bg-surface border border-border text-xs text-ink placeholder-ink-muted focus:outline-hidden focus:border-brand"
+            class="w-full pl-3 pr-3 py-2 rounded-none bg-surface border border-border text-xs text-ink placeholder-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:border-brand transition-colors"
           />
         </div>
       </div>

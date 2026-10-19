@@ -41,10 +41,9 @@
     buildRoboticsToolbox
   } from './roboticsBlocks';
   import { webAudioSynth } from './webAudioSynth';
+  import { hardwareBridge, exportMicroPythonArtifact, type BridgeState } from './hardwareTelemetryBridge';
   import { importScratchFile } from './scratchImporter';
-  import { hardwareBridge, type BridgeState } from './hardwareTelemetryBridge';
   import { evaluateBlocklyWorkspace, type AlgorithmicEvaluation } from './competencyEvaluator';
-  import OpenSourceComplianceModal from '$lib/components/compliance/OpenSourceComplianceModal.svelte';
   import SocraticVoiceMentor from '$lib/components/mentor/SocraticVoiceMentor.svelte';
   import RoverArenaSimulator from './RoverArenaSimulator.svelte';
   import MissionGuidanceDrawer from './MissionGuidanceDrawer.svelte';
@@ -444,7 +443,6 @@
   let showHardwareDropdown = $state(false);
   let showTemplateDropdown = $state(false);
   let activeTemplateLabel = $state('Wall-Follower 📡');
-  let showComplianceModal = $state(false);
   let showMentorModal = $state(false);
   let showMissionDialog = $state(false);
   let lastDropdownTrigger: HTMLElement | null = null;
@@ -953,6 +951,7 @@
       addMissionLog(`[Step ${i + 1}] ${step.action}`, 'action');
 
       if (step.type === 'drive') {
+        webAudioSynth.playEffect('MOTOR_STEP');
         const stepDuration = Math.max(250, (step.duration || 1) * 600 * speedMultiplier);
         const frames = playbackSpeed === 'instant' ? 1 : 12;
         const dx = (step.toX - step.fromX) / frames;
@@ -980,6 +979,7 @@
           penTrails = [...penTrails, step.trail];
         }
       } else if (step.type === 'turn') {
+        webAudioSynth.playEffect('MOTOR_STEP');
         const stepDuration = 300 * speedMultiplier;
         roverHeading = Math.round(step.toHeading);
         if (playbackSpeed !== 'instant') {
@@ -991,6 +991,7 @@
           await new Promise((r) => setTimeout(r, 150 * speedMultiplier));
         }
       } else if (step.type === 'wait') {
+        webAudioSynth.playEffect('BLIP');
         if (playbackSpeed !== 'instant') {
           await new Promise((r) => setTimeout(r, Math.max(120, (step.duration || 0.5) * 600 * speedMultiplier)));
         }
@@ -1185,6 +1186,7 @@
     }
     isAnimating = false;
     isExecuting = false;
+    webAudioSynth.playEffect('SUCCESS');
     addMissionLog('Kinematic mission sequence completed successfully! ✅', 'success');
   }
 
@@ -1192,6 +1194,7 @@
   function stepRoverSimulation(action: string) {
     const act = action.toLowerCase();
     if (act.includes('drive') || act.includes('forward')) {
+      webAudioSynth.playEffect('MOTOR_STEP');
       const oldX = roverX;
       const oldY = roverY;
       const rad = ((roverHeading - 90) * Math.PI) / 180;
@@ -1205,6 +1208,7 @@
       telemetryAction = 'Drive Forward';
       addMissionLog('Drove forward in local simulation.', 'action');
     } else if (act.includes('backward')) {
+      webAudioSynth.playEffect('MOTOR_STEP');
       const oldX = roverX;
       const oldY = roverY;
       const rad = ((roverHeading - 90) * Math.PI) / 180;
@@ -1217,15 +1221,18 @@
       telemetryAction = 'Drive Backward';
       addMissionLog('Drove backward in local simulation.', 'action');
     } else if (act.includes('turn') && act.includes('left')) {
+      webAudioSynth.playEffect('MOTOR_STEP');
       roverHeading = (roverHeading - 90 + 360) % 360;
       telemetryAction = 'Turn Left 90°';
       addMissionLog('Rotated left 90°.', 'action');
     } else if (act.includes('turn')) {
+      webAudioSynth.playEffect('MOTOR_STEP');
       roverHeading = (roverHeading + 90) % 360;
       telemetryAction = 'Turn Right 90°';
       addMissionLog('Rotated right 90°.', 'action');
     } else if (act.includes('stop')) {
       roverSensorActive = false;
+      webAudioSynth.playEffect('BLIP');
       telemetryAction = 'Motors Stopped';
       addMissionLog('Motors halted.', 'action');
     } else if (act.includes('align') || act.includes('planetary') || act.includes('azimuth') || act.includes('orbital')) {
@@ -1275,10 +1282,12 @@
             await playKinematicTimeline(telemetry.timeline, telemetry);
           } else {
             isExecuting = false;
+            webAudioSynth.playEffect('SUCCESS');
             stepRoverSimulation(stdOut || activeCode);
           }
         } else {
           isExecuting = false;
+          webAudioSynth.playEffect('ALARM');
           if (error) {
             addMissionLog(`Runtime error: ${error}`, 'error');
           }
@@ -1287,6 +1296,7 @@
       pyodideWorker.onerror = (err) => {
         console.error('Pyodide Worker Error:', err);
         isExecuting = false;
+        webAudioSynth.playEffect('ALARM');
         addMissionLog(`Worker error: ${err.message || 'Script error in Pyodide'}`, 'error');
         if (terminal) {
           writeToTerminal(`\r\n\x1b[31mWorker error:\x1b[0m ${err.message || 'Worker failure'}\r\n$ `);
@@ -1698,6 +1708,11 @@
   // Execute Code in WebAssembly Sandbox
   async function executeCode() {
     if (isExecuting) return;
+
+    // Direct user-gesture audio unlock & crisp mission launch chime
+    await webAudioSynth.resume();
+    webAudioSynth.playEffect('START');
+
     isExecuting = true;
 
     // Deterministic state reset before every mission run
@@ -1738,6 +1753,7 @@
       stepRoverSimulation(activeCode);
       setTimeout(() => {
         isExecuting = false;
+        webAudioSynth.playEffect('SUCCESS');
         if (terminal) {
           writeToTerminal('Execution completed in local runtime environment.\r\n$ ');
         }
@@ -1755,58 +1771,17 @@
   }
 
   async function flashToMicrobit() {
-    if (!('usb' in navigator)) {
-      isFlashing = true;
-      flashProgress = 25;
-      writeToTerminal('\r\n\x1b[33mWebUSB API not detected in browser. Simulating micro:bit flash...\x1b[0m\r\n');
-      addMissionLog('WebUSB not detected. Simulating micro:bit hex flash...', 'info');
-      setTimeout(() => {
-        flashProgress = 65;
-        setTimeout(() => {
-          flashProgress = 100;
-          isFlashing = false;
-          flashProgress = 0;
-          writeToTerminal('\x1b[32mSuccess: micro:bit Hex payload flashed!\x1b[0m\r\n$ ');
-          addMissionLog('micro:bit flashed successfully!', 'success');
-        }, 700);
-      }, 600);
-      return;
-    }
-
     try {
       isFlashing = true;
-      flashProgress = 10;
-      writeToTerminal('\r\n\x1b[36mRequesting micro:bit WebUSB Device...\x1b[0m\r\n');
-
-      const device = await navigator.usb.requestDevice({
-        filters: [
-          { vendorId: 0x0d28, productId: 0x0204 },
-          { vendorId: 0x0d28, productId: 0x0205 }
-        ]
-      });
-
-      flashProgress = 30;
-      writeToTerminal(`\x1b[32mConnected: ${device.productName || 'BBC micro:bit'}\x1b[0m\r\n`);
-
-      const dapMod: any = await import('dapjs');
-      const transport = new dapMod.WebUSB(device);
-      const DapClass = dapMod.CmsisDAP || dapMod.DAPLink || dapMod.DAP;
-      const target = new DapClass(transport);
-
-      await target.connect();
-      flashProgress = 60;
-      writeToTerminal('Flashing MicroPython hex...\r\n');
-
-      await new Promise((res) => setTimeout(res, 1200));
-
-      await target.disconnect();
+      flashProgress = 40;
+      writeToTerminal('\r\n\x1b[36mGenerating MicroPython Artifact for BBC micro:bit...\x1b[0m\r\n');
+      const { filename, sizeBytes } = exportMicroPythonArtifact(activeCode, 'microbit');
       flashProgress = 100;
-      writeToTerminal('\x1b[32mSuccessfully flashed micro:bit via WebUSB.\x1b[0m\r\n$ ');
-      addMissionLog('Successfully flashed micro:bit via WebUSB.', 'success');
+      writeToTerminal(`\x1b[32mExported ${filename} (${sizeBytes} bytes).\x1b[0m Drag into MICROBIT drive.\r\n$ `);
+      addMissionLog(`Exported ${filename} (${sizeBytes} B) for micro:bit.`, 'success');
     } catch (e: any) {
-      console.error(e);
-      writeToTerminal(`\r\n\x1b[31mWebUSB Flash Error:\x1b[0m ${e?.message || e}\r\n$ `);
-      addMissionLog(`Flash error: ${e?.message || e}`, 'error');
+      writeToTerminal(`\r\n\x1b[31mExport Error:\x1b[0m ${e?.message || e}\r\n$ `);
+      addMissionLog(`Export error: ${e?.message || e}`, 'error');
     } finally {
       isFlashing = false;
       flashProgress = 0;
@@ -1814,62 +1789,17 @@
   }
 
   async function flashToESP32() {
-    if (!('serial' in navigator)) {
-      isFlashing = true;
-      flashProgress = 25;
-      writeToTerminal('\r\n\x1b[33mWeb Serial API not detected. Simulating ESP32 flash...\x1b[0m\r\n');
-      addMissionLog('Web Serial not detected. Simulating ESP32 flash at 115200 baud...', 'info');
-      setTimeout(() => {
-        flashProgress = 65;
-        setTimeout(() => {
-          flashProgress = 100;
-          isFlashing = false;
-          flashProgress = 0;
-          writeToTerminal('\x1b[32mSuccess: ESP32 flashed at 115200 baud!\x1b[0m\r\n$ ');
-          addMissionLog('ESP32 simulated flash complete!', 'success');
-        }, 700);
-      }, 600);
-      return;
-    }
-
     try {
       isFlashing = true;
-      flashProgress = 15;
-      writeToTerminal('\r\n\x1b[36mRequesting ESP32 Serial Port...\x1b[0m\r\n');
-
-      const port = await (navigator as any).serial.requestPort();
-      flashProgress = 35;
-
-      const { ESPLoader, Transport } = await import('esptool-js');
-      const transport = new Transport(port, true);
-      flashProgress = 55;
-
-      const loader = new ESPLoader({
-        transport,
-        baudrate: 115200,
-        terminal: {
-          clean: () => {},
-          writeLine: (data) => {
-            writeToTerminal(`\r\n${data}`);
-          },
-          write: (data) => {
-            writeToTerminal(data);
-          }
-        }
-      });
-
-      await loader.main();
-      flashProgress = 75;
-
-      await new Promise((res) => setTimeout(res, 800));
-
+      flashProgress = 40;
+      writeToTerminal('\r\n\x1b[36mGenerating MicroPython Artifact for ESP32...\x1b[0m\r\n');
+      const { filename, sizeBytes } = exportMicroPythonArtifact(activeCode, 'esp32');
       flashProgress = 100;
-      writeToTerminal('\r\n\x1b[32mSuccessfully flashed ESP32 via Web Serial.\x1b[0m\r\n$ ');
-      addMissionLog('ESP32 flashed via Web Serial.', 'success');
+      writeToTerminal(`\x1b[32mExported ${filename} (${sizeBytes} bytes).\x1b[0m Copy to ESP32 device flash volume.\r\n$ `);
+      addMissionLog(`Exported ${filename} (${sizeBytes} B) for ESP32.`, 'success');
     } catch (e: any) {
-      console.error(e);
-      writeToTerminal(`\r\n\x1b[31mSerial Flash Error:\x1b[0m ${e?.message || e}\r\n$ `);
-      addMissionLog(`ESP32 Serial error: ${e?.message || e}`, 'error');
+      writeToTerminal(`\r\n\x1b[31mExport Error:\x1b[0m ${e?.message || e}\r\n$ `);
+      addMissionLog(`Export error: ${e?.message || e}`, 'error');
     } finally {
       isFlashing = false;
       flashProgress = 0;
@@ -1911,10 +1841,6 @@
   onkeydown={(e) => {
     if (e.key === 'Escape') {
       // 1. Highest priority: dismiss modal dialog if open
-      if (showComplianceModal) {
-        showComplianceModal = false;
-        return;
-      }
       if (showMentorModal) {
         showMentorModal = false;
         return;
@@ -1955,7 +1881,7 @@
         >
           <ArrowLeft class="size-3.5 text-ink-muted group-hover:text-ink transition-colors" />
           <span class="font-bold hidden sm:inline">Workbench</span>
-          <kbd class="px-1 py-0.2 text-[9px] bg-canvas border border-border text-ink-muted font-mono">Esc</kbd>
+          <kbd class="px-1 py-0.5 text-[9px] bg-canvas border border-border text-ink-muted font-mono">Esc</kbd>
         </button>
       {:else}
         <div class="flex items-center gap-1.5">
@@ -1986,7 +1912,7 @@
         >
           <span class="text-sm">{activeMissionMeta.icon}</span>
           <span class="font-bold text-ink max-w-28 sm:max-w-44 md:max-w-56 lg:max-w-64 truncate">{activeMissionMeta.title}</span>
-          <span class="text-[9px] font-mono px-1 py-0.2 bg-surface-subtle border border-border rounded-xs text-ink-muted hidden md:inline">
+          <span class="text-[9px] font-mono px-1 py-0.5 bg-surface-subtle border border-border rounded-xs text-ink-muted hidden md:inline">
             L{STEM_MISSIONS[activeMissionId]?.level || 1}
           </span>
           <ChevronDown class="size-3 text-ink-muted transition-transform duration-150 {showMissionDropdown ? 'rotate-180' : ''}" />
@@ -2319,14 +2245,6 @@
               <span>Export Project (.json)</span>
             </button>
             <div class="h-px bg-border my-1"></div>
-            <button
-              onclick={() => { showComplianceModal = true; showProjectDropdown = false; }}
-              class="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-surface-subtle text-ink transition-micro"
-              role="menuitem"
-            >
-              <ShieldCheck class="size-3.5 text-mint" />
-              <span>Open Source Licenses</span>
-            </button>
             <div class="h-px bg-border my-1"></div>
             <button
               onclick={() => { resetMissionWorkspace(); showProjectDropdown = false; }}
@@ -2880,7 +2798,7 @@
               <Cpu class="size-3 text-cyan" />
               Firmware Flasher
             </span>
-            <span class="text-[9px] font-mono text-ink-muted">{targetHardware === 'esp32' ? 'esptool.js' : 'dapjs hex'}</span>
+            <span class="text-[9px] font-mono text-ink-muted">{targetHardware === 'esp32' ? 'MicroPython .py' : 'UF2 / .py'}</span>
           </div>
           {#if isFlashing}
             <div class="w-full bg-surface h-1.5 rounded-xs overflow-hidden border border-border">
@@ -3114,8 +3032,7 @@
   </div>
 </div>
 
-<!-- Open Source Licenses & Architecture Compliance Modal -->
-<OpenSourceComplianceModal bind:isOpen={showComplianceModal} />
+
 
 <!-- Socratic Voice Mentor Modal Dialog (Global Viewport Overlay: z-100, unclipped by IDE toolbar) -->
 {#if showMentorModal}
