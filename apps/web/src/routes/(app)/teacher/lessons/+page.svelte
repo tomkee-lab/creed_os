@@ -271,6 +271,7 @@
   let editTier3Challenge = $state('');
   let editTier3Rubric = $state('');
   let editSuccessMessage = $state<string | null>(null);
+  let editErrorMessage = $state<string | null>(null);
 
   function startEditingSelected() {
     if (!selectedPlan) return;
@@ -330,14 +331,36 @@
     }, 3000);
   }
 
-  function copyPlanBrief() {
+  async function copyPlanBrief() {
     if (!selectedPlan) return;
     const text = `CREED OS Lesson Plan: ${selectedPlan.title}\nFramework: ${selectedPlan.pedagogicalFramework} (${selectedPlan.durationMinutes}m)\nMisconception: ${selectedPlan.targetedMisconception?.label}\n\n${selectedPlan.tier1Remediation.tierTitle}:\n${selectedPlan.tier1Remediation.scaffoldStrategy}\nCheck: ${selectedPlan.tier1Remediation.checkQuestion}\n\n${selectedPlan.tier2Core.tierTitle}:\n${selectedPlan.tier2Core.collaborativeTask}\nEvidence: ${selectedPlan.tier2Core.evidenceCheckpoint}\n\n${selectedPlan.tier3Extension.tierTitle}:\n${selectedPlan.tier3Extension.inquiryChallenge}\nRubric: ${selectedPlan.tier3Extension.evaluationRubric}`;
-    navigator.clipboard.writeText(text);
-    editSuccessMessage = 'Lesson plan brief copied to clipboard.';
-    setTimeout(() => {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else if (typeof document !== 'undefined') {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      } else {
+        throw new Error('Clipboard API unavailable');
+      }
+      editErrorMessage = null;
+      editSuccessMessage = 'Lesson plan brief copied to clipboard.';
+      setTimeout(() => {
+        editSuccessMessage = null;
+      }, 2500);
+    } catch (err: any) {
       editSuccessMessage = null;
-    }, 2500);
+      editErrorMessage = 'Failed to copy to clipboard: ' + (err.message || 'Permission denied');
+      setTimeout(() => {
+        editErrorMessage = null;
+      }, 3500);
+    }
   }
 
   // Playbooks state
@@ -715,6 +738,14 @@
                 <div class="p-3 bg-positive-subtle border border-positive/30 rounded-sm text-xs font-mono text-positive flex items-center gap-2 animate-fadeIn">
                   <Check class="size-3.5 shrink-0" />
                   <span>{editSuccessMessage}</span>
+                </div>
+              {/if}
+
+              <!-- Error Alert Message -->
+              {#if editErrorMessage}
+                <div class="p-3 bg-critical-subtle border border-critical/30 rounded-sm text-xs font-mono text-critical flex items-center gap-2 animate-fadeIn">
+                  <AlertCircle class="size-3.5 shrink-0" />
+                  <span>{editErrorMessage}</span>
                 </div>
               {/if}
 

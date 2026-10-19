@@ -128,9 +128,14 @@
     </div>
 
     <!-- Segmented Navigation Rail (4 Tabs) -->
-    <div class="flex items-center gap-1 pt-2 overflow-x-auto">
+    <div role="tablist" aria-label="Growth Perspectives" class="flex items-center gap-1 pt-2 overflow-x-auto">
       <button
         type="button"
+        role="tab"
+        id="tab-capabilities"
+        aria-selected={activeTab === 'capabilities'}
+        aria-controls="panel-capabilities"
+        tabindex={activeTab === 'capabilities' ? 0 : -1}
         onclick={() => (activeTab = 'capabilities')}
         class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-mono rounded-sm transition-micro border {activeTab === 'capabilities'
           ? 'bg-surface-raised border-border text-brand font-bold shadow-2xs'
@@ -142,6 +147,11 @@
 
       <button
         type="button"
+        role="tab"
+        id="tab-evidence"
+        aria-selected={activeTab === 'evidence'}
+        aria-controls="panel-evidence"
+        tabindex={activeTab === 'evidence' ? 0 : -1}
         onclick={() => (activeTab = 'evidence')}
         class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-mono rounded-sm transition-micro border {activeTab === 'evidence'
           ? 'bg-surface-raised border-border text-brand font-bold shadow-2xs'
@@ -153,6 +163,11 @@
 
       <button
         type="button"
+        role="tab"
+        id="tab-report"
+        aria-selected={activeTab === 'report'}
+        aria-controls="panel-report"
+        tabindex={activeTab === 'report' ? 0 : -1}
         onclick={() => (activeTab = 'report')}
         class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-mono rounded-sm transition-micro border {activeTab === 'report'
           ? 'bg-surface-raised border-border text-brand font-bold shadow-2xs'
@@ -164,6 +179,11 @@
 
       <button
         type="button"
+        role="tab"
+        id="tab-pathways"
+        aria-selected={activeTab === 'pathways'}
+        aria-controls="panel-pathways"
+        tabindex={activeTab === 'pathways' ? 0 : -1}
         onclick={() => (activeTab = 'pathways')}
         class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-mono rounded-sm transition-micro border {activeTab === 'pathways'
           ? 'bg-surface-raised border-border text-brand font-bold shadow-2xs'
@@ -177,7 +197,13 @@
 
   <!-- TAB 1: CAPABILITIES -->
   {#if activeTab === 'capabilities'}
-    <div class="space-y-6">
+    <div
+      role="tabpanel"
+      id="panel-capabilities"
+      aria-labelledby="tab-capabilities"
+      tabindex="0"
+      class="space-y-6 focus-visible:outline-none"
+    >
       {#if capabilities.length === 0}
         <div class="p-8 bg-surface border border-dashed border-border rounded-sm text-center space-y-3">
           <Layers class="size-8 text-ink-muted mx-auto" />
@@ -228,7 +254,13 @@
 
   <!-- TAB 2: EVIDENCE LEDGER -->
   {:else if activeTab === 'evidence'}
-    <div class="space-y-4">
+    <div
+      role="tabpanel"
+      id="panel-evidence"
+      aria-labelledby="tab-evidence"
+      tabindex="0"
+      class="space-y-4 focus-visible:outline-none"
+    >
       <div class="flex items-center justify-between text-xs text-ink-muted font-mono">
         <span>Tamper-evident SHA-256 Chained Evidence Ledger</span>
         <span>{evidence.length} Ledger Records</span>
@@ -278,7 +310,13 @@
 
   <!-- TAB 3: DIAGNOSTIC ROADMAP -->
   {:else if activeTab === 'report'}
-    <div class="space-y-6">
+    <div
+      role="tabpanel"
+      id="panel-report"
+      aria-labelledby="tab-report"
+      tabindex="0"
+      class="space-y-6 focus-visible:outline-none"
+    >
       {#if reports.length === 0}
         <div class="p-12 border border-border rounded-sm bg-surface text-center space-y-3">
           <FileText class="size-8 text-ink-muted mx-auto" />
@@ -336,7 +374,13 @@
 
   <!-- TAB 4: HORIZONS & PATHWAYS -->
   {:else if activeTab === 'pathways'}
-    <div class="space-y-6">
+    <div
+      role="tabpanel"
+      id="panel-pathways"
+      aria-labelledby="tab-pathways"
+      tabindex="0"
+      class="space-y-6 focus-visible:outline-none"
+    >
       <!-- Section Header with Level 1/2/3 Grammar -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-3">
         <div>

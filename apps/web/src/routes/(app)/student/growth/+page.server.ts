@@ -21,6 +21,19 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     if (requestedLearnerId && requestedLearnerId !== boundLearnerId && (!import.meta.env.DEV || requestedLearnerId !== DEFAULT_DEMO_LEARNER_ID)) {
       throw error(403, 'Forbidden: Students are restricted strictly to their own learner profile.');
     }
+  } else if (userRole === 'parent') {
+    const guardianId = (user as any)?.id || (user as any)?.sub || 'parent_1';
+    const requestedLearnerId = url.searchParams.get('learnerId') || boundLearnerId || DEFAULT_DEMO_LEARNER_ID;
+
+    // Verify guardian authorization for requested learner
+    const isAuthorized =
+      coreRepository.isGuardianLinkedToLearner(guardianId, requestedLearnerId) ||
+      (guardianId !== 'parent_1' && coreRepository.isGuardianLinkedToLearner('parent_1', requestedLearnerId) && import.meta.env.DEV);
+
+    if (!isAuthorized) {
+      throw error(403, 'Forbidden: Guardian unauthorized for this learner');
+    }
+    learnerId = requestedLearnerId;
   } else {
     learnerId = url.searchParams.get('learnerId') || (boundLearnerId && !boundLearnerId.startsWith('usr_') ? boundLearnerId : DEFAULT_DEMO_LEARNER_ID);
   }

@@ -111,7 +111,32 @@ DROP POLICY IF EXISTS "Public read skill prerequisites" ON public.skill_prerequi
 CREATE POLICY "Public read skill prerequisites" ON public.skill_prerequisites
   FOR SELECT USING (true);
 
--- 6. RLS Policies: Profiles
+-- 6. RLS Policies & Hardening: Profiles
+-- Drop legacy policies from earlier migrations
+DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
+
+-- Prevent role elevation via trigger (defense-in-depth)
+CREATE OR REPLACE FUNCTION public.prevent_profile_role_escalation()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NEW.role IS DISTINCT FROM OLD.role AND (auth.role() IS NULL OR auth.role() != 'service_role') THEN
+    RAISE EXCEPTION 'Role escalation forbidden: only service_role may modify profile roles.';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_prevent_profile_role_escalation ON public.profiles;
+CREATE TRIGGER trg_prevent_profile_role_escalation
+  BEFORE UPDATE ON public.profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.prevent_profile_role_escalation();
+
 DROP POLICY IF EXISTS "profiles_select_self" ON public.profiles;
 CREATE POLICY "profiles_select_self" ON public.profiles
   FOR SELECT TO authenticated
@@ -121,7 +146,7 @@ DROP POLICY IF EXISTS "profiles_update_self" ON public.profiles;
 CREATE POLICY "profiles_update_self" ON public.profiles
   FOR UPDATE TO authenticated
   USING (id = auth.uid())
-  WITH CHECK (id = auth.uid());
+  WITH CHECK (id = auth.uid() AND (role IS NOT DISTINCT FROM (SELECT p.role FROM public.profiles p WHERE p.id = auth.uid())));
 
 DROP POLICY IF EXISTS "profiles_educator_select_cohort" ON public.profiles;
 CREATE POLICY "profiles_educator_select_cohort" ON public.profiles
@@ -142,6 +167,9 @@ CREATE POLICY "profiles_service_role" ON public.profiles
   USING (true) WITH CHECK (true);
 
 -- 7. RLS Policies: Parent Learner Links
+DROP POLICY IF EXISTS "Parents can view linked children" ON public.parent_learner_links;
+DROP POLICY IF EXISTS "Learners can view linked parents" ON public.parent_learner_links;
+
 DROP POLICY IF EXISTS "parent_learner_links_parent_select" ON public.parent_learner_links;
 CREATE POLICY "parent_learner_links_parent_select" ON public.parent_learner_links
   FOR SELECT TO authenticated
@@ -158,6 +186,11 @@ CREATE POLICY "parent_learner_links_service_role" ON public.parent_learner_links
   USING (true) WITH CHECK (true);
 
 -- 8. RLS Policies: Consents (DPDP Act Statutory Verifications)
+-- Drop legacy consent policies
+DROP POLICY IF EXISTS "Guardians can view consents they granted" ON public.consents;
+DROP POLICY IF EXISTS "Learners can view consents for their profile" ON public.consents;
+DROP POLICY IF EXISTS "Staff can check learner consent in shared organization" ON public.consents;
+
 DROP POLICY IF EXISTS "consents_guardian_select" ON public.consents;
 CREATE POLICY "consents_guardian_select" ON public.consents
   FOR SELECT TO authenticated
@@ -173,16 +206,30 @@ CREATE POLICY "consents_staff_select" ON public.consents
   FOR SELECT TO authenticated
   USING (public.is_educator_for_student_cohort(auth.uid()::text, consents.learner_id::text));
 
+-- Guardian can only submit initial pending consent for an authorized child; verification requires service_role
 DROP POLICY IF EXISTS "consents_guardian_insert" ON public.consents;
 CREATE POLICY "consents_guardian_insert" ON public.consents
   FOR INSERT TO authenticated
-  WITH CHECK (guardian_id = auth.uid());
+  WITH CHECK (
+    guardian_id = auth.uid()
+    AND status = 'pending'
+    AND verified_at IS NULL
+    AND EXISTS (
+      SELECT 1 FROM public.parent_learner_links pll
+      WHERE pll.parent_id = auth.uid() AND pll.learner_id = consents.learner_id
+    )
+  );
 
+-- Guardians can only withdraw previously granted consent; re-verification or clearing withdrawal requires service_role
 DROP POLICY IF EXISTS "consents_guardian_update" ON public.consents;
 CREATE POLICY "consents_guardian_update" ON public.consents
   FOR UPDATE TO authenticated
   USING (guardian_id = auth.uid())
-  WITH CHECK (guardian_id = auth.uid());
+  WITH CHECK (
+    guardian_id = auth.uid()
+    AND status = 'withdrawn'
+    AND withdrawn_at IS NOT NULL
+  );
 
 DROP POLICY IF EXISTS "consents_service_role" ON public.consents;
 CREATE POLICY "consents_service_role" ON public.consents
@@ -190,6 +237,12 @@ CREATE POLICY "consents_service_role" ON public.consents
   USING (true) WITH CHECK (true);
 
 -- 9. RLS Policies: Assessment Sessions
+-- Drop legacy session policies
+DROP POLICY IF EXISTS "Learners can view own assessment sessions" ON public.assessment_sessions;
+DROP POLICY IF EXISTS "Verified guardians can view child assessment sessions" ON public.assessment_sessions;
+DROP POLICY IF EXISTS "Educators can view cohort assessment sessions" ON public.assessment_sessions;
+DROP POLICY IF EXISTS "Learners can update own in-progress sessions" ON public.assessment_sessions;
+
 DROP POLICY IF EXISTS "assessment_sessions_learner_select" ON public.assessment_sessions;
 CREATE POLICY "assessment_sessions_learner_select" ON public.assessment_sessions
   FOR SELECT TO authenticated
@@ -222,6 +275,12 @@ CREATE POLICY "assessment_sessions_service_role" ON public.assessment_sessions
   USING (true) WITH CHECK (true);
 
 -- 10. RLS Policies: Assessment Responses
+-- Drop legacy response policies
+DROP POLICY IF EXISTS "Learners can view own assessment responses" ON public.assessment_responses;
+DROP POLICY IF EXISTS "Guardians can view child assessment responses" ON public.assessment_responses;
+DROP POLICY IF EXISTS "Educators can view cohort assessment responses" ON public.assessment_responses;
+DROP POLICY IF EXISTS "Learners can submit responses to own in-progress sessions" ON public.assessment_responses;
+
 DROP POLICY IF EXISTS "assessment_responses_learner_select" ON public.assessment_responses;
 CREATE POLICY "assessment_responses_learner_select" ON public.assessment_responses
   FOR SELECT TO authenticated
@@ -260,6 +319,11 @@ CREATE POLICY "assessment_responses_service_role" ON public.assessment_responses
   USING (true) WITH CHECK (true);
 
 -- 11. RLS Policies: Learner Evidence
+-- Drop legacy evidence policies
+DROP POLICY IF EXISTS "Learner can view own evidence" ON public.learner_evidence;
+DROP POLICY IF EXISTS "Verified parent can view child evidence" ON public.learner_evidence;
+DROP POLICY IF EXISTS "Teacher can view class member evidence" ON public.learner_evidence;
+
 DROP POLICY IF EXISTS "learner_evidence_learner_select" ON public.learner_evidence;
 CREATE POLICY "learner_evidence_learner_select" ON public.learner_evidence
   FOR SELECT TO authenticated
@@ -292,6 +356,10 @@ CREATE POLICY "learner_evidence_service_role" ON public.learner_evidence
   USING (true) WITH CHECK (true);
 
 -- 12. RLS Policies: Audit Logs
+-- Drop legacy audit log policies
+DROP POLICY IF EXISTS "Platform administrators can view audit logs" ON public.audit_logs;
+DROP POLICY IF EXISTS "Authenticated users can insert audit logs" ON public.audit_logs;
+
 DROP POLICY IF EXISTS "audit_logs_insert" ON public.audit_logs;
 CREATE POLICY "audit_logs_insert" ON public.audit_logs
   FOR INSERT TO authenticated
@@ -309,3 +377,7 @@ DROP POLICY IF EXISTS "audit_logs_service_role" ON public.audit_logs;
 CREATE POLICY "audit_logs_service_role" ON public.audit_logs
   FOR ALL TO service_role
   USING (true) WITH CHECK (true);
+
+-- 13. Drop legacy organization membership policies if any
+DROP POLICY IF EXISTS "Members can view memberships in their organization" ON public.organization_memberships;
+

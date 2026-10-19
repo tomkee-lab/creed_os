@@ -23,6 +23,7 @@ import {
 
 export interface DifferentiatedLessonPlan {
   id: string;
+  authorId?: string;
   title: string;
   subject: 'STEM Reasoning' | 'English Literacy' | 'Autonomous Robotics';
   targetGrade: string;
@@ -1456,6 +1457,12 @@ class LocalCoreRepository {
   }
 
   addEvidence(evidence: LearnerEvidence): LearnerEvidence {
+    if (!this.hasActiveConsent(evidence.learnerId)) {
+      throw new StatutoryConsentError(
+        `Statutory parental consent under DPDP Act 2023 Section 9 missing or not active for minor learner ${evidence.learnerId}`
+      );
+    }
+
     const existing = this.evidenceStore.get(evidence.learnerId) || [];
     const prevHash = (existing[0] as any)?.chainHash || 'GENESIS_EVIDENCE_HASH_0000000000000000';
     const ev = evidence as any;
@@ -1553,7 +1560,13 @@ class LocalCoreRepository {
   // --- Statutory DPDP Consent & Guardian Authorization Operations ---
   hasActiveConsent(learnerId: string): boolean {
     const record = this.consentRecords.get(learnerId);
-    if (!record) return false;
+    if (!record) {
+      const profile = this.learnerProfiles.get(learnerId);
+      if (profile && (profile as any).age !== undefined && (profile as any).age >= 18) {
+        return true;
+      }
+      return false;
+    }
     return isConsentActive(record);
   }
 
@@ -1636,6 +1649,11 @@ class LocalCoreRepository {
 
   getConsentRecord(learnerId: string): ConsentRecord | undefined {
     return this.consentRecords.get(learnerId);
+  }
+
+  isGuardianLinkedToLearner(guardianId: string, learnerId: string): boolean {
+    const set = this.guardianLearnerMap.get(guardianId);
+    return set ? set.has(learnerId) : false;
   }
 
   setConsentRecord(record: ConsentRecord): void {
@@ -1914,6 +1932,12 @@ export class PostgresCoreRepository extends LocalCoreRepository {
   }
 
   override addEvidence(evidence: LearnerEvidence, actorSub: string = evidence.learnerId): any {
+    if (!this.hasActiveConsent(evidence.learnerId)) {
+      throw new StatutoryConsentError(
+        `Statutory parental consent under DPDP Act 2023 Section 9 missing or not active for minor learner ${evidence.learnerId}`
+      );
+    }
+
     const chained = super.addEvidence(evidence);
 
     if (isCloudDatabaseEnabled()) {
