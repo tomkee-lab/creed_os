@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 CIP Design Generator - Generate corporate identity mockups using Gemini Nano Banana
 
@@ -15,15 +14,16 @@ Image Editing (text-and-image-to-image):
 """
 
 import argparse
+from datetime import datetime
 import json
 import os
-import sys
 from pathlib import Path
-from datetime import datetime
+import re
+import sys
 
 # Add parent directory for imports
 sys.path.insert(0, str(Path(__file__).parent))
-from core import search, get_cip_brief
+from core import get_cip_brief, search  # noqa: E402
 
 # Model options
 MODELS = {
@@ -36,7 +36,7 @@ DEFAULT_MODEL = "flash"
 def load_logo_image(logo_path):
     """Load logo image using PIL for Gemini image editing"""
     try:
-        from PIL import Image
+        from PIL import Image  # type: ignore[import-untyped,import-not-found]
     except ImportError:
         print("Error: pillow package not installed.")
         print("Install with: pip install pillow")
@@ -61,7 +61,7 @@ def load_logo_image(logo_path):
         elif img.mode != 'RGB':
             img = img.convert('RGB')
         return img
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"Error loading logo: {e}")
         return None
 
@@ -121,7 +121,6 @@ def build_cip_prompt(deliverable, brand_name, style=None, industry=None, mockup=
     # Build prompt components
     deliverable_name = deliverable_data.get("Deliverable", deliverable)
     description = deliverable_data.get("Description", "")
-    dimensions = deliverable_data.get("Dimensions", "")
     logo_placement = deliverable_data.get("Logo Placement", "center")
 
     style_name = style_data.get("Style Name", style or "corporate")
@@ -137,13 +136,13 @@ def build_cip_prompt(deliverable, brand_name, style=None, industry=None, mockup=
         # Image editing prompt: instructs to USE the provided logo image
         prompt_parts = [
             f"Create a professional corporate identity mockup photograph of a {deliverable_name}",
-            f"Use the EXACT logo from the provided image - do NOT modify or recreate the logo",
-            f"The logo MUST appear exactly as shown in the input image",
+            "Use the EXACT logo from the provided image - do NOT modify or recreate the logo",
+            "The logo MUST appear exactly as shown in the input image",
             f"Place the logo on the {deliverable_name} at: {logo_placement}",
             f"Brand name: '{brand_name}'",
             f"{description}" if description else "",
             f"Design style: {style_name}",
-            f"Color scheme matching the logo colors",
+            "Color scheme matching the logo colors",
             f"Materials: {materials} with {finishes} finish",
             f"Setting: {mockup_context}",
             f"Mood: {mood}",
@@ -154,7 +153,7 @@ def build_cip_prompt(deliverable, brand_name, style=None, industry=None, mockup=
     else:
         # Pure text-to-image prompt
         prompt_parts = [
-            f"Professional corporate identity mockup photograph",
+            "Professional corporate identity mockup photograph",
             f"showing {deliverable_name} for brand '{brand_name}'",
             f"{description}" if description else "",
             f"{style_name} design style",
@@ -202,8 +201,8 @@ def generate_with_nano_banana(prompt_data, output_dir=None, model_key="flash", a
         logo_image: PIL.Image object of the brand logo for image editing mode
     """
     try:
-        from google import genai
-        from google.genai import types
+        from google import genai  # type: ignore[import-untyped,import-not-found]
+        from google.genai import types  # type: ignore[import-untyped,import-not-found]
     except ImportError:
         print("Error: google-genai package not installed.")
         print("Install with: pip install google-genai")
@@ -222,7 +221,7 @@ def generate_with_nano_banana(prompt_data, output_dir=None, model_key="flash", a
     # Determine mode
     mode = "image-editing" if logo_image else "text-to-image"
 
-    print(f"\n🎨 Generating CIP mockup...")
+    print("\n🎨 Generating CIP mockup...")
     print(f"   Mode: {mode}")
     print(f"   Deliverable: {prompt_data['deliverable']}")
     print(f"   Brand: {prompt_data['brand']}")
@@ -262,7 +261,6 @@ def generate_with_nano_banana(prompt_data, output_dir=None, model_key="flash", a
                     output_dir = Path(output_dir).resolve()
                     output_dir.mkdir(parents=True, exist_ok=True)
 
-                    import re
                     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                     brand_slug = re.sub(r'[^a-zA-Z0-9_-]', '', prompt_data["brand"].lower().replace(" ", "-")) or "brand"
                     deliverable_slug = re.sub(r'[^a-zA-Z0-9_-]', '', prompt_data["deliverable"].lower().replace(" ", "-")) or "deliverable"
@@ -281,7 +279,7 @@ def generate_with_nano_banana(prompt_data, output_dir=None, model_key="flash", a
         print("No image generated in response")
         return None
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"Error generating image: {e}")
         return None
 
@@ -352,12 +350,12 @@ def check_logo_required(brand_name, skip_prompt=False):
 
     print(f"\n⚠️  No logo image provided for '{brand_name}'")
     print("   Without a logo, AI will generate its own interpretation of the brand logo.")
-    print("")
+    print()
     print("   Options:")
     print("   1. Continue without logo (AI-generated logo interpretation)")
     print("   2. Generate a logo first using 'logo-design' skill")
     print("   3. Exit and provide a logo path with --logo")
-    print("")
+    print()
 
     try:
         choice = input("   Enter choice [1/2/3] (default: 1): ").strip()
