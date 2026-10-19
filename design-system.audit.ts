@@ -357,6 +357,82 @@ function auditCanonicalSpecification() {
   });
 }
 
+// 11. Audit Anti-Slop Copywriting Gates (miqdadbadjuber/anti-slop R-16: Zero AI marketing hyperbole & sycophancy in UI copy)
+function auditAntiSlopCopywriting() {
+  const violations: string[] = [];
+  const bannedCopyPatterns = [
+    { regex: /\b(?:AI-powered|AI powered)\b/i, label: 'Banned buzzword: "AI-powered" (Anti-Slop R-16)' },
+    { regex: /\bsupercharge\b/i, label: 'Banned hyperbolic buzzword: "supercharge" (Anti-Slop R-16)' },
+    { regex: /\b(?:revolutionary|cutting-edge)\s+ai\b/i, label: 'Banned hyperbolic claim: "revolutionary/cutting-edge AI" (Anti-Slop R-16)' },
+    { regex: /\b(?:unleash|unlock)\s+your\s+potential\b/i, label: 'Banned cliché: "unleash/unlock your potential" (Anti-Slop R-16)' },
+    { regex: /\bgame-?changer\b/i, label: 'Banned cliché: "game-changer" (Anti-Slop R-16)' },
+    { regex: /\b(?:delve into the|rich tapestry of)\b/i, label: 'Banned LLM slop phrase: "delve into / tapestry" (Anti-Slop R-16)' }
+  ];
+
+  const allFiles = getAllTargetFiles().filter((f) => f.endsWith('.svelte'));
+
+  for (const file of allFiles) {
+    const content = fs.readFileSync(file, 'utf-8');
+    // Strip comments to focus strictly on rendered templates and text
+    const cleanContent = content
+      .replace(/<!--[\s\S]*?-->/g, '')
+      .replace(/\/\/.*$/gm, '')
+      .replace(/\/\*[\s\S]*?\*\//g, '');
+
+    const lines = cleanContent.split('\n');
+    lines.forEach((line, idx) => {
+      for (const { regex, label } of bannedCopyPatterns) {
+        if (regex.test(line)) {
+          const rel = path.relative(ROOT_DIR, file);
+          violations.push(`${rel}:${idx + 1}: ${label}`);
+        }
+      }
+    });
+  }
+
+  results.push({
+    category: 'Anti-Slop Copywriting & AI Voice (miqdadbadjuber/anti-slop R-16: Zero hyperbolic marketing buzzwords)',
+    passed: violations.length === 0,
+    details: violations
+  });
+}
+
+// 12. Audit Anti-Slop Visual & Media Integrity (Anti-Slop R-01/R-13/R-17: Zero decorative neon orbs & placeholder mock services)
+function auditAntiSlopVisualArtefacts() {
+  const violations: string[] = [];
+  const bannedVisualPatterns = [
+    {
+      regex: /\b(?:blur-(?:2xl|3xl)\s+bg-(?:purple|cyan|pink|indigo)-[0-9]{3}\/\d+)\b/i,
+      label: 'Decorative neon halo orb / blurred background blob (Anti-Slop R-01/R-13)'
+    },
+    {
+      regex: /\b(?:via\.placeholder\.com|placehold\.co|picsum\.photos)\b/i,
+      label: 'Placeholder mock image service in production template (Anti-Slop R-17)'
+    }
+  ];
+
+  const allFiles = getAllTargetFiles();
+
+  for (const file of allFiles) {
+    const content = fs.readFileSync(file, 'utf-8');
+    const lines = content.split('\n');
+    lines.forEach((line, idx) => {
+      for (const { regex, label } of bannedVisualPatterns) {
+        if (regex.test(line)) {
+          const rel = path.relative(ROOT_DIR, file);
+          violations.push(`${rel}:${idx + 1}: Found ${label}`);
+        }
+      }
+    });
+  }
+
+  results.push({
+    category: 'Anti-Slop Visual & Media Integrity (miqdadbadjuber/anti-slop R-01/R-13/R-17: Zero neon orbs or placeholder mocks)',
+    passed: violations.length === 0,
+    details: violations
+  });
+}
+
 // Run all audits
 auditCanonicalSpecification();
 auditRadii();
@@ -367,6 +443,8 @@ auditPsychometricLeaks();
 auditFalsePrecision();
 auditTokenPipeline();
 auditPackageManager();
+auditAntiSlopCopywriting();
+auditAntiSlopVisualArtefacts();
 auditHeuristics();
 
 console.log('\n===============================================================');
