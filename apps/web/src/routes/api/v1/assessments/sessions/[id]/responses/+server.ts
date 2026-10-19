@@ -24,7 +24,10 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 
   try {
     const sessionId = params.id;
-    const session = coreRepository.getAssessmentSession(sessionId);
+    let session = coreRepository.getAssessmentSession(sessionId);
+    if (!session && typeof (coreRepository as any).getAssessmentSessionFromDb === 'function') {
+      session = await (coreRepository as any).getAssessmentSessionFromDb(sessionId);
+    }
 
     if (!session) {
       return json({ error: 'Assessment session not found' }, { status: 404 });

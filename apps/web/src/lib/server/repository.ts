@@ -358,6 +358,48 @@ export const STEM_MISSIONS: StemMission[] = [
       { criterion: 'Distance Conservation Calculation', target: '1,850 km saved ± 10% tolerance', importance: 'Mandatory' },
       { criterion: 'Geodesic Curvature Verification', target: 'Orthodromic route verified in 3D', importance: 'Primary' }
     ]
+  },
+  {
+    id: 'mission-gear-train',
+    title: 'RoboBridge Structural Optimization & Gear Train Mechanics',
+    code: 'MISSION-MECH-02',
+    domain: 'spatial_reasoning',
+    domainTitle: 'Mechanical Advantage & Structural Statics',
+    stage: 'middle',
+    stageLabel: 'Middle Stage (Classes 6–8)',
+    targetGrades: 'Classes 7–9',
+    estimatedMinutes: 20,
+    difficulty: 'Intermediate',
+    brief: 'Design and optimize a compound gear train and structural truss bridge. Calculate velocity ratios, mechanical advantage, and load distribution under variable robotic vehicle stress.',
+    pedagogicalObjective: 'Master gear tooth ratios, torque multipliers, and truss moment equilibrium.',
+    simulatorType: 'gear_train',
+    alignedStandards: ['CBSE Science Class 8 Force and Pressure', 'PISA Engineering Design'],
+    prerequisites: ['Basic ratio calculation', 'Lever and torque principles'],
+    rubricCriteria: [
+      { criterion: 'Velocity Ratio Calculation', target: 'VR = 4.0 ± 5% tolerance', importance: 'Mandatory' },
+      { criterion: 'Structural Stress Equilibrium', target: 'Truss deflection < 2mm under 50N load', importance: 'Primary' }
+    ]
+  },
+  {
+    id: 'mission-telemetry-filter',
+    title: 'Urban Climate Heat-Island Discovery & Telemetry Filtering',
+    code: 'MISSION-AI-02',
+    domain: 'computational_thinking',
+    domainTitle: 'Sensor Telemetry & Environmental Informatics',
+    stage: 'middle',
+    stageLabel: 'Middle Stage (Classes 6–8)',
+    targetGrades: 'Classes 7–9',
+    estimatedMinutes: 25,
+    difficulty: 'Intermediate',
+    brief: 'Process noisy multi-sensor microclimate telemetry across urban transit corridors. Apply rolling average and Kalman noise filtering to isolate thermal anomalies and heat-island gradients.',
+    pedagogicalObjective: 'Understand time-series noise filtering, spatial sensor clustering, and environmental data literacy.',
+    simulatorType: 'sensor_telemetry',
+    alignedStandards: ['CBSE Geography Class 8 Climate and Weather', 'CSTA 2-DA-08 Data Analysis'],
+    prerequisites: ['Statistical mean and variance', 'Basic Python list operations'],
+    rubricCriteria: [
+      { criterion: 'Noise Reduction SNR', target: 'Signal-to-noise improvement ≥ 12 dB', importance: 'Mandatory' },
+      { criterion: 'Thermal Gradient Detection', target: 'Accurately locate microclimate hot-spots', importance: 'Primary' }
+    ]
   }
 ];
 
@@ -1827,10 +1869,7 @@ export class PostgresCoreRepository extends LocalCoreRepository {
   ): Promise<T> {
     const pool = getDbPool();
     if (!pool) {
-      if (!this.hasActiveConsent(learnerId)) {
-        throw new StatutoryConsentError(`Statutory consent under DPDP Act 2023 Section 9 missing for learner ${learnerId}`);
-      }
-      return operation(null);
+      throw new Error('[PostgresCoreRepository] Database connection pool is not configured.');
     }
 
     const client = await pool.connect();
@@ -1844,8 +1883,7 @@ export class PostgresCoreRepository extends LocalCoreRepository {
         `SELECT 1 FROM consents 
          WHERE learner_id = $1 
            AND status IN ('verified', 'VERIFIED_ACTIVE')
-           AND (withdrawn_at IS NULL)
-           AND (expires_at IS NULL OR expires_at > NOW())
+           AND withdrawn_at IS NULL
          LIMIT 1`,
         [learnerId]
       );
@@ -1916,16 +1954,70 @@ export class PostgresCoreRepository extends LocalCoreRepository {
             JSON.stringify({ ...evidence, chainHash }),
             ev.confidence || 0.9,
             ev.evidenceStrength || ev.level || 4,
-            'validated',
-            'learner_only'
+            ev.status || 'validated',
+            ev.visibility || 'learner_only'
           ]
         );
       }).catch((err) => {
-        console.warn('[PostgresCoreRepository] Async evidence write warning:', err.message);
+        console.error('[PostgresCoreRepository] Async evidence write error:', err);
       });
     }
 
     return chained;
+  }
+
+  /**
+   * Database-backed session reconstruction across process restarts.
+   */
+  async getAssessmentSessionFromDb(id: string): Promise<AssessmentSession | undefined> {
+    const memory = super.getAssessmentSession(id);
+    if (memory) return memory;
+    const pool = getDbPool();
+    if (!pool) return undefined;
+    try {
+      const res = await pool.query(
+        `SELECT * FROM assessment_sessions WHERE id = $1 LIMIT 1`,
+        [id]
+      );
+      const row = res.rows[0];
+      if (!row) return undefined;
+
+      const responsesRes = await pool.query(
+        `SELECT * FROM assessment_responses WHERE session_id = $1 ORDER BY created_at ASC`,
+        [id]
+      );
+
+      const history = responsesRes.rows.map((r: any) => ({
+        itemId: r.item_id,
+        selectedOptionId: r.selected_option_id,
+        isCorrect: Boolean(r.is_correct),
+        timeSpentSeconds: Number(r.time_spent_seconds || 15),
+        thetaAfter: Number(r.theta_after || 0),
+        standardErrorAfter: Number(r.standard_error_after || 1),
+        misconceptionCode: r.misconception_code || undefined,
+        timestamp: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString()
+      }));
+
+      const session: AssessmentSession = {
+        id: row.id,
+        learnerId: row.learner_id,
+        domain: row.domain || 'stem_reasoning',
+        mode: 'diagnostic',
+        status: row.status || 'in_progress',
+        currentTheta: Number(row.current_theta || 0),
+        standardError: Number(row.standard_error || 1),
+        itemsAnswered: Number(row.items_answered || history.length),
+        administeredItemIds: row.administered_item_ids || history.map((h: any) => h.itemId),
+        history,
+        startedAt: row.started_at ? new Date(row.started_at).toISOString() : new Date().toISOString()
+      };
+
+      this.saveAssessmentSession(session);
+      return session;
+    } catch (err: any) {
+      console.error('[PostgresCoreRepository] Failed to reconstruct session from database:', err);
+      return undefined;
+    }
   }
 
   override createAssessmentSession(
@@ -1954,7 +2046,7 @@ export class PostgresCoreRepository extends LocalCoreRepository {
             session.administeredItemIds
           ]
         ).catch((err: any) => {
-          console.warn('[PostgresCoreRepository] Async session creation write warning:', err.message);
+          console.error('[PostgresCoreRepository] Async session creation write error:', err);
         });
       }
     }
@@ -1988,7 +2080,7 @@ export class PostgresCoreRepository extends LocalCoreRepository {
             completedAt
           ]
         ).catch((err: any) => {
-          console.warn('[PostgresCoreRepository] Async session update write warning:', err.message);
+          console.error('[PostgresCoreRepository] Async session update write error:', err);
         });
 
         // Also persist the latest response into assessment_responses table
@@ -2011,7 +2103,7 @@ export class PostgresCoreRepository extends LocalCoreRepository {
               latestHistory.standardErrorAfter
             ]
           ).catch((err: any) => {
-            console.warn('[PostgresCoreRepository] Async response insert write warning:', err.message);
+            console.error('[PostgresCoreRepository] Async response insert write error:', err);
           });
         }
       }
@@ -2049,6 +2141,6 @@ export class PostgresCoreRepository extends LocalCoreRepository {
 }
 
 export const coreRepository =
-  process.env.DATABASE_MODE === 'memory' || !isCloudDatabaseEnabled()
+  process.env.DATABASE_MODE === 'memory' || !getDbPool()
     ? new LocalCoreRepository()
     : new PostgresCoreRepository();

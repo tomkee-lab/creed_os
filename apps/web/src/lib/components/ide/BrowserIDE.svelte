@@ -1777,8 +1777,8 @@
       writeToTerminal('\r\n\x1b[36mGenerating MicroPython Artifact for BBC micro:bit...\x1b[0m\r\n');
       const { filename, sizeBytes } = exportMicroPythonArtifact(activeCode, 'microbit');
       flashProgress = 100;
-      writeToTerminal(`\x1b[32mExported ${filename} (${sizeBytes} bytes).\x1b[0m Drag into MICROBIT drive.\r\n$ `);
-      addMissionLog(`Exported ${filename} (${sizeBytes} B) for micro:bit.`, 'success');
+      writeToTerminal(`\x1b[32mExported ${filename} (${sizeBytes} bytes).\x1b[0m Open in python.microbit.org or copy to CircuitPython drive.\r\n$ `);
+      addMissionLog(`Exported ${filename} (${sizeBytes} B) - load via python.microbit.org or CircuitPython drive.`, 'success');
     } catch (e: any) {
       writeToTerminal(`\r\n\x1b[31mExport Error:\x1b[0m ${e?.message || e}\r\n$ `);
       addMissionLog(`Export error: ${e?.message || e}`, 'error');

@@ -2399,11 +2399,11 @@ export async function initializeRoboticsBlocks() {
   // Strict PEP 8 8-space indentation normalizer for double-nested loop branch statements
   function formatBranch8Spaces(rawBranch: string): string {
     if (!rawBranch || rawBranch.trim().length === 0) return '        pass\n';
-    const lines = rawBranch.split('\n');
+    const fourSpaced = formatBranch4Spaces(rawBranch);
+    const lines = fourSpaced.split('\n');
     const fixed = lines.map((line) => {
-      const trimmed = line.trim();
-      if (!trimmed) return '';
-      return '        ' + trimmed;
+      if (!line.trim()) return '';
+      return '    ' + line;
     });
     const res = fixed.join('\n');
     return res.endsWith('\n') ? res : res + '\n';

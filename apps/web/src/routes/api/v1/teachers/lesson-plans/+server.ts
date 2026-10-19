@@ -30,7 +30,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     const body = await request.json();
     const serverGeneratedId = `LP-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
     const newPlan: DifferentiatedLessonPlan = {
-      id: serverGeneratedId,
+      id: body.id || serverGeneratedId,
       title: body.title || 'Untitled Differentiated Lesson',
       subject: body.subject || 'STEM Reasoning',
       targetGrade: body.targetGrade || 'Class 8 / Middle Stage',

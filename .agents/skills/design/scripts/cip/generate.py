@@ -259,14 +259,17 @@ def generate_with_nano_banana(prompt_data, output_dir=None, model_key="flash", a
                 if hasattr(part, 'inline_data') and part.inline_data:
                     # Save image
                     output_dir = output_dir or Path.cwd()
-                    output_dir = Path(output_dir)
+                    output_dir = Path(output_dir).resolve()
                     output_dir.mkdir(parents=True, exist_ok=True)
 
+                    import re
                     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    brand_slug = prompt_data["brand"].lower().replace(" ", "-")
-                    deliverable_slug = prompt_data["deliverable"].lower().replace(" ", "-")
+                    brand_slug = re.sub(r'[^a-zA-Z0-9_-]', '', prompt_data["brand"].lower().replace(" ", "-")) or "brand"
+                    deliverable_slug = re.sub(r'[^a-zA-Z0-9_-]', '', prompt_data["deliverable"].lower().replace(" ", "-")) or "deliverable"
                     filename = f"{brand_slug}-{deliverable_slug}-{timestamp}.png"
-                    filepath = output_dir / filename
+                    filepath = (output_dir / filename).resolve()
+                    if not str(filepath).startswith(str(output_dir)):
+                        raise ValueError(f"Illegal output destination: {filepath}")
 
                     image_data = part.inline_data.data
                     with open(filepath, "wb") as f:

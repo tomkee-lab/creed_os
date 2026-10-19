@@ -271,17 +271,17 @@ export function calibrateItemParameters(
   const correctCount = samples.filter((s) => s.isCorrect).length;
   const pVal = correctCount / samples.length;
 
-  // Initial difficulty estimation based on logit of p-value
-  const clampedP = Math.min(0.98, Math.max(0.02, pVal));
-  const estimatedB = Math.max(-3.0, Math.min(3.0, -Math.log(clampedP / (1 - clampedP))));
-
-  // Point biserial correlation proxy for discrimination 'a'
+  const meanThetaAll = samples.reduce((sum, s) => sum + s.learnerTheta, 0) / samples.length;
   const meanThetaCorrect = correctCount > 0
     ? samples.filter((s) => s.isCorrect).reduce((sum, s) => sum + s.learnerTheta, 0) / correctCount
-    : 0;
-  const meanThetaAll = samples.reduce((sum, s) => sum + s.learnerTheta, 0) / samples.length;
+    : meanThetaAll;
   const diff = meanThetaCorrect - meanThetaAll;
   const estimatedA = Math.max(0.5, Math.min(2.2, 1.0 + diff * 1.2));
+
+  // Correct for guessing asymptote c and center difficulty on cohort mean ability
+  const adjustedP = Math.min(0.98, Math.max(0.02, (pVal - fixedC) / Math.max(0.01, 1.0 - fixedC)));
+  const logit = -Math.log(adjustedP / (1.0 - adjustedP));
+  const estimatedB = Math.max(-3.0, Math.min(3.0, meanThetaAll + logit / estimatedA));
 
   return {
     a: Math.round(estimatedA * 100) / 100,

@@ -72,7 +72,7 @@
     <div class="p-4 bg-surface border border-border rounded-sm space-y-1 shadow-2xs">
       <span class="text-[10px] font-mono text-ink-muted uppercase">Cohort Roster</span>
       <div class="text-xl font-bold font-mono text-ink">{students.length} Learners</div>
-      <span class="text-[11px] text-ink-muted">100% Statutory Consent Active</span>
+      <span class="text-[11px] text-ink-muted">{data.cohort.consentRate}% Statutory Consent Active</span>
     </div>
 
     <div class="p-4 bg-surface border border-border rounded-sm space-y-1 shadow-2xs">
@@ -97,10 +97,13 @@
   <!-- Search & Filter Bar -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-surface border border-border rounded-sm">
     <div class="relative w-full sm:w-72">
-      <Search class="size-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
+      <label for="roster-search" class="sr-only">Search student by name or ID</label>
+      <Search class="size-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" aria-hidden="true" />
       <input
+        id="roster-search"
         type="text"
         placeholder="Search student by name or ID..."
+        aria-label="Search student roster by name or identifier"
         bind:value={searchQuery}
         class="w-full pl-8 pr-3 py-1.5 bg-surface-subtle border border-border rounded-sm text-xs text-ink placeholder:text-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:border-brand font-medium transition-colors"
       />
@@ -165,10 +168,17 @@
               <td class="p-3 text-ink font-mono">{student.englishScore || '910L (B1+)'}</td>
               <td class="p-3 text-ink font-mono">{student.roboticsScore || '550 (Regional)'}</td>
               <td class="p-3 text-right">
-                <span class="inline-flex items-center gap-1 text-[10px] font-mono text-mint font-semibold">
-                  <ShieldCheck class="size-3" />
-                  <span>DPDP_VERIFIED</span>
-                </span>
+                {#if student.hasConsent}
+                  <span class="inline-flex items-center gap-1 text-[10px] font-mono text-mint font-semibold">
+                    <ShieldCheck class="size-3" />
+                    <span>DPDP_VERIFIED</span>
+                  </span>
+                {:else}
+                  <span class="inline-flex items-center gap-1 text-[10px] font-mono text-attention font-semibold">
+                    <AlertCircle class="size-3" />
+                    <span>CONSENT_PENDING</span>
+                  </span>
+                {/if}
               </td>
             </tr>
           {/each}

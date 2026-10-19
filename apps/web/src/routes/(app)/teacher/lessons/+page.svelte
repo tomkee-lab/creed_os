@@ -198,7 +198,7 @@
     isSaving = true;
 
     try {
-      const payload: DifferentiatedLessonPlan = {
+      let payload: DifferentiatedLessonPlan = {
         id: `PLAN-${Date.now()}`,
         title: newTitle,
         subject: newSubject,
@@ -236,6 +236,20 @@
         ],
         createdAt: new Date().toISOString()
       };
+
+      try {
+        const res = await fetch('/api/v1/teachers/lesson-plans', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.lessonPlan) payload = data.lessonPlan;
+        }
+      } catch (err) {
+        console.warn('Persisting lesson plan to backend failed, using memory state:', err);
+      }
 
       createdPlans = [payload, ...createdPlans];
       selectedPlanIdState = payload.id;
@@ -293,6 +307,14 @@
         evaluationRubric: editTier3Rubric
       }
     };
+
+    try {
+      fetch('/api/v1/teachers/lesson-plans', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedPlan)
+      }).catch((err) => console.warn('Syncing edited lesson plan to backend failed:', err));
+    } catch {}
 
     const existingIndex = createdPlans.findIndex((p) => p.id === selectedPlan.id);
     if (existingIndex >= 0) {

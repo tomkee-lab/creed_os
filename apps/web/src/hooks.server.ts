@@ -86,7 +86,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     '/teacher/benchmarks': '/teacher/roster',
     '/parent/report': '/parent',
     '/observatory': '/student/missions',
-    '/sandbox': '/student/missions'
+    '/sandbox': '/ide'
   };
 
   const targetRedirect = CONSOLIDATED_REDIRECTS[pathname] || CONSOLIDATED_REDIRECTS[pathname.replace(/\/$/, '')];

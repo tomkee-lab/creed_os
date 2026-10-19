@@ -58,6 +58,7 @@ export class HardwareTelemetryBridge {
   private isStreaming: boolean = false;
   private stateListeners: Set<StateListener> = new Set();
   private telemetryListeners: Set<TelemetryListener> = new Set();
+  private planetaryListeners: Set<(vec: any) => void> = new Set();
   private simulatedInterval: any = null;
 
   public subscribeState(listener: StateListener): () => void {
@@ -86,6 +87,7 @@ export class HardwareTelemetryBridge {
     this.notifyState();
 
     this.simulatedInterval = setInterval(() => {
+      const vec = this.getPlanetaryVector();
       const telemetry: HardwareTelemetry = {
         distanceCm: Math.round(20 + Math.random() * 80),
         headingDeg: Math.round(Math.random() * 360),
@@ -95,9 +97,11 @@ export class HardwareTelemetryBridge {
         lightLevel: Math.round(150 + Math.random() * 50),
         buttonA: false,
         buttonB: false,
+        planetaryVector: vec,
         timestamp: Date.now()
       };
       this.notifyTelemetry(telemetry);
+      this.notifyPlanetaryTelemetry(vec);
     }, 100);
   }
 
@@ -117,8 +121,10 @@ export class HardwareTelemetryBridge {
     return this.subscribeTelemetry(listener);
   }
 
-  public onPlanetaryTelemetry(_listener: (vec: any) => void): () => void {
-    return () => {};
+  public onPlanetaryTelemetry(listener: (vec: any) => void): () => void {
+    this.planetaryListeners.add(listener);
+    listener(this.getPlanetaryVector());
+    return () => this.planetaryListeners.delete(listener);
   }
 
   public sendChoreographyCue(_cue: string): void {
@@ -167,6 +173,14 @@ export class HardwareTelemetryBridge {
     for (const listener of this.telemetryListeners) {
       try {
         listener(telemetry);
+      } catch {}
+    }
+  }
+
+  private notifyPlanetaryTelemetry(vec: any) {
+    for (const listener of this.planetaryListeners) {
+      try {
+        listener(vec);
       } catch {}
     }
   }

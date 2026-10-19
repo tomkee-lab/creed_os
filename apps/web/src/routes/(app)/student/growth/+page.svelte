@@ -34,41 +34,59 @@
     }
   });
 
-  // Capability data mapped to qualitative NCERT PARAKH developmental tiers
-  const capabilities = [
-    {
-      name: 'Spatial Reasoning & Kinematics',
-      band: 'Strong Foundation',
-      rating: 4,
-      maxRating: 5,
-      tier: 'positive',
-      summary: '3D structural stress analysis, coordinate transforms, and kinematic linkages.'
-    },
-    {
-      name: 'Computational Logic & Algorithms',
-      band: 'Strong Foundation',
-      rating: 4,
-      maxRating: 5,
-      tier: 'positive',
-      summary: 'State machine design, recursive decomposition, and algorithmic efficiency.'
-    },
-    {
-      name: 'Quantitative & Proportional Reasoning',
-      band: 'Developing Foundation',
-      rating: 3,
-      maxRating: 5,
-      tier: 'attention',
-      summary: 'Ratio scaling, dimensional analysis, and parametric equation systems.'
-    },
-    {
-      name: 'Empirical Verification & Invariant Proofs',
-      band: 'Developing Foundation',
-      rating: 3,
-      maxRating: 5,
-      tier: 'attention',
-      summary: 'Hypothesis testing, variable isolation, and experimental error bounds.'
+  // Dynamically derive capability summaries from learner's verified competency scores
+  const capabilities = $derived.by(() => {
+    const comps = learner?.competencies;
+    if (!comps || Object.keys(comps).length === 0) {
+      return [];
     }
-  ];
+
+    const friendlyTitles: Record<string, { name: string; summary: string }> = {
+      spatial_reasoning: {
+        name: 'Spatial Reasoning & Kinematics',
+        summary: '3D structural stress analysis, coordinate transforms, and kinematic linkages.'
+      },
+      computational_thinking: {
+        name: 'Computational Logic & Algorithms',
+        summary: 'State machine design, recursive decomposition, and algorithmic efficiency.'
+      },
+      quantitative_reasoning: {
+        name: 'Quantitative & Proportional Reasoning',
+        summary: 'Ratio scaling, dimensional analysis, and parametric equation systems.'
+      },
+      scientific_inquiry: {
+        name: 'Empirical Verification & Invariant Proofs',
+        summary: 'Hypothesis testing, variable isolation, and experimental error bounds.'
+      },
+      verbal_reasoning: {
+        name: 'Verbal Logic & Textual Synthesis',
+        summary: 'Argument evaluation, semantic nuance, and structured inquiry exposition.'
+      },
+      creative_divergence: {
+        name: 'Creative Divergence & Design Iteration',
+        summary: 'Alternative problem formulations, multi-constraint design trade-offs.'
+      }
+    };
+
+    return Object.entries(comps).map(([key, c]: [string, any]) => {
+      const info = friendlyTitles[key] || {
+        name: c?.title || key.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+        summary: 'Longitudinally verified competency demonstrated via diagnostic items.'
+      };
+      const score = typeof c?.score === 'number' ? c.score : 0;
+      const isStrong = score >= 3.5;
+      const isDeveloping = score >= 2.0;
+      return {
+        key,
+        name: info.name,
+        band: isStrong ? 'Strong Foundation' : isDeveloping ? 'Developing Foundation' : 'Emerging Foundation',
+        rating: Math.min(5, Math.max(1, Math.round(score))),
+        maxRating: 5,
+        tier: isStrong ? 'positive' : 'attention',
+        summary: info.summary
+      };
+    });
+  });
 
   let selectedPathwayId = $state('PATH-ROBOTICS');
   let selectedPathway = $derived(
@@ -160,27 +178,44 @@
   <!-- TAB 1: CAPABILITIES -->
   {#if activeTab === 'capabilities'}
     <div class="space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {#each capabilities as cap}
-          <div class="p-5 bg-surface border border-border rounded-sm space-y-3 shadow-2xs">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-ink">{cap.name}</span>
-              <span class="px-2 py-0.5 rounded-sm text-[10px] font-mono font-semibold {cap.tier === 'positive'
-                ? 'bg-mint/10 text-mint border border-mint/20'
-                : 'bg-attention/10 text-attention border border-attention/20'}">
-                {cap.band}
-              </span>
+      {#if capabilities.length === 0}
+        <div class="p-8 bg-surface border border-dashed border-border rounded-sm text-center space-y-3">
+          <Layers class="size-8 text-ink-muted mx-auto" />
+          <h3 class="text-sm font-semibold text-ink">No Competencies Assessed Yet</h3>
+          <p class="text-xs text-ink-secondary max-w-md mx-auto leading-relaxed">
+            Complete your first adaptive diagnostic or robotics mission to establish your qualitative developmental baseline.
+          </p>
+          <a
+            href="/student/assessment"
+            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-sm bg-brand text-brand-foreground shadow-xs hover:bg-brand/90 transition-micro"
+          >
+            <span>Take CAT Diagnostic</span>
+            <ArrowRight class="size-3.5" />
+          </a>
+        </div>
+      {:else}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {#each capabilities as cap}
+            <div class="p-5 bg-surface border border-border rounded-sm space-y-3 shadow-2xs">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-ink">{cap.name}</span>
+                <span class="px-2 py-0.5 rounded-sm text-[10px] font-mono font-semibold {cap.tier === 'positive'
+                  ? 'bg-mint/10 text-mint border border-mint/20'
+                  : 'bg-attention/10 text-attention border border-attention/20'}">
+                  {cap.band}
+                </span>
+              </div>
+              <p class="text-xs text-ink-secondary leading-relaxed">
+                {cap.summary}
+              </p>
+              <div class="pt-2 border-t border-border flex items-center justify-between text-[11px] font-mono text-ink-muted">
+                <span>Demonstration Depth</span>
+                <span class="font-bold text-ink">{cap.rating} / {cap.maxRating} Verified Criteria</span>
+              </div>
             </div>
-            <p class="text-xs text-ink-secondary leading-relaxed">
-              {cap.summary}
-            </p>
-            <div class="pt-2 border-t border-border flex items-center justify-between text-[11px] font-mono text-ink-muted">
-              <span>Demonstration Depth</span>
-              <span class="font-bold text-ink">{cap.rating} / {cap.maxRating} Verified Criteria</span>
-            </div>
-          </div>
-        {/each}
-      </div>
+          {/each}
+        </div>
+      {/if}
 
       <div class="p-4 bg-surface-subtle border border-border rounded-sm flex items-center justify-between text-xs text-ink-secondary">
         <div class="flex items-center gap-2">
@@ -368,19 +403,21 @@
             </span>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
               {#each selectedPathway.requirements || [] as req}
-                {@const currentScore = learner?.competencies?.[req.competency]?.score ?? 2.5}
-                {@const isDemonstrated = currentScore >= req.minimumLevel}
+                {@const comp = learner?.competencies?.[req.competency]}
+                {@const hasScore = typeof comp?.score === 'number'}
+                {@const currentScore = hasScore ? comp.score : null}
+                {@const isDemonstrated = hasScore && (currentScore as number) >= req.minimumLevel}
                 <div class="p-3 bg-surface-subtle border border-border rounded-sm flex items-center justify-between">
                   <div class="min-w-0 pr-2">
                     <span class="text-ink font-medium block truncate">
                       {req.competency.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                     </span>
                     <span class="text-[10px] text-ink-muted font-mono">
-                      Req: Level {req.minimumLevel} · Current: {currentScore}
+                      Req: Level {req.minimumLevel} · Current: {hasScore ? `Level ${currentScore}` : 'Not Assessed'}
                     </span>
                   </div>
-                  <span class="px-2 py-0.5 rounded-xs text-[10px] font-mono font-bold shrink-0 {isDemonstrated ? 'bg-positive-subtle text-positive border border-positive/30' : 'bg-attention-subtle text-attention border border-attention/30'}">
-                    {isDemonstrated ? 'Demonstrated' : 'Developing'}
+                  <span class="px-2 py-0.5 rounded-xs text-[10px] font-mono font-bold shrink-0 {isDemonstrated ? 'bg-positive-subtle text-positive border border-positive/30' : hasScore ? 'bg-attention-subtle text-attention border border-attention/30' : 'bg-surface-raised text-ink-muted border border-border'}">
+                    {isDemonstrated ? 'Demonstrated' : hasScore ? 'Developing' : 'Not Assessed'}
                   </span>
                 </div>
               {/each}
