@@ -1651,9 +1651,26 @@ class LocalCoreRepository {
     return this.consentRecords.get(learnerId);
   }
 
+  getLinkedLearnerIds(guardianId: string): string[] {
+    const set = this.guardianLearnerMap.get(guardianId);
+    const directIds = set ? Array.from(set) : [];
+    for (const [learnerId, record] of this.consentRecords.entries()) {
+      if (record.guardianId === guardianId && !directIds.includes(learnerId)) {
+        directIds.push(learnerId);
+      }
+    }
+    return directIds;
+  }
+
   isGuardianLinkedToLearner(guardianId: string, learnerId: string): boolean {
     const set = this.guardianLearnerMap.get(guardianId);
-    return set ? set.has(learnerId) : false;
+    if (set && set.has(learnerId)) return true;
+    const consent = this.consentRecords.get(learnerId);
+    if (consent && consent.guardianId === guardianId) {
+      this.bindGuardianToLearner(guardianId, learnerId);
+      return true;
+    }
+    return false;
   }
 
   setConsentRecord(record: ConsentRecord): void {
@@ -1959,17 +1976,26 @@ export class PostgresCoreRepository extends LocalCoreRepository {
           .update(`${prevHash}:${ev.learnerId}:${ev.competency}:${scoreVal}:${timestampVal}`)
           .digest('hex');
 
+        const compRes = await client.query(
+          `SELECT id FROM competencies WHERE domain = $1 OR code = $1 LIMIT 1`,
+          [ev.competency]
+        );
+        const competencyId = compRes.rows[0]?.id;
+        if (!competencyId) {
+          throw new Error(`[PostgresCoreRepository] Unmapped competency or domain: "${ev.competency}"`);
+        }
+
         await client.query(
           `INSERT INTO learner_evidence (
             learner_id, competency_id, evidence_type, source_type, source_id, source_title,
             summary, observed_value, confidence, evidence_strength, status, visibility, observed_at
           ) VALUES (
-            $1, (SELECT id FROM competencies WHERE code = $2 LIMIT 1),
+            $1, $2,
             $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW()
           )`,
           [
             ev.learnerId,
-            ev.competency,
+            competencyId,
             ev.evidenceType || ev.type || 'applied_simulation',
             ev.sourceType || 'project_mission',
             ev.id || crypto.randomUUID(),
@@ -1988,6 +2014,31 @@ export class PostgresCoreRepository extends LocalCoreRepository {
     }
 
     return chained;
+  }
+
+  /**
+   * Database-backed parent-child relationship resolution across process restarts.
+   */
+  async getLinkedLearnerIdsFromDb(guardianId: string): Promise<string[]> {
+    const memory = super.getLinkedLearnerIds(guardianId);
+    const pool = getDbPool();
+    if (!pool) return memory;
+    try {
+      const res = await pool.query(
+        `SELECT learner_id FROM parent_learner_links WHERE parent_id = $1
+         UNION
+         SELECT learner_id FROM consents WHERE guardian_id = $1 AND status IN ('verified', 'VERIFIED_ACTIVE') AND withdrawn_at IS NULL`,
+        [guardianId]
+      );
+      const dbIds = res.rows.map((r: any) => r.learner_id).filter(Boolean);
+      for (const id of dbIds) {
+        this.bindGuardianToLearner(guardianId, id);
+      }
+      return Array.from(new Set([...memory, ...dbIds]));
+    } catch (err) {
+      console.warn('[PostgresCoreRepository] getLinkedLearnerIdsFromDb error:', err);
+      return memory;
+    }
   }
 
   /**

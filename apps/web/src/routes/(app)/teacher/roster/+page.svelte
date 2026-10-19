@@ -164,9 +164,27 @@
                   {student.overallReadiness}
                 </span>
               </td>
-              <td class="p-3 text-ink font-mono">{student.stemScore || '540 (Mountain)'}</td>
-              <td class="p-3 text-ink font-mono">{student.englishScore || '910L (B1+)'}</td>
-              <td class="p-3 text-ink font-mono">{student.roboticsScore || '550 (Regional)'}</td>
+              <td class="p-3 font-mono">
+                {#if student.stemScore}
+                  <span class="text-ink">{student.stemScore}</span>
+                {:else}
+                  <span class="text-ink-muted italic text-[11px]">Not Assessed</span>
+                {/if}
+              </td>
+              <td class="p-3 font-mono">
+                {#if student.englishScore}
+                  <span class="text-ink">{student.englishScore}</span>
+                {:else}
+                  <span class="text-ink-muted italic text-[11px]">Not Assessed</span>
+                {/if}
+              </td>
+              <td class="p-3 font-mono">
+                {#if student.roboticsScore}
+                  <span class="text-ink">{student.roboticsScore}</span>
+                {:else}
+                  <span class="text-ink-muted italic text-[11px]">Not Assessed</span>
+                {/if}
+              </td>
               <td class="p-3 text-right">
                 {#if student.hasConsent}
                   <span class="inline-flex items-center gap-1 text-[10px] font-mono text-mint font-semibold">

@@ -60,6 +60,7 @@ export class HardwareTelemetryBridge {
   private telemetryListeners: Set<TelemetryListener> = new Set();
   private planetaryListeners: Set<(vec: any) => void> = new Set();
   private simulatedInterval: any = null;
+  private activePlanetarySource: string = 'iss';
 
   public subscribeState(listener: StateListener): () => void {
     this.stateListeners.add(listener);
@@ -135,8 +136,40 @@ export class HardwareTelemetryBridge {
     // Simulated robotic TTS speech
   }
 
-  public getPlanetaryVector(): { sourceName: string; azimuthDeg: number; elevationDeg: number } {
-    return { sourceName: 'ISS', azimuthDeg: 142, elevationDeg: 35 };
+  public bindPlanetarySource(sourceId: string): { sourceName: string; azimuthDeg: number; elevationDeg: number } {
+    this.activePlanetarySource = sourceId;
+    return this.getPlanetaryVector(sourceId);
+  }
+
+  public getPlanetaryMetric(source?: string, metric: string = 'azimuth'): number {
+    const vec = this.getPlanetaryVector(source);
+    switch ((metric || '').toLowerCase()) {
+      case 'azimuth':
+      case 'az':
+        return vec.azimuthDeg;
+      case 'elevation':
+      case 'el':
+        return vec.elevationDeg;
+      case 'lat':
+        return 28.61;
+      case 'lon':
+        return 77.20;
+      case 'dist':
+      case 'distance':
+        return 418;
+      default:
+        return vec.azimuthDeg;
+    }
+  }
+
+  public isPlanetaryOverhead(source?: string, thresholdKm: number = 1500): boolean {
+    const metric = this.getPlanetaryMetric(source, 'distance');
+    return metric <= thresholdKm;
+  }
+
+  public getPlanetaryVector(sourceName: string = this.activePlanetarySource): { sourceName: string; azimuthDeg: number; elevationDeg: number } {
+    const cleanSource = sourceName ? sourceName.toUpperCase() : 'ISS';
+    return { sourceName: cleanSource, azimuthDeg: 142, elevationDeg: 35 };
   }
 
   public sendEmotion(_emotion: string): void {

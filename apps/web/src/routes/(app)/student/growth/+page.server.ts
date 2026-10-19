@@ -23,23 +23,51 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     }
   } else if (userRole === 'parent') {
     const guardianId = (user as any)?.id || (user as any)?.sub || 'parent_1';
-    const requestedLearnerId = url.searchParams.get('learnerId') || boundLearnerId || DEFAULT_DEMO_LEARNER_ID;
 
-    // Verify guardian authorization for requested learner
+    let linkedLearners: string[] = [];
+    if ('getLinkedLearnerIdsFromDb' in coreRepository) {
+      linkedLearners = await (coreRepository as any).getLinkedLearnerIdsFromDb(guardianId);
+    } else {
+      linkedLearners = coreRepository.getLinkedLearnerIds(guardianId);
+    }
+
+    if (linkedLearners.length === 0 && import.meta.env.DEV) {
+      linkedLearners = coreRepository.getLinkedLearnerIds('parent_1');
+    }
+
+    const requestedParam = url.searchParams.get('learnerId');
+    let targetLearnerId: string | null = null;
+
+    if (requestedParam) {
+      targetLearnerId = requestedParam;
+    } else if (boundLearnerId && !boundLearnerId.startsWith('usr_') && linkedLearners.includes(boundLearnerId)) {
+      targetLearnerId = boundLearnerId;
+    } else if (linkedLearners.length > 0) {
+      targetLearnerId = linkedLearners[0];
+    } else if (import.meta.env.DEV) {
+      targetLearnerId = DEFAULT_DEMO_LEARNER_ID;
+    }
+
     const isAuthorized =
-      coreRepository.isGuardianLinkedToLearner(guardianId, requestedLearnerId) ||
-      (guardianId !== 'parent_1' && coreRepository.isGuardianLinkedToLearner('parent_1', requestedLearnerId) && import.meta.env.DEV);
+      targetLearnerId &&
+      (linkedLearners.includes(targetLearnerId) ||
+       coreRepository.isGuardianLinkedToLearner(guardianId, targetLearnerId) ||
+       (import.meta.env.DEV && targetLearnerId === DEFAULT_DEMO_LEARNER_ID));
 
-    if (!isAuthorized) {
+    if (!targetLearnerId || !isAuthorized) {
       throw error(403, 'Forbidden: Guardian unauthorized for this learner');
     }
-    learnerId = requestedLearnerId;
+    learnerId = targetLearnerId;
   } else {
-    learnerId = url.searchParams.get('learnerId') || (boundLearnerId && !boundLearnerId.startsWith('usr_') ? boundLearnerId : DEFAULT_DEMO_LEARNER_ID);
+    learnerId = url.searchParams.get('learnerId') || (boundLearnerId && !boundLearnerId.startsWith('usr_') ? boundLearnerId : (import.meta.env.DEV ? DEFAULT_DEMO_LEARNER_ID : null));
   }
 
   if (!learnerId) {
-    learnerId = DEFAULT_DEMO_LEARNER_ID;
+    if (import.meta.env.DEV) {
+      learnerId = DEFAULT_DEMO_LEARNER_ID;
+    } else {
+      throw error(400, 'Bad Request: Missing required learnerId identifier');
+    }
   }
 
   const profile = coreRepository.getLearnerProfile(learnerId) || (userRole !== 'student' ? coreRepository.getLearnerProfile(DEFAULT_DEMO_LEARNER_ID) : null);

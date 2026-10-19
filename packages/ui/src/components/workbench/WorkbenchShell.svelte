@@ -212,9 +212,10 @@
           <button
             type="button"
             onclick={() => (socraticOpen = false)}
-            class="p-1 text-ink-muted hover:text-ink cursor-pointer"
+            aria-label="Close Socratic Inquiry Coach drawer"
+            class="p-1 text-ink-muted hover:text-ink cursor-pointer rounded-xs"
           >
-            <X class="size-4" />
+            <X class="size-4" aria-hidden="true" />
           </button>
         </div>
         <div class="flex-1 overflow-y-auto p-4">
@@ -240,9 +241,10 @@
           <button
             type="button"
             onclick={() => (theoryOpen = false)}
-            class="p-1 text-ink-muted hover:text-ink cursor-pointer"
+            aria-label="Close First-Principles Theory drawer"
+            class="p-1 text-ink-muted hover:text-ink cursor-pointer rounded-xs"
           >
-            <X class="size-4" />
+            <X class="size-4" aria-hidden="true" />
           </button>
         </div>
         <div class="flex-1 overflow-y-auto p-4">
