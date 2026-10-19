@@ -696,7 +696,7 @@
                     class="inline-flex items-center gap-2 px-3 py-1.5 bg-brand hover:bg-brand/90 text-brand-foreground text-xs font-mono font-semibold rounded-none transition-micro shadow-xs"
                   >
                     <TerminalSquare class="size-3.5" />
-                    <span>Launch in Robotics IDE ↗</span>
+                    <span>Launch in Robotics IDE</span>
                   </a>
                   <span class="text-[11px] text-ink-muted">
                     Inspect telemetry vectors and execute control programs

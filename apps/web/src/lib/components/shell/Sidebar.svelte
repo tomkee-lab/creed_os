@@ -232,7 +232,7 @@
           <!-- Collapsed Micro Badge Notification Indicator -->
           {#if item.badge}
             <span
-              class="absolute top-1.5 right-1.5 w-2 h-2 rounded-none bg-brand ring-2 ring-surface animate-pulse"
+              class="absolute top-1.5 right-1.5 w-2 h-2 rounded-none bg-brand ring-2 ring-surface"
             ></span>
           {/if}
         </a>

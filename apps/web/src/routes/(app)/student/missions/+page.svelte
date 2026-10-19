@@ -122,7 +122,7 @@
         class="px-3.5 py-2 bg-foreground text-background hover:bg-foreground/90 text-xs font-medium rounded-none transition-micro flex items-center gap-1.5 cursor-pointer shadow-xs"
       >
         <TerminalSquare class="w-3.5 h-3.5" />
-        <span>Robotics IDE ↗</span>
+        <span>Robotics IDE</span>
       </a>
       <a
         href="/student/assessment"

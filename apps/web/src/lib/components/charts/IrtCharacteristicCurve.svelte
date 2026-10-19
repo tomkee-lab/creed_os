@@ -141,7 +141,7 @@
     <!-- Student Ability Indicator Marker if provided -->
     {#if studentTheta !== undefined && studentProbability !== null}
       <div class="absolute top-2 right-2 px-2 py-1 rounded-none bg-surface-3 border border-mint/30 text-[10px] font-mono text-foreground flex items-center gap-1.5">
-        <span class="w-1.5 h-1.5 rounded-none bg-mint animate-pulse"></span>
+        <span class="w-1.5 h-1.5 rounded-none bg-mint"></span>
         <span>Learner θ: {studentTheta > 0 ? '+' : ''}{studentTheta} → {studentProbability}% P(correct)</span>
       </div>
     {/if}

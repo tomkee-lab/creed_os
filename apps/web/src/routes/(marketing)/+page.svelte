@@ -280,7 +280,7 @@
   <div class="w-full max-w-3xl mx-auto px-4 sm:px-6 space-y-6 my-auto relative z-10">
     <!-- Editorial Kicker Badge -->
     <div class="hero-reveal inline-flex items-center gap-2 px-3 py-0.5 rounded-none bg-surface/90 backdrop-blur-xs border border-border text-[11px] font-mono text-ink-secondary shadow-xs">
-      <span class="w-1.5 h-1.5 rounded-none bg-mint animate-pulse"></span>
+      <span class="w-1.5 h-1.5 rounded-none bg-mint"></span>
       <span class="tracking-wide">AI-NATIVE LEARNER INTELLIGENCE</span>
     </div>
 
@@ -521,7 +521,7 @@
               {#if currentStep > step.id}
                 <Check class="size-3 text-mint stroke-[2.5]" />
               {:else if currentStep === step.id}
-                <span class="size-1.5 rounded-none bg-mint animate-pulse"></span>
+                <span class="size-1.5 rounded-none bg-mint"></span>
               {/if}
             </div>
             <div class="mt-2 space-y-0.5">
@@ -659,7 +659,8 @@
               href="/student/missions"
               class="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold font-mono bg-mint text-mint-foreground hover:bg-mint-hover transition-micro shadow-xs rounded-none"
             >
-              <span>Launch Missions Studio ↗</span>
+              <span>Launch Missions Studio</span>
+              <ArrowRight class="size-3.5" />
             </a>
           {/if}
         </div>
