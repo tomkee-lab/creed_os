@@ -84,7 +84,7 @@
         Strengthen proportional reasoning
       </h2>
       <p class="text-sm text-ink-secondary leading-relaxed">
-        Connect rate equations with mechanical gear ratios to unlock robotics challenges.
+        Connect rate equations with mechanical gear ratios to access robotics challenges.
       </p>
     </div>
 
@@ -346,7 +346,7 @@
         href="/student/growth"
         class="text-xs font-medium text-brand hover:underline inline-flex items-center gap-1"
       >
-        <span>View journey</span>
+        <span>View trajectory</span>
         <ArrowRight class="w-3 h-3" />
       </a>
     </div>

@@ -173,7 +173,7 @@
         onclick={() => (showTrajectory = !showTrajectory)}
         class="inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:underline cursor-pointer"
       >
-        <span>{showTrajectory ? 'Hide growth journey' : 'Explore growth journey'}</span>
+        <span>{showTrajectory ? 'Hide growth trajectory' : 'Explore growth trajectory'}</span>
         {#if showTrajectory}
           <ChevronUp class="w-3.5 h-3.5" />
         {:else}

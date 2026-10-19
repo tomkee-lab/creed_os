@@ -26,7 +26,7 @@
   } from 'lucide-svelte';
   import { Icon } from '$lib/components/icons';
   import { revealOnScroll } from '$lib/motion/reveal.js';
-  import { magneticHover, countUp } from '$lib/motion/interaction.js';
+  import { magneticHover } from '$lib/motion/interaction.js';
   import { initScrollTrigger, isReducedMotion } from '$lib/motion/scroll.js';
   import {
     EvidenceRating,
@@ -293,7 +293,7 @@
         </span>
       </h1>
       <p class="hero-reveal text-sm sm:text-base text-ink-secondary leading-relaxed max-w-lg mx-auto">
-        Deterministic psychometrics, longitudinal evidence, and calm Socratic mentorship — without permanent labels.
+        Deterministic psychometrics, longitudinal evidence, and calm Socratic mentorship. Built without permanent labels.
       </p>
     </div>
 
@@ -402,7 +402,7 @@
         </p>
 
         <p class="text-sm text-ink-secondary leading-relaxed">
-          When a student works through a kinematics arm build, authors an algorithmic tree, or debates a physics hypothesis with the calm Socratic mentor, deterministic 3PL algorithms evaluate the demonstration—not speculative black-box guesses.
+          When a student works through a kinematics arm build, authors an algorithmic tree, or debates a physics hypothesis with the calm Socratic mentor, deterministic 3PL algorithms evaluate the demonstration rather than speculative black-box guesses.
         </p>
 
         <!-- Technical Attributes List -->
@@ -459,25 +459,25 @@
     <!-- 4-Column Carbon Metric Strip -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div data-reveal-item class="metric-card p-6 rounded-none bg-surface border border-border text-center space-y-1.5 cursor-default">
-        <dt use:countUp={{ value: 14200, suffix: '+' }} class="text-3xl sm:text-4xl font-bold text-mint font-mono tabular-nums tracking-tight">14,200+</dt>
+        <dt class="text-3xl sm:text-4xl font-bold text-mint font-mono tabular-nums tracking-tight">14,200+</dt>
         <dd class="text-xs text-ink font-medium">Maker Artifacts Scored</dd>
         <span class="text-[11px] text-ink-muted block">Tangible Project Evidence</span>
       </div>
 
       <div data-reveal-item class="metric-card p-6 rounded-none bg-surface border border-border text-center space-y-1.5 cursor-default">
-        <dt use:countUp={{ value: 0.26, prefix: '<', suffix: ' SE', decimals: 2 }} class="text-3xl sm:text-4xl font-bold text-ink font-mono tabular-nums tracking-tight">&lt;0.26 SE</dt>
+        <dt class="text-3xl sm:text-4xl font-bold text-ink font-mono tabular-nums tracking-tight">&lt;0.26 SE</dt>
         <dd class="text-xs text-ink font-medium">Standard Error Precision</dd>
         <span class="text-[11px] text-ink-muted block">Fast CAT Convergence</span>
       </div>
 
       <div data-reveal-item class="metric-card p-6 rounded-none bg-surface border border-border text-center space-y-1.5 cursor-default">
-        <dt use:countUp={{ value: 100, suffix: '%' }} class="text-3xl sm:text-4xl font-bold text-brand font-mono tabular-nums tracking-tight">100%</dt>
+        <dt class="text-3xl sm:text-4xl font-bold text-brand font-mono tabular-nums tracking-tight">100%</dt>
         <dd class="text-xs text-ink font-medium">DPDP Verified Consent</dd>
         <span class="text-[11px] text-ink-muted block">Statutory Child Safety</span>
       </div>
 
       <div data-reveal-item class="metric-card p-6 rounded-none bg-surface border border-border text-center space-y-1.5 cursor-default">
-        <dt use:countUp={{ value: 48, suffix: '+' }} class="text-3xl sm:text-4xl font-bold text-positive font-mono tabular-nums tracking-tight">48+</dt>
+        <dt class="text-3xl sm:text-4xl font-bold text-positive font-mono tabular-nums tracking-tight">48+</dt>
         <dd class="text-xs text-ink font-medium">Active Partner Hubs</dd>
         <span class="text-[11px] text-ink-muted block">Classes 5–10 Districts</span>
       </div>

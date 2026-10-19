@@ -322,7 +322,7 @@
           <FileText class="size-8 text-ink-muted mx-auto" />
           <h3 class="text-sm font-semibold text-ink">No Completed Diagnostic Yet</h3>
           <p class="text-xs text-ink-secondary max-w-md mx-auto leading-relaxed">
-            Take a 15-minute Computerized Adaptive Diagnostic (CAT) to unlock your NCERT PARAKH developmental trajectory and 4-week roadmap.
+            Take a 15-minute Computerized Adaptive Diagnostic (CAT) to generate your NCERT PARAKH developmental trajectory and 4-week roadmap.
           </p>
           <a
             href="/student/assessment"

@@ -29,7 +29,7 @@
       <span class="font-mono uppercase tracking-wider text-[11px]">Institutional Intelligence · WAY 3.0</span>
     </div>
     <h1 class="text-3xl sm:text-5xl font-heading font-semibold tracking-tight text-ink leading-tight">
-      Empower educators with action-first intelligence.
+      Equip educators with action-first intelligence.
     </h1>
     <p class="text-base text-ink-secondary leading-relaxed">
       Replace administrative paperwork and blind guesswork with high-density educator workspaces, prioritized classroom intervention queues, and direct observation logging.

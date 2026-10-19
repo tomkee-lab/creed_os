@@ -31,7 +31,7 @@
       Understand your child's growth without the anxiety of ranks.
     </h1>
     <p class="text-base text-ink-secondary leading-relaxed">
-      A calm, editorial family space designed around observable strengths, active practice at home, and shared aspirations — never competitive percentiles or deterministic exclusions.
+      A calm, editorial family space designed around observable strengths, active practice at home, and shared aspirations, free of competitive percentiles or deterministic exclusions.
     </p>
 
     <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
@@ -60,7 +60,7 @@
       </div>
       <h2 class="text-base font-semibold text-ink">What They Love Doing</h2>
       <p class="text-xs text-ink-secondary leading-relaxed">
-        Concrete evidence of spatial visualization, computational thinking, and scientific curiosities demonstrated in real projects — not standardized multiple-choice trivia.
+        Concrete evidence of spatial visualization, computational thinking, and scientific curiosities demonstrated in real projects, not standardized multiple-choice trivia.
       </p>
     </div>
 
@@ -71,7 +71,7 @@
       </div>
       <h2 class="text-base font-semibold text-ink">What They're Practicing</h2>
       <p class="text-xs text-ink-secondary leading-relaxed">
-        Targeted foundational milestones without labeling them as deficits. Just the next logical step in their personal journey with zero false-precision percentage rankings.
+        Targeted foundational milestones without labeling them as deficits. Just the next logical step in their personal growth with zero false-precision percentage rankings.
       </p>
     </div>
 
