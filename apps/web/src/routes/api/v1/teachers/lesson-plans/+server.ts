@@ -28,9 +28,19 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
   try {
     const body = await request.json();
+    const userId = (locals.user as any)?.id || (locals.user as any)?.sub;
+
+    if (body.id) {
+      const existing = coreRepository.getLessonPlanById(body.id);
+      if (existing && existing.authorId && existing.authorId !== userId && role !== 'admin') {
+        return json({ error: 'Forbidden: Cannot overwrite lesson plan authored by another educator' }, { status: 403 });
+      }
+    }
+
     const serverGeneratedId = `LP-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
     const newPlan: DifferentiatedLessonPlan = {
-      id: serverGeneratedId,
+      id: body.id || serverGeneratedId,
+      authorId: userId,
       title: body.title || 'Untitled Differentiated Lesson',
       subject: body.subject || 'STEM Reasoning',
       targetGrade: body.targetGrade || 'Class 8 / Middle Stage',

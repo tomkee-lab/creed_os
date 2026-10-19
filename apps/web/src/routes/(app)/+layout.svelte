@@ -11,7 +11,8 @@
     Sun,
     Moon,
     FileText,
-    Sparkles
+    Sparkles,
+    TrendingUp
   } from 'lucide-svelte';
   import Sidebar from '$lib/components/shell/Sidebar.svelte';
   import TopBar from '$lib/components/shell/TopBar.svelte';
@@ -165,47 +166,48 @@
     </main>
 
     <!-- Mobile Bottom Navigation (Student & Parent quick access) -->
-    <div class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-surface-raised border-t border-border px-2 py-1.5 flex items-center justify-around">
+    <div class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-surface-raised border-t border-border px-2 py-1.5 flex items-center justify-around pb-[max(0.375rem,env(safe-area-inset-bottom,0px))]">
       {#if activeRole === 'student'}
-        <a href="/student" class="flex flex-col items-center py-1 px-3 text-[10px] {currentPath === '/student' ? 'text-brand font-semibold' : 'text-ink-muted'}">
+        <a href="/student" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {currentPath === '/student' ? 'text-brand font-semibold' : 'text-ink-muted'}">
           <Compass class="w-4 h-4 mb-0.5" />
           <span>Today</span>
         </a>
-        <a href="/student/pathways" class="flex flex-col items-center py-1 px-3 text-[10px] {currentPath.startsWith('/student/pathways') ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <Layers class="w-4 h-4 mb-0.5" />
-          <span>Map</span>
-        </a>
-        <a href="/student/progress" class="flex flex-col items-center py-1 px-3 text-[10px] {currentPath.startsWith('/student/progress') ? 'text-brand font-semibold' : 'text-ink-muted'}">
+        <a href="/student/assessment" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {currentPath.startsWith('/student/assessment') ? 'text-brand font-semibold' : 'text-ink-muted'}">
           <Activity class="w-4 h-4 mb-0.5" />
-          <span>Skills</span>
+          <span>Assess</span>
         </a>
-        <a href="/student/mentor" class="flex flex-col items-center py-1 px-3 text-[10px] {currentPath.startsWith('/student/mentor') ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <BrainCircuit class="w-4 h-4 mb-0.5" />
-          <span>Guide</span>
+        <a href="/student/missions" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {currentPath.startsWith('/student/missions') ? 'text-brand font-semibold' : 'text-ink-muted'}">
+          <Layers class="w-4 h-4 mb-0.5" />
+          <span>Missions</span>
+        </a>
+        <a href="/student/growth" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {currentPath.startsWith('/student/growth') ? 'text-brand font-semibold' : 'text-ink-muted'}">
+          <TrendingUp class="w-4 h-4 mb-0.5" />
+          <span>Growth</span>
         </a>
       {:else if activeRole === 'parent'}
-        <a href="/parent" class="flex flex-col items-center py-1 px-3 text-[10px] {currentPath === '/parent' ? 'text-brand font-semibold' : 'text-ink-muted'}">
+        <a href="/parent" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {currentPath === '/parent' ? 'text-brand font-semibold' : 'text-ink-muted'}">
           <Compass class="w-4 h-4 mb-0.5" />
           <span>Overview</span>
         </a>
-        <a href="/parent#growth" class="flex flex-col items-center py-1 px-3 text-[10px] text-ink-muted">
+        <a href="/parent#growth" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] text-ink-muted">
           <Activity class="w-4 h-4 mb-0.5" />
           <span>Growth</span>
         </a>
-        <a href="/parent#evidence" class="flex flex-col items-center py-1 px-3 text-[10px] text-ink-muted">
+        <a href="/parent#evidence" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] text-ink-muted">
           <FileText class="w-4 h-4 mb-0.5" />
           <span>Evidence</span>
         </a>
       {:else}
-        <a href={currentPath} class="flex flex-col items-center py-1 px-3 text-[10px] text-brand font-semibold">
+        <a href={currentPath} class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] text-brand font-semibold">
           <Compass class="w-4 h-4 mb-0.5" />
           <span class="capitalize">{activeRole}</span>
         </a>
       {/if}
 
       <button
+        type="button"
         onclick={() => (commandMenuOpen = true)}
-        class="flex flex-col items-center py-1 px-3 text-[10px] text-ink-muted cursor-pointer"
+        class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] text-ink-muted cursor-pointer rounded-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand"
         aria-label="Open search"
       >
         <Sparkles class="w-4 h-4 mb-0.5" />

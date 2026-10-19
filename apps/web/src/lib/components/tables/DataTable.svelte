@@ -106,7 +106,7 @@
         type="text"
         bind:value={globalFilter}
         placeholder={searchPlaceholder}
-        class="w-full pl-8 pr-3 py-1.5 rounded-none bg-surface border border-border text-xs text-ink placeholder-ink-muted focus:outline-hidden focus:border-brand font-mono"
+        class="w-full pl-8 pr-3 py-1.5 rounded-none bg-surface border border-border text-xs text-ink placeholder-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:border-brand font-mono transition-colors"
       />
     </div>
 
@@ -129,7 +129,7 @@
             const size = Number((e.target as HTMLSelectElement).value);
             table.setPageSize(size);
           }}
-          class="px-2 py-1 rounded-none bg-surface border border-border text-ink cursor-pointer focus:outline-hidden focus:border-brand"
+          class="px-2 py-1 rounded-none bg-surface border border-border text-ink cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:border-brand transition-colors"
         >
           <option value={5}>5</option>
           <option value={10}>10</option>

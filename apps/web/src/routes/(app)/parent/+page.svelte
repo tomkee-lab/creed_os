@@ -49,7 +49,7 @@
     <button
       type="button"
       onclick={() => (consentModalOpen = true)}
-      class="inline-flex items-center gap-2 text-xs text-brand font-medium hover:underline cursor-pointer focus-visible:outline-hidden"
+      class="inline-flex items-center gap-2 text-xs text-brand font-medium hover:underline cursor-pointer rounded-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
     >
       <ShieldCheck class="w-4 h-4" />
       <span>Verified Parental Consent Active • Private & Encrypted</span>
@@ -74,7 +74,7 @@
           <span class="text-xs font-semibold uppercase tracking-wider text-positive">
             Strength
           </span>
-          <EvidenceRating rating={4} max={5} />
+          <EvidenceRating rating={4} max={5} compact />
         </div>
         <h3 class="text-base font-semibold text-ink">
           Spatial Reasoning
@@ -90,7 +90,7 @@
           <span class="text-xs font-semibold uppercase tracking-wider text-attention">
             Growing
           </span>
-          <EvidenceRating rating={3} max={5} />
+          <EvidenceRating rating={3} max={5} compact />
         </div>
         <h3 class="text-base font-semibold text-ink">
           Proportional Reasoning
@@ -121,7 +121,12 @@
           onclick={() => (showHomeActivitySteps = !showHomeActivitySteps)}
           class="inline-flex items-center gap-1 text-[11px] font-medium text-brand hover:underline pt-1 cursor-pointer"
         >
-          <span>{showHomeActivitySteps ? 'Hide steps' : 'View experiment steps ↓'}</span>
+          <span>{showHomeActivitySteps ? 'Hide steps' : 'View experiment steps'}</span>
+          {#if showHomeActivitySteps}
+            <ChevronUp class="w-3.5 h-3.5" />
+          {:else}
+            <ChevronDown class="w-3.5 h-3.5" />
+          {/if}
         </button>
       </div>
     </div>
@@ -168,7 +173,7 @@
         onclick={() => (showTrajectory = !showTrajectory)}
         class="inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:underline cursor-pointer"
       >
-        <span>{showTrajectory ? 'Hide growth journey' : 'Explore growth journey ↓'}</span>
+        <span>{showTrajectory ? 'Hide growth journey' : 'Explore growth journey'}</span>
         {#if showTrajectory}
           <ChevronUp class="w-3.5 h-3.5" />
         {:else}

@@ -61,46 +61,26 @@
       case 'student':
         return [
           { label: 'Today', href: '/student', icon: Compass },
-          { label: 'Robotics IDE', href: '/ide', icon: TerminalSquare },
-          { label: 'Planetary Observatory', href: '/observatory', icon: Globe, badge: '3D' },
-          { label: 'Adaptive Benchmark', href: '/student/assessment', icon: Sparkles, badge: '30Q' },
-          { label: 'Diagnostic Report', href: '/student/report', icon: FileText },
-          { label: 'Pathway Explorer', href: '/student/pathways', icon: Layers },
-          { label: 'Missions Studio', href: '/student/missions', icon: Target, badge: '11 Labs' },
-          { label: 'Capabilities', href: '/student/progress', icon: Activity },
-          { label: 'Evidence Ledger', href: '/student/progress#evidence', icon: CheckCircle2 },
-          { label: 'Socratic Mentor', href: '/student/mentor', icon: BrainCircuit }
+          { label: 'Assessment', href: '/student/assessment', icon: Sparkles, badge: 'CAT' },
+          { label: 'Missions', href: '/student/missions', icon: Target, badge: 'Labs' },
+          { label: 'Growth Ledger', href: '/student/growth', icon: Activity }
         ];
       case 'parent':
         return [
-          { label: 'Overview', href: '/parent', icon: Compass },
-          { label: 'Growth Report', href: '/parent/report', icon: FileText, badge: 'Global' },
-          { label: 'Growth', href: '/parent#growth', icon: Activity },
-          { label: 'Shared Horizons', href: '/parent#horizons', icon: Layers },
-          { label: 'Evidence', href: '/parent#evidence', icon: CheckCircle2 },
-          { label: 'Messages', href: '/parent#messages', icon: Users }
+          { label: 'Family Growth Feed', href: '/parent', icon: Compass }
         ];
       case 'teacher':
         return [
-          { label: 'Today', href: '/teacher', icon: Compass },
-          { label: 'Robotics IDE', href: '/ide', icon: TerminalSquare },
-          { label: 'Planetary Observatory', href: '/observatory', icon: Globe, badge: '3D' },
-          { label: 'Global Benchmarks', href: '/teacher/benchmarks', icon: Sparkles, badge: '30Q' },
-          { label: 'Lesson Plan Studio', href: '/teacher/lesson-plans', icon: BookOpen },
-          { label: 'Pedagogy Guidance', href: '/teacher/guidance', icon: BrainCircuit },
-          { label: 'Classes', href: '/teacher#classes', icon: Users },
-          { label: 'Learners', href: '/teacher#roster', icon: GraduationCap },
-          { label: 'Interventions', href: '/teacher#interventions', icon: Layers, badge: '3' },
-          { label: 'Missions Studio', href: '/student/missions', icon: Target, badge: '11 Labs' },
-          { label: 'Evidence', href: '/teacher#evidence', icon: FileText }
+          { label: 'Cohort Command', href: '/teacher', icon: Compass },
+          { label: '3-Tier CRA Studio', href: '/teacher/lessons', icon: BookOpen },
+          { label: 'PARAKH HPC Roster', href: '/teacher/roster', icon: GraduationCap }
         ];
       case 'counselor':
         return [
           { label: 'Caseload', href: '/counselor', icon: Users },
           { label: 'Priority Cases', href: '/counselor#priority', icon: Target, badge: '3' },
           { label: 'Learners', href: '/counselor#learners', icon: GraduationCap },
-          { label: 'Evidence', href: '/counselor#evidence', icon: FileText },
-          { label: 'Conversations', href: '/counselor#conversations', icon: BrainCircuit }
+          { label: 'Evidence', href: '/counselor#evidence', icon: FileText }
         ];
       case 'admin':
         return [
@@ -115,7 +95,6 @@
         return [
           { label: 'Item Bank', href: '/studio', icon: FolderKanban },
           { label: 'Robotics IDE', href: '/ide', icon: TerminalSquare },
-          { label: 'Planetary Observatory', href: '/observatory', icon: Globe, badge: '3D' },
           { label: 'Authoring', href: '/studio#authoring', icon: Wrench },
           { label: 'Calibration', href: '/studio#calibration', icon: Activity }
         ];
@@ -278,7 +257,7 @@
           <span class="truncate flex-1">{item.label}</span>
           {#if item.badge}
             <span
-              class="px-1.5 py-0.2 rounded-none text-[10px] font-mono bg-brand-subtle text-brand border border-brand/20 transition-transform duration-140 group-hover:scale-105"
+              class="px-1.5 py-0.5 rounded-none text-[10px] font-mono bg-brand-subtle text-brand border border-brand/20 transition-transform duration-140 group-hover:scale-105"
             >
               {item.badge}
             </span>
@@ -351,7 +330,7 @@
           <ChevronLeft class="w-4 h-4 shrink-0 transition-transform duration-140 group-hover:-translate-x-0.5" />
           <span>Collapse</span>
         </span>
-        <kbd class="px-1.5 py-0.2 rounded-none bg-surface-subtle border border-border text-[10px] font-mono text-ink-muted transition-colors group-hover:border-border-strong group-hover:text-ink">⌘B</kbd>
+        <kbd class="px-1.5 py-0.5 rounded-none bg-surface-subtle border border-border text-[10px] font-mono text-ink-muted transition-colors group-hover:border-border-strong group-hover:text-ink">⌘B</kbd>
       </button>
     {/if}
   </div>

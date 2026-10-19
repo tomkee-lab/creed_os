@@ -34,6 +34,7 @@ export class WebAudioSynthesizer {
   private currentWaveform: OscillatorType = 'square';
   private masterGain: GainNode | null = null;
   private tempoBpm: number = 120;
+  private isMuted: boolean = false;
 
   private getAudioContext(): AudioContext | null {
     if (typeof window === 'undefined') return null;
@@ -42,7 +43,7 @@ export class WebAudioSynthesizer {
       if (AudioCtx) {
         this.ctx = new AudioCtx();
         this.masterGain = this.ctx.createGain();
-        this.masterGain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : 0.6, this.ctx.currentTime);
         this.masterGain.connect(this.ctx.destination);
       }
     }
@@ -52,6 +53,18 @@ export class WebAudioSynthesizer {
     return this.ctx;
   }
 
+  public async resume(): Promise<void> {
+    if (typeof window === 'undefined') return;
+    const ctx = this.getAudioContext();
+    if (ctx && ctx.state === 'suspended') {
+      try {
+        await ctx.resume();
+      } catch (err) {
+        console.warn('AudioContext resume warning:', err);
+      }
+    }
+  }
+
   public setWaveform(wave: OscillatorType) {
     this.currentWaveform = wave;
   }
@@ -59,8 +72,29 @@ export class WebAudioSynthesizer {
   public setVolume(volumePct: number) {
     const ctx = this.getAudioContext();
     if (!ctx || !this.masterGain) return;
-    const vol = Math.max(0, Math.min(100, volumePct)) / 100 * 0.35;
+    const vol = this.isMuted ? 0 : (Math.max(0, Math.min(100, volumePct)) / 100 * 0.7);
     this.masterGain.gain.setValueAtTime(vol, ctx.currentTime);
+  }
+
+  public toggleMute(): boolean {
+    this.isMuted = !this.isMuted;
+    const ctx = this.getAudioContext();
+    if (ctx && this.masterGain) {
+      this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : 0.6, ctx.currentTime);
+    }
+    return this.isMuted;
+  }
+
+  public getMuted(): boolean {
+    return this.isMuted;
+  }
+
+  public setMuted(muted: boolean) {
+    this.isMuted = muted;
+    const ctx = this.getAudioContext();
+    if (ctx && this.masterGain) {
+      this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : 0.6, ctx.currentTime);
+    }
   }
 
   public setTempo(bpm: number) {
@@ -68,16 +102,18 @@ export class WebAudioSynthesizer {
   }
 
   public stopAll() {
-    if (this.ctx) {
+    if (this.ctx && this.masterGain) {
       try {
-        this.ctx.close();
+        const now = this.ctx.currentTime;
+        this.masterGain.gain.cancelScheduledValues(now);
+        this.masterGain.gain.setValueAtTime(0, now);
+        this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : 0.6, now + 0.05);
       } catch {}
-      this.ctx = null;
-      this.masterGain = null;
     }
   }
 
   public playTone(freq: number, durationMs: number = 250, wave?: OscillatorType) {
+    if (this.isMuted) return;
     const ctx = this.getAudioContext();
     if (!ctx || !this.masterGain) return;
 
@@ -93,8 +129,8 @@ export class WebAudioSynthesizer {
 
       // Attack - Sustain - Release Envelope
       gain.gain.setValueAtTime(0.001, now);
-      gain.gain.exponentialRampToValueAtTime(0.25, now + 0.02);
-      gain.gain.setValueAtTime(0.25, now + durationSec - 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.35, now + 0.02);
+      gain.gain.setValueAtTime(0.35, now + durationSec - 0.03);
       gain.gain.exponentialRampToValueAtTime(0.001, now + durationSec);
 
       osc.connect(gain);
@@ -116,6 +152,7 @@ export class WebAudioSynthesizer {
   }
 
   public playEffect(effect: string) {
+    if (this.isMuted) return;
     const ctx = this.getAudioContext();
     if (!ctx || !this.masterGain) return;
 
@@ -123,7 +160,49 @@ export class WebAudioSynthesizer {
       const now = ctx.currentTime;
       const type = (effect || '').toUpperCase();
 
-      if (type === 'LASER') {
+      if (type === 'MISSION_START' || type === 'START') {
+        // Crisp dual rising chime for mission launch sequence (587Hz -> 880Hz)
+        [587.33, 880.0].forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          const start = now + idx * 0.09;
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, start);
+          gain.gain.setValueAtTime(0.0001, now);
+          gain.gain.setValueAtTime(0.4, start);
+          gain.gain.linearRampToValueAtTime(0.0001, start + 0.14);
+          osc.connect(gain);
+          gain.connect(this.masterGain!);
+          osc.start(start);
+          osc.stop(start + 0.15);
+        });
+      } else if (type === 'MOTOR_STEP') {
+        // Restrained mechanical stepper motor step pulse (tactile physical feedback, 580Hz -> 280Hz)
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(580, now);
+        osc.frequency.exponentialRampToValueAtTime(280, now + 0.045);
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.linearRampToValueAtTime(0.0001, now + 0.045);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      } else if (type === 'SONAR_PING') {
+        // Pure hydroacoustic / LiDAR distance ping for obstacle detection
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(960, now);
+        osc.frequency.exponentialRampToValueAtTime(780, now + 0.12);
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.14);
+      } else if (type === 'LASER') {
         // High-frequency downward frequency sweep
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -179,20 +258,21 @@ export class WebAudioSynthesizer {
         gain.connect(this.masterGain);
         osc.start(now);
         osc.stop(now + 0.23);
-      } else if (type === 'ALARM') {
-        // Staccato dual buzz pulses
+      } else if (type === 'ALARM' || type === 'ERROR') {
+        // Staccato dual warning buzz pulses for errors
         [0, 0.12].forEach((offset) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           const start = now + offset;
-          osc.type = 'square';
-          osc.frequency.setValueAtTime(880, start);
-          gain.gain.setValueAtTime(0.2, start);
-          gain.gain.exponentialRampToValueAtTime(0.001, start + 0.08);
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(360, start);
+          gain.gain.setValueAtTime(0.0001, now);
+          gain.gain.setValueAtTime(0.25, start);
+          gain.gain.linearRampToValueAtTime(0.0001, start + 0.09);
           osc.connect(gain);
           gain.connect(this.masterGain!);
           osc.start(start);
-          osc.stop(start + 0.09);
+          osc.stop(start + 0.1);
         });
       } else if (type === 'JUMP') {
         // Springy acoustic boing jump effect
@@ -229,15 +309,16 @@ export class WebAudioSynthesizer {
         notes.forEach((freq, idx) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
-          const start = now + idx * 0.07;
+          const start = now + idx * 0.08;
           osc.type = 'triangle';
           osc.frequency.setValueAtTime(freq, start);
-          gain.gain.setValueAtTime(0.2, start);
-          gain.gain.exponentialRampToValueAtTime(0.001, start + (idx === 3 ? 0.35 : 0.1));
+          gain.gain.setValueAtTime(0.0001, now);
+          gain.gain.setValueAtTime(0.35, start);
+          gain.gain.linearRampToValueAtTime(0.0001, start + (idx === 3 ? 0.35 : 0.12));
           osc.connect(gain);
           gain.connect(this.masterGain!);
           osc.start(start);
-          osc.stop(start + (idx === 3 ? 0.36 : 0.11));
+          osc.stop(start + (idx === 3 ? 0.36 : 0.13));
         });
       } else {
         // Default BLIP
@@ -263,6 +344,7 @@ export class WebAudioSynthesizer {
   }
 
   public playDanceRhythm(style: string = 'CHIPTUNE', beats: number = 4) {
+    if (this.isMuted) return;
     const ctx = this.getAudioContext();
     if (!ctx || !this.masterGain) return;
 
@@ -323,6 +405,7 @@ export class WebAudioSynthesizer {
   }
 
   public speakVoice(text: string, voicePersona: string = 'Friendly', pitch: number = 1.1, rate: number = 1.05) {
+    if (this.isMuted) return;
     if (typeof window === 'undefined' || !window.speechSynthesis) return;
     try {
       window.speechSynthesis.cancel();
@@ -364,3 +447,11 @@ export class WebAudioSynthesizer {
 }
 
 export const webAudioSynth = new WebAudioSynthesizer();
+
+if (typeof window !== 'undefined') {
+  const unlockAudio = () => {
+    webAudioSynth.resume();
+  };
+  window.addEventListener('pointerdown', unlockAudio, { passive: true });
+  window.addEventListener('keydown', unlockAudio, { passive: true });
+}

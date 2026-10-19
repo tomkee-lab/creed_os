@@ -206,7 +206,7 @@
           bind:value={reflectionNotes}
           rows="4"
           placeholder="e.g. I chose titanium alloy with 28mm struts because the deflection margin was too narrow with standard aluminum under a 1,200kg test load..."
-          class="w-full p-3 rounded-none bg-surface-raised border border-border text-xs text-foreground placeholder:text-foreground-secondary/60 focus:outline-hidden focus:border-foreground transition-colors font-mono"
+          class="w-full p-3 rounded-none bg-surface-raised border border-border text-xs text-foreground placeholder:text-foreground-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-1 focus-visible:border-foreground transition-colors font-mono"
         ></textarea>
 
         <div class="flex items-center justify-between pt-1">

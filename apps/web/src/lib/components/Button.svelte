@@ -63,9 +63,11 @@
     {href}
     class={computedClass}
     aria-disabled={disabled || loading}
+    aria-busy={loading}
+    tabindex={disabled || loading ? -1 : undefined}
   >
     {#if loading}
-      <Loader2 class="w-3.5 h-3.5 animate-spin" />
+      <Loader2 class="w-3.5 h-3.5 animate-spin mr-1.5" />
     {/if}
     {#if children}
       {@render children()}
@@ -74,8 +76,9 @@
 {:else}
   <button
     {type}
-    {disabled}
+    disabled={disabled || loading}
     class={computedClass}
+    aria-busy={loading}
     {onclick}
   >
     {#if loading}

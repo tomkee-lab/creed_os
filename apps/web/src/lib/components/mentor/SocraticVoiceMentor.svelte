@@ -7,12 +7,8 @@
     Volume2,
     VolumeX,
     Sparkles,
-    AlertCircle,
-    Coffee,
-    X,
-    Activity
+    AlertCircle
   } from 'lucide-svelte';
-  import { affectiveTracker } from '$lib/telemetry/affective.svelte';
 
   interface Message {
     id: string;
@@ -22,9 +18,9 @@
     observation?: { competency: string; note: string };
   }
 
-  let { initialTopic = 'Robotics & Mechanical Kinematics' } = $props<{
+  let { initialTopic = 'Robotics & Mechanical Kinematics' }: {
     initialTopic?: string;
-  }>();
+  } = $props();
 
   let messages = $state<Message[]>([]);
 
@@ -50,7 +46,6 @@
         time: 'Just now'
       }
     ];
-    affectiveTracker.startListening();
 
     // Check Web Speech Recognition support
     if (typeof window !== 'undefined') {
@@ -83,7 +78,6 @@
   });
 
   onDestroy(() => {
-    affectiveTracker.stopListening();
     if (recognition) {
       try {
         recognition.abort();
@@ -201,16 +195,8 @@
       </div>
     </div>
 
-    <!-- Cognitive Rhythm Indicator & Audio Controls -->
+    <!-- Audio Controls -->
     <div class="flex items-center gap-2">
-      <div class="flex items-center gap-1.5 px-3 py-1 text-xs font-mono border border-border bg-surface rounded-sm">
-        <Activity class="size-3.5 {affectiveTracker.rhythm === 'calm' ? 'text-positive' : affectiveTracker.rhythm === 'focused' ? 'text-ai' : 'text-attention'}" />
-        <span class="text-foreground-secondary">
-          Rhythm:
-          <span class="font-medium capitalize text-foreground">{affectiveTracker.rhythm}</span>
-        </span>
-      </div>
-
       <button
         onclick={() => (ttsEnabled = !ttsEnabled)}
         title={ttsEnabled ? 'Disable Voice Playback' : 'Enable Voice Playback'}
@@ -224,26 +210,6 @@
       </button>
     </div>
   </div>
-
-  <!-- 2. Physical Maker Break Alert (Triggered automatically by Affective Telemetry) -->
-  {#if affectiveTracker.breakSuggestion.active}
-    <div class="flex items-center justify-between px-4 py-2 bg-attention-subtle border-b border-attention/30 text-attention text-xs transition-colors">
-      <div class="flex items-center gap-2">
-        <Coffee class="size-4 shrink-0" />
-        <div>
-          <span class="font-bold">{affectiveTracker.breakSuggestion.title}:</span>
-          <span class="ml-1 text-foreground">{affectiveTracker.breakSuggestion.instruction}</span>
-        </div>
-      </div>
-      <button
-        onclick={() => affectiveTracker.dismissBreak()}
-        class="p-1 hover:bg-attention/20 text-attention transition-colors rounded-sm cursor-pointer"
-        title="Dismiss Break"
-      >
-        <X class="size-3.5" />
-      </button>
-    </div>
-  {/if}
 
   <!-- 3. Chat Messages Stream -->
   <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-surface-canvas">
@@ -321,7 +287,7 @@
       bind:value={inputText}
       onkeydown={(e) => e.key === 'Enter' && sendMessage()}
       placeholder={isListening ? 'Listening to your voice...' : 'Ask a question or explain your reasoning...'}
-      class="flex-1 px-3 py-2 text-xs bg-surface-raised border border-border text-foreground placeholder:text-foreground-secondary rounded-sm focus:outline-hidden focus:border-foreground"
+      class="flex-1 px-3 py-2 text-xs bg-surface-raised border border-border text-foreground placeholder:text-foreground-secondary rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-1 focus-visible:border-foreground transition-colors"
     />
 
     <button

@@ -39,8 +39,7 @@ const PUBLIC_PREFIXES: string[] = [
   '/platform',
   '/pricing',
   '/schools',
-  // Educational Sandboxes & Observatory
-  '/sandbox',
+  // Educational Sandboxes & Workbenches
   '/ide'
 ];
 
@@ -74,6 +73,26 @@ function getHomeRouteForRole(role: string): string {
 
 export const handle: Handle = async ({ event, resolve }) => {
   const pathname = event.url.pathname;
+
+  // ── Canonical Route Redirection (Consolidation to 11 Canonical Routes) ──
+  const CONSOLIDATED_REDIRECTS: Record<string, string> = {
+    '/author': '/studio',
+    '/student/progress': '/student/growth',
+    '/student/report': '/student/growth',
+    '/student/pathways': '/student/growth',
+    '/student/mentor': '/student/missions',
+    '/teacher/lesson-plans': '/teacher/lessons',
+    '/teacher/guidance': '/teacher/lessons',
+    '/teacher/benchmarks': '/teacher/roster',
+    '/parent/report': '/parent',
+    '/observatory': '/student/missions',
+    '/sandbox': '/ide'
+  };
+
+  const targetRedirect = CONSOLIDATED_REDIRECTS[pathname] || CONSOLIDATED_REDIRECTS[pathname.replace(/\/$/, '')];
+  if (targetRedirect) {
+    throw redirect(308, targetRedirect);
+  }
 
   // ── 1. Resolve session ────────────────────────────────────────────────────
   try {

@@ -2376,6 +2376,39 @@ export async function initializeRoboticsBlocks() {
   // ==========================================
   // 4. Register PYTHON Code Generators
   // ==========================================
+  // Strict PEP 8 4-space indentation normalizer for nested branch statements
+  function formatBranch4Spaces(rawBranch: string): string {
+    if (!rawBranch || rawBranch.trim().length === 0) return '    pass\n';
+    const lines = rawBranch.split('\n');
+    const fixed = lines.map((line) => {
+      if (!line.trim()) return '';
+      // If line only has 2 spaces, indent it by 2 more spaces to make 4
+      if (line.startsWith('  ') && !line.startsWith('    ')) {
+        return '  ' + line;
+      }
+      // If line has no indent, give it 4 spaces
+      if (!line.startsWith(' ')) {
+        return '    ' + line;
+      }
+      return line;
+    });
+    const res = fixed.join('\n');
+    return res.endsWith('\n') ? res : res + '\n';
+  }
+
+  // Strict PEP 8 8-space indentation normalizer for double-nested loop branch statements
+  function formatBranch8Spaces(rawBranch: string): string {
+    if (!rawBranch || rawBranch.trim().length === 0) return '        pass\n';
+    const fourSpaced = formatBranch4Spaces(rawBranch);
+    const lines = fourSpaced.split('\n');
+    const fixed = lines.map((line) => {
+      if (!line.trim()) return '';
+      return '    ' + line;
+    });
+    const res = fixed.join('\n');
+    return res.endsWith('\n') ? res : res + '\n';
+  }
+
   pythonGenerator.forBlock['robot_on_start'] = function () {
     return '# Mission Initiated\nprint("Executing autonomous sequence...")\n';
   };
@@ -2601,7 +2634,7 @@ export async function initializeRoboticsBlocks() {
   };
 
   pythonGenerator.forBlock['robot_forever'] = function (block: any) {
-    const branch = pythonGenerator.statementToCode(block, 'DO') || '    pass\n';
+    const branch = formatBranch4Spaces(pythonGenerator.statementToCode(block, 'DO'));
     return `while True:\n${branch}    time.sleep(0.05)\n`;
   };
 
@@ -2840,26 +2873,6 @@ export async function initializeRoboticsBlocks() {
     return code;
   };
 
-  // Strict PEP 8 4-space indentation normalizer for nested branch statements
-  function formatBranch4Spaces(rawBranch: string): string {
-    if (!rawBranch || rawBranch.trim().length === 0) return '    pass\n';
-    const lines = rawBranch.split('\n');
-    const fixed = lines.map((line) => {
-      if (!line.trim()) return '';
-      // If line only has 2 spaces, indent it by 2 more spaces to make 4
-      if (line.startsWith('  ') && !line.startsWith('    ')) {
-        return '  ' + line;
-      }
-      // If line has no indent, give it 4 spaces
-      if (!line.startsWith(' ')) {
-        return '    ' + line;
-      }
-      return line;
-    });
-    const res = fixed.join('\n');
-    return res.endsWith('\n') ? res : res + '\n';
-  }
-
   // --- Python Generators for Domain C-Shaped Blocks ---
   pythonGenerator.forBlock['robot_patrol_polygon'] = function (block: any) {
     const sides = block.getFieldValue('SIDES') || 4;
@@ -2952,7 +2965,7 @@ export async function initializeRoboticsBlocks() {
   pythonGenerator.forBlock['pen_draw_regular_polygon'] = function (block: any) {
     const sides = block.getFieldValue('SIDES') || 4;
     const radius = block.getFieldValue('RADIUS') || 30;
-    const branch = pythonGenerator.statementToCode(block, 'DO') || '    pass\n';
+    const branch = formatBranch4Spaces(pythonGenerator.statementToCode(block, 'DO'));
     const duration = (Number(radius) / 25).toFixed(2);
     const angle = Math.round(360 / Number(sides));
     return `# Draw Polygon: ${sides} sides, radius ${radius}px\nrobot.pen_down()\nfor _s in range(${sides}):\n    robot.drive(direction="FORWARD", speed=65, duration=${duration})\n    time.sleep(${duration})\n${branch}    robot.turn(direction="RIGHT", angle=${angle})\n    time.sleep(0.4)\nrobot.pen_up()\n`;
@@ -2961,7 +2974,7 @@ export async function initializeRoboticsBlocks() {
   pythonGenerator.forBlock['rover_survey_sector'] = function (block: any) {
     const rows = block.getFieldValue('ROWS') || 3;
     const cols = block.getFieldValue('COLS') || 3;
-    const branch = pythonGenerator.statementToCode(block, 'DO') || '    pass\n';
+    const branch = formatBranch8Spaces(pythonGenerator.statementToCode(block, 'DO'));
     return `# Rover Sector Grid Survey: ${rows}x${cols}\nfor _r in range(${rows}):\n    for _c in range(${cols}):\n        robot.send_telemetry()\n${branch}        time.sleep(0.15)\n`;
   };
 
@@ -3014,7 +3027,7 @@ export async function initializeRoboticsBlocks() {
   };
 
   pythonGenerator.forBlock['combat_on_enemy_hit'] = function (block: any) {
-    const branch = pythonGenerator.statementToCode(block, 'DO') || '    pass\n';
+    const branch = formatBranch4Spaces(pythonGenerator.statementToCode(block, 'DO'));
     return `# On Enemy Defeated Combo Streak\nif arena.has_defeated_enemy():\n${branch}`;
   };
 

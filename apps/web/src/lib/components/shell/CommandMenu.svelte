@@ -24,20 +24,20 @@
 
   const searchItems = [
     { category: 'Workspaces', title: 'Today’s Mission Dashboard', subtitle: 'Daily mission, focus challenges, and next actions', href: '/student' },
-    { category: 'Workspaces', title: 'Capabilities & Progress', subtitle: 'Demonstrated strengths and qualitative developmental tiers', href: '/student/progress' },
-    { category: 'Workspaces', title: 'Evidence Ledger', subtitle: 'Verified longitudinal demonstrations across projects and diagnostics', href: '/student/progress#evidence' },
-    { category: 'Workspaces', title: 'Pathway Explorer', subtitle: 'Experience authentic project missions before choosing streams', href: '/student/pathways' },
+    { category: 'Workspaces', title: 'Capabilities & Progress', subtitle: 'Demonstrated strengths and qualitative developmental tiers', href: '/student/growth?tab=capabilities' },
+    { category: 'Workspaces', title: 'Evidence Ledger', subtitle: 'Verified longitudinal demonstrations across projects and diagnostics', href: '/student/growth?tab=evidence' },
+    { category: 'Workspaces', title: 'Pathway Explorer', subtitle: 'Experience authentic project missions before choosing streams', href: '/student/growth?tab=pathways' },
     { category: 'Workspaces', title: 'Adaptive Benchmark', subtitle: 'International calibrated 30Q diagnostic assessment', href: '/student/assessment' },
-    { category: 'Workspaces', title: 'Diagnostic Report', subtitle: 'International benchmark report and 4-week growth roadmap', href: '/student/report' },
-    { category: 'Workspaces', title: 'Classroom Cohort Roster', subtitle: 'Learner performance matrix and gap interventions', href: '/teacher#roster' },
-    { category: 'Workspaces', title: 'Counselor Advisory Caseload', subtitle: 'Priority case management and developmental plans', href: '/counselor#priority' },
+    { category: 'Workspaces', title: 'Diagnostic Report', subtitle: 'International benchmark report and 4-week growth roadmap', href: '/student/growth?tab=report' },
+    { category: 'Workspaces', title: 'Classroom Cohort Roster', subtitle: 'Learner performance matrix and gap interventions', href: '/teacher/roster' },
+    { category: 'Workspaces', title: 'Educator Lesson Studio', subtitle: 'AI co-designed lesson plans, syllabus mapping, and scaffolds', href: '/teacher/lessons' },
+    { category: 'Workspaces', title: 'Counselor Advisory Caseload', subtitle: 'Priority case management and developmental plans', href: '/counselor' },
+    { category: 'Workspaces', title: 'Parent Guardian Portal', subtitle: 'Holistic growth, milestone approvals, and statutory consent', href: '/parent' },
     { category: 'Tools', title: 'Robotics IDE', subtitle: 'Zero-install browser robotics IDE and Python translation', href: '/ide' },
-    { category: 'Tools', title: 'Planetary Observatory', subtitle: 'Cesium 3D telemetry and Earth observation studio', href: '/observatory' },
-    { category: 'Tools', title: 'Socratic Mentor Studio', subtitle: 'Voice mentor reasoning and Socratic synthesis', href: '/student/mentor' },
     { category: 'Tools', title: 'Item Bank & Calibration Studio', subtitle: 'Psychometric 3PL IRT authoring and item bank', href: '/studio' },
-    { category: 'Tools', title: 'Verified Consent Ledger', subtitle: 'DPDP Act statutory compliance audit records', href: '/admin#consent' },
-    { category: 'Missions', title: 'RoboBridge Structural Optimization', subtitle: 'Spatial Reasoning & Statics · Intermediate 20 min', href: '/student/missions' },
-    { category: 'Missions', title: 'Urban Climate Heat-Island Discovery', subtitle: 'Data Intelligence & AI · Intermediate 25 min', href: '/student/missions' },
+    { category: 'Tools', title: 'System Administration & Consent Ledger', subtitle: 'DPDP Act statutory compliance audit records', href: '/admin' },
+    { category: 'Missions', title: 'RoboBridge Structural Optimization', subtitle: 'Spatial Reasoning & Statics · Intermediate 20 min', href: '/student/missions/mission-gear-train' },
+    { category: 'Missions', title: 'Urban Climate Heat-Island Discovery', subtitle: 'Data Intelligence & AI · Intermediate 25 min', href: '/student/missions/mission-telemetry-filter' },
     { category: 'Missions', title: 'Autonomous Maze Rover Navigation', subtitle: 'Robotics Kinematics · Introductory 30 min', href: '/student/missions' }
   ];
 
@@ -141,7 +141,7 @@
                   <span class="font-medium text-ink group-hover:text-brand transition-colors truncate">
                     {item.title}
                   </span>
-                  <span class="text-[10px] font-mono px-1 py-0.2 rounded-none bg-surface-subtle border border-border text-ink-muted uppercase">
+                  <span class="text-[10px] font-mono px-1 py-0.5 rounded-none bg-surface-subtle border border-border text-ink-muted uppercase">
                     {item.category}
                   </span>
                 </div>
@@ -158,7 +158,7 @@
       <!-- Footer Help Hints -->
       <div class="px-3.5 py-2 border-t border-border bg-surface-subtle flex items-center justify-between text-[11px] text-ink-muted">
         <span class="text-[10px] text-ink-muted font-medium">CREED OS Command & Intelligence Index</span>
-        <span>Press <kbd class="px-1 py-0.2 rounded-none bg-surface-raised border border-border font-mono">↵</kbd> to select</span>
+        <span>Press <kbd class="px-1 py-0.5 rounded-none bg-surface-raised border border-border font-mono">↵</kbd> to select</span>
       </div>
     </div>
   </div>

@@ -2,3 +2,4 @@ export * from './mentor/socratic.js';
 export * from './socratic.js';
 export * from './gemini/client.js';
 export * from './evidence/extractor.js';
+export * from './socratic/telemetry-mentor.js';

@@ -4,6 +4,8 @@ import {
   verifyQuadratureConvergence,
   evaluateSympsonHetterPass,
   getQualitativeDevelopmentalTier,
+  equipercentileEquate,
+  calibrateItemParameters,
   PsychometricCalibrationError
 } from '../src/irt/calibration.js';
 import { estimateThetaEAP } from '../src/cat/estimator.js';
@@ -107,5 +109,47 @@ describe('Gate 4 — Psychometric CAT Item Calibration & Convergence Testing', (
 
     expect(infoAtPeak).toBeGreaterThan(infoFarBelow);
     expect(infoAtPeak).toBeGreaterThan(infoFarAbove);
+  });
+
+  it('verifies equipercentile equating across international scales', () => {
+    const pisaEquated = equipercentileEquate(1.0, 'PISA', 0.2);
+    expect(pisaEquated.scale).toBe('PISA');
+    expect(pisaEquated.scaleScore).toBe(600); // 500 + 1.0 * 100
+    expect(pisaEquated.percentileRank).toBeGreaterThanOrEqual(84);
+    expect(pisaEquated.confidenceBand[0]).toBeLessThan(pisaEquated.scaleScore);
+    expect(pisaEquated.confidenceBand[1]).toBeGreaterThan(pisaEquated.scaleScore);
+
+    const lexileEquated = equipercentileEquate(0.5, 'LEXILE', 0.2);
+    expect(lexileEquated.scale).toBe('LEXILE');
+    expect(lexileEquated.scaleScore).toBe(975); // 850 + 0.5 * 250
+    expect(lexileEquated.formattedScore).toBe('975L');
+
+    const meanPisa = equipercentileEquate(0.0, 'PISA', 0.25);
+    expect(meanPisa.scaleScore).toBe(500);
+    expect(meanPisa.percentileRank).toBe(50);
+  });
+
+  it('performs empirical Marginal Maximum Likelihood (MML) item calibration on response samples', () => {
+    // Cohort of 10 students: higher-ability students answer correctly
+    const samples = [
+      { learnerTheta: -1.5, isCorrect: false },
+      { learnerTheta: -1.0, isCorrect: false },
+      { learnerTheta: -0.5, isCorrect: false },
+      { learnerTheta: 0.0, isCorrect: true },
+      { learnerTheta: 0.2, isCorrect: false },
+      { learnerTheta: 0.5, isCorrect: true },
+      { learnerTheta: 1.0, isCorrect: true },
+      { learnerTheta: 1.2, isCorrect: true },
+      { learnerTheta: 1.5, isCorrect: true },
+      { learnerTheta: 2.0, isCorrect: true }
+    ];
+
+    const calibration = calibrateItemParameters(samples, 0.20);
+    expect(calibration.converged).toBe(true);
+    expect(calibration.sampleSize).toBe(10);
+    expect(calibration.c).toBe(0.20);
+    expect(calibration.a).toBeGreaterThanOrEqual(0.5);
+    expect(calibration.b).toBeGreaterThan(-1.5);
+    expect(calibration.b).toBeLessThan(1.5);
   });
 });

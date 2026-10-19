@@ -24,12 +24,15 @@
   import { EvidenceRating } from '$lib/components';
   import InspectorPanel from '$lib/components/shell/InspectorPanel.svelte';
   import TransitionalLounge from '$lib/components/missions/TransitionalLounge.svelte';
+  import WorkbenchShell from '$lib/components/workbench/WorkbenchShell.svelte';
 
   let { data } = $props();
   let mission = $derived(data.mission);
 
   // Socratic guidance toggle & evidence submission
   let socraticDrawerOpen = $state(false);
+  let theoryDrawerOpen = $state(false);
+  let workbenchStage = $state<1 | 2 | 3>(1);
   let isSubmitting = $state(false);
   let submissionResult = $state<{
     success: boolean;
@@ -40,51 +43,6 @@
   let studentNotes = $state('');
   let lowStimulation = $state(false);
 
-  let currentTelemetry = $derived.by(() => {
-    if (mission?.simulatorType === 'truss') {
-      return {
-        mass: `${massKg} kg`,
-        maxLoad: `${maxSupportedLoadKg} kg`,
-        strengthToWeight: `${strengthToWeightRatio}x`,
-        deflection: `${centerDeflectionMm} mm`,
-        stress: `${stressPercentage}%`
-      };
-    }
-    if (mission?.simulatorType === 'gear_train') {
-      return {
-        gearRatio: `${gearRatio}:1`,
-        outputRpm: `${outputRpm} RPM`,
-        torqueMultiplier: `${torqueMultiplier}x`,
-        teethRatio: `${gearATeeth}T : ${gearBTeeth}T`
-      };
-    }
-    if (mission?.simulatorType === 'winch_lift') {
-      return {
-        drumTorque: `${totalDrumTorqueInLbs} in-lbs`,
-        motorTorque: `${motorRequiredTorqueInLbs} in-lbs`,
-        safetyFactor: `${safetyFactor}x`
-      };
-    }
-    if (mission?.simulatorType === 'cv_vision') {
-      return {
-        colorSpace,
-        ambientLighting: `${ambientLightingLux} Lux`,
-        boundingBoxIou,
-        lightingStability: `${lightingStability}%`
-      };
-    }
-    if (mission?.simulatorType === 'pid_control') {
-      return {
-        overshoot: `${overshootPercent}%`,
-        settlingTime: `${settlingTimeSec} s`,
-        steadyStateError: `${steadyStateError}`
-      };
-    }
-    return {
-      simulationStatus: 'Nominal',
-      telemetrySync: 'Active'
-    };
-  });
 
   // =========================================================================
   // SIMULATOR 1: TRUSS STRUCTURAL SIMULATION (robobridge)
@@ -303,6 +261,82 @@
     }
     return true;
   });
+  let currentTelemetry = $derived.by(() => {
+    if (mission?.simulatorType === 'truss') {
+      return {
+        mass: `${massKg} kg`,
+        maxLoad: `${maxSupportedLoadKg} kg`,
+        strengthToWeight: `${strengthToWeightRatio}x`,
+        deflection: `${centerDeflectionMm} mm`,
+        stress: `${stressPercentage}%`
+      };
+    }
+    if (mission?.simulatorType === 'gear_train') {
+      return {
+        gearRatio: `${gearRatio}:1`,
+        outputRpm: `${outputRpm} RPM`,
+        torqueMultiplier: `${torqueMultiplier}x`,
+        teethRatio: `${gearATeeth}T : ${gearBTeeth}T`
+      };
+    }
+    if (mission?.simulatorType === 'winch_lift') {
+      return {
+        drumTorque: `${totalDrumTorqueInLbs} in-lbs`,
+        motorTorque: `${motorRequiredTorqueInLbs} in-lbs`,
+        safetyFactor: `${safetyFactor}x`
+      };
+    }
+    if (mission?.simulatorType === 'cv_vision') {
+      return {
+        colorSpace,
+        ambientLighting: `${ambientLightingLux} Lux`,
+        boundingBoxIou,
+        lightingStability: `${lightingStability}%`
+      };
+    }
+    if (mission?.simulatorType === 'pid_control') {
+      return {
+        overshoot: `${overshootPercent}%`,
+        settlingTime: `${settlingTimeSec} s`,
+        steadyStateError: `${steadyStateError}`
+      };
+    }
+    return {
+      simulationStatus: 'Nominal',
+      telemetrySync: 'Active'
+    };
+  });
+
+  let workbenchKpis = $derived.by(() => {
+    if (mission?.simulatorType === 'truss') {
+      return [
+        { label: 'Deflection', value: `${centerDeflectionMm}`, unit: 'mm' },
+        { label: 'Stress', value: `${stressPercentage}%` }
+      ];
+    }
+    if (mission?.simulatorType === 'gear_train') {
+      return [
+        { label: 'Ratio', value: `${gearRatio}:1` },
+        { label: 'Output', value: `${outputRpm}`, unit: 'RPM' }
+      ];
+    }
+    if (mission?.simulatorType === 'grid_rover') {
+      return [
+        { label: 'Heading', value: `${roverHeading}°` },
+        { label: 'Status', value: roverStatus.toUpperCase() }
+      ];
+    }
+    if (mission?.simulatorType === 'winch_lift') {
+      return [
+        { label: 'Drum Torque', value: `${totalDrumTorqueInLbs}`, unit: 'in-lb' },
+        { label: 'Safety Factor', value: `${safetyFactor}x` }
+      ];
+    }
+    return [
+      { label: 'Status', value: 'Nominal' },
+      { label: 'Sync', value: 'Active' }
+    ];
+  });
 
   // =========================================================================
   // OVERALL PASS CRITERIA ACROSS ALL SIMULATOR TYPES
@@ -447,23 +481,16 @@
     </div>
   </header>
 
-  <!-- WORKBENCH DUAL-PANE -->
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-    <!-- LEFT 7 COLS: INTERACTIVE SIMULATION VISUALIZER -->
-    <div class="lg:col-span-7 space-y-4">
-      <div class="p-5 bg-surface border border-border rounded-sm space-y-4">
-        <div class="flex items-center justify-between text-xs">
-          <span class="font-semibold text-foreground flex items-center gap-1.5">
-            <Activity class="w-3.5 h-3.5 text-ai" />
-            <span>Interactive Proving Ground Simulation</span>
-          </span>
-          <span class="font-mono text-[10px] uppercase text-muted">
-            Engine: Deterministic Physics Model • 12.0 METERS SPAN
-          </span>
-        </div>
-
-        <!-- SIMULATOR CONTAINER -->
-        <div class="w-full min-h-75 bg-surface-raised border border-border rounded-sm p-4 flex flex-col items-center justify-center relative overflow-hidden">
+  <!-- WORKBENCH SHELL -->
+  <WorkbenchShell
+    title="{mission.code} • {mission.title}"
+    bind:stage={workbenchStage}
+    kpis={workbenchKpis}
+    bind:socraticOpen={socraticDrawerOpen}
+    bind:theoryOpen={theoryDrawerOpen}
+  >
+    {#snippet canvas()}
+      <div class="w-full h-full min-h-80 p-4 flex flex-col items-center justify-center relative overflow-hidden">
           {#if mission.simulatorType === 'truss'}
             <!-- TRUSS SVG CANVAS -->
             <svg viewBox="0 0 600 240" class="w-full h-56">
@@ -664,15 +691,15 @@
                 </p>
                 <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-border">
                   <a
-                    href="/observatory"
+                    href="/ide"
                     target="_blank"
                     class="inline-flex items-center gap-2 px-3 py-1.5 bg-brand hover:bg-brand/90 text-brand-foreground text-xs font-mono font-semibold rounded-none transition-micro shadow-xs"
                   >
-                    <Globe class="size-3.5" />
-                    <span>Launch in 3D Observatory Studio ↗</span>
+                    <TerminalSquare class="size-3.5" />
+                    <span>Launch in Robotics IDE ↗</span>
                   </a>
                   <span class="text-[11px] text-ink-muted">
-                    Inspect SGP4 telemetry vectors directly in Cesium 3D
+                    Inspect telemetry vectors and execute control programs
                   </span>
                 </div>
               </div>
@@ -686,7 +713,7 @@
                   <input
                     type="number"
                     bind:value={spaceUserInputValue}
-                    class="w-full px-3 py-1.5 bg-surface border border-border text-xs font-mono text-ink rounded-none focus:outline-hidden focus:border-brand"
+                    class="w-full px-3 py-1.5 bg-surface border border-border text-xs font-mono text-ink rounded-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:border-brand transition-colors"
                     placeholder="Enter telemetry value"
                   />
                 </div>
@@ -694,12 +721,10 @@
             </div>
           {/if}
         </div>
-      </div>
-    </div>
+    {/snippet}
 
-    <!-- RIGHT 5 COLS: CONTROLS & SUBMISSION PANEL -->
-    <div class="lg:col-span-5 space-y-4">
-      <div class="p-5 bg-surface border border-border rounded-sm space-y-5 text-xs">
+    {#snippet controls()}
+      <div class="space-y-5 text-xs">
         <div class="flex items-center justify-between pb-2 border-b border-border">
           <div class="flex items-center gap-2">
             <Sliders class="w-4 h-4 text-ai" />
@@ -935,51 +960,59 @@
           <span>{isSubmitting ? 'Evaluating Verification...' : 'Submit Design for Level 4 Evidence'}</span>
         </button>
       </div>
-    </div>
-  </div>
+    {/snippet}
 
-  <!-- Dedicated Transitional Lounge (Digital Ecotone per Howson Ch. 13-14) -->
-  <TransitionalLounge
-    missionTitle={mission.title}
-    missionSlug={mission.id}
-    simulatorType={mission.simulatorType}
-    telemetryData={currentTelemetry}
-    bind:lowStimulation
-  />
-</div>
+    {#snippet socraticContent()}
+      <div class="space-y-4 text-xs">
+        <div class="p-3 bg-ai-subtle border border-ai/20 text-ai rounded-sm space-y-1">
+          <div class="flex items-center gap-1.5 font-semibold">
+            <Sparkles class="w-3.5 h-3.5" />
+            <span>Inquiry Heuristic</span>
+          </div>
+          <p class="text-xs text-muted leading-relaxed">
+            {mission.pedagogicalObjective}
+          </p>
+        </div>
 
-<!-- SOCRATIC GUIDE DRAWER -->
-<InspectorPanel
-  bind:open={socraticDrawerOpen}
-  title="Socratic Reasoning Partner"
-  subtitle="Guided inquiry for applied engineering"
->
-  <div class="space-y-4 text-xs">
-    <div class="p-3 bg-ai-subtle border border-ai/20 text-ai rounded-sm space-y-1">
-      <div class="flex items-center gap-1.5 font-semibold">
-        <Sparkles class="w-3.5 h-3.5" />
-        <span>Inquiry Heuristic</span>
+        <div class="space-y-2">
+          <span class="font-semibold text-foreground uppercase tracking-wider text-[10px] font-mono">
+            Guiding Questions:
+          </span>
+          <ul class="space-y-2 text-muted">
+            <li class="p-2 bg-surface-raised border border-border rounded-sm">
+              <strong>1. Core Principles:</strong> How does your chosen configuration balance competing constraints?
+            </li>
+            <li class="p-2 bg-surface-raised border border-border rounded-sm">
+              <strong>2. Failure Modes:</strong> What physical condition causes the first failure point in this system?
+            </li>
+          </ul>
+        </div>
       </div>
-      <p class="text-xs text-muted leading-relaxed">
-        {mission.pedagogicalObjective}
-      </p>
-    </div>
+    {/snippet}
 
-    <div class="space-y-2">
-      <span class="font-semibold text-foreground uppercase tracking-wider text-[10px] font-mono">
-        Guiding Questions:
-      </span>
-      <ul class="space-y-2 text-muted">
-        <li class="p-2 bg-surface-raised border border-border rounded-sm">
-          <strong>1. Core Principles:</strong> How does your chosen configuration balance competing constraints (e.g. mass vs strength, speed vs stability)?
-        </li>
-        <li class="p-2 bg-surface-raised border border-border rounded-sm">
-          <strong>2. Failure Modes:</strong> What physical condition causes the first failure point in this system?
-        </li>
-      </ul>
-    </div>
-  </div>
-</InspectorPanel>
+    {#snippet theoryContent()}
+      <div class="space-y-4 text-xs">
+        <div class="p-3 bg-surface-raised border border-border rounded-sm space-y-2">
+          <h4 class="font-bold font-mono text-ink text-xs uppercase tracking-wider">Governing Physical Laws</h4>
+          <p class="text-ink-secondary leading-relaxed">
+            {mission.brief}
+          </p>
+        </div>
+        <div class="space-y-2">
+          <h5 class="font-bold text-[11px] text-ink font-mono uppercase">Rubric Verification Criteria</h5>
+          <div class="space-y-1.5">
+            {#each mission.rubricCriteria as rc}
+              <div class="p-2 bg-surface border border-border rounded-sm flex items-center justify-between">
+                <span class="text-ink-secondary">{rc.criterion}</span>
+                <span class="font-mono font-bold text-ink">{rc.target}</span>
+              </div>
+            {/each}
+          </div>
+        </div>
+      </div>
+    {/snippet}
+  </WorkbenchShell>
+</div>
 
 <!-- SUCCESS EVIDENCE RECEIPT MODAL -->
 <InspectorPanel
@@ -1023,7 +1056,7 @@
           Return to Missions Studio
         </a>
         <a
-          href="/student/progress"
+          href="/student/growth"
           class="w-full py-2 px-4 border border-border hover:bg-surface-raised text-foreground text-center rounded-sm cursor-pointer"
         >
           View Updated Capabilities Ledger

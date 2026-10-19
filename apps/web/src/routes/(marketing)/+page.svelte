@@ -30,7 +30,8 @@
   import { initScrollTrigger, isReducedMotion } from '$lib/motion/scroll.js';
   import {
     EvidenceRating,
-    GlyphMatrix
+    GlyphMatrix,
+    StripedPattern
   } from '$lib/components';
   import * as Sheet from '$lib/components/ui/sheet';
 
@@ -266,6 +267,15 @@
   />
   <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-full max-w-5xl h-80 bg-mint/5 blur-[120px] rounded-none pointer-events-none z-0"></div>
 
+  <!-- Striped Pattern: Architectural blueprint diagonal hatch with radial focus -->
+  <StripedPattern
+    direction="left"
+    width={20}
+    height={20}
+    strokeWidth={1}
+    class="mask-[radial-gradient(320px_circle_at_center,white,transparent)]"
+  />
+
   <!-- Centered Hero Stack (Comfortable Reading Measure) -->
   <div class="w-full max-w-3xl mx-auto px-4 sm:px-6 space-y-6 my-auto relative z-10">
     <!-- Editorial Kicker Badge -->
@@ -282,14 +292,9 @@
           a learner grows.
         </span>
       </h1>
-      <div class="hero-reveal space-y-1.5 max-w-xl mx-auto">
-        <p class="text-base sm:text-lg text-ink font-normal">
-          Assess deeply. Learn personally. Explore freely.
-        </p>
-        <p class="text-xs sm:text-sm text-ink-secondary leading-relaxed">
-          Deterministic psychometrics, longitudinal evidence provenance, and calm Socratic mentorship — without diagnostic pressure or permanent labels.
-        </p>
-      </div>
+      <p class="hero-reveal text-sm sm:text-base text-ink-secondary leading-relaxed max-w-lg mx-auto">
+        Deterministic psychometrics, longitudinal evidence, and calm Socratic mentorship — without permanent labels.
+      </p>
     </div>
 
     <!-- CTA Actions -->
@@ -312,27 +317,27 @@
     </div>
 
     <!-- Trust Proof & Statutory Compliance -->
-    <div class="hero-reveal pt-1.5 flex flex-wrap items-center justify-center gap-3 text-[11px] text-ink-muted">
+    <div class="hero-reveal pt-1 flex flex-wrap items-center justify-center gap-3 text-[11px] text-ink-muted">
       <span class="inline-flex items-center gap-1.5">
         <ShieldCheck class="w-3.5 h-3.5 text-mint" />
-        <span>India DPDP Act 2023 Compliant</span>
+        <span>DPDP Act 2023 Compliant</span>
       </span>
       <span class="text-border">•</span>
       <span class="inline-flex items-center gap-1.5">
         <CheckCircle2 class="w-3.5 h-3.5 text-mint" />
-        <span>Deterministic Evidence Scoring</span>
+        <span>Deterministic Evidence</span>
       </span>
       <span class="text-border">•</span>
-      <span>Classes 5–10 (Ages 10–16)</span>
+      <span>Classes 5–10</span>
     </div>
   </div>
 
   <!-- Scroll Indicator -->
   <a
     href="#observatory"
-    class="hero-reveal pt-3 pb-1 inline-flex flex-col items-center gap-1 text-[11px] text-ink-muted hover:text-ink font-mono uppercase tracking-widest transition-micro cursor-pointer group relative z-10"
+    class="hero-reveal pt-2 pb-1 inline-flex flex-col items-center gap-1 text-[11px] text-ink-muted hover:text-ink font-mono uppercase tracking-widest transition-micro cursor-pointer group relative z-10"
   >
-    <span class="group-hover:text-mint transition-micro">Scroll to explore observatory</span>
+    <span class="group-hover:text-mint transition-micro">Explore Observatory</span>
     <ChevronDown class="w-3.5 h-3.5 animate-bounce text-mint" />
   </a>
 </section>
@@ -651,10 +656,10 @@
             </button>
           {:else}
             <a
-              href="/observatory"
+              href="/student/missions"
               class="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold font-mono bg-mint text-mint-foreground hover:bg-mint-hover transition-micro shadow-xs rounded-none"
             >
-              <span>Launch Observatory Studio ↗</span>
+              <span>Launch Missions Studio ↗</span>
             </a>
           {/if}
         </div>

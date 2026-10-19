@@ -96,7 +96,7 @@
       <div class="flex flex-col min-w-0">
         <span class="font-medium text-ink flex items-center gap-1.5">
           <span>Protected & Verified</span>
-          <span class="text-[10px] px-1 py-0.2 rounded-none bg-positive/10 text-positive border border-positive/20">
+          <span class="text-[10px] px-1 py-0.5 rounded-none bg-positive/10 text-positive border border-positive/20">
             PoW SHA-256
           </span>
         </span>

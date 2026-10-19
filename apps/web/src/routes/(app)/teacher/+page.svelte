@@ -325,7 +325,7 @@
               type="text"
               bind:value={searchQuery}
               placeholder="Filter learners..."
-              class="w-full pl-8 pr-8 py-1.5 rounded-none bg-surface border border-border text-xs text-ink placeholder-ink-muted focus:outline-hidden focus:border-brand"
+              class="w-full pl-8 pr-8 py-1.5 rounded-none bg-surface border border-border text-xs text-ink placeholder-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:border-brand transition-colors"
             />
             <div class="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:block">
               <Kbd class="text-[9px] px-1 py-0.5">/</Kbd>
@@ -426,26 +426,40 @@
         </button>
       </div>
 
-      <div class="space-y-2">
-        {#each recentObservations as obs (obs.id)}
-          <div class="p-3.5 rounded-none bg-surface border border-border flex items-start justify-between gap-4 text-xs">
-            <div class="space-y-1 min-w-0">
-              <div class="flex items-center gap-2">
-                <span class="font-semibold text-ink">{obs.studentName}</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded-none bg-surface-subtle border border-border text-ink-muted uppercase tracking-wider">
-                  {obs.competency}
-                </span>
-                <span class="text-[11px] text-ink-muted">• {obs.time}</span>
+      {#if recentObservations.length === 0}
+        <div class="p-6 text-center border border-dashed border-border bg-surface/50 space-y-2">
+          <p class="text-xs text-ink-secondary">No direct classroom demonstrations logged for Class 8-A today.</p>
+          <button
+            type="button"
+            onclick={() => (logObservationOpen = true)}
+            class="inline-flex items-center gap-1.5 text-xs text-brand hover:underline font-medium cursor-pointer"
+          >
+            <Plus class="w-3.5 h-3.5" />
+            <span>Record first demonstration observation</span>
+          </button>
+        </div>
+      {:else}
+        <div class="space-y-2">
+          {#each recentObservations as obs (obs.id)}
+            <div class="p-3.5 rounded-none bg-surface border border-border flex items-start justify-between gap-4 text-xs">
+              <div class="space-y-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold text-ink">{obs.studentName}</span>
+                  <span class="text-[10px] px-1.5 py-0.5 rounded-none bg-surface-subtle border border-border text-ink-muted uppercase tracking-wider">
+                    {obs.competency}
+                  </span>
+                  <span class="text-[11px] text-ink-muted">• {obs.time}</span>
+                </div>
+                <p class="text-xs text-ink-secondary leading-relaxed">{obs.summary}</p>
               </div>
-              <p class="text-xs text-ink-secondary leading-relaxed">{obs.summary}</p>
+              <div class="shrink-0 flex items-center gap-1.5 text-positive font-medium text-[11px]">
+                <CheckCircle2 class="w-3.5 h-3.5" />
+                <span>Verified L3</span>
+              </div>
             </div>
-            <div class="shrink-0 flex items-center gap-1.5 text-positive font-medium text-[11px]">
-              <CheckCircle2 class="w-3.5 h-3.5" />
-              <span>Verified L3</span>
-            </div>
-          </div>
-        {/each}
-      </div>
+          {/each}
+        </div>
+      {/if}
     </section>
   {/if}
 </div>

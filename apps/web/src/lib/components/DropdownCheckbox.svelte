@@ -54,7 +54,7 @@
   >
     <span>{title}</span>
     {#if selectedCount > 0}
-      <span class="px-1.5 py-0.2 rounded-none bg-mint/15 text-mint font-mono text-[10px]">
+      <span class="px-1.5 py-0.5 rounded-none bg-mint/15 text-mint font-mono text-[10px]">
         {selectedCount}
       </span>
     {/if}

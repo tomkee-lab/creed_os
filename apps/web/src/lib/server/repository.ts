@@ -7,7 +7,9 @@ import type {
   CompetencyDomain,
   ConsentRecord
 } from '@core-os/domain';
-import { isConsentActive } from '@core-os/domain';
+import { isConsentActive, StatutoryConsentError } from '@core-os/domain';
+import crypto from 'node:crypto';
+import { queryDb, getDbPool, isCloudDatabaseEnabled } from './supabase';
 import {
   CALIBRATED_ITEM_BANK,
   STEM_BENCHMARK_ITEMS,
@@ -21,6 +23,7 @@ import {
 
 export interface DifferentiatedLessonPlan {
   id: string;
+  authorId?: string;
   title: string;
   subject: 'STEM Reasoning' | 'English Literacy' | 'Autonomous Robotics';
   targetGrade: string;
@@ -73,6 +76,9 @@ export interface TeacherStudentSummary {
   weakestScore: number;
   strongestCompetency: CompetencyDomain;
   activeGapRemediation: string;
+  stemScore?: string;
+  englishScore?: string;
+  roboticsScore?: string;
 }
 
 export interface ClassCohort {
@@ -309,7 +315,7 @@ export const STEM_MISSIONS: StemMission[] = [
     rubricCriteria: [
       { criterion: 'Orbital Velocity Calculation', target: '27,600 km/h ± 6% tolerance', importance: 'Mandatory' },
       { criterion: 'Orbital Period Verification', target: 'T ≈ 92.6 minutes', importance: 'Primary' },
-      { criterion: 'Evidence Provenance', target: 'State vectors captured from Cesium HUD', importance: 'Excellence' }
+      { criterion: 'Evidence Provenance', target: 'State vectors captured from Orbital SGP4 Telemetry HUD', importance: 'Excellence' }
     ]
   },
   {
@@ -352,6 +358,48 @@ export const STEM_MISSIONS: StemMission[] = [
     rubricCriteria: [
       { criterion: 'Distance Conservation Calculation', target: '1,850 km saved ± 10% tolerance', importance: 'Mandatory' },
       { criterion: 'Geodesic Curvature Verification', target: 'Orthodromic route verified in 3D', importance: 'Primary' }
+    ]
+  },
+  {
+    id: 'mission-gear-train',
+    title: 'RoboBridge Structural Optimization & Gear Train Mechanics',
+    code: 'MISSION-MECH-02',
+    domain: 'spatial_reasoning',
+    domainTitle: 'Mechanical Advantage & Structural Statics',
+    stage: 'middle',
+    stageLabel: 'Middle Stage (Classes 6–8)',
+    targetGrades: 'Classes 7–9',
+    estimatedMinutes: 20,
+    difficulty: 'Intermediate',
+    brief: 'Design and optimize a compound gear train and structural truss bridge. Calculate velocity ratios, mechanical advantage, and load distribution under variable robotic vehicle stress.',
+    pedagogicalObjective: 'Master gear tooth ratios, torque multipliers, and truss moment equilibrium.',
+    simulatorType: 'gear_train',
+    alignedStandards: ['CBSE Science Class 8 Force and Pressure', 'PISA Engineering Design'],
+    prerequisites: ['Basic ratio calculation', 'Lever and torque principles'],
+    rubricCriteria: [
+      { criterion: 'Velocity Ratio Calculation', target: 'VR = 4.0 ± 5% tolerance', importance: 'Mandatory' },
+      { criterion: 'Structural Stress Equilibrium', target: 'Truss deflection < 2mm under 50N load', importance: 'Primary' }
+    ]
+  },
+  {
+    id: 'mission-telemetry-filter',
+    title: 'Urban Climate Heat-Island Discovery & Telemetry Filtering',
+    code: 'MISSION-AI-02',
+    domain: 'computational_thinking',
+    domainTitle: 'Sensor Telemetry & Environmental Informatics',
+    stage: 'middle',
+    stageLabel: 'Middle Stage (Classes 6–8)',
+    targetGrades: 'Classes 7–9',
+    estimatedMinutes: 25,
+    difficulty: 'Intermediate',
+    brief: 'Process noisy multi-sensor microclimate telemetry across urban transit corridors. Apply rolling average and Kalman noise filtering to isolate thermal anomalies and heat-island gradients.',
+    pedagogicalObjective: 'Understand time-series noise filtering, spatial sensor clustering, and environmental data literacy.',
+    simulatorType: 'sensor_telemetry',
+    alignedStandards: ['CBSE Geography Class 8 Climate and Weather', 'CSTA 2-DA-08 Data Analysis'],
+    prerequisites: ['Statistical mean and variance', 'Basic Python list operations'],
+    rubricCriteria: [
+      { criterion: 'Noise Reduction SNR', target: 'Signal-to-noise improvement ≥ 12 dB', importance: 'Mandatory' },
+      { criterion: 'Thermal Gradient Detection', target: 'Accurately locate microclimate hot-spots', importance: 'Primary' }
     ]
   }
 ];
@@ -753,7 +801,10 @@ class LocalCoreRepository {
           weakestCompetency: 'quantitative_reasoning',
           weakestScore: 2.8,
           strongestCompetency: 'spatial_reasoning',
-          activeGapRemediation: 'Proportional Equations Sprint'
+          activeGapRemediation: 'Proportional Equations Sprint',
+          stemScore: '540 (Mountain)',
+          englishScore: '910L (B1+)',
+          roboticsScore: '550 (Regional)'
         },
         {
           id: 's2',
@@ -762,7 +813,10 @@ class LocalCoreRepository {
           weakestCompetency: 'spatial_reasoning',
           weakestScore: 2.5,
           strongestCompetency: 'quantitative_reasoning',
-          activeGapRemediation: '3D Orthographic Projection Lab'
+          activeGapRemediation: '3D Orthographic Projection Lab',
+          stemScore: '580 (Advanced)',
+          englishScore: '860L (B1)',
+          roboticsScore: '490 (State)'
         },
         {
           id: 's3',
@@ -771,7 +825,10 @@ class LocalCoreRepository {
           weakestCompetency: 'computational_thinking',
           weakestScore: 2.9,
           strongestCompetency: 'logical_deduction',
-          activeGapRemediation: 'Algorithmic Loop Decomposition'
+          activeGapRemediation: 'Algorithmic Loop Decomposition',
+          stemScore: '520 (Proficient)',
+          englishScore: '980L (B2)',
+          roboticsScore: '510 (Regional)'
         },
         {
           id: 's4',
@@ -780,7 +837,10 @@ class LocalCoreRepository {
           weakestCompetency: 'scientific_inquiry',
           weakestScore: 3.1,
           strongestCompetency: 'quantitative_reasoning',
-          activeGapRemediation: 'Independent Variable Isolation'
+          activeGapRemediation: 'Independent Variable Isolation',
+          stemScore: '500 (Baseline)',
+          englishScore: '890L (B1)',
+          roboticsScore: '505 (Regional)'
         }
       ],
       misconceptionClusters: [
@@ -1392,15 +1452,35 @@ class LocalCoreRepository {
     return this.evidenceStore.get(learnerId) || [];
   }
 
-  addEvidence(evidence: LearnerEvidence) {
+  getEvidence(learnerId: string): LearnerEvidence[] {
+    return this.getLearnerEvidence(learnerId);
+  }
+
+  addEvidence(evidence: LearnerEvidence): LearnerEvidence {
+    if (!this.hasActiveConsent(evidence.learnerId)) {
+      throw new StatutoryConsentError(
+        `Statutory parental consent under DPDP Act 2023 Section 9 missing or not active for minor learner ${evidence.learnerId}`
+      );
+    }
+
     const existing = this.evidenceStore.get(evidence.learnerId) || [];
-    existing.unshift(evidence);
+    const prevHash = (existing[0] as any)?.chainHash || 'GENESIS_EVIDENCE_HASH_0000000000000000';
+    const ev = evidence as any;
+    const scoreVal = ev.score ?? ev.observedValue?.scoreFraction ?? 1.0;
+    const timestampVal = ev.timestamp ?? ev.observedAt ?? Date.now();
+    const chainHash = crypto.createHash('sha256')
+      .update(`${prevHash}:${ev.learnerId}:${ev.competency}:${scoreVal}:${timestampVal}`)
+      .digest('hex');
+
+    const chainedEvidence = { ...evidence, chainHash } as LearnerEvidence;
+    existing.unshift(chainedEvidence);
     this.evidenceStore.set(evidence.learnerId, existing);
 
     const profile = this.learnerProfiles.get(evidence.learnerId);
     if (profile) {
       profile.recentEvidence = existing;
     }
+    return chainedEvidence;
   }
 
   // --- Assessment Operations ---
@@ -1480,7 +1560,13 @@ class LocalCoreRepository {
   // --- Statutory DPDP Consent & Guardian Authorization Operations ---
   hasActiveConsent(learnerId: string): boolean {
     const record = this.consentRecords.get(learnerId);
-    if (!record) return false;
+    if (!record) {
+      const profile = this.learnerProfiles.get(learnerId);
+      if (profile && (profile as any).age !== undefined && (profile as any).age >= 18) {
+        return true;
+      }
+      return false;
+    }
     return isConsentActive(record);
   }
 
@@ -1563,6 +1649,28 @@ class LocalCoreRepository {
 
   getConsentRecord(learnerId: string): ConsentRecord | undefined {
     return this.consentRecords.get(learnerId);
+  }
+
+  getLinkedLearnerIds(guardianId: string): string[] {
+    const set = this.guardianLearnerMap.get(guardianId);
+    const directIds = set ? Array.from(set) : [];
+    for (const [learnerId, record] of this.consentRecords.entries()) {
+      if (record.guardianId === guardianId && !directIds.includes(learnerId)) {
+        directIds.push(learnerId);
+      }
+    }
+    return directIds;
+  }
+
+  isGuardianLinkedToLearner(guardianId: string, learnerId: string): boolean {
+    const set = this.guardianLearnerMap.get(guardianId);
+    if (set && set.has(learnerId)) return true;
+    const consent = this.consentRecords.get(learnerId);
+    if (consent && consent.guardianId === guardianId) {
+      this.bindGuardianToLearner(guardianId, learnerId);
+      return true;
+    }
+    return false;
   }
 
   setConsentRecord(record: ConsentRecord): void {
@@ -1785,4 +1893,329 @@ class LocalCoreRepository {
   }
 }
 
-export const coreRepository = new LocalCoreRepository();
+export class PostgresCoreRepository extends LocalCoreRepository {
+  /**
+   * Executes a database transaction with RLS tenant identity and verified statutory consent gating.
+   */
+  async withVerifiedConsentTransaction<T>(
+    learnerId: string,
+    actorSub: string,
+    operation: (client: any) => Promise<T>
+  ): Promise<T> {
+    const pool = getDbPool();
+    if (!pool) {
+      throw new Error('[PostgresCoreRepository] Database connection pool is not configured.');
+    }
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      // 1. Bind request.jwt.claim.sub for RLS tenant isolation
+      await client.query("SELECT set_config('request.jwt.claim.sub', $1, true)", [actorSub]);
+
+      // 2. Check public.consents status (VERIFIED_ACTIVE / verified)
+      const consentCheck = await client.query(
+        `SELECT 1 FROM consents 
+         WHERE learner_id = $1 
+           AND status IN ('verified', 'VERIFIED_ACTIVE')
+           AND withdrawn_at IS NULL
+         LIMIT 1`,
+        [learnerId]
+      );
+
+      if (consentCheck.rowCount === 0) {
+        const profileCheck = await client.query(
+          `SELECT age FROM profiles WHERE id = $1`,
+          [learnerId]
+        );
+        const age = profileCheck.rows[0]?.age;
+        if (age === undefined || age === null || age < 18) {
+          throw new StatutoryConsentError(
+            `Statutory parental consent under DPDP Act 2023 Section 9 missing or not active for minor learner ${learnerId}`
+          );
+        }
+      }
+
+      // 3. Execute payload operation inside transaction
+      const result = await operation(client);
+      await client.query('COMMIT');
+      return result;
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+  }
+
+  override addEvidence(evidence: LearnerEvidence, actorSub: string = evidence.learnerId): any {
+    if (!this.hasActiveConsent(evidence.learnerId)) {
+      throw new StatutoryConsentError(
+        `Statutory parental consent under DPDP Act 2023 Section 9 missing or not active for minor learner ${evidence.learnerId}`
+      );
+    }
+
+    const chained = super.addEvidence(evidence);
+
+    if (isCloudDatabaseEnabled()) {
+      this.withVerifiedConsentTransaction(evidence.learnerId, actorSub, async (client) => {
+        if (!client) return;
+        let prevHash = 'GENESIS_EVIDENCE_HASH_0000000000000000';
+        const lastRow = await client.query(
+          `SELECT observed_value->>'chainHash' as chain_hash FROM learner_evidence WHERE learner_id = $1 ORDER BY observed_at DESC LIMIT 1`,
+          [evidence.learnerId]
+        );
+        if (lastRow.rows[0]?.chain_hash) {
+          prevHash = lastRow.rows[0].chain_hash;
+        }
+
+        const ev = evidence as any;
+        const scoreVal = ev.score ?? ev.observedValue?.scoreFraction ?? 1.0;
+        const timestampVal = ev.timestamp ?? ev.observedAt ?? Date.now();
+        const chainHash = crypto.createHash('sha256')
+          .update(`${prevHash}:${ev.learnerId}:${ev.competency}:${scoreVal}:${timestampVal}`)
+          .digest('hex');
+
+        const compRes = await client.query(
+          `SELECT id FROM competencies WHERE domain = $1 OR code = $1 LIMIT 1`,
+          [ev.competency]
+        );
+        const competencyId = compRes.rows[0]?.id;
+        if (!competencyId) {
+          throw new Error(`[PostgresCoreRepository] Unmapped competency or domain: "${ev.competency}"`);
+        }
+
+        await client.query(
+          `INSERT INTO learner_evidence (
+            learner_id, competency_id, evidence_type, source_type, source_id, source_title,
+            summary, observed_value, confidence, evidence_strength, status, visibility, observed_at
+          ) VALUES (
+            $1, $2,
+            $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW()
+          )`,
+          [
+            ev.learnerId,
+            competencyId,
+            ev.evidenceType || ev.type || 'applied_simulation',
+            ev.sourceType || 'project_mission',
+            ev.id || crypto.randomUUID(),
+            ev.sourceTitle || ev.title || 'Maker Simulator Artifact',
+            ev.summary || ev.claim || 'Competency demonstration',
+            JSON.stringify({ ...evidence, chainHash }),
+            ev.confidence || 0.9,
+            ev.evidenceStrength || ev.level || 4,
+            ev.status || 'validated',
+            ev.visibility || 'learner_only'
+          ]
+        );
+      }).catch((err) => {
+        console.error('[PostgresCoreRepository] Async evidence write error:', err);
+      });
+    }
+
+    return chained;
+  }
+
+  /**
+   * Database-backed parent-child relationship resolution across process restarts.
+   */
+  async getLinkedLearnerIdsFromDb(guardianId: string): Promise<string[]> {
+    const memory = super.getLinkedLearnerIds(guardianId);
+    const pool = getDbPool();
+    if (!pool) return memory;
+    try {
+      const res = await pool.query(
+        `SELECT learner_id FROM parent_learner_links WHERE parent_id = $1
+         UNION
+         SELECT learner_id FROM consents WHERE guardian_id = $1 AND status IN ('verified', 'VERIFIED_ACTIVE') AND withdrawn_at IS NULL`,
+        [guardianId]
+      );
+      const dbIds = res.rows.map((r: any) => r.learner_id).filter(Boolean);
+      for (const id of dbIds) {
+        this.bindGuardianToLearner(guardianId, id);
+      }
+      return Array.from(new Set([...memory, ...dbIds]));
+    } catch (err) {
+      console.warn('[PostgresCoreRepository] getLinkedLearnerIdsFromDb error:', err);
+      return memory;
+    }
+  }
+
+  /**
+   * Database-backed session reconstruction across process restarts.
+   */
+  async getAssessmentSessionFromDb(id: string): Promise<AssessmentSession | undefined> {
+    const memory = super.getAssessmentSession(id);
+    if (memory) return memory;
+    const pool = getDbPool();
+    if (!pool) return undefined;
+    try {
+      const res = await pool.query(
+        `SELECT * FROM assessment_sessions WHERE id = $1 LIMIT 1`,
+        [id]
+      );
+      const row = res.rows[0];
+      if (!row) return undefined;
+
+      const responsesRes = await pool.query(
+        `SELECT * FROM assessment_responses WHERE session_id = $1 ORDER BY created_at ASC`,
+        [id]
+      );
+
+      const history = responsesRes.rows.map((r: any) => ({
+        itemId: r.item_id,
+        selectedOptionId: r.selected_option_id,
+        isCorrect: Boolean(r.is_correct),
+        timeSpentSeconds: Number(r.time_spent_seconds || 15),
+        thetaAfter: Number(r.theta_after || 0),
+        standardErrorAfter: Number(r.standard_error_after || 1),
+        misconceptionCode: r.misconception_code || undefined,
+        timestamp: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString()
+      }));
+
+      const session: AssessmentSession = {
+        id: row.id,
+        learnerId: row.learner_id,
+        domain: row.domain || 'stem_reasoning',
+        mode: 'diagnostic',
+        status: row.status || 'in_progress',
+        currentTheta: Number(row.current_theta || 0),
+        standardError: Number(row.standard_error || 1),
+        itemsAnswered: Number(row.items_answered || history.length),
+        administeredItemIds: row.administered_item_ids || history.map((h: any) => h.itemId),
+        history,
+        startedAt: row.started_at ? new Date(row.started_at).toISOString() : new Date().toISOString()
+      };
+
+      this.saveAssessmentSession(session);
+      return session;
+    } catch (err: any) {
+      console.error('[PostgresCoreRepository] Failed to reconstruct session from database:', err);
+      return undefined;
+    }
+  }
+
+  override createAssessmentSession(
+    learnerId: string,
+    domain: string = 'stem_reasoning',
+    mode: 'rapid' | 'benchmark' | 'diagnostic' = 'diagnostic'
+  ): AssessmentSession {
+    const session = super.createAssessmentSession(learnerId, domain, mode);
+
+    if (isCloudDatabaseEnabled()) {
+      const pool = getDbPool();
+      if (pool) {
+        pool.query(
+          `INSERT INTO assessment_sessions (
+            id, learner_id, domain, status, current_theta, standard_error, items_answered, administered_item_ids, started_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+          ON CONFLICT (id) DO NOTHING`,
+          [
+            session.id,
+            session.learnerId,
+            session.domain,
+            session.status,
+            session.currentTheta,
+            session.standardError,
+            session.itemsAnswered,
+            session.administeredItemIds
+          ]
+        ).catch((err: any) => {
+          console.error('[PostgresCoreRepository] Async session creation write error:', err);
+        });
+      }
+    }
+
+    return session;
+  }
+
+  override saveAssessmentSession(session: AssessmentSession): void {
+    super.saveAssessmentSession(session);
+
+    if (isCloudDatabaseEnabled()) {
+      const pool = getDbPool();
+      if (pool) {
+        const completedAt = session.status === 'completed' ? new Date().toISOString() : null;
+        pool.query(
+          `UPDATE assessment_sessions
+           SET status = $2,
+               current_theta = $3,
+               standard_error = $4,
+               items_answered = $5,
+               administered_item_ids = $6,
+               completed_at = COALESCE($7, completed_at)
+           WHERE id = $1`,
+          [
+            session.id,
+            session.status,
+            session.currentTheta,
+            session.standardError,
+            session.itemsAnswered,
+            session.administeredItemIds,
+            completedAt
+          ]
+        ).catch((err: any) => {
+          console.error('[PostgresCoreRepository] Async session update write error:', err);
+        });
+
+        // Also persist the latest response into assessment_responses table
+        const latestHistory = session.history[session.history.length - 1];
+        if (latestHistory) {
+          pool.query(
+            `INSERT INTO assessment_responses (
+              session_id, item_id, selected_option_id, is_correct, time_spent_seconds,
+              misconception_code, theta_after, standard_error_after, created_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+            ON CONFLICT DO NOTHING`,
+            [
+              session.id,
+              latestHistory.itemId,
+              latestHistory.selectedOptionId,
+              latestHistory.isCorrect,
+              latestHistory.timeSpentSeconds || 15,
+              latestHistory.misconceptionCode || null,
+              latestHistory.thetaAfter,
+              latestHistory.standardErrorAfter
+            ]
+          ).catch((err: any) => {
+            console.error('[PostgresCoreRepository] Async response insert write error:', err);
+          });
+        }
+      }
+    }
+  }
+
+  override saveBenchmarkReport(learnerId: string, report: GlobalBenchmarkReport): void {
+    super.saveBenchmarkReport(learnerId, report);
+
+    if (isCloudDatabaseEnabled()) {
+      this.addEvidence({
+        id: crypto.randomUUID(),
+        learnerId,
+        competency: 'quantitative_reasoning',
+        evidenceType: 'diagnostic_response',
+        sourceType: 'cat_assessment',
+        sourceId: `report_${report.domain}_${Date.now()}`,
+        sourceTitle: `${report.domainTitle} Diagnostic Benchmark Report`,
+        summary: `Standard Scale: ${report.scaleFormatted}. Developmental Tier: ${report.developmentalBand}.`,
+        observedValue: {
+          theta: report.theta,
+          standardError: report.se,
+          scoreFraction: report.percentileRank / 100,
+          qualitativeNotes: `Domain: ${report.domain}. Scale: ${report.scaleFormatted}. Tier: ${report.developmentalBand}.`
+        },
+        confidence: 0.95,
+        evidenceStrength: 4,
+        status: 'validated',
+        visibility: 'guardian',
+        observedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString()
+      });
+    }
+  }
+}
+
+export const coreRepository =
+  process.env.DATABASE_MODE === 'memory' || !getDbPool()
+    ? new LocalCoreRepository()
+    : new PostgresCoreRepository();
