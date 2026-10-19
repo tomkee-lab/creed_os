@@ -14,16 +14,16 @@ Image Editing (text-and-image-to-image):
 """
 
 import argparse
-from datetime import datetime
 import json
 import os
-from pathlib import Path
 import re
 import sys
+from datetime import datetime
+from pathlib import Path
 
 # Add parent directory for imports
 sys.path.insert(0, str(Path(__file__).parent))
-from core import get_cip_brief, search  # noqa: E402
+from core import get_cip_brief, search
 
 # Model options
 MODELS = {
