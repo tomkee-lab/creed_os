@@ -372,7 +372,7 @@
 </script>
 
 <svelte:head>
-  <title> · </title>
+  <title>3-Tier CRA Studio & Faculty Guidance · CREED OS</title>
   <meta name="description" content="3-Tier Concrete-Representational-Abstract differentiated lesson studio and faculty remediation playbooks." />
 </svelte:head>
 

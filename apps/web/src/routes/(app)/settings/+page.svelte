@@ -49,7 +49,7 @@
 </script>
 
 <svelte:head>
-  <title> · </title>
+  <title>Settings · CREED OS</title>
 </svelte:head>
 
 <div class="max-w-4xl mx-auto space-y-8 pb-16">

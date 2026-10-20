@@ -87,7 +87,7 @@
 </script>
 
 <svelte:head>
-  <title> · </title>
+  <title>Verify Account · CREED OS</title>
 </svelte:head>
 
 <div class="rounded-none bg-surface-raised border border-border p-6 sm:p-8 shadow-sm space-y-6">

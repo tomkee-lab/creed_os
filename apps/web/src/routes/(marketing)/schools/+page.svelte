@@ -14,7 +14,7 @@
 </script>
 
 <svelte:head>
-  <title> · </title>
+  <title>For Schools & Institutes · CREED OS</title>
   <meta
     name="description"
     content="High-density educator workspaces, classroom observation logging, counselor advisory, and longitudinal intelligence."

@@ -15,7 +15,7 @@
 </script>
 
 <svelte:head>
-  <title> · </title>
+  <title>About CREED OS · Pedagogical Mission & Safety</title>
   <meta
     name="description"
     content="Pedagogical safety, growth before labeling, quiet Socratic mentorship, and child data sovereignty under DPDP Act 2023."

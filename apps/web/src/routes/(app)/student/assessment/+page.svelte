@@ -189,7 +189,7 @@
 </script>
 
 <svelte:head>
-  <title> · </title>
+  <title>Adaptive Benchmark Assessment · CREED OS</title>
 </svelte:head>
 
 <div class="max-w-4xl mx-auto space-y-6 pb-16">

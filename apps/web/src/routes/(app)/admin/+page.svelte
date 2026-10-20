@@ -79,7 +79,7 @@
 </script>
 
 <svelte:head>
-  <title> · </title>
+  <title>Institution Operations · CREED OS</title>
 </svelte:head>
 
 <div class="max-w-6xl mx-auto space-y-8 py-2">

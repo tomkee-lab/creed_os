@@ -560,10 +560,7 @@ function auditAntiSlopCodeComments() {
     path.join(ROOT_DIR, 'packages', 'assessment', 'src')
   ].filter(d => fs.existsSync(d));
 
-  const files: string[] = [];
-  for (const dir of dirs) {
-    files.push(...getFiles(dir, ['.svelte', '.ts', '.css']));
-  }
+  const files = dirs.flatMap(d => getFiles(d, ['.svelte', '.ts', '.css']));
 
   for (const file of files) {
     const content = fs.readFileSync(file, 'utf-8');
@@ -573,13 +570,7 @@ function auditAntiSlopCodeComments() {
     lines.forEach((line, idx) => {
       const trimmed = line.trim();
 
-      const isComment =
-        trimmed.startsWith('//') ||
-        trimmed.startsWith('/*') ||
-        trimmed.startsWith('*') ||
-        trimmed.startsWith('<!--') ||
-        trimmed.endsWith('*/') ||
-        trimmed.endsWith('-->');
+      const isComment = /^(\/\/|\/\*|\*|<!--)|(\*\/|-->)$/.test(trimmed);
 
       if (isComment) {
         // Exclude markdown tables inside docstrings (e.g. |---|)
@@ -591,7 +582,7 @@ function auditAntiSlopCodeComments() {
           if (/={5,}|~{5,}|#{5,}|─{3,}|═{3,}/.test(line)) {
             violations.push(`${rel}:${idx + 1}: Found decorative separator banner in comment (Anti-Slop R-31)`);
           }
-          if (/-{5,}/.test(line) && !isMarkdownTableDelimiter) {
+          if (/-{5,}/.test(line)) {
             violations.push(`${rel}:${idx + 1}: Found decorative dashed separator banner in comment (Anti-Slop R-31)`);
           }
         }
@@ -621,6 +612,37 @@ function auditAntiSlopCodeComments() {
   });
 }
 
+// 16. Audit Page Titles (WCAG 2.4.2 & SEO: All route pages must have authentic non-empty <title> tags)
+function auditPageTitles() {
+  const violations: string[] = [];
+  const routesDir = path.join(WEB_SRC, 'routes');
+  const routeFiles = getFiles(routesDir, ['.svelte']).filter(
+    f => f.endsWith('+page.svelte') || f.endsWith('+error.svelte')
+  );
+
+  for (const file of routeFiles) {
+    const content = fs.readFileSync(file, 'utf-8');
+    const rel = path.relative(ROOT_DIR, file);
+
+    const titleMatch = /<title>([\s\S]*?)<\/title>/.exec(content);
+    if (!titleMatch) {
+      violations.push(`${rel}: Missing <title> tag in route page`);
+      continue;
+    }
+
+    const titleText = titleMatch[1].trim();
+    if (titleText.length < 4 || /^[·\s\-_—]+$/.test(titleText) || titleText === '·') {
+      violations.push(`${rel}: Corrupted or empty <title> tag: "${titleText}"`);
+    }
+  }
+
+  results.push({
+    category: 'Route Page Title Integrity (WCAG 2.4.2 & SEO: Descriptive non-empty titles across all routes)',
+    passed: violations.length === 0,
+    details: violations
+  });
+}
+
 // Run all audits
 auditCanonicalSpecification();
 auditRadii();
@@ -637,6 +659,7 @@ auditAntiSlopPunctuation();
 auditAntiSlopHumanAccessibility();
 auditAntiSlopMobileLayout();
 auditAntiSlopCodeComments();
+auditPageTitles();
 auditHeuristics();
 
 console.log('\n===============================================================');

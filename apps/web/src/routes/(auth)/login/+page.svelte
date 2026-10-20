@@ -55,7 +55,7 @@
 </script>
 
 <svelte:head>
-  <title> · </title>
+  <title>Sign In · CREED OS</title>
 </svelte:head>
 
 <div class="min-h-screen flex flex-col justify-between p-3 sm:p-4 lg:p-5 bg-canvas text-ink overflow-x-hidden">

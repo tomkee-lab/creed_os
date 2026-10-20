@@ -190,7 +190,7 @@
 </script>
 
 <svelte:head>
-  <title> · </title>
+  <title>Item Studio · CREED OS</title>
 </svelte:head>
 
 <div class="h-[calc(100vh-120px)] flex flex-col space-y-3 py-1">

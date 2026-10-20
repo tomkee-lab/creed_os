@@ -52,7 +52,7 @@
 </script>
 
 <svelte:head>
-  <title> · </title>
+  <title>Today · CREED OS</title>
 </svelte:head>
 
 <div class="max-w-3xl mx-auto space-y-12 py-4">

@@ -87,7 +87,7 @@
 </script>
 
 <svelte:head>
-  <title> · </title>
+  <title>Missions Studio · CREED OS</title>
   <meta
     name="description"
     content="Level 4 Applied Engineering & Robotics Missions across Preparatory, Middle, and Secondary stages."

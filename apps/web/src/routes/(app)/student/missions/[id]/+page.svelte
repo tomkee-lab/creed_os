@@ -403,7 +403,7 @@
 </script>
 
 <svelte:head>
-  <title> · </title>
+  <title>{mission.title} · CREED OS Proving Ground</title>
 </svelte:head>
 
 <div class="max-w-6xl mx-auto space-y-6 py-4 px-4 sm:px-6 pb-20">

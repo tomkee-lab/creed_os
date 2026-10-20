@@ -134,6 +134,50 @@
     }
   }
 
+  type NavItem = { href: string; label: string; icon: any; hash?: string };
+  const ROLE_NAV: Record<ActiveRole, NavItem[]> = {
+    student: [
+      { href: '/student', label: 'Today', icon: Compass },
+      { href: '/student/assessment', label: 'Assess', icon: Activity },
+      { href: '/student/missions', label: 'Missions', icon: Layers },
+      { href: '/student/growth', label: 'Growth', icon: TrendingUp }
+    ],
+    parent: [
+      { href: '/parent', label: 'Overview', icon: Compass },
+      { href: '/parent#growth', label: 'Growth', icon: Activity, hash: '#growth' },
+      { href: '/parent#evidence', label: 'Evidence', icon: FileText, hash: '#evidence' }
+    ],
+    teacher: [
+      { href: '/teacher', label: 'Command', icon: Compass },
+      { href: '/teacher/lessons', label: 'Lessons', icon: BookOpen },
+      { href: '/teacher/roster', label: 'Roster', icon: GraduationCap }
+    ],
+    counselor: [
+      { href: '/counselor', label: 'Caseload', icon: Users },
+      { href: '/counselor#priority', label: 'Priority', icon: Compass, hash: '#priority' },
+      { href: '/counselor#evidence', label: 'Evidence', icon: FileText, hash: '#evidence' }
+    ],
+    admin: [
+      { href: '/admin', label: 'Overview', icon: Compass },
+      { href: '/admin#consent', label: 'Consent', icon: Lock, hash: '#consent' },
+      { href: '/admin#audit', label: 'Audit', icon: FileText, hash: '#audit' }
+    ],
+    studio: [
+      { href: '/studio', label: 'Studio', icon: FolderKanban },
+      { href: '/ide', label: 'Robotics IDE', icon: TerminalSquare }
+    ]
+  };
+
+  function isItemActive(item: NavItem): boolean {
+    if (item.hash) {
+      return page.url.hash === item.hash;
+    }
+    if (['/student', '/parent', '/teacher', '/counselor', '/admin', '/studio'].includes(item.href)) {
+      return currentPath === item.href && !page.url.hash;
+    }
+    return currentPath.startsWith(item.href);
+  }
+
   const isHelpRoute = $derived(currentPath.startsWith('/help'));
 </script>
 
@@ -175,85 +219,16 @@
 
     <!-- Mobile Bottom Navigation (Role-specific quick thumb navigation with safe-area support) -->
     <div class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-surface-raised border-t border-border px-2 py-1.5 flex items-center justify-around pb-[max(0.375rem,env(safe-area-inset-bottom,0px))]">
-      {#if activeRole === 'student'}
-        <a href="/student" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {currentPath === '/student' ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <Compass class="w-4 h-4 mb-0.5" />
-          <span>Today</span>
+      {#each (ROLE_NAV[activeRole] ?? ROLE_NAV.studio) as item}
+        {@const Icon = item.icon}
+        <a
+          href={item.href}
+          class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {isItemActive(item) ? 'text-brand font-semibold' : 'text-ink-muted'}"
+        >
+          <Icon class="w-4 h-4 mb-0.5" />
+          <span>{item.label}</span>
         </a>
-        <a href="/student/assessment" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {currentPath.startsWith('/student/assessment') ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <Activity class="w-4 h-4 mb-0.5" />
-          <span>Assess</span>
-        </a>
-        <a href="/student/missions" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {currentPath.startsWith('/student/missions') ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <Layers class="w-4 h-4 mb-0.5" />
-          <span>Missions</span>
-        </a>
-        <a href="/student/growth" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {currentPath.startsWith('/student/growth') ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <TrendingUp class="w-4 h-4 mb-0.5" />
-          <span>Growth</span>
-        </a>
-      {:else if activeRole === 'parent'}
-        <a href="/parent" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {currentPath === '/parent' && !page.url.hash ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <Compass class="w-4 h-4 mb-0.5" />
-          <span>Overview</span>
-        </a>
-        <a href="/parent#growth" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {page.url.hash === '#growth' ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <Activity class="w-4 h-4 mb-0.5" />
-          <span>Growth</span>
-        </a>
-        <a href="/parent#evidence" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {page.url.hash === '#evidence' ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <FileText class="w-4 h-4 mb-0.5" />
-          <span>Evidence</span>
-        </a>
-      {:else if activeRole === 'teacher'}
-        <a href="/teacher" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {currentPath === '/teacher' ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <Compass class="w-4 h-4 mb-0.5" />
-          <span>Command</span>
-        </a>
-        <a href="/teacher/lessons" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {currentPath.startsWith('/teacher/lessons') ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <BookOpen class="w-4 h-4 mb-0.5" />
-          <span>Lessons</span>
-        </a>
-        <a href="/teacher/roster" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {currentPath.startsWith('/teacher/roster') ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <GraduationCap class="w-4 h-4 mb-0.5" />
-          <span>Roster</span>
-        </a>
-      {:else if activeRole === 'counselor'}
-        <a href="/counselor" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {currentPath === '/counselor' && !page.url.hash ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <Users class="w-4 h-4 mb-0.5" />
-          <span>Caseload</span>
-        </a>
-        <a href="/counselor#priority" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {page.url.hash === '#priority' ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <Compass class="w-4 h-4 mb-0.5" />
-          <span>Priority</span>
-        </a>
-        <a href="/counselor#evidence" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {page.url.hash === '#evidence' ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <FileText class="w-4 h-4 mb-0.5" />
-          <span>Evidence</span>
-        </a>
-      {:else if activeRole === 'admin'}
-        <a href="/admin" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {currentPath === '/admin' && !page.url.hash ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <Compass class="w-4 h-4 mb-0.5" />
-          <span>Overview</span>
-        </a>
-        <a href="/admin#consent" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {page.url.hash === '#consent' ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <Lock class="w-4 h-4 mb-0.5" />
-          <span>Consent</span>
-        </a>
-        <a href="/admin#audit" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {page.url.hash === '#audit' ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <FileText class="w-4 h-4 mb-0.5" />
-          <span>Audit</span>
-        </a>
-      {:else}
-        <a href="/studio" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {currentPath === '/studio' ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <FolderKanban class="w-4 h-4 mb-0.5" />
-          <span>Studio</span>
-        </a>
-        <a href="/ide" class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] {currentPath.startsWith('/ide') ? 'text-brand font-semibold' : 'text-ink-muted'}">
-          <TerminalSquare class="w-4 h-4 mb-0.5" />
-          <span>Robotics IDE</span>
-        </a>
-      {/if}
+      {/each}
 
       <button
         type="button"

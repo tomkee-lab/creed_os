@@ -95,7 +95,7 @@
 </script>
 
 <svelte:head>
-  <title> · </title>
+  <title>Growth & Evidence Ledger · CREED OS</title>
   <meta name="description" content="Verified longitudinal competency ledger, diagnostic reports, and authentic pathway horizons." />
 </svelte:head>
 

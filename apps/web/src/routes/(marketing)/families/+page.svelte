@@ -13,7 +13,7 @@
 </script>
 
 <svelte:head>
-  <title> · </title>
+  <title>For Families · CREED OS</title>
   <meta
     name="description"
     content="Warm, quiet developmental growth reports, home exploratory experiments, and shared horizon alignment for parents and guardians."
