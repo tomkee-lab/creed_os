@@ -181,9 +181,12 @@ test.describe('Global Layout', () => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/student');
     await page.waitForLoadState('domcontentloaded');
-    await expect(page.getByRole('link', { name: /Today/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Map/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Guide/i })).toBeVisible();
+    const bottomNav = page.locator('div.fixed.bottom-0');
+    await expect(bottomNav).toBeVisible();
+    await expect(bottomNav.getByRole('link', { name: /Today/i })).toBeVisible();
+    await expect(bottomNav.getByRole('link', { name: /Assess/i })).toBeVisible();
+    await expect(bottomNav.getByRole('link', { name: /Missions/i })).toBeVisible();
+    await expect(bottomNav.getByRole('link', { name: /Growth/i })).toBeVisible();
   });
 });
 
@@ -193,8 +196,7 @@ test.describe('Landing Page (/)', () => {
   test('renders editorial product headline', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.getByRole('heading', { level: 1 })).toContainText(/Understand how/i);
-    await expect(page.getByText(/Assess deeply. Learn personally. Explore freely./i)).toBeVisible();
+    await expect(page.getByText(/Deterministic psychometrics, longitudinal evidence/i)).toBeVisible();
   });
 
   test('has working navigation cards to all portals', async ({ page }) => {
@@ -262,11 +264,11 @@ test.describe('Pathway Explorer (/student/pathways)', () => {
 // ── 6. Socratic AI Mentor ────────────────────────────────────────────────────
 
 test.describe('Socratic AI Mentor (/student/mentor)', () => {
-  test('renders the mentor interface with thinking moves and dialogue', async ({ page, context }) => {
+  test('redirects legacy /student/mentor to /student/missions', async ({ page, context }) => {
     await loginAs(context, 'student');
     await page.goto('/student/mentor', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('heading', { level: 1 })).toContainText(/Socratic Mentor Studio/i);
-    await expect(page.getByRole('button', { name: /Decompose/i })).toBeVisible();
+    await expect(page).toHaveURL(/\/student\/missions/);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(/STEM & Autonomous Robotics Missions/i);
   });
 
   test('mentor chat API responds with a reply with auth', async ({ request }) => {
@@ -524,8 +526,8 @@ test.describe('Applied Maker Missions & Pedagogical Actions', () => {
     await expect(page.getByRole('heading', { level: 1 })).toContainText(/RoboBridge Structural Optimization/i);
     await expect(page.getByText(/LEVEL 4 APPLIED TASK/i)).toBeVisible();
     await expect(page.getByText(/Bridge Mass/i)).toBeVisible();
-    await expect(page.getByText('Strength-to-Weight Ratio:')).toBeVisible();
-    await expect(page.getByText(/12.0 METERS SPAN/i)).toBeVisible();
+    await expect(page.getByText(/Strength-to-Weight:/i)).toBeVisible();
+    await expect(page.getByText('Center-Span Deflection:')).toBeVisible();
 
     // Verify submit button is enabled and generates Level 4 evidence modal
     const submitBtn = page.getByRole('button', { name: /Submit Design for Level 4 Evidence/i });
