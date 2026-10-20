@@ -5,9 +5,11 @@ import type {
   AssessmentSession,
   AssessmentItem,
   CompetencyDomain,
-  ConsentRecord
+  ConsentRecord,
+  ParakhHpcRecord,
+  PisaProcessTelemetryReport
 } from '@core-os/domain';
-import { isConsentActive, StatutoryConsentError } from '@core-os/domain';
+import { isConsentActive, StatutoryConsentError, generateParakhHpc } from '@core-os/domain';
 import crypto from 'node:crypto';
 import { queryDb, getDbPool, isCloudDatabaseEnabled } from './supabase';
 import {
@@ -108,7 +110,7 @@ export interface StemMission {
   difficulty: 'Foundational' | 'Intermediate' | 'Advanced' | 'Olympiad';
   brief: string;
   pedagogicalObjective: string;
-  simulatorType: 'truss' | 'grid_rover' | 'gear_train' | 'sensor_telemetry' | 'obstacle_avoidance' | 'winch_lift' | 'cv_vision' | 'pid_control' | 'planetary_space';
+  simulatorType: 'truss' | 'grid_rover' | 'gear_train' | 'sensor_telemetry' | 'obstacle_avoidance' | 'winch_lift' | 'cv_vision' | 'pid_control' | 'planetary_space' | 'smart_grid' | 'gel_electrophoresis';
   alignedStandards: string[];
   prerequisites: string[];
   starterCode?: string;
@@ -400,6 +402,50 @@ export const STEM_MISSIONS: StemMission[] = [
     rubricCriteria: [
       { criterion: 'Noise Reduction SNR', target: 'Signal-to-noise improvement ≥ 12 dB', importance: 'Mandatory' },
       { criterion: 'Thermal Gradient Detection', target: 'Accurately locate microclimate hot-spots', importance: 'Primary' }
+    ]
+  },
+  {
+    id: 'smart-grid-balancing',
+    title: 'Smart Grid Frequency & Renewable Intermittency Balancing',
+    code: 'MISSION-ENERGY-01',
+    domain: 'scientific_inquiry',
+    domainTitle: 'Clean Energy Systems & Dynamic Grid Statics',
+    stage: 'secondary',
+    stageLabel: 'Secondary Stage (Classes 9–12)',
+    targetGrades: 'Classes 9–12',
+    estimatedMinutes: 25,
+    difficulty: 'Advanced',
+    brief: 'A metropolitan microgrid experiences fluctuating solar generation and industrial demand spikes. Dynamically balance solar output, wind turbines, and utility-scale battery dispatch to keep AC grid frequency locked at 50.00 Hz (±0.05 Hz) without brownouts or transformer overload.',
+    pedagogicalObjective: 'Understand dynamic equilibrium, rotational inertia, supply-demand impedance matching, and PISA 2025 systemic clean energy modeling.',
+    simulatorType: 'smart_grid',
+    alignedStandards: ['OECD PISA 2025 Science (Clean Energy)', 'IEEE TC-PEBRAS Smart Grid', 'CBSE Class 12 Physics Alternating Current'],
+    prerequisites: ['Conservation of energy', 'AC frequency fundamentals', 'Rate of change'],
+    rubricCriteria: [
+      { criterion: 'Grid Frequency Stability', target: '50.00 Hz ± 0.05 Hz continuous', importance: 'Primary' },
+      { criterion: 'Renewable Penetration Ratio', target: '≥ 70% total power from solar + wind', importance: 'Mandatory' },
+      { criterion: 'Battery Buffer Reserve', target: 'Maintain ≥ 25% reserve capacity', importance: 'Safety Margin' }
+    ]
+  },
+  {
+    id: 'dna-gel-electrophoresis',
+    title: 'DNA Agarose Gel Electrophoresis & Band Sizing',
+    code: 'MISSION-BIO-01',
+    domain: 'scientific_inquiry',
+    domainTitle: 'Biotechnology & Molecular Diagnostics',
+    stage: 'secondary',
+    stageLabel: 'Secondary Stage (Classes 9–12)',
+    targetGrades: 'Classes 9–12',
+    estimatedMinutes: 25,
+    difficulty: 'Intermediate',
+    brief: 'Isolate and size a 750 base-pair CRISPR-edited DNA fragment against a molecular ladder in an agarose gel matrix. Calibrate gel concentration (0.8%–2.0%) and electrophoretic voltage to resolve overlapping bands without thermal denaturation or band smearing.',
+    pedagogicalObjective: 'Synthesize logarithmic molecular migration distance vs. DNA fragment length (bp), electric field strength, and polymer pore sieving.',
+    simulatorType: 'gel_electrophoresis',
+    alignedStandards: ['CBSE Biotechnology Class 12 Recombinant DNA', 'PISA 2025 Scientific Literacy', 'NGSS HS-LS1-1'],
+    prerequisites: ['DNA molecular structure', 'Inverse logarithmic relationships', 'Electric field force'],
+    rubricCriteria: [
+      { criterion: 'Band Resolution Delta', target: '≥ 15 mm spatial separation from 500bp/1000bp markers', importance: 'Primary' },
+      { criterion: 'Agarose Matrix Optimization', target: '1.2% w/v agarose for 750 bp resolution', importance: 'Mandatory' },
+      { criterion: 'Thermal Integrity', target: '< 45°C buffer temperature (voltage ≤ 110V)', importance: 'Safety Margin' }
     ]
   }
 ];
@@ -1890,6 +1936,45 @@ class LocalCoreRepository {
 
   getWorkspace(key: string) {
     return this.workspaceStore.get(key) || null;
+  }
+
+  // --- PARAKH 360-Degree Holistic Progress Card & APAAR Operations ---
+  private parakhHpcStore: Map<string, ParakhHpcRecord> = new Map();
+
+  getParakhHpc(learnerId: string): ParakhHpcRecord {
+    const existing = this.parakhHpcStore.get(learnerId);
+    if (existing) return existing;
+
+    const learner = this.getLearnerProfile(learnerId);
+    const evidence = this.getEvidence(learnerId);
+    const generated = generateParakhHpc(
+      learner || { id: learnerId, fullName: 'Student Learner', grade: 8 },
+      evidence
+    );
+    this.parakhHpcStore.set(learnerId, generated);
+    return generated;
+  }
+
+  saveParakhHpc(hpc: ParakhHpcRecord): void {
+    this.parakhHpcStore.set(hpc.learnerId, hpc);
+  }
+
+  // --- OECD PISA 2025 Process Telemetry Operations ---
+  private pisaTelemetryStore: Map<string, PisaProcessTelemetryReport[]> = new Map();
+
+  savePisaProcessTelemetry(report: PisaProcessTelemetryReport): void {
+    const existing = this.pisaTelemetryStore.get(report.learnerId) || [];
+    existing.unshift(report);
+    this.pisaTelemetryStore.set(report.learnerId, existing);
+
+    // If report has attached Level 4 evidence, persist into evidence ledger
+    if (report.evidenceAtom) {
+      this.addEvidence(report.evidenceAtom);
+    }
+  }
+
+  getPisaProcessReports(learnerId: string): PisaProcessTelemetryReport[] {
+    return this.pisaTelemetryStore.get(learnerId) || [];
   }
 }
 

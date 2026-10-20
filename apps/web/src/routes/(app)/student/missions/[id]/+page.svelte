@@ -19,12 +19,16 @@
     Eye,
     Gauge,
     Flame,
-    Globe
+    Globe,
+    Zap,
+    Dna,
+    SunMedium
   } from 'lucide-svelte';
   import { EvidenceRating } from '$lib/components';
   import InspectorPanel from '$lib/components/shell/InspectorPanel.svelte';
   import TransitionalLounge from '$lib/components/missions/TransitionalLounge.svelte';
   import WorkbenchShell from '$lib/components/workbench/WorkbenchShell.svelte';
+  import type { PisaTelemetryEvent, PisaPhase, PisaActionType } from '@core-os/domain';
 
   let { data } = $props();
   let mission = $derived(data.mission);
@@ -38,10 +42,32 @@
     success: boolean;
     evidence?: any;
     message?: string;
+    pisaReport?: any;
   } | null>(null);
   let evidenceModalOpen = $state(false);
   let studentNotes = $state('');
   let lowStimulation = $state(false);
+
+  // PISA 2025 Process Telemetry Event Stream
+  let pisaEvents = $state<PisaTelemetryEvent[]>([]);
+
+  function logPisaEvent(
+    action: PisaActionType,
+    parameters: Record<string, any> = {},
+    outcome?: { success: boolean; deviation?: number; errorType?: string }
+  ) {
+    const phase: PisaPhase = workbenchStage === 1 ? 'show' : workbenchStage === 2 ? 'learn' : 'apply';
+    pisaEvents = [
+      ...pisaEvents,
+      {
+        timestamp: Date.now(),
+        phase,
+        action,
+        parameters,
+        outcome
+      }
+    ];
+  }
 
 
   // Truss structural simulation parameters.
@@ -243,6 +269,40 @@
     }
     return true;
   });
+  // Smart Grid Frequency & Renewable Intermittency Balancing.
+  let solarGenMw = $state(120);
+  let windGenMw = $state(40);
+  let batteryDispatchMw = $state(0); // -40 (charging) to +40 (discharging)
+  let gridBaseDemandMw = 160;
+
+  const totalGridGenMw = $derived(solarGenMw + windGenMw + batteryDispatchMw);
+  const powerMismatchMw = $derived(totalGridGenMw - gridBaseDemandMw);
+  const gridFrequencyHz = $derived(Number((50.00 + powerMismatchMw * 0.005).toFixed(2)));
+  const renewableRatio = $derived(
+    totalGridGenMw > 0
+      ? Number(((solarGenMw + windGenMw) / totalGridGenMw).toFixed(2))
+      : 0
+  );
+  const passesSmartGridCriteria = $derived(
+    Math.abs(gridFrequencyHz - 50.00) <= 0.05 && renewableRatio >= 0.70
+  );
+
+  // DNA Gel Electrophoresis & Band Sizing.
+  let agarosePercent = $state(1.2); // 0.8% to 2.0%
+  let gelVoltageV = $state(100); // 60 to 140 V
+  let gelRunTimeMin = $state(30); // 15 to 60 min
+
+  const bufferTempC = $derived(
+    Number((22 + gelVoltageV * gelVoltageV * 0.0014 * (gelRunTimeMin / 30)).toFixed(1))
+  );
+  const isDenatured = $derived(bufferTempC > 45.0);
+  const targetMigrationMm = $derived(
+    Math.round((gelVoltageV / (agarosePercent * 1.5)) * (gelRunTimeMin / 30) * 0.55)
+  );
+  const passesGelCriteria = $derived(
+    agarosePercent === 1.2 && gelVoltageV <= 110 && !isDenatured && targetMigrationMm >= 30 && targetMigrationMm <= 45
+  );
+
   let currentTelemetry = $derived.by(() => {
     if (mission?.simulatorType === 'truss') {
       return {
@@ -283,6 +343,22 @@
         steadyStateError: `${steadyStateError}`
       };
     }
+    if (mission?.simulatorType === 'smart_grid') {
+      return {
+        frequency: `${gridFrequencyHz} Hz`,
+        generation: `${totalGridGenMw} MW`,
+        demand: `${gridBaseDemandMw} MW`,
+        renewableShare: `${Math.round(renewableRatio * 100)}%`
+      };
+    }
+    if (mission?.simulatorType === 'gel_electrophoresis') {
+      return {
+        agarose: `${agarosePercent}% w/v`,
+        voltage: `${gelVoltageV} V`,
+        bufferTemp: `${bufferTempC} °C`,
+        migration: `${targetMigrationMm} mm`
+      };
+    }
     return {
       simulationStatus: 'Nominal',
       telemetrySync: 'Active'
@@ -314,6 +390,18 @@
         { label: 'Safety Factor', value: `${safetyFactor}x` }
       ];
     }
+    if (mission?.simulatorType === 'smart_grid') {
+      return [
+        { label: 'Frequency', value: `${gridFrequencyHz}`, unit: 'Hz' },
+        { label: 'Renewables', value: `${Math.round(renewableRatio * 100)}%` }
+      ];
+    }
+    if (mission?.simulatorType === 'gel_electrophoresis') {
+      return [
+        { label: 'Buffer Temp', value: `${bufferTempC}`, unit: '°C' },
+        { label: 'Migration', value: `${targetMigrationMm}`, unit: 'mm' }
+      ];
+    }
     return [
       { label: 'Status', value: 'Nominal' },
       { label: 'Sync', value: 'Active' }
@@ -341,6 +429,10 @@
         return passesPidCriteria;
       case 'planetary_space':
         return passesSpaceCriteria;
+      case 'smart_grid':
+        return passesSmartGridCriteria;
+      case 'gel_electrophoresis':
+        return passesGelCriteria;
       default:
         return true;
     }
@@ -368,6 +460,36 @@
           maxLoadKg: maxSupportedLoadKg,
           ratio: strengthToWeightRatio
         };
+      } else if (mission.simulatorType === 'smart_grid') {
+        payload = {
+          ...payload,
+          missionType: 'stem_simulation',
+          solution: {
+            simulatorType: 'smart_grid',
+            solarGenMw,
+            windGenMw,
+            batteryDispatchMw,
+            gridFrequencyHz,
+            renewableRatio,
+            summary: `Grid frequency balanced at ${gridFrequencyHz} Hz with ${Math.round(renewableRatio * 100)}% renewable penetration.`,
+            rubricResults: { verified: passesSmartGridCriteria, passRate: 1.0 }
+          }
+        };
+      } else if (mission.simulatorType === 'gel_electrophoresis') {
+        payload = {
+          ...payload,
+          missionType: 'stem_simulation',
+          solution: {
+            simulatorType: 'gel_electrophoresis',
+            agarosePercent,
+            gelVoltageV,
+            gelRunTimeMin,
+            bufferTempC,
+            targetMigrationMm,
+            summary: `Resolved 750 bp CRISPR fragment in ${agarosePercent}% agarose at ${gelVoltageV}V without thermal denaturation (${bufferTempC}°C).`,
+            rubricResults: { verified: passesGelCriteria, passRate: 1.0 }
+          }
+        };
       } else {
         payload = {
           ...payload,
@@ -380,6 +502,9 @@
         };
       }
 
+      // Record final submission in telemetry stream
+      logPisaEvent('submit_solution', currentTelemetry, { success: isMissionPassed });
+
       const res = await fetch('/api/v1/missions/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -387,6 +512,22 @@
       });
 
       const resJson = await res.json();
+
+      // Submit PISA 2025 process telemetry
+      try {
+        const telemetryRes = await fetch(`/api/v1/missions/${mission.id}/telemetry`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ events: pisaEvents, optimalSteps: 3 })
+        });
+        if (telemetryRes.ok) {
+          const telemetryData = await telemetryRes.json();
+          resJson.pisaReport = telemetryData.report;
+        }
+      } catch (telemetryErr) {
+        console.warn('Telemetry persistence warning:', telemetryErr);
+      }
+
       submissionResult = resJson;
       if (resJson.success) {
         evidenceModalOpen = true;
@@ -465,6 +606,8 @@
   <WorkbenchShell
     title="{mission.code} • {mission.title}"
     bind:stage={workbenchStage}
+    stageLabels={['1 · Show', '2 · Learn', '3 · Apply']}
+    onStageChange={(s) => logPisaEvent('view_formula', { phaseStage: s })}
     kpis={workbenchKpis}
     bind:socraticOpen={socraticDrawerOpen}
     bind:theoryOpen={theoryDrawerOpen}
@@ -699,6 +842,98 @@
                 </div>
               </div>
             </div>
+          {:else if mission.simulatorType === 'smart_grid'}
+            <!-- SMART GRID FREQUENCY & DYNAMIC DISPATCH -->
+            <div class="w-full space-y-3 py-2">
+              <div class="h-32 w-full bg-surface border border-border flex flex-col items-center justify-center relative p-3">
+                <svg viewBox="0 0 400 100" class="w-full h-full">
+                  <line x1="0" y1="50" x2="400" y2="50" stroke="#64748b" stroke-dasharray="2,2" stroke-width="1" />
+                  <path
+                    d="M 0 50 Q 25 {50 - (gridFrequencyHz - 45) * 5} 50 50 T 100 50 T 150 50 T 200 50 T 250 50 T 300 50 T 350 50 T 400 50"
+                    fill="none"
+                    stroke="{Math.abs(gridFrequencyHz - 50.0) <= 0.05 ? '#10b981' : '#f43f5e'}"
+                    stroke-width="2.5"
+                  />
+                </svg>
+                <div class="absolute top-2 left-2 flex items-center gap-2">
+                  <span class="text-[10px] font-mono px-1.5 py-0.5 bg-surface-raised border border-border">
+                    AC Droop Frequency: <strong class="{Math.abs(gridFrequencyHz - 50.0) <= 0.05 ? 'text-positive' : 'text-critical'}">{gridFrequencyHz} Hz</strong>
+                  </span>
+                </div>
+                <div class="absolute top-2 right-2 flex items-center gap-2">
+                  <span class="text-[10px] font-mono px-1.5 py-0.5 bg-surface-raised border border-border">
+                    Renewable Share: <strong class="{renewableRatio >= 0.7 ? 'text-positive' : 'text-attention'}">{Math.round(renewableRatio * 100)}%</strong>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between w-full pt-2 text-xs border-t border-border">
+              <span>Total Gen: <strong class="font-mono text-foreground">{totalGridGenMw} MW</strong></span>
+              <span>Grid Load: <strong class="font-mono text-foreground">{gridBaseDemandMw} MW</strong></span>
+              <span>Mismatch: <strong class="font-mono {powerMismatchMw === 0 ? 'text-positive' : 'text-attention'}">{powerMismatchMw > 0 ? `+${powerMismatchMw}` : powerMismatchMw} MW</strong></span>
+              <span>Stability: <strong class="font-mono {Math.abs(gridFrequencyHz - 50.0) <= 0.05 ? 'text-positive' : 'text-critical'}">{Math.abs(gridFrequencyHz - 50.0) <= 0.05 ? 'STABLE 50.0Hz' : 'TRIP RISK'}</strong></span>
+            </div>
+
+          {:else if mission.simulatorType === 'gel_electrophoresis'}
+            <!-- AGAROSE GEL CASSETTE -->
+            <div class="w-full space-y-3 py-2">
+              <div class="h-36 w-full bg-slate-950 border border-border flex items-center justify-center relative p-3 rounded-none overflow-hidden">
+                <svg viewBox="0 0 360 120" class="w-full h-full">
+                  <text x="15" y="20" fill="#64748b" font-size="10" font-family="monospace">(-) CATHODE</text>
+                  <text x="15" y="112" fill="#64748b" font-size="10" font-family="monospace">(+) ANODE</text>
+
+                  <rect x="80" y="15" width="25" height="8" fill="#1e293b" stroke="#475569" />
+                  <text x="82" y="12" fill="#94a3b8" font-size="8" font-family="monospace">Ladder</text>
+
+                  <rect x="150" y="15" width="25" height="8" fill="#1e293b" stroke="#475569" />
+                  <text x="151" y="12" fill="#94a3b8" font-size="8" font-family="monospace">Sample</text>
+
+                  <!-- Ladder bands -->
+                  <line x1="82" y1="35" x2="103" y2="35" stroke="#38bdf8" stroke-width="2" />
+                  <text x="110" y="38" fill="#64748b" font-size="7" font-family="monospace">2000bp</text>
+
+                  <line x1="82" y1="52" x2="103" y2="52" stroke="#38bdf8" stroke-width="2" />
+                  <text x="110" y="55" fill="#64748b" font-size="7" font-family="monospace">1000bp</text>
+
+                  <line x1="82" y1="68" x2="103" y2="68" stroke="#38bdf8" stroke-width="2" />
+                  <text x="110" y="71" fill="#64748b" font-size="7" font-family="monospace">750bp</text>
+
+                  <line x1="82" y1="88" x2="103" y2="88" stroke="#38bdf8" stroke-width="2" />
+                  <text x="110" y="91" fill="#64748b" font-size="7" font-family="monospace">500bp</text>
+
+                  <line x1="82" y1="105" x2="103" y2="105" stroke="#38bdf8" stroke-width="2" />
+                  <text x="110" y="108" fill="#64748b" font-size="7" font-family="monospace">250bp</text>
+
+                  <!-- Sample Target Band -->
+                  <line
+                    x1="152"
+                    y1="{Math.min(115, Math.max(25, 25 + targetMigrationMm * 1.8))}"
+                    x2="173"
+                    y2="{Math.min(115, Math.max(25, 25 + targetMigrationMm * 1.8))}"
+                    stroke="{isDenatured ? '#f43f5e' : '#34d399'}"
+                    stroke-width="{isDenatured ? 6 : 2.5}"
+                    opacity="{isDenatured ? 0.6 : 1.0}"
+                  />
+                  <text
+                    x="180"
+                    y="{Math.min(115, Math.max(25, 25 + targetMigrationMm * 1.8)) + 3}"
+                    fill="{isDenatured ? '#f43f5e' : '#34d399'}"
+                    font-size="8"
+                    font-family="monospace"
+                  >
+                    {isDenatured ? 'SMEARED' : '750 bp'}
+                  </text>
+                </svg>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between w-full pt-2 text-xs border-t border-border">
+              <span>Gel Matrix: <strong class="font-mono text-foreground">{agarosePercent}% w/v</strong></span>
+              <span>Voltage: <strong class="font-mono text-foreground">{gelVoltageV} V</strong></span>
+              <span>Buffer Temp: <strong class="font-mono {bufferTempC > 45 ? 'text-critical' : 'text-positive'}">{bufferTempC} °C</strong></span>
+              <span>Resolution: <strong class="font-mono {passesGelCriteria ? 'text-positive' : 'text-attention'}">{passesGelCriteria ? 'SHARP 750bp' : 'SUB-OPTIMAL'}</strong></span>
+            </div>
           {/if}
         </div>
     {/snippet}
@@ -922,6 +1157,73 @@
               <input type="range" min="0" max="2.0" step="0.05" bind:value={kD} class="w-full accent-ai" />
             </div>
           </div>
+
+        {:else if mission.simulatorType === 'smart_grid'}
+          <div class="space-y-3">
+            <div class="space-y-1">
+              <div class="flex justify-between">
+                <span>Solar Generation</span>
+                <span class="font-mono font-bold text-foreground">{solarGenMw} MW</span>
+              </div>
+              <input type="range" min="60" max="180" step="5" bind:value={solarGenMw} oninput={() => logPisaEvent('parameter_change', { solarGenMw })} class="w-full accent-ai" />
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex justify-between">
+                <span>Wind Generation</span>
+                <span class="font-mono font-bold text-foreground">{windGenMw} MW</span>
+              </div>
+              <input type="range" min="10" max="80" step="5" bind:value={windGenMw} oninput={() => logPisaEvent('parameter_change', { windGenMw })} class="w-full accent-ai" />
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex justify-between">
+                <span>Battery Dispatch (Charge/Discharge)</span>
+                <span class="font-mono font-bold {batteryDispatchMw >= 0 ? 'text-positive' : 'text-attention'}">{batteryDispatchMw > 0 ? `+${batteryDispatchMw}` : batteryDispatchMw} MW</span>
+              </div>
+              <input type="range" min="-40" max="40" step="5" bind:value={batteryDispatchMw} oninput={() => logPisaEvent('parameter_change', { batteryDispatchMw })} class="w-full accent-ai" />
+            </div>
+          </div>
+
+        {:else if mission.simulatorType === 'gel_electrophoresis'}
+          <div class="space-y-3">
+            <div class="space-y-1">
+              <div class="flex justify-between">
+                <span>Agarose Matrix (% w/v)</span>
+                <span class="font-mono font-bold text-foreground">{agarosePercent}%</span>
+              </div>
+              <div class="grid grid-cols-4 gap-1.5">
+                {#each ([0.8, 1.0, 1.2, 1.5] as const) as pct}
+                  <button
+                    type="button"
+                    onclick={() => { agarosePercent = pct; logPisaEvent('parameter_change', { agarosePercent: pct }); }}
+                    class="p-1.5 border text-center rounded-sm font-mono text-[11px] transition-colors cursor-pointer {agarosePercent === pct ? 'border-ai bg-surface-raised font-bold text-foreground' : 'border-border text-muted hover:text-foreground'}"
+                  >
+                    {pct}%
+                  </button>
+                {/each}
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex justify-between">
+                <span>Electric Field Voltage</span>
+                <span class="font-mono font-bold {gelVoltageV > 110 ? 'text-critical' : 'text-foreground'}">{gelVoltageV} V</span>
+              </div>
+              <input type="range" min="60" max="140" step="10" bind:value={gelVoltageV} oninput={() => logPisaEvent('parameter_change', { gelVoltageV })} class="w-full accent-ai" />
+              {#if gelVoltageV > 110}
+                <span class="text-[10px] text-critical">Thermal risk: &gt;110V causes band smearing & denaturation.</span>
+              {/if}
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex justify-between">
+                <span>Electrophoresis Run Time</span>
+                <span class="font-mono font-bold text-foreground">{gelRunTimeMin} min</span>
+              </div>
+              <input type="range" min="15" max="60" step="5" bind:value={gelRunTimeMin} oninput={() => logPisaEvent('parameter_change', { gelRunTimeMin })} class="w-full accent-ai" />
+            </div>
+          </div>
         {/if}
 
         <!-- CRITERIA STATUS BADGE -->
@@ -1032,6 +1334,23 @@
           {submissionResult.evidence.summary}
         </div>
       </div>
+
+      {#if submissionResult?.pisaReport}
+        <div class="p-3 bg-surface border border-border rounded-sm space-y-1.5 font-mono text-[11px]">
+          <div class="flex items-center justify-between">
+            <span class="text-muted">OECD PISA 2025 Level:</span>
+            <span class="font-bold text-ai">Level {submissionResult.pisaReport.inferredPisaLevel} / 6</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-muted">Systematic Inquiry (VOTAT):</span>
+            <span class="font-bold text-positive">{Math.round(submissionResult.pisaReport.srlMetrics.systematicParameterExplorationRatio * 100)}%</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-muted">Metacognitive Resilience:</span>
+            <span class="font-bold text-foreground">{submissionResult.pisaReport.srlMetrics.resilienceIndex}</span>
+          </div>
+        </div>
+      {/if}
 
       <div class="pt-4 border-t border-border flex flex-col gap-2">
         <a
