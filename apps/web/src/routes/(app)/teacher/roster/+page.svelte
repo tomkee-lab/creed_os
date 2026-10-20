@@ -131,7 +131,7 @@
   </div>
 
   <!-- Student Roster Table -->
-  <div class="border border-border rounded-sm overflow-hidden bg-surface shadow-2xs">
+  <div class="border border-border rounded-sm overflow-x-auto bg-surface shadow-2xs">
     <table class="w-full text-left border-collapse text-xs">
       <thead class="bg-surface-subtle border-b border-border text-ink-muted text-[10px] font-mono uppercase tracking-wider">
         <tr>

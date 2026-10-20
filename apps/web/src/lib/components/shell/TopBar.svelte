@@ -171,7 +171,7 @@
     {#if onToggleSidebar}
       <button
         onclick={onToggleSidebar}
-        class="p-1.5 -ml-1.5 rounded-none text-ink-muted hover:text-ink hover:bg-surface-subtle transition-all duration-140 active:scale-95 cursor-pointer shrink-0"
+        class="min-h-11 min-w-11 inline-flex items-center justify-center -ml-2 rounded-none text-ink-muted hover:text-ink hover:bg-surface-subtle transition-all duration-140 active:scale-95 cursor-pointer shrink-0"
         title={sidebarCollapsed ? 'Expand sidebar (⌘B)' : 'Collapse sidebar (⌘B)'}
         aria-label="Toggle sidebar"
       >
@@ -207,7 +207,7 @@
     <!-- Dark Mode Toggle with Celestial Rotation -->
     <button
       onclick={handleToggleTheme}
-      class="p-1.5 rounded-none text-ink-muted hover:text-ink hover:bg-surface-subtle transition-all duration-140 active:scale-90 cursor-pointer overflow-hidden"
+      class="min-h-11 min-w-11 inline-flex items-center justify-center rounded-none text-ink-muted hover:text-ink hover:bg-surface-subtle transition-all duration-140 active:scale-90 cursor-pointer overflow-hidden"
       title={isDarkMode ? 'Switch to Mineral White (Light)' : 'Switch to Linear Obsidian (Dark)'}
       aria-label="Toggle theme mode"
     >
@@ -222,7 +222,7 @@
 
     <!-- User Profile Dropdown Menu -->
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger class="flex items-center gap-1.5 p-1 rounded-none hover:bg-surface-subtle transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-focus border border-transparent hover:border-border">
+      <DropdownMenu.Trigger class="min-h-11 min-w-11 inline-flex items-center justify-center gap-1.5 p-1 rounded-none hover:bg-surface-subtle transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-focus border border-transparent hover:border-border">
         <div class="w-7 h-7 rounded-none bg-surface-subtle border border-border text-ink flex items-center justify-center font-mono font-medium text-xs">
           {userProfile.initials}
         </div>

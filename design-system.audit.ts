@@ -507,6 +507,49 @@ function auditAntiSlopHumanAccessibility() {
   });
 }
 
+// 15. Audit Anti-Slop Mobile & Responsive Layout (miqdadbadjuber/anti-slop R-03: Overflow, responsive tables, safe area, and tap targets)
+function auditAntiSlopMobileLayout() {
+  const violations: string[] = [];
+  const allFiles = getAllTargetFiles().filter((f) => f.endsWith('.svelte'));
+
+  for (const file of allFiles) {
+    const content = fs.readFileSync(file, 'utf-8');
+    const rel = path.relative(ROOT_DIR, file);
+
+    // 1. Tables must be wrapped in overflow-x-auto or overflow-auto container
+    const lines = content.split('\n');
+    lines.forEach((line, idx) => {
+      if (line.includes('<table')) {
+        // Look backwards up to 6 lines for parent container overflow classes
+        const preceding = lines.slice(Math.max(0, idx - 6), idx + 1).join('\n');
+        const hasOverflow =
+          preceding.includes('overflow-x-auto') ||
+          preceding.includes('overflow-auto') ||
+          line.includes('overflow-x-auto') ||
+          line.includes('overflow-auto');
+
+        if (!hasOverflow) {
+          violations.push(`${rel}:${idx + 1}: Found <table> without responsive 'overflow-x-auto' wrapper (Anti-Slop R-03)`);
+        }
+      }
+    });
+
+    // 2. Fixed bottom navigation must support safe-area insets and reserve space
+    if (content.includes('fixed bottom-0')) {
+      const hasSafeArea = content.includes('env(safe-area-inset-bottom') || content.includes('safe-area');
+      if (!hasSafeArea) {
+        violations.push(`${rel}: Fixed bottom navigation bar missing 'env(safe-area-inset-bottom)' support (Anti-Slop R-03)`);
+      }
+    }
+  }
+
+  results.push({
+    category: 'Anti-Slop Mobile & Responsive Layout (miqdadbadjuber/anti-slop R-03: Table reflow, safe area, tap targets)',
+    passed: violations.length === 0,
+    details: violations
+  });
+}
+
 // Run all audits
 auditCanonicalSpecification();
 auditRadii();
@@ -521,6 +564,7 @@ auditAntiSlopCopywriting();
 auditAntiSlopVisualArtefacts();
 auditAntiSlopPunctuation();
 auditAntiSlopHumanAccessibility();
+auditAntiSlopMobileLayout();
 auditHeuristics();
 
 console.log('\n===============================================================');

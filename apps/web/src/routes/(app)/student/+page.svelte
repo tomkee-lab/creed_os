@@ -100,7 +100,7 @@
     <div class="flex flex-wrap items-center justify-between gap-4 pt-1">
       <a
         href="/student/assessment"
-        class="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-sm transition-colors duration-140 shadow-xs cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand"
+        class="inline-flex items-center justify-center gap-2 px-5 py-2 min-h-11 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-sm transition-colors duration-140 shadow-xs cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand"
       >
         <span>Start practice</span>
         <ArrowRight class="w-4 h-4" />
@@ -128,7 +128,7 @@
 
     <a
       href="/student/missions/mission-gear-train"
-      class="inline-flex items-center gap-2 px-4 py-2 rounded-none bg-surface hover:bg-surface-raised border border-border text-xs font-semibold text-ink shrink-0 transition-colors shadow-2xs hover:border-border-strong cursor-pointer"
+      class="inline-flex items-center gap-2 px-4 py-2 min-h-11 rounded-none bg-surface hover:bg-surface-raised border border-border text-xs font-semibold text-ink shrink-0 transition-colors shadow-2xs hover:border-border-strong cursor-pointer"
     >
       <Bot class="w-3.5 h-3.5 text-ai" />
       <span>Open thinking session</span>

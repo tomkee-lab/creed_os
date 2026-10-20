@@ -78,7 +78,7 @@
 
     <button
       onclick={toggleTheme}
-      class="p-1.5 rounded-none text-ink-muted hover:text-ink hover:bg-surface-subtle transition-all duration-140 cursor-pointer active:scale-95"
+      class="min-h-11 min-w-11 inline-flex items-center justify-center rounded-none text-ink-muted hover:text-ink hover:bg-surface-subtle transition-all duration-140 cursor-pointer active:scale-95"
       aria-label="Toggle theme"
     >
       {#if isDarkMode}
@@ -93,7 +93,7 @@
   <main class="w-full max-w-4xl mx-auto my-auto py-2">
     <div class="login-portal-card rounded-none bg-surface-raised border border-border shadow-lg overflow-hidden grid md:grid-cols-2 relative transition-all duration-200 hover:border-border-strong">
       <!-- Left Image Column: Edge-to-Edge of its borders, compact & perfectly proportioned -->
-      <div class="relative w-full h-full min-h-95 md:min-h-115 bg-surface-subtle overflow-hidden select-none border-b md:border-b-0 md:border-r border-border">
+      <div class="relative w-full h-48 sm:h-64 md:h-full md:min-h-115 bg-surface-subtle overflow-hidden select-none border-b md:border-b-0 md:border-r border-border">
         <img
           src="/images/illustrations/login_observatory.jpg"
           alt="CREED OS Learner Intelligence Observatory"

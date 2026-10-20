@@ -53,7 +53,7 @@
 
     <button
       onclick={toggleTheme}
-      class="p-1.5 rounded-none text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
+      class="min-h-11 min-w-11 inline-flex items-center justify-center rounded-none text-ink-muted hover:text-ink hover:bg-surface-subtle transition-colors cursor-pointer"
       aria-label="Toggle theme"
     >
       {#if isDarkMode}

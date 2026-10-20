@@ -684,7 +684,7 @@
               <span class="font-semibold block text-[11px] uppercase tracking-wider text-mint">
                 Active Item Calibration ({activePhase.code})
               </span>
-              <div class="grid grid-cols-3 gap-2 text-center pt-1">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center pt-1">
                 <div class="bg-surface-subtle p-2 border border-border">
                   <span class="text-[10px] text-ink-muted block">Discrimination (a)</span>
                   <span class="font-bold text-ink">{activePhase.a}</span>

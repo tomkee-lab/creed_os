@@ -258,7 +258,7 @@
       </div>
 
       <!-- Domain Selection Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {#each (['stem', 'english', 'robotics'] as const) as domain}
           {@const cfg = domainConfigs[domain]}
           {@const Icon = cfg.icon}
@@ -302,7 +302,7 @@
                   e.stopPropagation();
                   startBenchmarkSession(domain, 'benchmark');
                 }}
-                class="w-full py-2 px-3 rounded-sm text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-2xs {isSelected ? 'bg-brand text-brand-foreground hover:bg-brand/90' : 'bg-surface-raised border border-border text-foreground hover:bg-surface-subtle'}"
+                class="w-full min-h-11 py-2 px-3 rounded-sm text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-2xs {isSelected ? 'bg-brand text-brand-foreground hover:bg-brand/90' : 'bg-surface-raised border border-border text-foreground hover:bg-surface-subtle'}"
               >
                 <span>Start 30Q Benchmark</span>
                 <ArrowRight class="w-3.5 h-3.5" />
@@ -321,7 +321,7 @@
         <div class="flex items-center gap-2 shrink-0">
           <button
             onclick={() => startBenchmarkSession(selectedDomain, 'rapid')}
-            class="px-3.5 py-1.5 border border-border hover:bg-surface hover:text-foreground text-foreground-secondary font-medium text-xs rounded-sm transition-colors cursor-pointer shadow-2xs"
+            class="min-h-11 px-4 py-2 border border-border hover:bg-surface hover:text-foreground text-foreground-secondary font-medium text-xs rounded-sm transition-colors cursor-pointer shadow-2xs inline-flex items-center justify-center"
           >
             Launch 8-Question Rapid Diagnostic ↗
           </button>
@@ -517,7 +517,7 @@
           <button
             onclick={submitResponse}
             disabled={!selectedOptionId || status === 'evaluating'}
-            class="px-6 py-2 rounded-sm bg-foreground text-background hover:bg-foreground/90 disabled:opacity-40 disabled:pointer-events-none font-medium text-xs sm:text-sm transition-colors flex items-center gap-2 cursor-pointer"
+            class="w-full sm:w-auto min-h-11 px-6 py-2 rounded-sm bg-foreground text-background hover:bg-foreground/90 disabled:opacity-40 disabled:pointer-events-none font-medium text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>Confirm Answer</span>
             <ArrowRight class="w-4 h-4" />

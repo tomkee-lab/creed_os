@@ -146,7 +146,7 @@
         <!-- Theme Toggle: Celestial Rotation -->
         <button
           onclick={toggleTheme}
-          class="theme-toggle p-1.5 rounded-none text-ink-muted hover:text-ink hover:bg-surface-subtle cursor-pointer overflow-hidden border border-transparent hover:border-border transition-all"
+          class="theme-toggle min-h-11 min-w-11 inline-flex items-center justify-center rounded-none text-ink-muted hover:text-ink hover:bg-surface-subtle cursor-pointer overflow-hidden border border-transparent hover:border-border transition-all"
           title={isDarkMode ? 'Switch to Mineral White (Light)' : 'Switch to Deep Slate (Dark)'}
           aria-label="Toggle theme"
         >
@@ -159,19 +159,19 @@
           </span>
         </button>
 
-        <!-- Primary CTA: Access Workspace -->
+        <!-- Primary CTA: Access Workspace (Shown on tablet/desktop, available in drawer on phone) -->
         <a
           href="/login"
-          class="cta-button inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-none bg-brand text-brand-foreground text-xs font-semibold shadow-xs"
+          class="cta-button hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-none bg-brand text-brand-foreground text-xs font-semibold shadow-xs"
         >
           <span>Access Workspace</span>
           <ArrowRight class="cta-arrow w-3.5 h-3.5" />
         </a>
 
-        <!-- Mobile Hamburger Toggle -->
+        <!-- Mobile Hamburger Toggle (44x44px minimum tap target) -->
         <button
           onclick={() => mobileMenuOpen = !mobileMenuOpen}
-          class="mobile-toggle md:hidden p-1.5 rounded-none text-ink-muted hover:text-ink hover:bg-surface-subtle cursor-pointer border border-transparent hover:border-border"
+          class="mobile-toggle md:hidden min-h-11 min-w-11 inline-flex items-center justify-center rounded-none text-ink-muted hover:text-ink hover:bg-surface-subtle cursor-pointer border border-transparent hover:border-border"
           aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
           aria-expanded={mobileMenuOpen}
         >
@@ -192,7 +192,7 @@
             <a
               {href}
               onclick={() => mobileMenuOpen = false}
-              class="mobile-nav-link px-3 py-2 rounded-none text-sm font-medium text-ink-secondary flex items-center justify-between"
+              class="mobile-nav-link min-h-11 px-3 py-2 rounded-none text-sm font-medium text-ink-secondary flex items-center justify-between"
               class:is-active={isActive(href)}
               aria-current={isActive(href) ? 'page' : undefined}
             >
@@ -206,7 +206,7 @@
             <a
               href="/login"
               onclick={() => mobileMenuOpen = false}
-              class="mobile-cta-link flex items-center justify-between px-3.5 py-2 rounded-none bg-brand text-brand-foreground text-sm font-semibold shadow-xs"
+              class="mobile-cta-link min-h-11 flex items-center justify-between px-3.5 py-2 rounded-none bg-brand text-brand-foreground text-sm font-semibold shadow-xs"
             >
               <span>Access Workspace</span>
               <ArrowRight class="w-4 h-4" />

@@ -137,7 +137,7 @@
         aria-controls="panel-capabilities"
         tabindex={activeTab === 'capabilities' ? 0 : -1}
         onclick={() => (activeTab = 'capabilities')}
-        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-mono rounded-sm transition-micro border {activeTab === 'capabilities'
+        class="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-11 text-xs font-mono rounded-sm transition-micro border shrink-0 {activeTab === 'capabilities'
           ? 'bg-surface-raised border-border text-brand font-bold shadow-2xs'
           : 'bg-transparent border-transparent text-ink-secondary hover:text-ink hover:bg-surface-subtle'}"
       >
@@ -153,7 +153,7 @@
         aria-controls="panel-evidence"
         tabindex={activeTab === 'evidence' ? 0 : -1}
         onclick={() => (activeTab = 'evidence')}
-        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-mono rounded-sm transition-micro border {activeTab === 'evidence'
+        class="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-11 text-xs font-mono rounded-sm transition-micro border shrink-0 {activeTab === 'evidence'
           ? 'bg-surface-raised border-border text-brand font-bold shadow-2xs'
           : 'bg-transparent border-transparent text-ink-secondary hover:text-ink hover:bg-surface-subtle'}"
       >
@@ -169,7 +169,7 @@
         aria-controls="panel-report"
         tabindex={activeTab === 'report' ? 0 : -1}
         onclick={() => (activeTab = 'report')}
-        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-mono rounded-sm transition-micro border {activeTab === 'report'
+        class="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-11 text-xs font-mono rounded-sm transition-micro border shrink-0 {activeTab === 'report'
           ? 'bg-surface-raised border-border text-brand font-bold shadow-2xs'
           : 'bg-transparent border-transparent text-ink-secondary hover:text-ink hover:bg-surface-subtle'}"
       >
@@ -185,7 +185,7 @@
         aria-controls="panel-pathways"
         tabindex={activeTab === 'pathways' ? 0 : -1}
         onclick={() => (activeTab = 'pathways')}
-        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-mono rounded-sm transition-micro border {activeTab === 'pathways'
+        class="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-11 text-xs font-mono rounded-sm transition-micro border shrink-0 {activeTab === 'pathways'
           ? 'bg-surface-raised border-border text-brand font-bold shadow-2xs'
           : 'bg-transparent border-transparent text-ink-secondary hover:text-ink hover:bg-surface-subtle'}"
       >

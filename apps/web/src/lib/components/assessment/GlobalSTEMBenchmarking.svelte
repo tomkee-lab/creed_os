@@ -441,7 +441,7 @@
           <span class="text-[11px] font-mono uppercase tracking-wider text-ink-muted">
             Recent Run History ({trials.length} Trials)
           </span>
-          <div class="border border-border max-h-36 overflow-y-auto">
+          <div class="border border-border max-h-36 overflow-auto">
             <table class="w-full text-left text-xs font-mono border-collapse">
               <thead class="bg-surface-subtle border-b border-border text-[10px] text-ink-muted">
                 <tr>
