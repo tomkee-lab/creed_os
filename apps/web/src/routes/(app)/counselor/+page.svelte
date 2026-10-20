@@ -133,7 +133,7 @@
 </script>
 
 <svelte:head>
-  <title>Counselor Caseload — CREED OS</title>
+  <title> · </title>
 </svelte:head>
 
 <div class="max-w-4xl mx-auto space-y-10 py-2">

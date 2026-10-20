@@ -259,7 +259,7 @@ export const CLEAN_ROOM_STATUS = {
   pythonRuntime: 'Mozilla Pyodide WebAssembly Worker (MPL-2.0)',
   audioSynthesis: 'Native Browser Web Audio API (Clean-Room)',
   hardwareBridge: 'Browser Web Serial & WebUSB APIs (Clean-Room)',
-  planetaryStudio: 'Clean-Room CesiumJS (Apache-2.0) & SGP4 (MIT) — 100% Commercial Datasets (Zero NC Assets)',
+  planetaryStudio: 'Clean-Room CesiumJS (Apache-2.0) & SGP4 (MIT) · 100% Commercial Datasets (Zero NC Assets)',
   status: '100% PRODUCTION READY & COMPLIANT'
 };
 

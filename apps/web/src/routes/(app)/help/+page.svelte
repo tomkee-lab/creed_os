@@ -51,7 +51,7 @@
   const DOCS: DocSection[] = [
     {
       id: 'introduction',
-      title: 'Documentation & Guidance — Introduction',
+      title: 'Documentation & Guidance · Introduction',
       category: 'Sections',
       lead: 'CREED OS is an AI-native learner intelligence, psychometric assessment, and developmental pathway navigation platform. Open architecture, deterministic psychometrics, and calm human-first design.',
       toc: [
@@ -60,7 +60,7 @@
         { id: 'deterministic-scoring', label: 'Deterministic Scoring' },
         { id: 'calm-intelligence', label: 'Calm Intelligence Philosophy' }
       ],
-      markdown: `# Introduction — Documentation
+      markdown: `# Introduction · Documentation
 
 CREED OS replaces probabilistic black-box grading with verified longitudinal psychometrics, adaptive standard-error stopping bounds, and cryptographic evidence provenance.
 
@@ -129,7 +129,7 @@ curl -X POST http://localhost:5173/api/auth/dev-switch -H "Content-Type: applica
     },
     {
       id: 'changelog',
-      title: 'Changelog — WAY 3.0 Release',
+      title: 'Changelog · WAY 3.0 Release',
       category: 'Sections',
       badge: 'v2.1',
       lead: 'Release history and architectural milestones for CREED OS.',
@@ -138,7 +138,7 @@ curl -X POST http://localhost:5173/api/auth/dev-switch -H "Content-Type: applica
         { id: 'security-upgrades', label: 'Security & Consent' },
         { id: 'psychometrics', label: 'CAT Engine Updates' }
       ],
-      markdown: `# Changelog — WAY 3.0 Release
+      markdown: `# Changelog · WAY 3.0 Release
 
 ## v2.1.0 Highlights
 - **Full shadcn Docs UI Engine**: Multi-category navigation tree, copy page markdown, and table of contents.
@@ -310,10 +310,10 @@ With strict hard ceilings: minimum 5 items, maximum 15 items.`
       ],
       markdown: `# Four-Tier Multimodal Evidence Pyramid
 
-1. **Level 1 — Formative Diagnostics**: Micro-CAT interactions with parameter discrimination.
-2. **Level 2 — Simulation Telemetry**: Physics and robotics lab step metrics.
-3. **Level 3 — Teacher Demonstration Rubric**: Qualitative classroom demonstration.
-4. **Level 4 — Applied Capstone Maker Artifact**: End-to-end verified student projects.
+1. **Level 1 · Formative Diagnostics**: Micro-CAT interactions with parameter discrimination.
+2. **Level 2 · Simulation Telemetry**: Physics and robotics lab step metrics.
+3. **Level 3 · Teacher Demonstration Rubric**: Qualitative classroom demonstration.
+4. **Level 4 · Applied Capstone Maker Artifact**: End-to-end verified student projects.
 
 Every entry is sealed with HMAC-SHA256 containing timestamps, rubric identifiers, and evaluator signatures.`
     },
@@ -348,9 +348,9 @@ Every entry is sealed with HMAC-SHA256 containing timestamps, rubric identifiers
       markdown: `# WAY 2.1 Quiet Editorial Intelligence
 
 ## Three Information Levels Law
-- **Level 1 — Signal**: What the user must notice immediately.
-- **Level 2 — Context**: Why it matters (1 concise sentence maximum).
-- **Level 3 — Evidence**: Proof and rubrics (disclosed only on interaction).
+- **Level 1 · Signal**: What the user must notice immediately.
+- **Level 2 · Context**: Why it matters (1 concise sentence maximum).
+- **Level 3 · Evidence**: Proof and rubrics (disclosed only on interaction).
 
 ## 0 / 4 / 8px Architectural Radii
 - **0px (\`rounded-none\`)**: Structural frames, data tables, code boxes.
@@ -497,7 +497,7 @@ Content-Type: application/json
 <svelte:window onkeydown={handleKeydown} />
 
 <svelte:head>
-  <title>{activeDoc.title} — CREED OS</title>
+  <title>{activeDoc.title} · CREED OS</title>
   <meta name="description" content={activeDoc.lead} />
 </svelte:head>
 
@@ -661,7 +661,7 @@ Content-Type: application/json
                     ? 'bg-surface-raised text-ink font-semibold border border-border shadow-2xs'
                     : 'text-ink-secondary hover:text-ink hover:bg-surface-subtle'}"
                 >
-                  <span class="truncate">{doc.title.replace(' — Documentation', '')}</span>
+                  <span class="truncate">{doc.title.replace(' · Documentation', '')}</span>
                   {#if doc.badge}
                     <span class="px-1 py-0.5 rounded-none bg-surface border border-border font-mono text-[9px] text-ink-muted shrink-0">
                       {doc.badge}
@@ -685,7 +685,7 @@ Content-Type: application/json
           <span>/</span>
           <span>{activeDoc.category}</span>
           <span>/</span>
-          <span class="text-ink font-semibold">{activeDoc.title.replace(' — Documentation', '')}</span>
+          <span class="text-ink font-semibold">{activeDoc.title.replace(' · Documentation', '')}</span>
         </nav>
 
         <!-- Top Right Action Controls: Copy Page + Prev/Next (Matching Screenshot 2) -->
@@ -748,7 +748,7 @@ Content-Type: application/json
           <div class="p-4 rounded-none bg-surface-raised border border-border space-y-2">
             <h3 class="text-xs font-mono font-semibold uppercase text-brand tracking-wider">Governing Law</h3>
             <p class="text-xs text-ink leading-relaxed">
-              <strong>Quiet Editorial Intelligence & Calm Systems — complexity is hidden until it becomes useful.</strong><br />
+              <strong>Quiet Editorial Intelligence & Calm Systems: complexity is hidden until it becomes useful.</strong><br />
               Signal → Context → Action → Evidence → Disclosure
             </p>
           </div>
@@ -892,7 +892,7 @@ Content-Type: application/json
               <span>Previous</span>
             </span>
             <div class="text-xs font-semibold text-ink group-hover:text-brand">
-              {prevDoc.title.replace(' — Documentation', '')}
+              {prevDoc.title.replace(' · Documentation', '')}
             </div>
           </button>
         {:else}
@@ -910,7 +910,7 @@ Content-Type: application/json
               <ArrowRight class="w-3 h-3" />
             </span>
             <div class="text-xs font-semibold text-ink group-hover:text-brand">
-              {nextDoc.title.replace(' — Documentation', '')}
+              {nextDoc.title.replace(' · Documentation', '')}
             </div>
           </button>
         {/if}

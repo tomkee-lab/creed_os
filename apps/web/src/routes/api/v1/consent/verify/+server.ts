@@ -74,7 +74,7 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
       return json({ error: 'Invalid OTP. Please check your verification code and try again.' }, { status: 400 });
     }
 
-    // OTP valid — consume it (single-use)
+    // OTP valid: consume it (single-use)
     OTP_STORE.delete(key);
 
     const initialRecord: ConsentRecord = {

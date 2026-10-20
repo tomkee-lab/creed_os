@@ -200,7 +200,7 @@
       domain: 'Socratic Dialogue & Cognitive Architecture',
       pillarLabel: '02 · Socratic Mentorship',
       quote:
-        'Adolescent inquiry collapses the moment children feel evaluated or judged. We built the Socratic mentorship pipeline to treat mistakes as hypotheses rather than deficits—giving students a calm space to verbalize counterfactual reasoning without test anxiety.',
+        'Adolescent inquiry collapses the moment children feel evaluated or judged. We built the Socratic mentorship pipeline to treat mistakes as hypotheses rather than deficits, giving students a calm space to verbalize counterfactual reasoning without test anxiety.',
       name: 'Kennedy M',
       role: 'Cognitive Architecture & Psychometrics Lead',
       affiliation: 'Arra Core Team',
@@ -247,12 +247,12 @@
 </script>
 
 <svelte:head>
-  <title>CREED OS — Understand How a Learner Grows</title>
+  <title>CREED OS · Understand How a Learner Grows</title>
   <meta name="description" content="AI-native learner intelligence, adaptive diagnostics, longitudinal evidence, and pathway navigation." />
 </svelte:head>
 
 <!-- ============================================================
-     1. EDITORIAL HERO (Viewport 1) — FULL VIEWPORT WIDTH
+     1. EDITORIAL HERO (Viewport 1): FULL VIEWPORT WIDTH
      ============================================================ -->
 <section class="min-h-svh w-full flex flex-col justify-between items-center text-center relative pt-20 sm:pt-24 pb-4 overflow-hidden isolate border-b border-border/40">
   <!-- Full-Width Ambient Psychometric Glyph Matrix & Subtle Glow -->
@@ -393,7 +393,7 @@
             </span>
           </div>
           <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-ink">
-            Not reinventing the wheel.<br />Rebuilding assessment on real evidence.
+            Grounding assessment in observable learner evidence.
           </h2>
         </div>
 
@@ -485,7 +485,7 @@
   </section>
 
   <!-- ============================================================
-       5. INTERACTIVE CAPABILITY STUDIO (Live Components Showcase)
+       5. INTERACTIVE CAPABILITY STUDIO (Live Components Proving Ground)
        ============================================================ -->
   <section use:revealOnScroll={{ stagger: 0.06 }} class="space-y-6 pt-8 border-t border-border-subtle">
     <div data-reveal-item class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -1025,7 +1025,7 @@
      LANDING PAGE EDITORIAL MOTION & MICRO-INTERACTIONS
      WAY 2.1 Lagom Motion Contract:
      - 140ms (micro) · 200ms (standard) · 280ms (emphasis)
-     - Easing: cubic-bezier(0.16, 1, 0.3, 1) — WAY Lagom spring
+     - Easing: cubic-bezier(0.16, 1, 0.3, 1): WAY Lagom spring
      ================================================================ */
 
   /* --- Artwork Frames: Depth illumination --- */
@@ -1136,7 +1136,7 @@
   }
 
   /* ================================================================
-     REDUCED MOTION OVERRIDES — Accessibility Guarantee
+     REDUCED MOTION OVERRIDES: Accessibility Guarantee
      ================================================================ */
   @media (prefers-reduced-motion: reduce) {
     .artwork-frame,

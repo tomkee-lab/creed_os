@@ -181,7 +181,7 @@
 <svelte:window onkeydown={handleKeydown} />
 
 <svelte:head>
-  <title>Teacher Workspace — CREED OS</title>
+  <title> · </title>
 </svelte:head>
 
 <div class="max-w-5xl mx-auto space-y-10 py-2">

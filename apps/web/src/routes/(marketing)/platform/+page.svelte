@@ -16,7 +16,7 @@
 </script>
 
 <svelte:head>
-  <title>Platform Science & Architecture — CREED OS</title>
+  <title> · </title>
   <meta
     name="description"
     content="Deterministic 3PL Item Response Theory (IRT), Computerized Adaptive Testing (CAT) stopping bounds, and cryptographic evidence provenance."

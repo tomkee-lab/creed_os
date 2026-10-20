@@ -1747,7 +1747,7 @@ class LocalCoreRepository {
     return [
       {
         id: 'tch-01',
-        name: 'Faculty Lead — Mathematics',
+        name: 'Faculty Lead · Mathematics',
         email: 'faculty.math@core-os.app',
         subject: 'STEM Reasoning & Mathematics',
         assignedClasses: ['Class 8-A', 'Class 8-B'],
@@ -1757,7 +1757,7 @@ class LocalCoreRepository {
       },
       {
         id: 'tch-02',
-        name: 'Faculty Lead — Computational Systems',
+        name: 'Faculty Lead · Computational Systems',
         email: 'faculty.computing@core-os.app',
         subject: 'Computational Thinking & Robotics',
         assignedClasses: ['Class 9-A', 'Class 9-B'],
@@ -1767,7 +1767,7 @@ class LocalCoreRepository {
       },
       {
         id: 'tch-03',
-        name: 'Faculty Lead — Scientific Inquiry',
+        name: 'Faculty Lead · Scientific Inquiry',
         email: 'faculty.science@core-os.app',
         subject: 'Scientific Inquiry & Physics',
         assignedClasses: ['Class 10-A'],
@@ -1777,7 +1777,7 @@ class LocalCoreRepository {
       },
       {
         id: 'tch-04',
-        name: 'Faculty Lead — Foundational Thinking',
+        name: 'Faculty Lead · Foundational Thinking',
         email: 'faculty.logic@core-os.app',
         subject: 'Foundational Logic & Thinking Skills',
         assignedClasses: ['Class 6-A', 'Class 7-A'],

@@ -33,7 +33,7 @@
 </script>
 
 <svelte:head>
-  <title>NCERT PARAKH HPC Roster — CREED OS</title>
+  <title> · </title>
   <meta name="description" content="NCERT PARAKH Holistic Progress Card (HPC) classroom cohort roster and developmental trajectories." />
 </svelte:head>
 

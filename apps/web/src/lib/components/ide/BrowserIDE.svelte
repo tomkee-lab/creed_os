@@ -3058,7 +3058,7 @@
         <div class="flex items-center gap-2">
           <Bot class="size-4 text-accent-indigo" />
           <h3 class="text-sm font-semibold text-ink">
-            Socratic Mentor — {activeMissionMeta.title}
+            Socratic Mentor · {activeMissionMeta.title}
           </h3>
         </div>
         <button
@@ -3220,7 +3220,7 @@
   /* stylelint-disable selector-class-pattern */
 
   /* ============================================================
-     CREED OS — Theme-Adaptive Blockly Styling Engine
+     CREED OS · Theme-Adaptive Blockly Styling Engine
      Guarantees 100% Color Scheme Consistency in Light & Dark Mode
      ============================================================ */
 

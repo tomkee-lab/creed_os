@@ -11,7 +11,7 @@
 </script>
 
 <!--
-  CREED OS Sigil — Mandalorian-inspired logomark with Lagom Micro-Interactions
+  CREED OS Sigil · Mandalorian-inspired logomark with Lagom Micro-Interactions
   A geometric T-visor helmet silhouette with neural intelligence growth pathways.
   Respects WAY 2.1 motion budget (140ms–280ms) and prefers-reduced-motion.
 -->

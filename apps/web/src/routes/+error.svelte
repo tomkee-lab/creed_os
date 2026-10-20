@@ -95,7 +95,7 @@
 </script>
 
 <svelte:head>
-  <title>{status} · {title} — CREED OS</title>
+  <title> · </title>
 </svelte:head>
 
 <div class="min-h-screen bg-canvas text-ink flex flex-col justify-between p-4 sm:p-8">

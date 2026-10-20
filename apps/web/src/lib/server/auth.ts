@@ -46,7 +46,7 @@ if (!process.env.BETTER_AUTH_SECRET && secret) {
 
 if (!isBuilding) {
   if (!betterAuthApiKey) {
-    console.warn('[auth] BETTER_AUTH_API_KEY is not set — Better Auth dashboard monitoring will be disabled.');
+    console.warn('[auth] BETTER_AUTH_API_KEY is not set: Better Auth dashboard monitoring will be disabled.');
   } else {
     console.info('[auth] Active Better Auth API key ends with:', betterAuthApiKey.slice(-6));
     console.info('[auth] Configured Base URL:', env.BETTER_AUTH_URL || process.env.BETTER_AUTH_URL || 'default localhost');
@@ -58,7 +58,7 @@ if (!isBuilding) {
  * Maps the client's self-declared role hint to a safe internal role.
  * Any unrecognized value is demoted to 'student'.
  *
- * - 'admin' is NOT in this map — clients can never self-assign admin.
+ * - 'admin' is NOT in this map: clients can never self-assign admin.
  * - 'school' → 'institution_pending' (requires admin approval).
  * - 'student' is the fallback / default.
  */

@@ -97,7 +97,7 @@
       }
 
       otpRequested = true;
-      // devOtp is only included in development server responses — never in production
+      // devOtp is only included in development server responses (never in production)
       devOtpHint = data.devOtp ?? '';
     } catch (err: any) {
       errorMessage = err?.message || 'Connection failure while requesting OTP.';
@@ -173,7 +173,7 @@
 </script>
 
 <svelte:head>
-  <title>Parental Consent & DPDP Governance Portal — CREED OS</title>
+  <title>Parental Consent & DPDP Governance Portal · CREED OS</title>
   <meta
     name="description"
     content="India DPDP Act 2023 compliance, immutable consent ledger state machine, and verified parental consent gate."
@@ -537,7 +537,7 @@
           <div class="p-3 rounded-none bg-surface border border-border space-y-1">
             <span class="text-[10px] font-mono text-ink-muted">STATE 04</span>
             <div class="font-mono text-xs font-semibold text-positive">ACTIVE</div>
-            <p class="text-[11px] text-ink-muted">Diagnostic missions unlocked under RLS policies.</p>
+            <p class="text-[11px] text-ink-muted">Diagnostic missions authorized under RLS policies.</p>
           </div>
 
           <div class="p-3 rounded-none bg-surface border border-border space-y-1">

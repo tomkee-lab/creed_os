@@ -82,7 +82,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       competency: sanitizedCompetency as CompetencyDomain,
       evidenceType: 'observation_log',
       sourceType: 'teacher_observation',
-      sourceTitle: `Classroom Observation — ${educatorName}`,
+      sourceTitle: `Classroom Observation · ${educatorName}`,
       summary: notes.trim(),
       observedValue: {
         scoreFraction: Number((rating / 5).toFixed(2)),

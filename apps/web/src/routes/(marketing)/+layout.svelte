@@ -96,7 +96,7 @@
       : 'border-transparent bg-transparent backdrop-blur-none'}"
   >
     <div class="max-w-7xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-      <!-- Logo — Hover: brand accent glow + spring scale -->
+      <!-- Logo: Hover brand accent glow and spring scale -->
       <a href="/" class="flex items-center gap-2 group">
         <div class="logo-mark w-8 h-8 rounded-none bg-brand/10 text-brand border border-brand/20 flex items-center justify-center shadow-xs">
           <CreedLogo size={20} class="transition-transform group-hover:scale-105" />
@@ -111,7 +111,7 @@
         </div>
       </a>
 
-      <!-- Center Editorial Links — Floating Indicator Pill with Lagom Spring Motion -->
+      <!-- Center Editorial Links: Floating Indicator Pill with Lagom Spring Motion -->
       <nav
         bind:this={navContainer}
         onmouseleave={() => syncIndicator(null)}
@@ -143,7 +143,7 @@
 
       <!-- Right Action Buttons -->
       <div class="flex items-center gap-2">
-        <!-- Theme Toggle — Celestial Rotation -->
+        <!-- Theme Toggle: Celestial Rotation -->
         <button
           onclick={toggleTheme}
           class="theme-toggle p-1.5 rounded-none text-ink-muted hover:text-ink hover:bg-surface-subtle cursor-pointer overflow-hidden border border-transparent hover:border-border transition-all"
@@ -159,7 +159,7 @@
           </span>
         </button>
 
-        <!-- Primary CTA — Access Workspace -->
+        <!-- Primary CTA: Access Workspace -->
         <a
           href="/login"
           class="cta-button inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-none bg-brand text-brand-foreground text-xs font-semibold shadow-xs"
@@ -317,7 +317,7 @@
   /* ================================================================
      MARKETING SHELL MICRO-ANIMATIONS
      Lagom Motion Contract: 140ms (micro) · 200ms (standard) · 280ms (emphasis)
-     Easing: cubic-bezier(0.16, 1, 0.3, 1) — WAY "Lagom" spring curve
+     Easing: cubic-bezier(0.16, 1, 0.3, 1): WAY Lagom spring curve
      ================================================================ */
 
   /* --- Logo Hover: Brand color shift + container glow --- */
@@ -540,7 +540,7 @@
   }
 
   /* ================================================================
-     REDUCED MOTION — Respect system preference
+     REDUCED MOTION: Respect system preference
      ================================================================ */
   @media (prefers-reduced-motion: reduce) {
     .marketing-header,

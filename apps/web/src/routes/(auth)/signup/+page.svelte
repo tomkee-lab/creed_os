@@ -61,7 +61,7 @@
 </script>
 
 <svelte:head>
-  <title>Create Account — CREED OS</title>
+  <title> · </title>
 </svelte:head>
 
 <div class="rounded-none bg-surface-raised border border-border p-6 sm:p-8 shadow-sm">
@@ -82,7 +82,7 @@
 
   <form onsubmit={handleSignup} class="space-y-4">
 
-    <!-- Role Selector — single compact select, replaces 2x2 card grid -->
+    <!-- Role Selector: single compact select, replaces 2x2 card grid -->
     <div class="space-y-1">
       <label for="role" class="block text-xs font-medium text-ink">I'm joining as</label>
       <div class="relative">

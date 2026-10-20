@@ -1,5 +1,5 @@
 /**
- * CREED OS — Role-Specific Psychometric Data Transfer Object (DTO) Layer
+ * CREED OS · Role-Specific Psychometric Data Transfer Object (DTO) Layer
  *
  * Implements strict role-scoped data minimization, allowlist-based payload construction,
  * and psychometric benchmark gating under Gate 4 governance.

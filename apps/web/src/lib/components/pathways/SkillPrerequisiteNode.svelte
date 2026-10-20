@@ -44,7 +44,7 @@
   <div class="flex items-center justify-between text-[10px] font-mono text-ink-muted tabular-nums pt-1.5 border-t border-border">
     <span>Req: Level {data.minimumLevel}</span>
     <span class={isMet ? 'text-positive font-bold' : 'text-ink-secondary font-medium'}>
-      Current: {data.demonstrated ?? '—'}
+      Current: {data.demonstrated ?? 'None'}
     </span>
   </div>
 

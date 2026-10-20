@@ -468,7 +468,7 @@
                         {resp.misconceptionCode}
                       </span>
                     {:else}
-                      <span class="text-mint font-bold">— None (Mastery)</span>
+                      <span class="text-mint font-bold">None (Mastery)</span>
                     {/if}
                   </td>
                   <td class="p-3 font-mono font-bold text-mint">{resp.thetaAfter.toFixed(2)}</td>

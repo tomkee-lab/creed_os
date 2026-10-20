@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Pricing & Plans — CREED OS</title>
+  <title>Pricing & Plans · CREED OS</title>
   <meta
     name="description"
     content="Transparent institutional pilots and free portable family tiers for CREED OS learner intelligence."
@@ -21,7 +21,7 @@
       Transparent, ethical intelligence.
     </h1>
     <p class="text-base text-ink-secondary leading-relaxed">
-      No hidden ad tiers. No behavioral monetization. Just pure, child-safe learner intelligence and verified psychometrics.
+      Child-safe learner intelligence and verified psychometrics with zero advertising or behavioral monetization.
     </p>
   </header>
 
@@ -46,7 +46,7 @@
           </li>
           <li class="flex items-center gap-2">
             <Check class="w-3.5 h-3.5 text-positive shrink-0" />
-            <span>Socratic Guided Thinking Studio (Google ADK & Gemini powered)</span>
+            <span>Socratic Guided Thinking Studio (Google ADK and Gemini Live)</span>
           </li>
           <li class="flex items-center gap-2">
             <Check class="w-3.5 h-3.5 text-positive shrink-0" />

@@ -36,7 +36,7 @@
 </script>
 
 <svelte:head>
-  <title>Passkey Sign In — CREED OS</title>
+  <title> · </title>
 </svelte:head>
 
 <div class="rounded-none bg-surface-raised border border-border p-6 sm:p-8 shadow-sm text-center space-y-6">

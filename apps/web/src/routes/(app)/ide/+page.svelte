@@ -49,7 +49,7 @@
 </script>
 
 <svelte:head>
-  <title>Robotics IDE & Hardware Runtime — CREED OS</title>
+  <title> · </title>
   <meta
     name="description"
     content="Zero-install browser robotics IDE powered by Pyodide WebAssembly, MicroPython artifact export, and Blockly."

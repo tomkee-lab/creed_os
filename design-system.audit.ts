@@ -365,7 +365,8 @@ function auditAntiSlopCopywriting() {
     { regex: /\bsupercharge\b/i, label: 'Banned hyperbolic buzzword: "supercharge" (Anti-Slop R-16)' },
     { regex: /\b(?:revolutionary|cutting-edge)\s+ai\b/i, label: 'Banned hyperbolic claim: "revolutionary/cutting-edge AI" (Anti-Slop R-16)' },
     { regex: /\b(?:unleash|unlock)\s+your\s+potential\b/i, label: 'Banned cliché: "unleash/unlock your potential" (Anti-Slop R-16)' },
-    { regex: /\bgame-?changer\b/i, label: 'Banned cliché: "game-changer" (Anti-Slop R-16)' },
+    { regex: /\b(?:empower(?:s|ing|ment|ed)?|elevat(?:e|ing|ion|es))\b/i, label: 'Banned empty AI vocabulary: "empower/elevate" (Anti-Slop R-16)' },
+    { regex: /\b(?:game-?changer|next-?level|seamless(?:ly)?)\b/i, label: 'Banned cliché: "game-changer/next-level/seamless" (Anti-Slop R-16)' },
     { regex: /\b(?:delve into the|rich tapestry of)\b/i, label: 'Banned LLM slop phrase: "delve into / tapestry" (Anti-Slop R-16)' }
   ];
 
@@ -433,6 +434,34 @@ function auditAntiSlopVisualArtefacts() {
   });
 }
 
+// 13. Audit Anti-Slop Punctuation & Typography (Anti-Slop R-02: Zero em dash characters in UI templates)
+function auditAntiSlopPunctuation() {
+  const violations: string[] = [];
+  const allFiles = getAllTargetFiles().filter((f) => f.endsWith('.svelte'));
+
+  for (const file of allFiles) {
+    const content = fs.readFileSync(file, 'utf-8');
+    const cleanContent = content
+      .replace(/<!--[\s\S]*?-->/g, '')
+      .replace(/\/\/.*$/gm, '')
+      .replace(/\/\*[\s\S]*?\*\//g, '');
+
+    const lines = cleanContent.split('\n');
+    lines.forEach((line, idx) => {
+      if (line.includes('\u2014')) {
+        const rel = path.relative(ROOT_DIR, file);
+        violations.push(`${rel}:${idx + 1}: Found forbidden em dash (—) character (Anti-Slop R-02)`);
+      }
+    });
+  }
+
+  results.push({
+    category: 'Anti-Slop Punctuation Hygiene (miqdadbadjuber/anti-slop R-02: Zero em dash characters)',
+    passed: violations.length === 0,
+    details: violations
+  });
+}
+
 // Run all audits
 auditCanonicalSpecification();
 auditRadii();
@@ -445,6 +474,7 @@ auditTokenPipeline();
 auditPackageManager();
 auditAntiSlopCopywriting();
 auditAntiSlopVisualArtefacts();
+auditAntiSlopPunctuation();
 auditHeuristics();
 
 console.log('\n===============================================================');
