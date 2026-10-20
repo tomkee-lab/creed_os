@@ -109,12 +109,14 @@
           bind:value={searchQuery}
           type="text"
           placeholder="Search learners, pathways, evidence, actions..."
-          class="flex-1 bg-transparent border-none text-xs text-ink placeholder:text-ink-muted outline-none"
+          class="flex-1 bg-transparent border-none text-xs text-ink placeholder:text-ink-muted outline-none focus-visible:ring-0"
         />
         {#if searchQuery}
           <button
             onclick={() => (searchQuery = '')}
-            class="p-1 rounded-none text-ink-muted hover:text-ink cursor-pointer"
+            class="p-1 rounded-none text-ink-muted hover:text-ink cursor-pointer focus-visible:outline-2 focus-visible:outline-focus"
+            aria-label="Clear search query"
+            title="Clear search query"
           >
             <X class="w-3.5 h-3.5" />
           </button>

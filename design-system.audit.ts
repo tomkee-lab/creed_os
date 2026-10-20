@@ -462,6 +462,51 @@ function auditAntiSlopPunctuation() {
   });
 }
 
+// 14. Audit Anti-Slop Human & Accessibility (miqdadbadjuber/anti-slop R-32: Keyboard operable, zero unlabeled buttons, accessible focus)
+function auditAntiSlopHumanAccessibility() {
+  const violations: string[] = [];
+  const allFiles = getAllTargetFiles().filter((f) => f.endsWith('.svelte'));
+
+  for (const file of allFiles) {
+    const content = fs.readFileSync(file, 'utf-8');
+    const rel = path.relative(ROOT_DIR, file);
+
+    // 1. Unlabeled icon-only button check
+    const buttonRegex = /<button\b([^>]*)>([\s\S]*?)<\/button>/g;
+    let match: RegExpExecArray | null;
+    while ((match = buttonRegex.exec(content)) !== null) {
+      const attrs = match[1];
+      const inner = match[2].trim();
+      const hasAriaLabel = /\baria-label\s*=\s*["'{]/.test(attrs);
+      const hasTitle = /\btitle\s*=\s*["'{]/.test(attrs);
+      const hasAriaHidden = /\baria-hidden\s*=\s*["'{]true["'}]/.test(attrs);
+      const textContent = inner.replace(/<[^>]+>/g, '').trim();
+
+      if (!hasAriaLabel && !hasTitle && !hasAriaHidden && textContent.length === 0) {
+        const lineNum = content.slice(0, match.index).split('\n').length;
+        violations.push(`${rel}:${lineNum}: Found icon-only button missing aria-label or title`);
+      }
+    }
+
+    // 2. Bare outline-none check
+    const lines = content.split('\n');
+    lines.forEach((line, idx) => {
+      if (/\boutline-none\b/.test(line)) {
+        const hasFocus = line.includes('focus') || line.includes('ring');
+        if (!hasFocus) {
+          violations.push(`${rel}:${idx + 1}: Found outline-none without focus-visible replacement`);
+        }
+      }
+    });
+  }
+
+  results.push({
+    category: 'Anti-Slop Human Accessibility (miqdadbadjuber/anti-slop R-32: Accessible buttons & focus indicators)',
+    passed: violations.length === 0,
+    details: violations
+  });
+}
+
 // Run all audits
 auditCanonicalSpecification();
 auditRadii();
@@ -475,6 +520,7 @@ auditPackageManager();
 auditAntiSlopCopywriting();
 auditAntiSlopVisualArtefacts();
 auditAntiSlopPunctuation();
+auditAntiSlopHumanAccessibility();
 auditHeuristics();
 
 console.log('\n===============================================================');

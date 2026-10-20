@@ -26,7 +26,7 @@
   --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
   --foreground: oklch(0.180 0.015 270);            /* Deep Slate Ink #0F1117 (15.5:1 AAA) */
   --foreground-secondary: oklch(0.420 0.020 270);  /* Slate Grey #4F5464 (6.0:1 AAA) */
-  --foreground-muted: oklch(0.480 0.018 270);      /* Steel Muted #73798C (5.0:1 AAA) */
+  --foreground-muted: oklch(0.480 0.018 270);      /* Steel Muted #595D68 (6.3:1 AAA on Canvas) */
 
   /* --- 4. Primary High-Voltage Accent: Electric Indigo (#5B50E6) --- */
   /* Active · Success · Execute · Connected · Live · Selected · Primary CTA (<2% at rest) */

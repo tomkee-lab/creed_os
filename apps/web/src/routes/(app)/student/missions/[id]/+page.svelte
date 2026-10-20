@@ -806,7 +806,12 @@
                 <Play class="w-3.5 h-3.5" />
                 <span>Execute Sequence</span>
               </button>
-              <button onclick={resetRover} class="px-3 py-2 border border-border text-muted rounded-sm hover:text-foreground cursor-pointer">
+              <button
+                onclick={resetRover}
+                aria-label="Reset rover sequence"
+                title="Reset rover sequence"
+                class="px-3 py-2 border border-border text-muted rounded-sm hover:text-foreground cursor-pointer"
+              >
                 <RotateCcw class="w-3.5 h-3.5" />
               </button>
             </div>
