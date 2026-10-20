@@ -8,9 +8,7 @@
  * and unvalidated numerical benchmark metrics (percentileRank, standardScaleScore, globalComparison)
  * are NEVER serialized to minor learners or parents prior to formal Gate 4 calibration.
  *
- * =========================================================================================
- * AUTHORITATIVE DATA GOVERNANCE & FIELD EXPOSURE MATRIX:
- * =========================================================================================
+ * Authoritative data governance and field exposure matrix:
  * | Field & Type                       | Allowed Recipient    | Authorized Routes               | Educational Purpose                               | Sensitivity  | Gate 4 Status | Exposure Decision        |
  * |------------------------------------|----------------------|---------------------------------|---------------------------------------------------|--------------|---------------|--------------------------|
  * | id: string                         | Student, Parent      | /student, /parent, /api/v1      | Stable entity identification                      | Personal     | Approved      | ALLOWED                  |
@@ -36,7 +34,6 @@
  * | standardError (se): number         | Teacher/Console Only | /studio, /counselor/telemetry   | Item information / estimation uncertainty         | Restricted   | Internal Only | WITHHELD FROM STUDENTS   |
  * | 3PL item parameters (a, b, c)      | Item Authoring Only  | /studio                         | Discrimination, difficulty, pseudo-guessing       | Restricted   | Internal Only | WITHHELD FROM CLIENTS    |
  * | Fisher information: number         | Engine Internal Only | Internal Engine                 | Test information function value                   | Restricted   | Internal Only | WITHHELD FROM CLIENTS    |
- * =========================================================================================
  */
 
 import type { BenchmarkDomain } from '@core-os/assessment';

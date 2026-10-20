@@ -1,26 +1,19 @@
-/* ============================================================
-   CARBON VOLTAGE — Core OKLCH Design Token Architecture
-   Dark-by-default · Perceptual OKLCH · High-restraint neon · Technical precision
-   Usage ratio:
-   - 90% Carbon/Graphite surfaces
-   - 8% Cool neutral information/typography
-   - 2% High-voltage accent (Performance Mint <2% at rest)
-   ============================================================ */
+/* Core OKLCH design token architecture. */
 
 :root {
-  /* --- 1. Mineral Light Scale (Application Canvas & Surfaces) --- */
+  /* Mineral light scale for application canvas and surfaces. */
   --background: oklch(0.985 0.003 260);            /* Crisp Zinc Canvas #FAFAFB */
   --surface: oklch(0.965 0.005 260);               /* Primary panels / L1 #F4F5F7 */
   --surface-2: oklch(1.000 0.000 0);               /* Elevated cards / L2 (Pure White #FFFFFF) */
   --surface-3: oklch(0.995 0.002 260);             /* Popovers / active surfaces / L3 #FCFCFD */
   --surface-subtle: oklch(0.950 0.006 260);        /* Inset wells & sunken tracks #EEF0F3 */
 
-  /* --- 2. Structural & Technical Borders --- */
+  /* Structural and technical borders. */
   --border: oklch(0.895 0.008 260);                /* Clean divider #E2E4E9 */
   --border-subtle: oklch(0.925 0.005 260);         /* Low-contrast divider #EAECEF */
   --border-strong: oklch(0.800 0.010 260);         /* Structural Frame #CBD0D8 */
 
-  /* --- 3. Cool Neutral Typography & Ink Scale --- */
+  /* Cool neutral typography and ink scale. */
   --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
   --font-heading: 'DM Sans Variable', 'DM Sans', var(--font-sans);
   --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
@@ -28,7 +21,7 @@
   --foreground-secondary: oklch(0.420 0.020 270);  /* Slate Grey #4F5464 (6.0:1 AAA) */
   --foreground-muted: oklch(0.480 0.018 270);      /* Steel Muted #595D68 (6.3:1 AAA on Canvas) */
 
-  /* --- 4. Primary High-Voltage Accent: Electric Indigo (#5B50E6) --- */
+  /* Primary high-voltage accent: Electric Indigo (#5B50E6). */
   /* Active · Success · Execute · Connected · Live · Selected · Primary CTA (<2% at rest) */
   --mint: oklch(0.520 0.220 275);                  /* Electric Indigo #5B50E6 (5.8:1 AAA on White) */
   --mint-foreground: oklch(0.996 0.000 0);         /* Pure White #FEFEFE contrast (4.8:1 AA) */
@@ -36,14 +29,14 @@
   --mint-hover: oklch(0.480 0.230 275);
   --mint-active: oklch(0.440 0.240 275);
 
-  /* --- 5. Secondary Technology Accent: Electric Indigo / Iris --- */
+  /* Secondary technology accent: Electric Indigo / Iris. */
   /* AI · Intelligence · Automation · Copilots · Model-related UI · Advanced tooling */
   --violet: oklch(0.520 0.220 275);                /* Electric Indigo / Iris */
   --violet-foreground: oklch(0.996 0.000 0);
   --violet-subtle: oklch(0.950 0.035 275);
   --violet-hover: oklch(0.480 0.230 275);
 
-  /* --- 6. Supporting Technical & Operational State Accents --- */
+  /* Supporting technical and operational state accents. */
   /* Cyan: Network, infrastructure, telemetry, links */
   --cyan: oklch(0.480 0.130 215);
   --cyan-foreground: oklch(0.990 0.002 240);
@@ -64,7 +57,7 @@
   --orange-foreground: oklch(0.990 0.002 240);
   --orange-subtle: oklch(0.960 0.030 55);
 
-  /* --- 7. shadcn-svelte Semantic Conventions --- */
+  /* Component semantic conventions. */
   --card: var(--surface-2);
   --card-foreground: var(--foreground);
   --popover: var(--surface-3);
@@ -82,7 +75,7 @@
   --input: var(--border);
   --ring: var(--mint);
 
-  /* --- 8. Carbon Semantic State System --- */
+  /* Semantic state system tokens. */
   --success: var(--mint);
   --success-foreground: var(--mint-foreground);
   --warning: var(--yellow);
@@ -94,7 +87,7 @@
   --processing: var(--orange);
   --processing-foreground: var(--orange-foreground);
 
-  /* --- 9. Sidebar Tokens --- */
+  /* Sidebar tokens. */
   --sidebar: var(--surface);
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--mint);
@@ -104,7 +97,7 @@
   --sidebar-border: var(--border-subtle);
   --sidebar-ring: var(--mint);
 
-  /* --- 10. WAY 2.1 / Backward-Compatibility Bridges --- */
+  /* WAY 2.1 backward-compatibility bridges. */
   --color-canvas: var(--background);
   --color-surface: var(--surface);
   --color-surface-subtle: var(--surface-subtle);
@@ -154,7 +147,7 @@
   --accent-danger: var(--red);
   --accent-danger-subtle: var(--red-subtle);
 
-  /* --- 11. Restrained Architectural Radius System (4px Controls, 6px Popovers, 8px Panels) --- */
+  /* Architectural radius system. */
   --radius-none: 0px;
   --radius-2xs: 2px;
   --radius-xs: 3px;
@@ -168,7 +161,7 @@
   --radius-popover: 6px;
   --radius-panel: 8px;
 
-  /* --- 12. Technical Spacing Scale (Base: 4px) --- */
+  /* Technical spacing scale. */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -182,7 +175,7 @@
   --space-20: 80px;
   --space-24: 96px;
 
-  /* --- 13. Engineered Shadow System --- */
+  /* Engineered shadow system. */
   --shadow-hairline: 0 1px 2px rgb(0 0 0 / 0.18);
   --shadow-elevated: 0 8px 30px rgb(0 0 0 / 0.20);
   --shadow-floating: 0 20px 60px rgb(0 0 0 / 0.25);

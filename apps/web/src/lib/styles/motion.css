@@ -1,17 +1,14 @@
-/* ============================================================
-   CARBON VOLTAGE — Motion System
-   Fast · Subtle · Purposeful · Performance-Conscious
-   ============================================================ */
+/* Motion system timing scale, easings, and transitions. */
 
 :root {
-  /* --- Motion Timing Scale --- */
+  /* Motion timing scale. */
   --motion-micro: 140ms;       /* 120–180ms: Micro interactions, hovers, clicks */
   --motion-ui: 200ms;          /* 180–240ms: UI transitions, menus, tabs */
   --motion-reveal: 500ms;      /* 400–700ms: Content reveal, dialog entrances */
   --motion-hero: 850ms;        /* 700–1200ms: Hero choreography */
   --motion-choreography: 1200ms; /* 800–1600ms: Large scroll sequences */
 
-  /* --- Calibrated Easing Functions --- */
+  /* Calibrated easing functions. */
   --ease-power2: cubic-bezier(0.25, 1, 0.5, 1);
   --ease-power3: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-power4: cubic-bezier(0.11, 1, 0.14, 1);
@@ -24,7 +21,7 @@
   --duration-emphasis: var(--motion-reveal);
 }
 
-/* --- Reusable Transition Utility Classes --- */
+/* Reusable transition utility classes. */
 .transition-micro {
   transition-property: color, background-color, border-color, box-shadow, transform, opacity;
   transition-duration: var(--motion-micro);

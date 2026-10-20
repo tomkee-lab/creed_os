@@ -10,7 +10,7 @@
  * - Complete input shadows for all computational blocks (numbers, strings, Booleans)
  * - Dynamic Variable and Procedure management (custom: 'VARIABLE', custom: 'PROCEDURE')
  * - Complete DUAL code generators (Python & JavaScript) for 100% execution parity
- * - Pre-configured missions: Starter 🚀, Obstacle Avoidance 🛑, Square Patrol 🔄, Line Follower 🏁
+ * - Pre-configured missions: Starter, Obstacle Avoidance, Square Patrol, Line Follower
  */
 
 import * as Blockly from 'blockly';
@@ -2373,9 +2373,7 @@ export async function initializeRoboticsBlocks() {
     }
   ]);
 
-  // ==========================================
-  // 4. Register PYTHON Code Generators
-  // ==========================================
+  // Python code generators.
   // Strict PEP 8 4-space indentation normalizer for nested branch statements
   function formatBranch4Spaces(rawBranch: string): string {
     if (!rawBranch || rawBranch.trim().length === 0) return '    pass\n';
@@ -3054,9 +3052,7 @@ export async function initializeRoboticsBlocks() {
     return `azimuth = hardware_bridge.get_planetary_metric("${source}", "azimuth")\nrobot.turn_to(azimuth)\n`;
   };
 
-  // ==========================================
-  // 5. Register JAVASCRIPT Code Generators
-  // ==========================================
+  // JavaScript code generators.
   javascriptGenerator.forBlock['robot_on_start'] = function () {
     return '// Mission Initiated\nconsole.log("Executing autonomous sequence...");\n';
   };
@@ -3681,9 +3677,7 @@ export async function initializeRoboticsBlocks() {
   };
 }
 
-// ==========================================
-// 6. Modular Extensions Registry & Dynamic Toolbox
-// ==========================================
+// Modular extensions registry and dynamic toolbox.
 export interface ExtensionPack {
   id: string;
   name: string;
@@ -4403,9 +4397,7 @@ export function buildRoboticsToolbox(
   };
 }
 
-// ==========================================
-// 7. Starter Missions
-// ==========================================
+// Starter missions.
 export const STARTER_MISSIONS = {
   starter: {
     id: 'starter',

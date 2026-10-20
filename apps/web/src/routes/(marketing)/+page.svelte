@@ -251,9 +251,7 @@
   <meta name="description" content="AI-native learner intelligence, adaptive diagnostics, longitudinal evidence, and pathway navigation." />
 </svelte:head>
 
-<!-- ============================================================
-     1. EDITORIAL HERO (Viewport 1): FULL VIEWPORT WIDTH
-     ============================================================ -->
+<!-- Editorial hero section with full viewport width. -->
 <section class="min-h-svh w-full flex flex-col justify-between items-center text-center relative pt-20 sm:pt-24 pb-4 overflow-hidden isolate border-b border-border/40">
   <!-- Full-Width Ambient Psychometric Glyph Matrix & Subtle Glow -->
   <GlyphMatrix
@@ -342,14 +340,10 @@
   </a>
 </section>
 
-<!-- ============================================================
-     LONGITUDINAL OBSERVATORIES & WORKSPACES (Constrained Measure)
-     ============================================================ -->
+<!-- Longitudinal observatories and workspaces. -->
 <div class="space-y-24 max-w-5xl mx-auto px-4 sm:px-6 pt-12 sm:pt-16">
 
-  <!-- ============================================================
-       2. THE LEARNER OBSERVATORY (Viewport 2)
-       ============================================================ -->
+  <!-- The Learner Observatory. -->
   <section id="observatory" use:revealOnScroll={{ stagger: 0.08 }} class="min-h-[calc(100svh-4rem)] flex flex-col justify-center space-y-6 pt-12 pb-16 scroll-mt-16">
     <div data-reveal-item class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2">
       <div class="space-y-1">
@@ -378,9 +372,7 @@
     </div>
   </section>
 
-  <!-- ============================================================
-       3. EVIDENCE-DRIVEN ARCHITECTURE (Content with Image)
-       ============================================================ -->
+  <!-- Evidence-driven architecture. -->
   <section use:revealOnScroll={{ stagger: 0.06 }} class="space-y-12 pt-8 border-t border-border-subtle">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
       <!-- Left Editorial Narrative -->
@@ -440,9 +432,7 @@
     </div>
   </section>
 
-  <!-- ============================================================
-       4. QUANTIFIED PLATFORM IMPACT (Platform & Psychometric Metrics)
-       ============================================================ -->
+  <!-- Quantified platform impact and psychometric metrics. -->
   <section use:revealOnScroll={{ stagger: 0.07 }} class="space-y-8 pt-8 border-t border-border-subtle">
     <div data-reveal-item class="text-center max-w-xl mx-auto space-y-2">
       <span class="text-[11px] font-mono font-medium text-mint tracking-wide">
@@ -484,9 +474,7 @@
     </div>
   </section>
 
-  <!-- ============================================================
-       5. INTERACTIVE CAPABILITY STUDIO (Live Components Proving Ground)
-       ============================================================ -->
+  <!-- Interactive capability studio live components proving ground. -->
   <section use:revealOnScroll={{ stagger: 0.06 }} class="space-y-6 pt-8 border-t border-border-subtle">
     <div data-reveal-item class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
       <div class="space-y-1">
@@ -741,9 +729,7 @@
     </div>
   </section>
 
-  <!-- ============================================================
-       6. ONE INTELLIGENCE. DIFFERENT MOMENTS. (Bifurcated Ecosystem)
-       ============================================================ -->
+  <!-- Bifurcated ecosystem with distinct human role moments. -->
   <section id="moments" use:revealOnScroll={{ stagger: 0.06 }} class="space-y-12 pt-8 border-t border-border-subtle">
     <div data-reveal-item class="space-y-2 text-center max-w-xl mx-auto">
       <span class="text-xs font-mono font-medium text-brand tracking-wider uppercase">
@@ -848,9 +834,7 @@
     </div>
   </section>
 
-  <!-- ============================================================
-       7. ARRA CORE TEAM & GOVERNANCE (Flowbite Testimonial Pattern)
-       ============================================================ -->
+  <!-- Core team governance and institutional provenance. -->
   <section
     use:revealOnScroll={{ stagger: 0.06 }}
     class="space-y-8 pt-12 pb-6 border-t border-border-subtle"
@@ -954,9 +938,7 @@
     </div>
   </section>
 
-  <!-- ============================================================
-       8. INSTITUTIONAL DISTRICT ENGAGEMENT (Enterprise CTA)
-       ============================================================ -->
+  <!-- Institutional district engagement and pilot intake. -->
   <section use:revealOnScroll={{ stagger: 0.06 }} class="space-y-8 pt-8 border-t border-border-subtle">
     <div data-reveal-item class="p-8 sm:p-12 rounded-none bg-surface border border-border relative overflow-hidden shadow-md">
       <!-- Background Ambient Mint Vector -->
@@ -1021,14 +1003,9 @@
 </div>
 
 <style>
-  /* ================================================================
-     LANDING PAGE EDITORIAL MOTION & MICRO-INTERACTIONS
-     WAY 2.1 Lagom Motion Contract:
-     - 140ms (micro) · 200ms (standard) · 280ms (emphasis)
-     - Easing: cubic-bezier(0.16, 1, 0.3, 1): WAY Lagom spring
-     ================================================================ */
+  /* Landing page editorial motion adhering to Lagom motion contract (140ms, 200ms, 280ms). */
 
-  /* --- Artwork Frames: Depth illumination --- */
+  /* Artwork frames depth illumination. */
   .artwork-frame {
     transition:
       box-shadow var(--duration-emphasis, 280ms) var(--ease-lagom, cubic-bezier(0.16, 1, 0.3, 1)),
@@ -1054,7 +1031,7 @@
     background-color: var(--color-surface-subtle);
   }
 
-  /* --- Metric Scale Cards --- */
+  /* Metric scale cards. */
   .metric-card {
     transition:
       transform var(--duration-standard, 200ms) var(--ease-lagom, cubic-bezier(0.16, 1, 0.3, 1)),
@@ -1068,7 +1045,7 @@
     box-shadow: 0 4px 16px rgb(0 0 0 / 0.08);
   }
 
-  /* --- Capability Studio Frame --- */
+  /* Capability studio frame. */
   .studio-frame {
     transition:
       border-color var(--duration-standard, 200ms) ease,
@@ -1080,7 +1057,7 @@
     box-shadow: 0 2px 12px rgb(0 0 0 / 0.06);
   }
 
-  /* --- Multi-Role Moment Cards --- */
+  /* Multi-role moment cards. */
   .moment-card {
     transition:
       transform var(--duration-standard, 200ms) var(--ease-lagom, cubic-bezier(0.16, 1, 0.3, 1)),
@@ -1102,7 +1079,7 @@
     transform: translateX(3px);
   }
 
-  /* --- Scientific Governance Testimonial Card --- */
+  /* Scientific governance testimonial card. */
   .testimonial-card {
     transition:
       border-color var(--duration-standard, 200ms) var(--ease-lagom, cubic-bezier(0.16, 1, 0.3, 1)),
@@ -1114,7 +1091,7 @@
     box-shadow: 0 4px 20px rgb(0 0 0 / 0.04);
   }
 
-  /* --- Ambient Pulse Animation for Enterprise Banner --- */
+  /* Ambient pulse animation for enterprise banner. */
   @keyframes ambientPulse {
     0%, 100% {
       transform: scale(1);
@@ -1130,14 +1107,12 @@
     animation: ambientPulse 8s ease-in-out infinite;
   }
 
-  /* --- Tactile Button Press --- */
+  /* Tactile button press feedback. */
   :global(.active-press:active) {
     transform: scale(0.97);
   }
 
-  /* ================================================================
-     REDUCED MOTION OVERRIDES: Accessibility Guarantee
-     ================================================================ */
+  /* Reduced motion overrides for accessibility. */
   @media (prefers-reduced-motion: reduce) {
     .artwork-frame,
     .attribute-card,

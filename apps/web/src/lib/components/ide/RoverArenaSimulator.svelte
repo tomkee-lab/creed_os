@@ -808,9 +808,7 @@
           {/if}
         {/if}
 
-        <!-- ============================================== -->
-        <!-- THE NEW UNIFIED CYBER-BOT SPRITE               -->
-        <!-- ============================================== -->
+        <!-- Unified cyber-bot sprite. -->
         <!-- Dynamic Ground Contact Shadow (Expands/fades dynamically during jumps/levitation) -->
         <g transform="translate({roverX}, {roverY}) rotate({roverHeading})">
           <ellipse

@@ -44,9 +44,7 @@
   let lowStimulation = $state(false);
 
 
-  // =========================================================================
-  // SIMULATOR 1: TRUSS STRUCTURAL SIMULATION (robobridge)
-  // =========================================================================
+  // Truss structural simulation parameters.
   type TrussType = 'warren' | 'pratt' | 'howe';
   type MaterialType = 'aluminum' | 'carbon' | 'titanium';
   let trussType = $state<TrussType>('warren');
@@ -108,9 +106,7 @@
     stressPercentage < 95
   );
 
-  // =========================================================================
-  // SIMULATOR 2: 2D GRID MARS ROVER PATHFINDER (mars-rover-pathfinder)
-  // =========================================================================
+  // Two-dimensional grid Mars rover pathfinder.
   type Command = 'FORWARD' | 'LEFT' | 'RIGHT';
   let roverCommands = $state<Command[]>([]);
   let roverX = $state(0);
@@ -180,9 +176,7 @@
     }
   }
 
-  // =========================================================================
-  // SIMULATOR 3: GEAR TRAIN KINEMATICS (gear-train-mechanics)
-  // =========================================================================
+  // Gear train kinematics.
   let gearATeeth = $state(10);
   let gearBTeeth = $state(20);
   let motorRpm = $state(60);
@@ -192,27 +186,21 @@
   const torqueMultiplier = $derived(gearRatio);
   const passesGearCriteria = $derived(gearRatio === 2.0 && outputRpm === 30.0);
 
-  // =========================================================================
-  // SIMULATOR 4: ENVIRONMENTAL TELEMETRY FILTER (climate-sensor)
-  // =========================================================================
+  // Environmental telemetry filter.
   let filterWindow = $state(8); // 1 to 15
   let driftCompensationEnabled = $state(true);
   const signalNoiseReduction = $derived(Math.min(99, Math.round(filterWindow * 9.5 + (driftCompensationEnabled ? 20 : 0))));
   const statisticalConfidence = $derived(Math.min(99.5, Math.round(85 + (filterWindow * 1.4) + (driftCompensationEnabled ? 4 : 0))));
   const passesTelemetryCriteria = $derived(signalNoiseReduction >= 90 && statisticalConfidence >= 95.0);
 
-  // =========================================================================
-  // SIMULATOR 5: ULTRASONIC CORNER EVASION (sonar-autonomous-rover)
-  // =========================================================================
+  // Ultrasonic corner evasion.
   let detectionThresholdCm = $state(25);
   let multiDirectionalScan = $state(true);
   let cornerEscapeLogic = $state(true);
   const cornerEscapeRate = $derived(multiDirectionalScan && cornerEscapeLogic ? 100 : multiDirectionalScan ? 65 : 20);
   const passesSonarCriteria = $derived(cornerEscapeRate === 100 && detectionThresholdCm >= 20);
 
-  // =========================================================================
-  // SIMULATOR 6: FRC WINCH LIFT STATICS (frc-winch-kinematics)
-  // =========================================================================
+  // FRC winch lift statics.
   let spoolRadiusInches = $state(2.0); // 1.0 to 4.0 inches
   let robotWeightLbs = 120; // 120 lbs FRC limit
   let planetaryRatio = $state(25); // 15:1 to 40:1
@@ -222,9 +210,7 @@
   const safetyFactor = $derived(Math.round((28.0 / motorRequiredTorqueInLbs) * 10) / 10); // CIM/Falcon motor max holding torque ~28 in-lbs
   const passesWinchCriteria = $derived(totalDrumTorqueInLbs === 240 && safetyFactor >= 1.5);
 
-  // =========================================================================
-  // SIMULATOR 7: COMPUTER VISION COLOR TRACKING (cv-element-tracker)
-  // =========================================================================
+  // Computer vision color tracking.
   let colorSpace = $state<'HSV' | 'BGR'>('HSV');
   let ambientLightingLux = $state(500); // 200 to 1200 lux
   let hueTolerance = $state(15);
@@ -233,9 +219,7 @@
   const boundingBoxIou = $derived(colorSpace === 'HSV' && hueTolerance >= 10 && hueTolerance <= 20 ? 0.92 : 0.62);
   const passesCvCriteria = $derived(colorSpace === 'HSV' && boundingBoxIou >= 0.85);
 
-  // =========================================================================
-  // SIMULATOR 8: CLOSED-LOOP PID TUNER (closed-loop-pid)
-  // =========================================================================
+  // Closed-loop PID tuner.
   let kP = $state(1.8);
   let kI = $state(0.4);
   let kD = $state(0.85);
@@ -245,9 +229,7 @@
   const steadyStateError = $derived(kI > 0.2 ? 0.0 : 0.15);
   const passesPidCriteria = $derived(overshootPercent < 8.0 && settlingTimeSec < 2.5 && steadyStateError === 0.0);
 
-  // =========================================================================
-  // SIMULATOR 9: PLANETARY TELEMETRY & EARTH OBSERVATION (planetary_space)
-  // =========================================================================
+  // Planetary telemetry and Earth observation.
   let spaceUserInputValue = $state(27600);
   const passesSpaceCriteria = $derived.by(() => {
     if (mission.id === 'mission-iss-speed') {
@@ -338,9 +320,7 @@
     ];
   });
 
-  // =========================================================================
-  // OVERALL PASS CRITERIA ACROSS ALL SIMULATOR TYPES
-  // =========================================================================
+  // Pass criteria across all simulator types.
   const isMissionPassed = $derived.by(() => {
     switch (mission.simulatorType) {
       case 'truss':

@@ -62,10 +62,7 @@
     </div>
   </header>
 
-  <!-- ============================================================
-       SECTION 1: PEDAGOGICAL SAFETY
-       Anchor: #safety
-       ============================================================ -->
+  <!-- Pedagogical safety principles. -->
   <section id="safety" class="scroll-mt-24 space-y-8">
     <div class="border-b border-border pb-4 space-y-2">
       <div class="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-brand">
@@ -116,10 +113,7 @@
     </div>
   </section>
 
-  <!-- ============================================================
-       SECTION 2: QUIET MENTORSHIP
-       Anchor: #mentorship
-       ============================================================ -->
+  <!-- Quiet mentorship and Socratic dialogues. -->
   <section id="mentorship" class="scroll-mt-24 space-y-8">
     <div class="border-b border-border pb-4 space-y-2">
       <div class="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-ai">
@@ -187,10 +181,7 @@
     </div>
   </section>
 
-  <!-- ============================================================
-       SECTION 3: EDITORIAL DESIGN PRINCIPLES
-       Anchor: #principles
-       ============================================================ -->
+  <!-- Editorial design principles. -->
   <section id="principles" class="scroll-mt-24 space-y-8">
     <div class="border-b border-border pb-4 space-y-2">
       <div class="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-mint">
@@ -232,9 +223,7 @@
     </div>
   </section>
 
-  <!-- ============================================================
-       ACTION FOOTER
-       ============================================================ -->
+  <!-- Action footer. -->
   <section class="p-8 rounded-none bg-surface-raised border border-border flex flex-col sm:flex-row items-center justify-between gap-6">
     <div class="space-y-1 text-center sm:text-left">
       <h3 class="text-lg font-heading font-semibold text-ink">Support the Calm Education Movement</h3>

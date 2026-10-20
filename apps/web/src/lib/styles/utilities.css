@@ -1,9 +1,6 @@
-/* ============================================================
-   CARBON VOLTAGE — Technical Utilities & Surface Components
-   Engineered Surfaces · Tabular Numerals · Semantic Badges
-   ============================================================ */
+/* Technical utilities, surfaces, and typography scales. */
 
-/* --- Technical Surface Containers --- */
+/* Technical surface containers. */
 .surface-carbon {
   background-color: var(--surface);
   border: 1px solid var(--border-subtle);
@@ -48,14 +45,14 @@
   border-radius: 0;
 }
 
-/* --- Paragraph & Body Typography --- */
+/* Paragraph and body typography. */
 .font-paragraph,
 .text-paragraph,
 .text-body {
   font-family: var(--font-sans);
 }
 
-/* --- WAY 2.1 Calibrated Typography Hierarchy Scale --- */
+/* Typography hierarchy scale. */
 .type-display {
   font-family: var(--font-heading);
   font-size: clamp(2.5rem, 5vw, 3.5rem);
@@ -125,13 +122,13 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* --- Technical Numerals & Metrics --- */
+/* Technical numerals and metrics. */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
 }
 
-/* --- High-Restraint Semantic Badges --- */
+/* Semantic badges. */
 .badge-mint {
   background-color: var(--mint-subtle);
   color: var(--mint);
@@ -199,7 +196,7 @@
   border: 1px solid color-mix(in oklch, var(--red) 25%, transparent);
 }
 
-/* --- Status Indicators (Accessible Color + Shape) --- */
+/* Status indicators with accessible color and geometric shape. */
 .status-dot {
   width: 6px;
   height: 6px;
@@ -229,7 +226,7 @@
   background-color: var(--foreground-muted);
 }
 
-/* --- Scrollbar Suppressions (shadcn/ui Docs Style) --- */
+/* Scrollbar suppression utilities. */
 .no-scrollbar,
 .docs-sidebar-scroll {
   scrollbar-width: none !important;

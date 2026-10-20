@@ -223,9 +223,7 @@ export function computeMechStats(loadout: MechLoadout): MechComputedStats {
   };
 }
 
-// ==========================================
-// 60 FPS Micro-Animation & Physics Formulas
-// ==========================================
+// Physics formulas for 60 FPS animation.
 
 export interface HarmonicHoverState {
   offsetY: number;
@@ -293,9 +291,7 @@ export function calculateRecoilSpring(recoilTimerSec: number, maxKickback = 12, 
   return { kickbackX, bloomScale };
 }
 
-// ==========================================
-// Combat Entity Models & Swarm AI
-// ==========================================
+// Combat entity models and swarm logic.
 
 export interface PlasmaProjectile {
   id: string;

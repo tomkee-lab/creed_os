@@ -1,8 +1,5 @@
 import { Effect, Data } from 'effect';
 
-// -----------------------------------------------------------------------------
-// Errors
-// -----------------------------------------------------------------------------
 export class InsufficientEvidenceError extends Data.TaggedError('InsufficientEvidenceError')<{
   readonly message: string;
 }> {}
@@ -11,9 +8,6 @@ export class InvalidThetaRangeError extends Data.TaggedError('InvalidThetaRangeE
   readonly message: string;
 }> {}
 
-// -----------------------------------------------------------------------------
-// Types
-// -----------------------------------------------------------------------------
 export type SubjectBand = 'G1' | 'G2' | 'G3';
 export type PostingGroup = 'PG1' | 'PG2' | 'PG3';
 
@@ -29,10 +23,6 @@ export interface SubjectPrerequisite {
   readonly targetBand: SubjectBand;
   readonly requiredTheta: number;
 }
-
-// -----------------------------------------------------------------------------
-// Algorithms (Constructive Mismatch & SBB)
-// -----------------------------------------------------------------------------
 
 /**
  * Maps a standardized score to an SBB Posting Group.

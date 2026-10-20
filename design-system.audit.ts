@@ -550,6 +550,77 @@ function auditAntiSlopMobileLayout() {
   });
 }
 
+// 15. Audit Anti-Slop Code Comment Hygiene (miqdadbadjuber/anti-slop R-31: Banned decorative separators, step narration, empty labels, decorative emoji)
+function auditAntiSlopCodeComments() {
+  const violations: string[] = [];
+  const dirs = [
+    WEB_SRC,
+    path.join(ROOT_DIR, 'packages', 'ui', 'src'),
+    path.join(ROOT_DIR, 'packages', 'domain', 'src'),
+    path.join(ROOT_DIR, 'packages', 'assessment', 'src')
+  ].filter(d => fs.existsSync(d));
+
+  const files: string[] = [];
+  for (const dir of dirs) {
+    files.push(...getFiles(dir, ['.svelte', '.ts', '.css']));
+  }
+
+  for (const file of files) {
+    const content = fs.readFileSync(file, 'utf-8');
+    const rel = path.relative(ROOT_DIR, file);
+    const lines = content.split('\n');
+
+    lines.forEach((line, idx) => {
+      const trimmed = line.trim();
+
+      const isComment =
+        trimmed.startsWith('//') ||
+        trimmed.startsWith('/*') ||
+        trimmed.startsWith('*') ||
+        trimmed.startsWith('<!--') ||
+        trimmed.endsWith('*/') ||
+        trimmed.endsWith('-->');
+
+      if (isComment) {
+        // Exclude markdown tables inside docstrings (e.g. |---|)
+        const isMarkdownTableDelimiter = trimmed.startsWith('* |') && trimmed.includes('---|');
+        // Exclude assessment fill-in-the-blank prompt strings (e.g. [_____])
+        const isBlankPrompt = line.includes('[_____]');
+
+        if (!isMarkdownTableDelimiter && !isBlankPrompt) {
+          if (/={5,}|~{5,}|#{5,}|─{3,}|═{3,}/.test(line)) {
+            violations.push(`${rel}:${idx + 1}: Found decorative separator banner in comment (Anti-Slop R-31)`);
+          }
+          if (/-{5,}/.test(line) && !isMarkdownTableDelimiter) {
+            violations.push(`${rel}:${idx + 1}: Found decorative dashed separator banner in comment (Anti-Slop R-31)`);
+          }
+        }
+
+        // Step-by-step workflow narration (// Step 1:, // Step 2:)
+        if (/(?:\/\/|\/\*|<!--)\s*Step\s*\d/i.test(line)) {
+          violations.push(`${rel}:${idx + 1}: Found step-by-step workflow narration comment (Anti-Slop R-31)`);
+        }
+
+        // Empty labels (// Main logic, // Core logic, // Helper function)
+        if (/(?:\/\/|\/\*|<!--)\s*(?:Main|Core|Business|Helper)\s+(?:logic|function|component)\b/i.test(line)) {
+          violations.push(`${rel}:${idx + 1}: Found generic empty category label in comment (Anti-Slop R-31)`);
+        }
+
+        // Decorative emoji in code comments
+        if (/(?:\/\/|\/\*|<!--|\*)[^\r\n]*(?:🚀|✅|🔒|⚡|💡|🎉|✨)/.test(line)) {
+          violations.push(`${rel}:${idx + 1}: Found decorative emoji in code comment (Anti-Slop R-31)`);
+        }
+      }
+    });
+  }
+
+  results.push({
+    category: 'Anti-Slop Code Comment Hygiene (miqdadbadjuber/anti-slop R-31: Zero decorative banners, step narration, empty labels)',
+    passed: violations.length === 0,
+    details: violations
+  });
+}
+
 // Run all audits
 auditCanonicalSpecification();
 auditRadii();
@@ -565,6 +636,7 @@ auditAntiSlopVisualArtefacts();
 auditAntiSlopPunctuation();
 auditAntiSlopHumanAccessibility();
 auditAntiSlopMobileLayout();
+auditAntiSlopCodeComments();
 auditHeuristics();
 
 console.log('\n===============================================================');

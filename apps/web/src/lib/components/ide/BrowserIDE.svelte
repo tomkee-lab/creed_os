@@ -3219,10 +3219,7 @@
 <style>
   /* stylelint-disable selector-class-pattern */
 
-  /* ============================================================
-     CREED OS · Theme-Adaptive Blockly Styling Engine
-     Guarantees 100% Color Scheme Consistency in Light & Dark Mode
-     ============================================================ */
+  /* Theme-adaptive Blockly styling engine for light and dark modes. */
 
   /* 1. Global Workspace & Canvas (Dark Theme) */
   :global(.dark) :global(.blocklySvg),

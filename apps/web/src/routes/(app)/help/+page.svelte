@@ -501,12 +501,9 @@ Content-Type: application/json
   <meta name="description" content={activeDoc.lead} />
 </svelte:head>
 
-<!-- ============================================================
-     SHADCN-INSPIRED DOCUMENTATION SHELL
-     Top Navbar (56px) + Left Sidebar (256px) + Main Article + Right TOC (220px)
-     ============================================================ -->
+<!-- Documentation shell: sticky top bar, navigation sidebar, article content, and table of contents. -->
 <div class="min-h-screen flex flex-col bg-canvas text-ink selection:bg-brand/20">
-  <!-- 1. TOP DOCUMENTATION NAVBAR (Sticky 56px) -->
+  <!-- Top documentation navigation bar. -->
   <header class="sticky top-0 z-40 w-full border-b border-border bg-canvas/95 backdrop-blur-md">
     <div class="max-w-7xl mx-auto h-14 px-4 sm:px-6 flex items-center justify-between gap-4">
       <!-- Left Brand & Breadcrumb -->
@@ -640,9 +637,9 @@ Content-Type: application/json
     </div>
   </header>
 
-  <!-- 2. MAIN DOCUMENTATION WRAPPER -->
+  <!-- Main documentation content wrapper. -->
   <div class="flex-1 max-w-7xl mx-auto w-full flex">
-    <!-- LEFT DOCUMENTATION SIDEBAR (Matching Screenshot 2) -->
+    <!-- Left documentation sidebar. -->
     <aside
       class="docs-sidebar-scroll fixed inset-y-14 left-0 z-30 w-64 lg:w-72 bg-canvas border-r border-border p-4 overflow-y-auto space-y-6 md:sticky md:top-14 md:h-[calc(100vh-3.5rem)] md:shrink-0 {mobileSidebarOpen ? 'block' : 'hidden md:block'}"
     >

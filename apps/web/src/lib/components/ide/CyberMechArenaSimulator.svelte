@@ -71,9 +71,7 @@
     return () => obs.disconnect();
   });
 
-  // ==========================================
-  // Modular Loadout & Computed Stats
-  // ==========================================
+  // Modular loadout and computed stats.
   let loadout = $state<MechLoadout>({ ...DEFAULT_MECH_LOADOUT });
   let activeCustomizerTab = $state<'chassis' | 'visor' | 'weapon' | 'drones' | 'palette'>('chassis');
 
@@ -85,9 +83,7 @@
 
   let stats = $derived(computeMechStats(loadout));
 
-  // ==========================================
-  // 60 FPS Micro-Animation & Physics Engine
-  // ==========================================
+  // Micro-animation and physics engine.
   let animTime = $state(0);
   let hoverOffsetY = $state(0);
   let shadowScale = $state(1);
@@ -104,9 +100,7 @@
   let shieldTimer = $state(0);
   let visorGlitch = $state(false);
 
-  // ==========================================
-  // Combat Arena Simulation Entities & Loop
-  // ==========================================
+  // Combat arena simulation entities and game loop.
   let playerX = $state(150);
   let playerY = $state(220);
   let currentHull = $state(100);
@@ -399,9 +393,7 @@
     return Math.hypot(px - (x1 + t * (x2 - x1)), py - (y1 + t * (y2 - y1)));
   }
 
-  // ==========================================
-  // Interactive Controls
-  // ==========================================
+  // Interactive controls.
   function handleArenaMouseMove(e: MouseEvent) {
     const el = e.currentTarget as HTMLElement | SVGSVGElement;
     const rect = el.getBoundingClientRect();
@@ -506,9 +498,7 @@
 
   <!-- MAIN VIEWPORT CONTENT -->
   {#if subMode === 'hangar'}
-    <!-- ======================================================== -->
-    <!-- 1. HANGAR BAY CUSTOMIZATION STUDIO                       -->
-    <!-- ======================================================== -->
+    <!-- Hangar bay customization studio. -->
     <div class="flex-1 min-h-0 flex flex-col md:flex-row overflow-hidden p-2 gap-2">
       <!-- Left: 60 FPS Animated Mech Preview Stage -->
       <div class="flex-1 flex flex-col items-center justify-between bg-surface border border-border rounded-xs p-3 relative overflow-hidden shadow-xs">
@@ -559,9 +549,7 @@
               fill={isDarkTheme ? 'rgba(0,0,0,0.65)' : 'rgba(15,23,42,0.25)'}
             />
 
-            <!-- ============================================== -->
-            <!-- THE CYBER-MECH MULTI-LAYER RIG                -->
-            <!-- ============================================== -->
+            <!-- Cyber-mech multi-layer rig. -->
             <g transform="translate(120, {145 + hoverOffsetY})">
               <!-- LAYER 1 (BACK): Back-Orbit Support Drone (if behind) -->
               {#if activeDrone.id !== 'NONE' && !drone1State.isFrontLayer}
@@ -867,9 +855,7 @@
     </div>
 
   {:else}
-    <!-- ======================================================== -->
-    <!-- 2. CYBER-MECH COMBAT PROVING GROUND ARENA                -->
-    <!-- ======================================================== -->
+    <!-- Cyber-mech combat proving ground arena. -->
     <div class="flex-1 min-h-0 relative flex flex-col p-2 overflow-hidden">
       <!-- Cockpit HUD Status Header (Minimalist WAY 2.1) -->
       <div class="w-full bg-surface/90 border border-border px-3 py-1.5 rounded-xs flex items-center justify-between text-[10px] font-mono mb-1.5 shrink-0 shadow-xs z-20 gap-2">
@@ -944,9 +930,7 @@
           </defs>
           <rect width="300" height="300" fill="url(#combatGridPattern)" />
 
-          <!-- ============================================== -->
-          <!-- BOSS MECH (TOP CENTER)                         -->
-          <!-- ============================================== -->
+          <!-- Boss mech combat entity. -->
           {#if boss.hp > 0}
             <g transform="translate({boss.x}, {boss.y})">
               <!-- Boss HP Bar -->
@@ -998,9 +982,7 @@
             </g>
           {/if}
 
-          <!-- ============================================== -->
-          <!-- SWARM ENEMY DRONES                             -->
-          <!-- ============================================== -->
+          <!-- Swarm enemy drones. -->
           {#each swarmEnemies as enemy}
             <g transform="translate({enemy.x}, {enemy.y})">
               <!-- Swarm Drone Body -->
@@ -1014,9 +996,7 @@
             </g>
           {/each}
 
-          <!-- ============================================== -->
-          <!-- FLYING PLASMA PROJECTILES                      -->
-          <!-- ============================================== -->
+          <!-- Flying plasma projectiles. -->
           {#each plasmaProjectiles as proj}
             <g transform="translate({proj.x}, {proj.y}) rotate({proj.angle})">
               <ellipse cx="0" cy="0" rx="6" ry="2" fill={activePalette.glow} />
@@ -1024,9 +1004,7 @@
             </g>
           {/each}
 
-          <!-- ============================================== -->
-          <!-- PLAYER CYBER-MECH RIG                          -->
-          <!-- ============================================== -->
+          <!-- Player cyber-mech rig. -->
           <g transform="translate({playerX}, {playerY + hoverOffsetY}) scale(0.85)">
             <!-- Back Drones -->
             {#if activeDrone.id !== 'NONE' && !drone1State.isFrontLayer}

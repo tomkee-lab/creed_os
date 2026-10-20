@@ -13,10 +13,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ============================================================
-   CARBON VOLTAGE — Global Base Styles
-   Dark-as-Default · Technical Precision · High-Restraint Neon
-   ============================================================ */
+/* Global base styles. */
 
 @layer base {
   html {
@@ -100,10 +97,7 @@
   }
 }
 
-/* ============================================================
-   CARBON VOLTAGE — Tailwind Theme Directives
-   Exposes all semantic tokens directly into Tailwind CSS 4
-   ============================================================ */
+/* Tailwind CSS 4 theme directives and semantic tokens. */
 
 @theme inline {
   --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;

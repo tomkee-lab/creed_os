@@ -236,10 +236,7 @@
     </button>
   </div>
 
-  <!-- ============================================================
-       TAB 1: PARENTAL VERIFICATION GATE (#verify)
-       Contains all elements and test selectors required by E2E
-       ============================================================ -->
+  <!-- Parental verification gate tab. Contains elements and test selectors required by E2E suites. -->
   {#if activeTab === 'verify'}
     <div class="rounded-none bg-surface-raised border border-border p-6 sm:p-8 shadow-sm space-y-6">
       <!-- Header -->
@@ -420,9 +417,7 @@
     </div>
   {/if}
 
-  <!-- ============================================================
-       TAB 2: DPDP ACT 2023 STATUTORY COMPLIANCE (#dpdp)
-       ============================================================ -->
+  <!-- DPDP Act 2023 statutory compliance tab. -->
   {#if activeTab === 'dpdp'}
     <div class="space-y-6">
       <div class="p-6 rounded-none bg-surface-raised border border-border space-y-4">
@@ -497,9 +492,7 @@
     </div>
   {/if}
 
-  <!-- ============================================================
-       TAB 3: IMMUTABLE CONSENT LEDGER (#ledger)
-       ============================================================ -->
+  <!-- Immutable consent ledger tab. -->
   {#if activeTab === 'ledger'}
     <div class="space-y-6">
       <div class="p-6 rounded-none bg-surface-raised border border-border space-y-4">
@@ -613,9 +606,7 @@
     </div>
   {/if}
 
-  <!-- ============================================================
-       TAB 4: CONSENT & PRIVACY POLICY (#privacy)
-       ============================================================ -->
+  <!-- Consent and privacy policy tab. -->
   {#if activeTab === 'privacy'}
     <div class="space-y-6">
       <div class="p-6 rounded-none bg-surface-raised border border-border space-y-4">

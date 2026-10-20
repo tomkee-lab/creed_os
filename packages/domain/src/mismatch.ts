@@ -71,9 +71,7 @@ export interface ConstructiveMismatchResult {
   multiRouteTracks: MultiRoutePathwayTrack[];
 }
 
-// -----------------------------------------------------------------------------
-// Singapore Full SBB Core Algorithms
-// -----------------------------------------------------------------------------
+// Singapore Full SBB core algorithms.
 
 /**
  * Maps PSLE Achievement Level (AL) aggregate score to Posting Group (PG1, PG2, PG3)
@@ -151,9 +149,7 @@ export function calculatePostSecondaryAggregates(
   };
 }
 
-// -----------------------------------------------------------------------------
-// Constructive Mismatch Algorithm (Zero Rejection & 3-Tier Multi-Route)
-// -----------------------------------------------------------------------------
+// Constructive mismatch algorithm (zero rejection and three-tier multi-route).
 
 export interface PathwayPrerequisiteInput {
   competency: CompetencyDomain;

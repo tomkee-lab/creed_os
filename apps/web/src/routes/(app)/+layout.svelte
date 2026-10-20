@@ -144,10 +144,7 @@
     {@render children?.()}
   </div>
 {:else}
-<!-- ============================================================
-     AUTHENTICATED APPLICATION SHELL
-     Sidebar (240px expanded / 64px collapsed) + TopBar + Workspace Grid
-     ============================================================ -->
+<!-- Authenticated application shell: sidebar (240px expanded / 64px collapsed), top bar, workspace grid. -->
 <div class="flex min-h-screen bg-canvas text-ink">
   <!-- Desktop Collapsible Sidebar -->
   <div class="hidden md:flex shrink-0 sticky top-0 h-screen">

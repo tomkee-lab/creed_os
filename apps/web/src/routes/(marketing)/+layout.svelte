@@ -86,10 +86,7 @@
 <svelte:window bind:scrollY={scrollY} />
 
 <div class="min-h-screen flex flex-col bg-canvas text-ink">
-  <!-- ============================================================
-       PUBLIC MARKETING SHELL
-       Editorial top navigation with Lagom Micro-Animations
-       ============================================================ -->
+  <!-- Public marketing shell with editorial top navigation and micro-interactions. -->
   <header
     class="marketing-header sticky top-0 z-30 w-full border-b transition-[background-color,border-color,backdrop-filter,box-shadow] duration-200 {isScrolled || mobileMenuOpen
       ? 'border-border bg-surface-raised/85 backdrop-blur-md shadow-xs'
@@ -222,10 +219,7 @@
     {@render children?.()}
   </main>
 
-  <!-- ============================================================
-       COMPREHENSIVE EDITORIAL MASTER FOOTER
-       WAY 2.1 "Quiet Editorial Intelligence"
-       ============================================================ -->
+  <!-- Editorial master footer under WAY 2.1 Quiet Editorial Intelligence. -->
   <footer class="border-t border-border bg-surface py-12 px-4 sm:px-6 lg:px-8 mt-20 text-xs">
     <div class="max-w-7xl mx-auto space-y-12">
       <!-- 5-Column Navigation Matrix -->
@@ -314,13 +308,9 @@
 </div>
 
 <style>
-  /* ================================================================
-     MARKETING SHELL MICRO-ANIMATIONS
-     Lagom Motion Contract: 140ms (micro) · 200ms (standard) · 280ms (emphasis)
-     Easing: cubic-bezier(0.16, 1, 0.3, 1): WAY Lagom spring curve
-     ================================================================ */
+  /* Marketing shell micro-animations adhering to Lagom motion contract (140ms micro, 200ms standard, 280ms emphasis). */
 
-  /* --- Logo Hover: Brand color shift + container glow --- */
+  /* Logo hover color shift and container glow. */
   .logo-mark {
     transition:
       background-color var(--duration-standard, 200ms) var(--ease-lagom, cubic-bezier(0.16, 1, 0.3, 1)),
@@ -343,7 +333,7 @@
     color: var(--color-brand);
   }
 
-  /* --- Floating Indicator Pill & Nav Island --- */
+  /* Floating indicator pill and navigation island. */
   .nav-island {
     box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.08);
   }
@@ -376,7 +366,7 @@
     font-weight: 600;
   }
 
-  /* --- Theme Toggle: Celestial rotation (matching TopBar) --- */
+  /* Theme toggle celestial rotation. */
   .theme-toggle {
     transition:
       color var(--duration-micro, 140ms) ease,
@@ -410,7 +400,7 @@
   }
 
 
-  /* --- Primary CTA Button ("Access Workspace"): Arrow glide + tactile spring + glow --- */
+  /* Primary CTA button arrow glide and hover feedback. */
   .cta-button {
     transition:
       background-color var(--duration-micro, 140ms) ease,
@@ -435,7 +425,7 @@
     transform: translateX(3px);
   }
 
-  /* --- Mobile Toggle: Tactile press --- */
+  /* Mobile toggle tactile press. */
   .mobile-toggle {
     transition:
       color var(--duration-micro, 140ms) ease,
@@ -448,7 +438,7 @@
     transform: scale(0.90);
   }
 
-  /* --- Mobile Nav Drawer --- */
+  /* Mobile navigation drawer. */
   .mobile-nav {
     animation: slideDown var(--duration-emphasis, 280ms) var(--ease-lagom, cubic-bezier(0.16, 1, 0.3, 1));
   }
@@ -501,7 +491,7 @@
     transform: scale(0.97);
   }
 
-  /* --- Footer Links: Subtle underline slide --- */
+  /* Footer links subtle underline slide. */
   .footer-link {
     position: relative;
     transition: color var(--duration-micro, 140ms) var(--ease-lagom, cubic-bezier(0.16, 1, 0.3, 1));
@@ -529,19 +519,17 @@
     right: 0;
   }
 
-  /* --- Footer Logo: Subtle brand glow on group hover --- */
+  /* Footer logo subtle brand glow on hover. */
   :global(footer .group:hover) .logo-mark {
     box-shadow: 0 0 8px color-mix(in oklch, var(--color-brand) 20%, transparent);
   }
 
-  /* --- Marketing Header: Apple Safari & compositor optimization --- */
+  /* Marketing header compositor optimization for WebKit. */
   .marketing-header {
     will-change: background-color, border-color, backdrop-filter;
   }
 
-  /* ================================================================
-     REDUCED MOTION: Respect system preference
-     ================================================================ */
+  /* Reduced motion overrides for system preferences. */
   @media (prefers-reduced-motion: reduce) {
     .marketing-header,
     .nav-indicator,

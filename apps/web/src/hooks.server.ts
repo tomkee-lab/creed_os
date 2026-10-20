@@ -1,12 +1,7 @@
 import { auth } from '$lib/server/auth';
 import { redirect, error, type Handle, type HandleServerError } from '@sveltejs/kit';
 
-// ---------------------------------------------------------------------------
-// Route Protection Manifest
-// ---------------------------------------------------------------------------
-// Routes listed here are accessible WITHOUT authentication.
-// Everything else (all workspace routes, internal APIs) requires a session.
-// ---------------------------------------------------------------------------
+// Public routes accessible without authentication. All other routes require an active session.
 
 /** Exact paths that are always public */
 const PUBLIC_EXACT: Set<string> = new Set([
@@ -67,14 +62,10 @@ function getHomeRouteForRole(role: string): string {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Handle
-// ---------------------------------------------------------------------------
-
 export const handle: Handle = async ({ event, resolve }) => {
   const pathname = event.url.pathname;
 
-  // ── Canonical Route Redirection (Consolidation to 11 Canonical Routes) ──
+  // Canonical route redirection.
   const CONSOLIDATED_REDIRECTS: Record<string, string> = {
     '/author': '/studio',
     '/student/progress': '/student/growth',
@@ -94,7 +85,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     throw redirect(308, targetRedirect);
   }
 
-  // ── 1. Resolve session ────────────────────────────────────────────────────
+  // Resolve active session.
   try {
     const session = await auth.api.getSession({
       headers: event.request.headers
@@ -191,12 +182,12 @@ export const handle: Handle = async ({ event, resolve }) => {
     event.locals.user = null;
   }
 
-  // ── 2. Derive effective role ──────────────────────────────────────────────
+  // Derive effective role.
   const user = event.locals.user;
   const userRole = (user as any)?.role || (user as any)?.metadata?.role || 'student';
   const effectiveRole = userRole;
 
-  // ── 3. Authenticated users visiting login or signup ────────────────────────
+  // Redirect authenticated users visiting login or signup.
   if (event.locals.session && (pathname === '/login' || pathname === '/signup')) {
     const nextParam = event.url.searchParams.get('next');
     if (nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//') && !nextParam.startsWith('/\\')) {
@@ -212,7 +203,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     throw redirect(303, getHomeRouteForRole(effectiveRole));
   }
 
-  // ── 4. Route protection & RBAC enforcement ─────────────────────────────────
+  // Route protection and RBAC enforcement.
   if (!isPublicRoute(pathname)) {
     // 4a. Authentication check
     if (!event.locals.session) {

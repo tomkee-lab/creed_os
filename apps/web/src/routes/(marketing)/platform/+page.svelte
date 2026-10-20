@@ -63,10 +63,7 @@
     </div>
   </header>
 
-  <!-- ============================================================
-       SECTION 1: DETERMINISTIC IRT (Item Response Theory 3PL)
-       Anchor: #irt
-       ============================================================ -->
+  <!-- Deterministic IRT (Item Response Theory 3PL). -->
   <section id="irt" class="scroll-mt-24 space-y-8">
     <div class="border-b border-border pb-4 space-y-2">
       <div class="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-brand">
@@ -135,10 +132,7 @@
     </div>
   </section>
 
-  <!-- ============================================================
-       SECTION 2: ADAPTIVE CAT BOUNDS
-       Anchor: #cat
-       ============================================================ -->
+  <!-- Adaptive CAT bounds and stopping criteria. -->
   <section id="cat" class="scroll-mt-24 space-y-8">
     <div class="border-b border-border pb-4 space-y-2">
       <div class="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-mint">
@@ -201,10 +195,7 @@
     </div>
   </section>
 
-  <!-- ============================================================
-       SECTION 3: EVIDENCE PROVENANCE & 4-TIER PYRAMID
-       Anchor: #evidence
-       ============================================================ -->
+  <!-- Evidence provenance and four-tier evidence hierarchy. -->
   <section id="evidence" class="scroll-mt-24 space-y-8">
     <div class="border-b border-border pb-4 space-y-2">
       <div class="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-ai">
@@ -303,9 +294,7 @@
     </div>
   </section>
 
-  <!-- ============================================================
-       ACTION FOOTER: Experience Workspaces
-       ============================================================ -->
+  <!-- Action footer: experience workspaces. -->
   <section class="p-8 rounded-none bg-surface-raised border border-border flex flex-col sm:flex-row items-center justify-between gap-6">
     <div class="space-y-1 text-center sm:text-left">
       <h3 class="text-lg font-heading font-semibold text-ink">Ready to verify the science in action?</h3>
