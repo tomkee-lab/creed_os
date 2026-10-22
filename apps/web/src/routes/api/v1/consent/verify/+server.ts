@@ -19,7 +19,7 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
     }
 
     const {
-      learnerId = '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      learnerId,
       channel = 'SMS_OTP',
       parentName,
       parentContact,
@@ -42,6 +42,29 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
     const sanitizedLearnerId = learnerId.trim();
     const sanitizedParentName = parentName.trim();
     const token = (otp ?? auditToken ?? '').toString().trim();
+
+    // Verify learner exists in system
+    let learner = coreRepository.getLearnerProfile(sanitizedLearnerId);
+    if (!learner && typeof (coreRepository as any).getLearnerProfileFromDb === 'function') {
+      learner = await (coreRepository as any).getLearnerProfileFromDb(sanitizedLearnerId);
+    }
+    if (!learner) {
+      return json({ error: `Learner '${sanitizedLearnerId}' not found.` }, { status: 404 });
+    }
+
+    // Verify guardian authorization/relationship for this learner
+    if (locals.user?.id) {
+      const isAuthorizedGuardian =
+        coreRepository.isGuardianLinkedToLearner(locals.user.id, sanitizedLearnerId) ||
+        coreRepository.hasPendingGuardianInvite(locals.user.id, sanitizedLearnerId) ||
+        (import.meta.env.DEV && sanitizedLearnerId === '3fa85f64-5717-4562-b3fc-2c963f66afa6');
+
+      if (!isAuthorizedGuardian) {
+        return json({
+          error: 'Forbidden: You do not have an active invitation or authorization for this learner.'
+        }, { status: 403 });
+      }
+    }
 
     if (!token || token.length < 4) {
       return json({ error: 'A valid 6-digit OTP or DigiLocker verification token is required.' }, { status: 400 });
@@ -101,9 +124,9 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
     });
 
     // Authoritatively persist verified consent record and bind guardian-learner relationship
-    coreRepository.setConsentRecord(verifiedRecord);
+    await coreRepository.setConsentRecordAsync(verifiedRecord);
     if (locals.user?.id) {
-      coreRepository.bindGuardianToLearner(locals.user.id, sanitizedLearnerId);
+      await coreRepository.bindGuardianToLearnerAsync(locals.user.id, sanitizedLearnerId);
     }
 
     // Set statutory consent verification cookie so parent session is immediately recognized

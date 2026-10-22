@@ -14,15 +14,42 @@ export const GET: RequestHandler = async ({ url, locals }) => {
     return json({ error: 'Unauthorized: Active session required' }, { status: 401 });
   }
 
-  const learnerId = resolveLearnerId(locals.user);
+  const user = locals.user;
+  const userRole = (user as any).role || (user as any).metadata?.role || 'student';
+
+  const requestedLearnerId = url.searchParams.get('learnerId');
+  const boundLearnerId = resolveLearnerId(user);
+  const learnerId = (userRole === 'student' || !requestedLearnerId) ? boundLearnerId : requestedLearnerId;
+
   if (!learnerId) {
     return json({ error: 'Forbidden: No authorized learner relationship associated with account' }, { status: 403 });
+  }
+
+  if (userRole === 'student' && requestedLearnerId && requestedLearnerId !== boundLearnerId) {
+    return json({ error: 'Forbidden: Students are restricted strictly to their own PARAKH progress card.' }, { status: 403 });
+  }
+
+  if (userRole === 'parent') {
+    const isAuthorized =
+      coreRepository.isGuardianLinkedToLearner(user.id, learnerId) ||
+      learnerId === boundLearnerId ||
+      (import.meta.env.DEV && learnerId === '3fa85f64-5717-4562-b3fc-2c963f66afa6');
+    if (!isAuthorized) {
+      return json({ error: 'Forbidden: Guardians are restricted to their verified child profile.' }, { status: 403 });
+    }
+  }
+
+  if (['teacher', 'counselor'].includes(userRole)) {
+    const isCohort = await coreRepository.isLearnerInEducatorCohortAsync(user.id, learnerId);
+    if (!isCohort && (!import.meta.env.DEV || learnerId !== '3fa85f64-5717-4562-b3fc-2c963f66afa6')) {
+      return json({ error: 'Forbidden: Educators are restricted strictly to students within their authorized cohort.' }, { status: 403 });
+    }
   }
 
   const localeParam = url.searchParams.get('locale');
   const locale = localeParam === 'hi' ? 'hi' : 'en';
 
-  const hpc = coreRepository.getParakhHpc(learnerId);
+  const hpc = await coreRepository.getParakhHpcAsync(learnerId);
 
   return json({
     success: true,
@@ -63,7 +90,24 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       targetLearnerId = boundId;
     }
 
-    const currentHpc = coreRepository.getParakhHpc(targetLearnerId);
+    if (userRole === 'parent') {
+      const isAuthorized =
+        coreRepository.isGuardianLinkedToLearner(user.id, targetLearnerId) ||
+        targetLearnerId === resolveLearnerId(user) ||
+        (import.meta.env.DEV && targetLearnerId === '3fa85f64-5717-4562-b3fc-2c963f66afa6');
+      if (!isAuthorized) {
+        return json({ error: 'Forbidden: Guardians are restricted to their verified child profile.' }, { status: 403 });
+      }
+    }
+
+    if (['teacher', 'counselor'].includes(userRole)) {
+      const isCohort = await coreRepository.isLearnerInEducatorCohortAsync(user.id, targetLearnerId);
+      if (!isCohort && (!import.meta.env.DEV || targetLearnerId !== '3fa85f64-5717-4562-b3fc-2c963f66afa6')) {
+        return json({ error: 'Forbidden: Educators are restricted strictly to students within their authorized cohort.' }, { status: 403 });
+      }
+    }
+
+    const currentHpc = await coreRepository.getParakhHpcAsync(targetLearnerId);
     let updatedHpc: ParakhHpcRecord = { ...currentHpc };
 
     // 1. APAAR ID Modification: Administrative/Guardian statutory authority only
@@ -97,8 +141,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
     // 3. Peer Evaluation: Collaborative inquiry between peer learners or teachers
     if (body.peerEvaluation) {
-      if (userRole === 'student' && body.peerEvaluation.peerLearnerId === targetLearnerId) {
-        return json({ error: 'Forbidden: A learner cannot submit a peer evaluation for themselves.' }, { status: 403 });
+      const studentLearnerId = resolveLearnerId(user);
+      if (userRole === 'student' && (body.peerEvaluation.peerLearnerId === targetLearnerId || studentLearnerId === targetLearnerId)) {
+        return json({ error: 'Forbidden: A learner cannot submit a peer evaluation for themselves on their own card.' }, { status: 403 });
       }
       const peerEval = {
         ...body.peerEvaluation,
@@ -144,7 +189,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       };
     }
 
-    coreRepository.saveParakhHpc(updatedHpc);
+    await coreRepository.saveParakhHpcAsync(updatedHpc);
 
     return json({
       success: true,

@@ -34,12 +34,16 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     const events: PisaTelemetryEvent[] = Array.isArray(body.events) ? body.events : [];
     const optimalSteps = typeof body.optimalSteps === 'number' ? body.optimalSteps : 3;
 
+    const userRole = (locals.user as any).role || (locals.user as any).metadata?.role || 'student';
+    const isStaff = ['teacher', 'counselor', 'admin'].includes(userRole);
+
     const report = compilePisaProcessReport(learnerId, missionId, events, {
       optimalSteps,
-      missionTitle: mission.title
+      missionTitle: mission.title,
+      isServerVerified: isStaff && locals.user.id !== learnerId
     });
 
-    coreRepository.savePisaProcessTelemetry(report);
+    await coreRepository.savePisaProcessTelemetryAsync(report);
 
     return json({
       success: true,
@@ -71,7 +75,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
   }
 
   const { id: missionId } = params;
-  const allReports = coreRepository.getPisaProcessReports(learnerId);
+  const allReports = await coreRepository.getPisaProcessReportsAsync(learnerId);
   const missionReports = allReports.filter((r) => r.missionId === missionId);
 
   return json({

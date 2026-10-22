@@ -36,7 +36,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
     // Support Activity Theory Role-Based Team Submissions (Kinematics, Firmware, Telemetry)
     if (body.teamRole && ['kinematics', 'firmware', 'telemetry'].includes(body.teamRole)) {
-      const evidenceRecord = createRoleBasedEvidenceAtom(boundLearnerId, {
+      const userRole = (locals.user as any).role || (locals.user as any).metadata?.role || 'student';
+      const isStaffEvaluator = ['teacher', 'admin', 'counselor'].includes(userRole) && locals.user.id !== boundLearnerId;
+
+      const rawRecord = createRoleBasedEvidenceAtom(boundLearnerId, {
         missionId: body.missionId || 'team-mission-01',
         missionTitle: body.missionTitle || 'Collaborative Robotics Proving Ground',
         teamRole: body.teamRole,
@@ -49,14 +52,23 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         notes: body.learnerNotes || body.notes
       });
 
+      const evidenceRecord: LearnerEvidence = {
+        ...rawRecord,
+        confidence: isStaffEvaluator ? rawRecord.confidence : 0.70,
+        evidenceStrength: isStaffEvaluator ? 4 : 2,
+        status: isStaffEvaluator ? 'validated' : 'candidate'
+      };
+
       await coreRepository.addEvidenceAsync(evidenceRecord, locals.user.id);
 
       return json({
         success: true,
-        verified: true,
+        verified: isStaffEvaluator,
         teamRole: body.teamRole,
         evidence: evidenceRecord,
-        message: `Activity Theory role '${body.teamRole.toUpperCase()}' verified! Level 4 applied evidence recorded in growth ledger.`
+        message: isStaffEvaluator
+          ? `Activity Theory role '${body.teamRole.toUpperCase()}' verified! Level 4 applied evidence recorded in growth ledger.`
+          : `Activity Theory role '${body.teamRole.toUpperCase()}' recorded as candidate evidence pending educator review.`
       });
     }
 
@@ -122,15 +134,20 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         return json({ error: 'Bad Request: A valid missionId is required for mission submission' }, { status: 400 });
       }
 
+      const existingMission = coreRepository.getMissionById(missionId);
+      if (!existingMission) {
+        return json({ error: `Bad Request: Mission '${missionId}' not found in curriculum catalog.` }, { status: 400 });
+      }
+
       const evidenceId = crypto.randomUUID();
       const now = new Date().toISOString();
       const solution = body.solution || {};
-      const missionTitle = body.missionTitle || 'Applied STEM Engineering Challenge';
-      const requestedCompetency = String(body.competency || 'computational_thinking');
+      const missionTitle = body.missionTitle || existingMission.title || 'Applied STEM Engineering Challenge';
+      const requestedCompetency = String(body.competency || existingMission.domain || 'computational_thinking');
       const competency = ALLOWED_COMPETENCIES.has(requestedCompetency) ? requestedCompetency : 'computational_thinking';
 
       const userRole = (locals.user as any).role || (locals.user as any).metadata?.role || 'student';
-      const isStaffEvaluator = ['teacher', 'admin', 'counselor'].includes(userRole);
+      const isStaffEvaluator = ['teacher', 'admin', 'counselor'].includes(userRole) && locals.user.id !== boundLearnerId;
 
       // F05 Remediation: Untrusted browser telemetry cannot self-declare authoritative 'validated' status.
       // Candidate submissions from students remain 'candidate' until verified by an educator or deterministic server verifier.
@@ -183,7 +200,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     }
 
     const {
-      missionId = 'robobridge',
+      missionId: rawMissionId = 'robobridge',
       missionTitle,
       trussType = 'warren',
       material = 'carbon_fiber',
@@ -191,6 +208,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       maxLoadKg,
       learnerNotes
     } = body;
+
+    const missionId = String(rawMissionId).trim();
+    const existingMission = coreRepository.getMissionById(missionId);
+    if (!existingMission && missionId !== 'robobridge') {
+      return json({ error: `Bad Request: Mission '${missionId}' not found in curriculum catalog.` }, { status: 400 });
+    }
 
     // 3. Deterministic engineering input validation
     const mass = Number(massKg);

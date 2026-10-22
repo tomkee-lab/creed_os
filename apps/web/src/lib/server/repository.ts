@@ -12,6 +12,7 @@ import type {
 import { isConsentActive, StatutoryConsentError, generateParakhHpc } from '@core-os/domain';
 import crypto from 'node:crypto';
 import { queryDb, getDbPool, isCloudDatabaseEnabled } from './supabase';
+import { DEFAULT_DEMO_LEARNER_ID } from './learnerScope';
 import {
   CALIBRATED_ITEM_BANK,
   STEM_BENCHMARK_ITEMS,
@@ -467,6 +468,7 @@ class LocalCoreRepository {
   protected missions: StemMission[] = [...STEM_MISSIONS];
   protected consentRecords: Map<string, ConsentRecord> = new Map();
   protected guardianLearnerMap: Map<string, Set<string>> = new Map();
+  protected educatorCohortMap: Map<string, Set<string>> = new Map();
 
   constructor() {
     // 1. Initialize Baseline Learner Profile
@@ -1321,6 +1323,12 @@ class LocalCoreRepository {
       updatedAt: '2026-10-01T00:00:00Z'
     });
     this.guardianLearnerMap.set('parent_4', new Set(['7cc12e44-5512-4019-9182-192847102948']));
+
+    // Initialize Educator Cohorts for staff role-based access
+    const cohortStudentIds = new Set(this.classCohort.students.map((s) => s.id).concat(['3fa85f64-5717-4562-b3fc-2c963f66afa6']));
+    this.educatorCohortMap.set('teacher_1', cohortStudentIds);
+    this.educatorCohortMap.set('counselor_1', cohortStudentIds);
+    this.educatorCohortMap.set('admin_1', cohortStudentIds);
   }
 
   // --- Profile Operations ---
@@ -1559,6 +1567,28 @@ class LocalCoreRepository {
     return hasRegisteredRelationship;
   }
 
+  isLearnerInEducatorCohort(educatorId: string, learnerId: string): boolean {
+    if (!educatorId || !learnerId) return false;
+    if (educatorId === 'teacher_1' || educatorId === 'counselor_1' || educatorId === 'admin_1') {
+      if (learnerId === DEFAULT_DEMO_LEARNER_ID || this.learnerProfiles.has(learnerId)) {
+        return true;
+      }
+    }
+    const cohort = this.educatorCohortMap.get(educatorId);
+    return cohort ? cohort.has(learnerId) : false;
+  }
+
+  async isLearnerInEducatorCohortAsync(educatorId: string, learnerId: string): Promise<boolean> {
+    return Promise.resolve(this.isLearnerInEducatorCohort(educatorId, learnerId));
+  }
+
+  hasPendingGuardianInvite(guardianId: string, learnerId: string): boolean {
+    if (!guardianId || !learnerId) return false;
+    if (this.isGuardianLinkedToLearner(guardianId, learnerId)) return true;
+    const record = this.consentRecords.get(learnerId);
+    return record ? record.guardianId === guardianId : false;
+  }
+
   bindGuardianToLearner(guardianId: string, learnerId: string): void {
     if (!this.guardianLearnerMap.has(guardianId)) {
       this.guardianLearnerMap.set(guardianId, new Set());
@@ -1641,6 +1671,24 @@ class LocalCoreRepository {
     };
     this.consentRecords.set(learnerId, updated);
     return updated;
+  }
+
+  async hasActiveConsentAsync(learnerId: string): Promise<boolean> {
+    return Promise.resolve(this.hasActiveConsent(learnerId));
+  }
+
+  async setConsentRecordAsync(record: ConsentRecord): Promise<void> {
+    this.setConsentRecord(record);
+    return Promise.resolve();
+  }
+
+  async withdrawConsentAsync(learnerId: string, reason: string = 'Statutory withdrawal'): Promise<ConsentRecord | null> {
+    return Promise.resolve(this.withdrawConsent(learnerId, reason));
+  }
+
+  async bindGuardianToLearnerAsync(guardianId: string, learnerId: string): Promise<void> {
+    this.bindGuardianToLearner(guardianId, learnerId);
+    return Promise.resolve();
   }
 
   getConsentLedger(): Array<{
@@ -1883,6 +1931,24 @@ class LocalCoreRepository {
   getPisaProcessReports(learnerId: string): PisaProcessTelemetryReport[] {
     return this.pisaTelemetryStore.get(learnerId) || [];
   }
+
+  async saveParakhHpcAsync(hpc: ParakhHpcRecord): Promise<void> {
+    this.saveParakhHpc(hpc);
+    return Promise.resolve();
+  }
+
+  async getParakhHpcAsync(learnerId: string): Promise<ParakhHpcRecord> {
+    return Promise.resolve(this.getParakhHpc(learnerId));
+  }
+
+  async savePisaProcessTelemetryAsync(report: PisaProcessTelemetryReport): Promise<void> {
+    this.savePisaProcessTelemetry(report);
+    return Promise.resolve();
+  }
+
+  async getPisaProcessReportsAsync(learnerId: string): Promise<PisaProcessTelemetryReport[]> {
+    return Promise.resolve(this.getPisaProcessReports(learnerId));
+  }
 }
 
 export class PostgresCoreRepository extends LocalCoreRepository {
@@ -1977,253 +2043,441 @@ export class PostgresCoreRepository extends LocalCoreRepository {
     }
   }
 
+  private async persistEvidenceToDb(evidence: LearnerEvidence, actorSub: string): Promise<void> {
+    if (!isCloudDatabaseEnabled()) return;
+
+    await this.withVerifiedConsentTransaction(evidence.learnerId, actorSub, async (client) => {
+      if (!client) return;
+      let prevHash = 'GENESIS_EVIDENCE_HASH_0000000000000000';
+      const lastRow = await client.query(
+        `SELECT observed_value->>'chainHash' as chain_hash FROM learner_evidence WHERE learner_id = $1 ORDER BY observed_at DESC LIMIT 1`,
+        [evidence.learnerId]
+      );
+      if (lastRow.rows[0]?.chain_hash) {
+        prevHash = lastRow.rows[0].chain_hash;
+      }
+
+      const ev = evidence as any;
+      const scoreVal = ev.score ?? ev.observedValue?.scoreFraction ?? 1.0;
+      const timestampVal = ev.timestamp ?? ev.observedAt ?? Date.now();
+      const chainHash = crypto.createHash('sha256')
+        .update(`${prevHash}:${ev.learnerId}:${ev.competency}:${scoreVal}:${timestampVal}`)
+        .digest('hex');
+
+      let compRes = await client.query(
+        `SELECT id FROM competencies WHERE domain = $1 OR code = $1 LIMIT 1`,
+        [ev.competency]
+      );
+      let competencyId = compRes.rows[0]?.id;
+      if (!competencyId) {
+        // Dynamic upsert to prevent foreign key errors for unseeded item competencies
+        const domainStr = String(ev.competency);
+        const codeStr = 'COMP-' + domainStr.slice(0, 10).toUpperCase();
+        const titleStr = domainStr.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        const upsertRes = await client.query(
+          `INSERT INTO competencies (code, title, domain, description, is_active)
+           VALUES ($1, $2, $3, $4, true)
+           ON CONFLICT (code) DO UPDATE SET title = EXCLUDED.title
+           RETURNING id`,
+          [codeStr, titleStr, domainStr, `Dynamic competency for ${titleStr}`]
+        );
+        competencyId = upsertRes.rows[0]?.id;
+      }
+
+      await client.query(
+        `INSERT INTO learner_evidence (
+          learner_id, competency_id, evidence_type, source_type, source_id, source_title,
+          summary, observed_value, confidence, evidence_strength, status, visibility, observed_at
+        ) VALUES (
+          $1, $2,
+          $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW()
+        )`,
+        [
+          ev.learnerId,
+          competencyId,
+          ev.evidenceType || ev.type || 'applied_simulation',
+          ev.sourceType || 'project_mission',
+          ev.id || crypto.randomUUID(),
+          ev.sourceTitle || ev.title || 'Maker Simulator Artifact',
+          ev.summary || ev.claim || 'Competency demonstration',
+          JSON.stringify({ ...evidence, chainHash }),
+          ev.confidence ?? 0.7,
+          ev.evidenceStrength ?? ev.level ?? 2,
+          ev.status ?? 'candidate',
+          ev.visibility ?? 'learner_only'
+        ]
+      );
+    });
+  }
+
   override async addEvidenceAsync(
     evidence: LearnerEvidence,
     actorSub: string = evidence.learnerId
   ): Promise<LearnerEvidence> {
-    if (!this.hasActiveConsent(evidence.learnerId)) {
+    const hasConsent = await this.hasActiveConsentAsync(evidence.learnerId);
+    if (!hasConsent) {
       throw new StatutoryConsentError(
         `Statutory parental consent under DPDP Act 2023 Section 9 missing or not active for minor learner ${evidence.learnerId}`
       );
     }
 
     const chained = super.addEvidence(evidence);
-
-    if (isCloudDatabaseEnabled()) {
-      await this.withVerifiedConsentTransaction(evidence.learnerId, actorSub, async (client) => {
-        if (!client) return;
-        let prevHash = 'GENESIS_EVIDENCE_HASH_0000000000000000';
-        const lastRow = await client.query(
-          `SELECT observed_value->>'chainHash' as chain_hash FROM learner_evidence WHERE learner_id = $1 ORDER BY observed_at DESC LIMIT 1`,
-          [evidence.learnerId]
-        );
-        if (lastRow.rows[0]?.chain_hash) {
-          prevHash = lastRow.rows[0].chain_hash;
-        }
-
-        const ev = evidence as any;
-        const scoreVal = ev.score ?? ev.observedValue?.scoreFraction ?? 1.0;
-        const timestampVal = ev.timestamp ?? ev.observedAt ?? Date.now();
-        const chainHash = crypto.createHash('sha256')
-          .update(`${prevHash}:${ev.learnerId}:${ev.competency}:${scoreVal}:${timestampVal}`)
-          .digest('hex');
-
-        const compRes = await client.query(
-          `SELECT id FROM competencies WHERE domain = $1 OR code = $1 LIMIT 1`,
-          [ev.competency]
-        );
-        const competencyId = compRes.rows[0]?.id;
-        if (!competencyId) {
-          throw new Error(`[PostgresCoreRepository] Unmapped competency or domain: "${ev.competency}"`);
-        }
-
-        await client.query(
-          `INSERT INTO learner_evidence (
-            learner_id, competency_id, evidence_type, source_type, source_id, source_title,
-            summary, observed_value, confidence, evidence_strength, status, visibility, observed_at
-          ) VALUES (
-            $1, $2,
-            $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW()
-          )`,
-          [
-            ev.learnerId,
-            competencyId,
-            ev.evidenceType || ev.type || 'applied_simulation',
-            ev.sourceType || 'project_mission',
-            ev.id || crypto.randomUUID(),
-            ev.sourceTitle || ev.title || 'Maker Simulator Artifact',
-            ev.summary || ev.claim || 'Competency demonstration',
-            JSON.stringify({ ...evidence, chainHash }),
-            ev.confidence ?? 0.7,
-            ev.evidenceStrength ?? ev.level ?? 2,
-            ev.status ?? 'candidate',
-            ev.visibility ?? 'learner_only'
-          ]
-        );
-      });
-    }
-
+    await this.persistEvidenceToDb(chained, actorSub);
     return chained;
   }
 
-  override addEvidence(evidence: LearnerEvidence, actorSub: string = evidence.learnerId): any {
+  override addEvidence(evidence: LearnerEvidence, actorSub: string = evidence.learnerId): LearnerEvidence {
     const chained = super.addEvidence(evidence);
-
     if (isCloudDatabaseEnabled()) {
-      this.addEvidenceAsync(evidence, actorSub).catch((err) => {
+      this.persistEvidenceToDb(chained, actorSub).catch((err) => {
         console.error('[PostgresCoreRepository] Async evidence write error:', err);
       });
     }
-
     return chained;
+  }
+
+  private getDeterministicConsentId(learnerId: string, consentType: string = 'assessment_participation'): string {
+    const hash = crypto.createHash('sha256').update(`consent:${learnerId}:${consentType}`).digest('hex');
+    return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-4${hash.slice(13, 16)}-8${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
+  }
+
+  override async hasActiveConsentAsync(learnerId: string): Promise<boolean> {
+    if (!isCloudDatabaseEnabled()) {
+      return this.hasActiveConsent(learnerId);
+    }
+    const pool = getDbPool();
+    if (!pool) return this.hasActiveConsent(learnerId);
+    try {
+      const res = await pool.query(
+        `SELECT id, guardian_id, status, expires_at, withdrawn_at, verified_at, policy_version, verification_method
+         FROM consents
+         WHERE learner_id = $1
+         ORDER BY created_at DESC LIMIT 1`,
+        [learnerId]
+      );
+      const row = res.rows[0];
+      if (!row) {
+        return this.hasActiveConsent(learnerId);
+      }
+      const isActive = (row.status === 'verified' || row.status === 'VERIFIED_ACTIVE') &&
+        !row.withdrawn_at &&
+        (!row.expires_at || new Date(row.expires_at).getTime() > Date.now());
+
+      const mappedRecord: ConsentRecord = {
+        id: row.id,
+        learnerId,
+        guardianId: row.guardian_id || '',
+        parentName: 'Guardian Verified',
+        parentContact: '',
+        verificationChannel: (row.verification_method || 'DIGILOCKER').toUpperCase() as any,
+        status: isActive ? 'VERIFIED_ACTIVE' : row.status === 'withdrawn' ? 'WITHDRAWN' : 'EXPIRED',
+        consentVersion: row.policy_version || 'v1.2-dpdp-2023',
+        purposes: ['COMPETENCY_ASSESSMENT', 'SOCRATIC_MENTORSHIP', 'PATHWAY_NAVIGATION'],
+        verifiedAt: row.verified_at ? new Date(row.verified_at).toISOString() : undefined,
+        expiresAt: row.expires_at ? new Date(row.expires_at).toISOString() : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+        immutableAuditHash: 'db_synced',
+        updatedAt: new Date().toISOString()
+      };
+      this.consentRecords.set(learnerId, mappedRecord);
+      if (row.guardian_id) {
+        this.bindGuardianToLearner(row.guardian_id, learnerId);
+      }
+      return isActive;
+    } catch (err) {
+      console.warn('[PostgresCoreRepository] hasActiveConsentAsync query error:', err);
+      return this.hasActiveConsent(learnerId);
+    }
+  }
+
+  override async setConsentRecordAsync(record: ConsentRecord): Promise<void> {
+    super.setConsentRecord(record);
+    if (!isCloudDatabaseEnabled()) return;
+    const pool = getDbPool();
+    if (!pool) return;
+
+    const dbStatus = record.status === 'VERIFIED_ACTIVE'
+      ? 'verified'
+      : record.status === 'WITHDRAWN'
+      ? 'withdrawn'
+      : record.status === 'EXPIRED'
+      ? 'expired'
+      : 'pending';
+
+    const consentId = (record.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(record.id))
+      ? record.id
+      : this.getDeterministicConsentId(record.learnerId, 'assessment_participation');
+
+    await pool.query(
+      `INSERT INTO consents (
+        id, learner_id, guardian_id, consent_type, status, verification_method,
+        policy_version, verified_at, withdrawn_at, expires_at, created_at
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()
+      ) ON CONFLICT (id) DO UPDATE SET
+        status = EXCLUDED.status,
+        guardian_id = COALESCE(EXCLUDED.guardian_id, consents.guardian_id),
+        verified_at = EXCLUDED.verified_at,
+        withdrawn_at = EXCLUDED.withdrawn_at,
+        expires_at = EXCLUDED.expires_at`,
+      [
+        consentId,
+        record.learnerId,
+        record.guardianId || null,
+        'assessment_participation',
+        dbStatus,
+        record.verificationChannel || 'digilocker',
+        record.consentVersion || 'v1.2-dpdp-2023',
+        record.verifiedAt || (dbStatus === 'verified' ? new Date().toISOString() : null),
+        record.withdrawnAt || null,
+        record.expiresAt || null
+      ]
+    );
   }
 
   override setConsentRecord(record: ConsentRecord): void {
     super.setConsentRecord(record);
     if (isCloudDatabaseEnabled()) {
-      const pool = getDbPool();
-      if (pool) {
-        const dbStatus = record.status === 'VERIFIED_ACTIVE'
-          ? 'verified'
-          : record.status === 'WITHDRAWN'
-          ? 'withdrawn'
-          : record.status === 'EXPIRED'
-          ? 'expired'
-          : 'pending';
-
-        const consentId = (record.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(record.id))
-          ? record.id
-          : crypto.randomUUID();
-
-        pool.query(
-          `INSERT INTO consents (
-            id, learner_id, guardian_id, consent_type, status, verification_method,
-            policy_version, verified_at, withdrawn_at, expires_at, created_at
-          ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()
-          ) ON CONFLICT (id) DO UPDATE SET
-            status = EXCLUDED.status,
-            verified_at = EXCLUDED.verified_at,
-            withdrawn_at = EXCLUDED.withdrawn_at,
-            expires_at = EXCLUDED.expires_at`,
-          [
-            consentId,
-            record.learnerId,
-            record.guardianId || null,
-            'assessment_participation',
-            dbStatus,
-            record.verificationChannel || 'digilocker',
-            record.consentVersion || 'v1.2-dpdp-2023',
-            record.verifiedAt || (dbStatus === 'verified' ? new Date().toISOString() : null),
-            record.withdrawnAt || null,
-            record.expiresAt || null
-          ]
-        ).catch((err) => {
-          console.error('[PostgresCoreRepository] Async consent write error:', err);
-        });
-      }
+      this.setConsentRecordAsync(record).catch((err) => {
+        console.error('[PostgresCoreRepository] Async consent write error:', err);
+      });
     }
+  }
+
+  override async withdrawConsentAsync(learnerId: string, reason: string = 'Statutory withdrawal'): Promise<ConsentRecord | null> {
+    const updated = super.withdrawConsent(learnerId, reason);
+    if (!isCloudDatabaseEnabled()) return updated;
+    const pool = getDbPool();
+    if (pool) {
+      await pool.query(
+        `UPDATE consents SET status = 'withdrawn', withdrawn_at = NOW() WHERE learner_id = $1`,
+        [learnerId]
+      );
+    }
+    return updated;
   }
 
   override withdrawConsent(learnerId: string, reason: string = 'Statutory withdrawal'): ConsentRecord | null {
     const updated = super.withdrawConsent(learnerId, reason);
     if (isCloudDatabaseEnabled()) {
-      const pool = getDbPool();
-      if (pool) {
-        pool.query(
-          `UPDATE consents SET status = 'withdrawn', withdrawn_at = NOW() WHERE learner_id = $1`,
-          [learnerId]
-        ).catch((err) => {
-          console.error('[PostgresCoreRepository] Async consent withdraw error:', err);
-        });
-      }
+      this.withdrawConsentAsync(learnerId, reason).catch((err) => {
+        console.error('[PostgresCoreRepository] Async consent withdraw error:', err);
+      });
     }
     return updated;
+  }
+
+  override async bindGuardianToLearnerAsync(guardianId: string, learnerId: string): Promise<void> {
+    super.bindGuardianToLearner(guardianId, learnerId);
+    if (!isCloudDatabaseEnabled()) return;
+    const pool = getDbPool();
+    if (pool) {
+      await pool.query(
+        `INSERT INTO parent_learner_links (parent_id, learner_id, relationship)
+         VALUES ($1, $2, 'legal_guardian')
+         ON CONFLICT (parent_id, learner_id) DO NOTHING`,
+        [guardianId, learnerId]
+      );
+    }
   }
 
   override bindGuardianToLearner(guardianId: string, learnerId: string): void {
     super.bindGuardianToLearner(guardianId, learnerId);
     if (isCloudDatabaseEnabled()) {
-      const pool = getDbPool();
-      if (pool) {
-        pool.query(
-          `INSERT INTO parent_learner_links (parent_id, learner_id, relationship)
-           VALUES ($1, $2, 'legal_guardian')
-           ON CONFLICT (parent_id, learner_id) DO NOTHING`,
-          [guardianId, learnerId]
-        ).catch((err) => {
-          console.error('[PostgresCoreRepository] Async guardian link error:', err);
-        });
-      }
+      this.bindGuardianToLearnerAsync(guardianId, learnerId).catch((err) => {
+        console.error('[PostgresCoreRepository] Async guardian link error:', err);
+      });
     }
+  }
+
+  override async saveParakhHpcAsync(hpc: ParakhHpcRecord): Promise<void> {
+    super.saveParakhHpc(hpc);
+    if (!isCloudDatabaseEnabled()) return;
+    const pool = getDbPool();
+    if (!pool) return;
+    await pool.query(
+      `INSERT INTO parakh_hpc_records (
+        id, learner_id, stage, academic_session, apaar_id,
+        self_reflections, peer_evaluations, teacher_observations, parent_feedback,
+        cognitive_development, socio_emotional_development, aesthetic_applied_development,
+        overall_summary, updated_at
+      ) VALUES (
+        $1, $2, $3, $4, $5,
+        $6, $7, $8, $9,
+        $10, $11, $12,
+        $13, NOW()
+      ) ON CONFLICT (id) DO UPDATE SET
+        self_reflections = EXCLUDED.self_reflections,
+        peer_evaluations = EXCLUDED.peer_evaluations,
+        teacher_observations = EXCLUDED.teacher_observations,
+        parent_feedback = EXCLUDED.parent_feedback,
+        cognitive_development = EXCLUDED.cognitive_development,
+        socio_emotional_development = EXCLUDED.socio_emotional_development,
+        aesthetic_applied_development = EXCLUDED.aesthetic_applied_development,
+        overall_summary = EXCLUDED.overall_summary,
+        updated_at = NOW()`,
+      [
+        hpc.id,
+        hpc.learnerId,
+        hpc.stage,
+        hpc.academicSession,
+        hpc.apaarId || null,
+        JSON.stringify(hpc.selfReflections || []),
+        JSON.stringify(hpc.peerEvaluations || []),
+        JSON.stringify(hpc.teacherObservations || []),
+        JSON.stringify(hpc.parentFeedback || []),
+        JSON.stringify(hpc.cognitiveDevelopment || {}),
+        JSON.stringify(hpc.socioEmotionalDevelopment || {}),
+        JSON.stringify(hpc.aestheticAndAppliedDevelopment || {}),
+        JSON.stringify(hpc.overallHolisticSummary || {})
+      ]
+    );
   }
 
   override saveParakhHpc(hpc: ParakhHpcRecord): void {
     super.saveParakhHpc(hpc);
     if (isCloudDatabaseEnabled()) {
-      const pool = getDbPool();
-      if (pool) {
-        pool.query(
-          `INSERT INTO parakh_hpc_records (
-            id, learner_id, stage, academic_session, apaar_id,
-            self_reflections, peer_evaluations, teacher_observations, parent_feedback,
-            cognitive_development, socio_emotional_development, aesthetic_applied_development,
-            overall_summary, updated_at
-          ) VALUES (
-            $1, $2, $3, $4, $5,
-            $6, $7, $8, $9,
-            $10, $11, $12,
-            $13, NOW()
-          ) ON CONFLICT (id) DO UPDATE SET
-            self_reflections = EXCLUDED.self_reflections,
-            peer_evaluations = EXCLUDED.peer_evaluations,
-            teacher_observations = EXCLUDED.teacher_observations,
-            parent_feedback = EXCLUDED.parent_feedback,
-            cognitive_development = EXCLUDED.cognitive_development,
-            socio_emotional_development = EXCLUDED.socio_emotional_development,
-            aesthetic_applied_development = EXCLUDED.aesthetic_applied_development,
-            overall_summary = EXCLUDED.overall_summary,
-            updated_at = NOW()`,
-          [
-            hpc.id,
-            hpc.learnerId,
-            hpc.stage,
-            hpc.academicSession,
-            hpc.apaarId || null,
-            JSON.stringify(hpc.selfReflections || []),
-            JSON.stringify(hpc.peerEvaluations || []),
-            JSON.stringify(hpc.teacherObservations || []),
-            JSON.stringify(hpc.parentFeedback || []),
-            JSON.stringify(hpc.cognitiveDevelopment || {}),
-            JSON.stringify(hpc.socioEmotionalDevelopment || {}),
-            JSON.stringify(hpc.aestheticAndAppliedDevelopment || {}),
-            JSON.stringify(hpc.overallHolisticSummary || {})
-          ]
-        ).catch((err) => {
-          console.error('[PostgresCoreRepository] Async saveParakhHpc error:', err);
-        });
-      }
+      this.saveParakhHpcAsync(hpc).catch((err) => {
+        console.error('[PostgresCoreRepository] Async saveParakhHpc error:', err);
+      });
     }
+  }
+
+  override async getParakhHpcAsync(learnerId: string): Promise<ParakhHpcRecord> {
+    const memory = this.getParakhHpc(learnerId);
+    if (!isCloudDatabaseEnabled()) return memory;
+    const pool = getDbPool();
+    if (!pool) return memory;
+    try {
+      const res = await pool.query(
+        `SELECT * FROM parakh_hpc_records WHERE learner_id = $1 ORDER BY updated_at DESC LIMIT 1`,
+        [learnerId]
+      );
+      const row = res.rows[0];
+      if (!row) return memory;
+      const learner = this.getLearnerProfile(row.learner_id);
+      const hpc: ParakhHpcRecord = {
+        id: row.id,
+        learnerId: row.learner_id,
+        learnerName: learner?.fullName || 'Student Learner',
+        gradeBand: learner?.gradeBand || 'Middle Stage (Classes 6–8)',
+        stage: row.stage,
+        academicSession: row.academic_session,
+        apaarId: row.apaar_id || null,
+        selfReflections: typeof row.self_reflections === 'string' ? JSON.parse(row.self_reflections) : row.self_reflections || [],
+        peerEvaluations: typeof row.peer_evaluations === 'string' ? JSON.parse(row.peer_evaluations) : row.peer_evaluations || [],
+        teacherObservations: typeof row.teacher_observations === 'string' ? JSON.parse(row.teacher_observations) : row.teacher_observations || [],
+        parentFeedback: typeof row.parent_feedback === 'string' ? JSON.parse(row.parent_feedback) : row.parent_feedback || [],
+        cognitiveDevelopment: typeof row.cognitive_development === 'string' ? JSON.parse(row.cognitive_development) : row.cognitive_development || {},
+        socioEmotionalDevelopment: typeof row.socio_emotional_development === 'string' ? JSON.parse(row.socio_emotional_development) : row.socio_emotional_development || {},
+        aestheticAndAppliedDevelopment: typeof row.aesthetic_applied_development === 'string' ? JSON.parse(row.aesthetic_applied_development) : row.aesthetic_applied_development || {},
+        overallHolisticSummary: typeof row.overall_summary === 'string' ? JSON.parse(row.overall_summary) : row.overall_summary || {},
+        generatedAt: row.created_at ? new Date(row.created_at).toISOString() : new Date().toISOString()
+      };
+      this.saveParakhHpc(hpc);
+      return hpc;
+    } catch (err) {
+      console.warn('[PostgresCoreRepository] getParakhHpcAsync query error:', err);
+      return memory;
+    }
+  }
+
+  override async savePisaProcessTelemetryAsync(report: PisaProcessTelemetryReport): Promise<void> {
+    super.savePisaProcessTelemetry(report);
+    if (!isCloudDatabaseEnabled()) return;
+    const pool = getDbPool();
+    if (!pool) return;
+    const reportId = crypto.randomUUID();
+    const rawEvents = (report as any).rawEvents || (Array.isArray(report.evidenceAtom?.observedValue) ? report.evidenceAtom?.observedValue : []);
+    await pool.query(
+      `INSERT INTO mission_process_telemetry (
+        id, learner_id, mission_id, completed_phases, total_duration_ms, total_trials,
+        systematic_votat_ratio, avg_hypothesis_latency_ms, strategy_shift_detected,
+        efficiency_ratio, resilience_index, inferred_pisa_level, level_rationale,
+        raw_events, created_at
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6,
+        $7, $8, $9,
+        $10, $11, $12, $13,
+        $14, NOW()
+      )`,
+      [
+        reportId,
+        report.learnerId,
+        report.missionId,
+        report.completedPhases || [],
+        report.totalDurationMs || 0,
+        report.srlMetrics?.totalTrials || 0,
+        report.srlMetrics?.systematicParameterExplorationRatio || 0,
+        report.srlMetrics?.averageHypothesisRevisionLatencyMs || 0,
+        Boolean(report.srlMetrics?.strategyShiftDetected),
+        report.srlMetrics?.efficiencyRatio || 0,
+        report.srlMetrics?.resilienceIndex || 'Developing',
+        report.inferredPisaLevel || 1,
+        report.levelRationale || 'Diagnostic observation',
+        JSON.stringify(rawEvents)
+      ]
+    );
   }
 
   override savePisaProcessTelemetry(report: PisaProcessTelemetryReport): void {
     super.savePisaProcessTelemetry(report);
     if (isCloudDatabaseEnabled()) {
-      const pool = getDbPool();
-      if (pool) {
-        const reportId = crypto.randomUUID();
-        pool.query(
-          `INSERT INTO mission_process_telemetry (
-            id, learner_id, mission_id, completed_phases, total_duration_ms, total_trials,
-            systematic_votat_ratio, avg_hypothesis_latency_ms, strategy_shift_detected,
-            efficiency_ratio, resilience_index, inferred_pisa_level, level_rationale,
-            raw_events, created_at
-          ) VALUES (
-            $1, $2, $3, $4, $5, $6,
-            $7, $8, $9,
-            $10, $11, $12, $13,
-            $14, NOW()
-          )`,
-          [
-            reportId,
-            report.learnerId,
-            report.missionId,
-            report.completedPhases || [],
-            report.totalDurationMs || 0,
-            report.srlMetrics?.totalTrials || 0,
-            report.srlMetrics?.systematicParameterExplorationRatio || 0,
-            report.srlMetrics?.averageHypothesisRevisionLatencyMs || 0,
-            Boolean(report.srlMetrics?.strategyShiftDetected),
-            report.srlMetrics?.efficiencyRatio || 0,
-            report.srlMetrics?.resilienceIndex || 'Developing',
-            report.inferredPisaLevel || 1,
-            report.levelRationale || 'Diagnostic observation',
-            JSON.stringify(report.evidenceAtom?.observedValue || [])
-          ]
-        ).catch((err) => {
-          console.error('[PostgresCoreRepository] Async savePisaProcessTelemetry error:', err);
-        });
-      }
+      this.savePisaProcessTelemetryAsync(report).catch((err) => {
+        console.error('[PostgresCoreRepository] Async savePisaProcessTelemetry error:', err);
+      });
+    }
+  }
+
+  override async getPisaProcessReportsAsync(learnerId: string): Promise<PisaProcessTelemetryReport[]> {
+    const memory = this.getPisaProcessReports(learnerId);
+    if (!isCloudDatabaseEnabled()) return memory;
+    const pool = getDbPool();
+    if (!pool) return memory;
+    try {
+      const res = await pool.query(
+        `SELECT * FROM mission_process_telemetry WHERE learner_id = $1 ORDER BY created_at DESC`,
+        [learnerId]
+      );
+      if (res.rows.length === 0) return memory;
+      const reports: PisaProcessTelemetryReport[] = res.rows.map((row: any) => ({
+        missionId: row.mission_id,
+        learnerId: row.learner_id,
+        completedPhases: row.completed_phases || [],
+        totalDurationMs: Number(row.total_duration_ms || 0),
+        inferredPisaLevel: Number(row.inferred_pisa_level || 1),
+        levelRationale: row.level_rationale,
+        srlMetrics: {
+          totalTrials: Number(row.total_trials || 0),
+          systematicParameterExplorationRatio: Number(row.systematic_votat_ratio || 0),
+          averageHypothesisRevisionLatencyMs: Number(row.avg_hypothesis_latency_ms || 0),
+          strategyShiftDetected: Boolean(row.strategy_shift_detected),
+          efficiencyRatio: Number(row.efficiency_ratio || 0),
+          resilienceIndex: row.resilience_index || 'Developing'
+        },
+        generatedAt: row.created_at ? new Date(row.created_at).toISOString() : new Date().toISOString(),
+        rawEvents: typeof row.raw_events === 'string' ? JSON.parse(row.raw_events) : row.raw_events || []
+      } as any));
+      return reports;
+    } catch (err) {
+      console.warn('[PostgresCoreRepository] getPisaProcessReportsAsync query error:', err);
+      return memory;
+    }
+  }
+
+  override async isLearnerInEducatorCohortAsync(educatorId: string, learnerId: string): Promise<boolean> {
+    if (this.isLearnerInEducatorCohort(educatorId, learnerId)) return true;
+    if (!isCloudDatabaseEnabled()) return false;
+    const pool = getDbPool();
+    if (!pool) return false;
+    try {
+      const res = await pool.query(
+        `SELECT public.is_educator_for_student_cohort($1, $2) as is_cohort`,
+        [educatorId, learnerId]
+      );
+      return Boolean(res.rows[0]?.is_cohort);
+    } catch (err) {
+      console.warn('[PostgresCoreRepository] isLearnerInEducatorCohortAsync query error:', err);
+      return false;
     }
   }
 

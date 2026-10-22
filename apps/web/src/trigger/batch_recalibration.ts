@@ -32,7 +32,13 @@ export async function runBatchRecalibrationJob(
     try {
       const sinceDate = new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000).toISOString();
       const res = await pool.query(
-        `SELECT item_id, is_correct, theta_after
+        `SELECT
+           item_id,
+           is_correct,
+           COALESCE(
+             LAG(theta_after) OVER (PARTITION BY session_id ORDER BY created_at ASC),
+             0.0
+           ) as theta_before
          FROM assessment_responses
          WHERE created_at >= $1
          ORDER BY created_at ASC`,
@@ -44,7 +50,7 @@ export async function runBatchRecalibrationJob(
         if (!targetItemIds.includes(row.item_id)) continue;
         const list = samplesByItem.get(row.item_id) || [];
         list.push({
-          learnerTheta: Number(row.theta_after || 0),
+          learnerTheta: Number(row.theta_before || 0),
           isCorrect: Boolean(row.is_correct)
         });
         samplesByItem.set(row.item_id, list);
@@ -66,6 +72,7 @@ export async function runBatchRecalibrationJob(
       }
     } catch (err) {
       console.error('[Trigger.dev:batchRecalibration] Database query error:', err);
+      throw err;
     }
   } else {
     // Local memory / dev fallback using active item bank

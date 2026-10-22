@@ -59,7 +59,17 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     }
     learnerId = targetLearnerId;
   } else {
-    learnerId = url.searchParams.get('learnerId') || (boundLearnerId && !boundLearnerId.startsWith('usr_') ? boundLearnerId : (import.meta.env.DEV ? DEFAULT_DEMO_LEARNER_ID : null));
+    const requested = url.searchParams.get('learnerId');
+    if (requested) {
+      const educatorId = user?.id || 'teacher_1';
+      const isCohort = await (coreRepository as any).isLearnerInEducatorCohortAsync?.(educatorId, requested) ?? coreRepository.isLearnerInEducatorCohort(educatorId, requested);
+      if (!isCohort && (!import.meta.env.DEV || requested !== DEFAULT_DEMO_LEARNER_ID)) {
+        throw error(403, 'Forbidden: Educator is not assigned to this learner\'s class cohort.');
+      }
+      learnerId = requested;
+    } else {
+      learnerId = (boundLearnerId && !boundLearnerId.startsWith('usr_')) ? boundLearnerId : (import.meta.env.DEV ? DEFAULT_DEMO_LEARNER_ID : null);
+    }
   }
 
   if (!learnerId) {
@@ -74,8 +84,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
   if (!profile && 'getLearnerProfileFromDb' in coreRepository) {
     profile = await (coreRepository as any).getLearnerProfileFromDb(learnerId);
   }
-  if (!profile && userRole !== 'student') {
-    profile = coreRepository.getLearnerProfile(DEFAULT_DEMO_LEARNER_ID);
+  if (!profile) {
+    throw error(404, `Learner profile '${learnerId}' not found.`);
   }
   const rawReports = coreRepository.getBenchmarkReports(learnerId);
   const rawEvidence = coreRepository.getEvidence(learnerId);

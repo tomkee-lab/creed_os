@@ -59,6 +59,7 @@ export class HardwareTelemetryBridge {
   private isRealHardware: boolean = false;
   private serialPort: any = null;
   private serialReader: any = null;
+  private readableClosed: Promise<void> | null = null;
   private stateListeners: Set<StateListener> = new Set();
   private telemetryListeners: Set<TelemetryListener> = new Set();
   private planetaryListeners: Set<(vec: any) => void> = new Set();
@@ -135,7 +136,7 @@ export class HardwareTelemetryBridge {
   private async startSerialReader(): Promise<void> {
     if (!this.serialPort?.readable) return;
     const textDecoder = new TextDecoderStream();
-    this.serialPort.readable.pipeTo(textDecoder.writable).catch(() => {});
+    this.readableClosed = this.serialPort.readable.pipeTo(textDecoder.writable).catch(() => {});
     this.serialReader = textDecoder.readable.getReader();
 
     let buffer = '';
@@ -151,13 +152,17 @@ export class HardwareTelemetryBridge {
           if (!trimmed) continue;
           try {
             const parsed = JSON.parse(trimmed);
+            const hasDist = parsed.dist !== undefined || parsed.distance !== undefined;
+            const hasAz = parsed.az !== undefined;
+            const hasLight = parsed.light !== undefined;
+
             const telemetry: HardwareTelemetry = {
-              distanceCm: Number(parsed.dist ?? parsed.distance ?? 50),
+              distanceCm: hasDist ? Number(parsed.dist ?? parsed.distance) : 0,
               headingDeg: Number(parsed.heading ?? 0),
               accelX: Number(parsed.ax ?? 0),
               accelY: Number(parsed.ay ?? 0),
-              accelZ: Number(parsed.az ?? 9.8),
-              lightLevel: Number(parsed.light ?? 200),
+              accelZ: hasAz ? Number(parsed.az) : 0,
+              lightLevel: hasLight ? Number(parsed.light) : 0,
               buttonA: Boolean(parsed.btnA),
               buttonB: Boolean(parsed.btnB),
               planetaryVector: this.getPlanetaryVector(),
@@ -177,11 +182,18 @@ export class HardwareTelemetryBridge {
   }
 
   public async disconnect(): Promise<void> {
+    this.isRealHardware = false;
     if (this.serialReader) {
       try {
         await this.serialReader.cancel();
       } catch {}
       this.serialReader = null;
+    }
+    if (this.readableClosed) {
+      try {
+        await this.readableClosed;
+      } catch {}
+      this.readableClosed = null;
     }
     if (this.serialPort) {
       try {
@@ -189,7 +201,6 @@ export class HardwareTelemetryBridge {
       } catch {}
       this.serialPort = null;
     }
-    this.isRealHardware = false;
     this.stopSimulationStream();
   }
 

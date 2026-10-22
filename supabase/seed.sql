@@ -6,7 +6,10 @@ insert into competencies (id, domain, code, name, description) values
   ('c1000000-0000-0000-0000-000000000002', 'spatial_reasoning', 'COMP-SR', 'Spatial Reasoning', 'Mental 3D rotation, orthographic projections, isometric visualization, and geometric transformations.'),
   ('c1000000-0000-0000-0000-000000000003', 'logical_deduction', 'COMP-LOG', 'Logical Deduction', 'Conditional inferences, syllogisms, truth validation, and constraint-based problem decomposition.'),
   ('c1000000-0000-0000-0000-000000000004', 'scientific_inquiry', 'COMP-SCI', 'Scientific Inquiry', 'Formulating falsifiable hypotheses, isolating control variables, and data-driven trend inference.'),
-  ('c1000000-0000-0000-0000-000000000005', 'computational_thinking', 'COMP-CT', 'Computational Thinking', 'Algorithmic loop tracing, recursion states, pattern decomposition, and systematic problem solving.')
+  ('c1000000-0000-0000-0000-000000000005', 'computational_thinking', 'COMP-CT', 'Computational Thinking', 'Algorithmic loop tracing, recursion states, pattern decomposition, and systematic problem solving.'),
+  ('c1000000-0000-0000-0000-000000000006', 'systems_thinking', 'COMP-SYS', 'Systems Thinking', 'Analyzing interconnected components, feedback loops, and dynamic equilibrium in complex systems.'),
+  ('c1000000-0000-0000-0000-000000000007', 'language_literacy', 'COMP-LL', 'Language Literacy', 'Context clues, domain vocabulary acquisition, textual comprehension, and semantic inference.'),
+  ('c1000000-0000-0000-0000-000000000008', 'verbal_reasoning', 'COMP-VR', 'Verbal Reasoning', 'Syntactic parsing, grammatical agreement, rhetorical logic, and linguistic inference.')
 on conflict (code) do nothing;
 
 -- 2. Insert STEM Pathways

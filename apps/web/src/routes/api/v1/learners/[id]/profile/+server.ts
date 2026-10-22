@@ -29,18 +29,27 @@ export const GET: RequestHandler = async ({ params, locals }) => {
     return json({ error: 'Forbidden: Students are restricted strictly to their own learner profile.' }, { status: 403 });
   }
 
-  if (userRole === 'parent' && id !== boundLearnerId) {
-    return json({ error: 'Forbidden: Guardians are restricted to their verified child profile.' }, { status: 403 });
+  if (userRole === 'parent') {
+    const isAuthorized =
+      coreRepository.isGuardianLinkedToLearner(user.id, id) ||
+      id === boundLearnerId ||
+      (import.meta.env.DEV && id === '3fa85f64-5717-4562-b3fc-2c963f66afa6');
+    if (!isAuthorized) {
+      return json({ error: 'Forbidden: Guardians are restricted to their verified child profile.' }, { status: 403 });
+    }
   }
 
   if (['teacher', 'counselor'].includes(userRole)) {
-    const isStudentInCohort = coreRepository.hasLearner(id);
-    if (!isStudentInCohort && id !== '3fa85f64-5717-4562-b3fc-2c963f66afa6') {
+    const isCohort = await coreRepository.isLearnerInEducatorCohortAsync(user.id, id);
+    if (!isCohort && (!import.meta.env.DEV || id !== '3fa85f64-5717-4562-b3fc-2c963f66afa6')) {
       return json({ error: 'Forbidden: Educators are restricted strictly to students within their authorized cohort.' }, { status: 403 });
     }
   }
 
-  const learner = coreRepository.getLearnerProfile(id);
+  let learner = coreRepository.getLearnerProfile(id);
+  if (!learner && typeof (coreRepository as any).getLearnerProfileFromDb === 'function') {
+    learner = await (coreRepository as any).getLearnerProfileFromDb(id);
+  }
 
   if (!learner) {
     return json({ error: 'Learner profile not found' }, { status: 404 });
@@ -48,24 +57,39 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
   const pathways = coreRepository.getPathways();
 
-  // Compute pathway alignment summaries
+  // Compute pathway alignment summaries without false precision or synthetic default scores
   const topPathways = pathways.slice(0, 3).map((p) => {
-    // Average demonstrated score across required competencies
-    let totalScore = 0;
-    let count = 0;
+    let demonstratedCount = 0;
+    const totalRequired = p.requirements.length;
+    let sumScore = 0;
+    let assessedCount = 0;
+
     for (const req of p.requirements) {
       const comp = learner.competencies[req.competency];
-      totalScore += comp ? comp.score : 3.0;
-      count++;
+      if (comp && typeof comp.score === 'number') {
+        sumScore += comp.score;
+        assessedCount++;
+        if (comp.score >= 3.0) {
+          demonstratedCount++;
+        }
+      }
     }
-    const readiness = count > 0 ? Number((totalScore / (count * 5.0)).toFixed(2)) : 0.75;
-    const isAligned = readiness >= 0.70;
+
+    const avgScore = assessedCount > 0 ? sumScore / assessedCount : 0;
+    const band = assessedCount === 0
+      ? 'Exploratory baseline'
+      : avgScore >= 3.8 && demonstratedCount === totalRequired
+      ? 'Strong foundation'
+      : avgScore >= 2.8
+      ? 'Developing foundation'
+      : 'Emerging exploration';
 
     return {
       pathwayId: p.id,
       title: p.title,
-      readiness,
-      mismatchStatus: isAligned ? 'aligned' : 'foundation_gap'
+      developmentalBand: band,
+      foundationalCompetenciesDemonstrated: `${demonstratedCount} / ${totalRequired}`,
+      mismatchStatus: avgScore >= 3.0 ? 'aligned' : 'foundation_gap'
     };
   });
 

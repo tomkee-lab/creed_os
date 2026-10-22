@@ -241,6 +241,7 @@ export function compilePisaProcessReport(
   options: {
     optimalSteps?: number;
     missionTitle?: string;
+    isServerVerified?: boolean;
   } = {}
 ): PisaProcessTelemetryReport {
   const completedPhases = Array.from(new Set(events.map((e) => e.phase))) as PisaPhase[];
@@ -268,9 +269,12 @@ export function compilePisaProcessReport(
     levelRationale: rationale,
     generatedAt: new Date().toISOString()
   };
+  (report as any).rawEvents = events;
 
   if (hasSuccessfulApply) {
-    (report as any).evidenceAtom = emitLevel4PisaEvidence(learnerId, report, options.missionTitle);
+    (report as any).evidenceAtom = emitLevel4PisaEvidence(learnerId, report, options.missionTitle, {
+      isServerVerified: options.isServerVerified
+    });
   }
 
   return report;
@@ -282,10 +286,14 @@ export function compilePisaProcessReport(
 export function emitLevel4PisaEvidence(
   learnerId: string,
   report: PisaProcessTelemetryReport,
-  missionTitle: string = 'Applied STEM Proving Ground'
+  missionTitle: string = 'Applied STEM Proving Ground',
+  options: { isServerVerified?: boolean } = {}
 ): LearnerEvidence {
   const now = new Date().toISOString();
   const competency: CompetencyDomain = 'scientific_inquiry';
+  const isServerVerified = options.isServerVerified ?? true;
+  const satisfiesHeuristics = report.completedPhases.length === 3 && report.srlMetrics.totalTrials >= 2;
+  const isValidated = isServerVerified && satisfiesHeuristics;
 
   return {
     id: `ev_pisa_${report.missionId}_${Date.now()}`,
@@ -303,13 +311,13 @@ export function emitLevel4PisaEvidence(
         pisaLevel: report.inferredPisaLevel,
         systematicVotatRatio: report.srlMetrics.systematicParameterExplorationRatio,
         efficiencyRatio: report.srlMetrics.efficiencyRatio,
-        evidenceLevel: 4
+        evidenceLevel: isValidated ? 4 : 2
       },
       qualitativeNotes: report.levelRationale
     },
-    confidence: report.srlMetrics.totalTrials >= 2 ? 0.90 : 0.65,
-    evidenceStrength: (report.completedPhases.length === 3 && report.srlMetrics.totalTrials >= 2) ? (4 as const) : (2 as const),
-    status: (report.completedPhases.length === 3 && report.srlMetrics.totalTrials >= 2) ? ('validated' as const) : ('candidate' as const),
+    confidence: satisfiesHeuristics ? (isServerVerified ? 0.90 : 0.70) : 0.65,
+    evidenceStrength: isValidated ? (4 as const) : (2 as const),
+    status: isValidated ? ('validated' as const) : ('candidate' as const),
     visibility: 'learner_only',
     observedAt: now,
     createdAt: now

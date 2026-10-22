@@ -161,17 +161,26 @@ export const auth = betterAuth({
               body: JSON.stringify({
                 from: process.env.EMAIL_FROM || 'CREED OS <onboarding@resend.dev>',
                 to: email,
-                subject: `Your CREED OS Verification Code: ${otp}`,
+                subject: 'Your CREED OS Verification Code',
                 html: `<p>Your verification code for CREED OS is: <strong>${otp}</strong>.</p><p>This code will expire in 10 minutes. If you did not request this, please ignore this email.</p>`
               })
             });
             if (!res.ok) {
               const errBody = await res.text();
               console.error(`[BetterAuth:emailOTP] Resend API error (${res.status}):`, errBody);
+              if (process.env.NODE_ENV === 'production') {
+                throw new Error(`Failed to deliver OTP verification email: Resend returned HTTP ${res.status}`);
+              }
             }
           } catch (err) {
             console.error('[BetterAuth:emailOTP] Failed to dispatch email via Resend:', err);
+            if (process.env.NODE_ENV === 'production') {
+              throw err;
+            }
           }
+        } else if (!import.meta.env.DEV && process.env.NODE_ENV === 'production' && !smtpHost) {
+          console.error('[BetterAuth:emailOTP] Transactional email provider unconfigured in production.');
+          throw new Error('Email delivery unavailable: RESEND_API_KEY or SMTP_HOST required in production.');
         } else if (!import.meta.env.DEV && !smtpHost) {
           console.warn('[BetterAuth:emailOTP] Transactional email provider unconfigured outside DEV.');
         }

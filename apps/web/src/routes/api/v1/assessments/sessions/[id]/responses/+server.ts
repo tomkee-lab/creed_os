@@ -52,11 +52,19 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
       }
     }
 
-    // Parents can only submit for their verified linked child
+    // Statutory child privacy: Parents can only submit for their verified linked child
     if (userRole === 'parent' || userRole === 'parent_pending') {
       if (!isDemoSession && (!boundLearnerId || session.learnerId !== boundLearnerId)) {
         return json({ error: 'Forbidden: You cannot submit responses to an assessment session belonging to an unrelated learner.' }, { status: 403 });
       }
+    }
+
+    // Statutory DPDP Act Section 9 Active Consent Verification
+    const hasConsent = await coreRepository.hasActiveConsentAsync(session.learnerId);
+    if (!hasConsent && !isDemoSession) {
+      return json({
+        error: `Statutory parental consent under DPDP Act 2023 Section 9 missing or not active for minor learner ${session.learnerId}`
+      }, { status: 403 });
     }
 
     if (session.status === 'completed') {
@@ -68,6 +76,16 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 
     if (!itemId || !selectedOptionId) {
       return json({ error: 'Bad Request: itemId and selectedOptionId are required' }, { status: 400 });
+    }
+
+    // Enforce server-administered item sequence (anti-tamper / anti-item-skipping)
+    if ((session as any).currentItemId && itemId !== (session as any).currentItemId) {
+      return json({
+        error: 'Conflict: Submitted itemId does not match the active server-administered item for this session.',
+        code: 'ITEM_NOT_CURRENT',
+        expectedItemId: (session as any).currentItemId,
+        submittedItemId: itemId
+      }, { status: 409 });
     }
 
     // F04: Prevent item replay attacks / duplicate answers
@@ -102,7 +120,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     // 1. Deterministic Scoring & Misconception Diagnosis
     const evalResult = evaluateItemResponse(item, selectedOptionId);
 
-    // 2. Update psychometric history
+    // 2. Compute psychometric history for EAP
     const historyItem = {
       params: item.irt,
       isCorrect: evalResult.isCorrect
@@ -122,31 +140,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     // 3. EAP Numerical Quadrature Ability Recalculation
     const eapResult = estimateThetaEAP(updatedHistory);
 
-    // 4. Update session state
-    session.currentTheta = eapResult.theta;
-    session.standardError = eapResult.standardError;
-    session.itemsAnswered += 1;
-    session.administeredItemIds.push(item.id);
-    session.history.push({
-      itemId: item.id,
-      selectedOptionId,
-      isCorrect: evalResult.isCorrect,
-      timeSpentSeconds: boundedTimeSpent,
-      misconceptionCode: evalResult.misconceptionCode,
-      thetaAfter: eapResult.theta,
-      standardErrorAfter: eapResult.standardError,
-      timestamp: new Date().toISOString()
-    });
-
-    // 5. Update learner's dynamic competency profile
-    coreRepository.updateLearnerCompetency(
-      session.learnerId,
-      item.competency,
-      eapResult.theta,
-      eapResult.standardError
-    );
-
-    // 6. Generate Traceable Evidence Record (Level 3 Diagnostic)
+    // 4. Construct Traceable Evidence Record (Level 3 Diagnostic)
     const newEvidence: LearnerEvidence = {
       id: crypto.randomUUID(),
       learnerId: session.learnerId,
@@ -170,9 +164,34 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
       observedAt: new Date().toISOString(),
       createdAt: new Date().toISOString()
     };
+
+    // Commit evidence first; if persistence fails due to consent or DB error, session state remains intact
     await coreRepository.addEvidenceAsync(newEvidence, locals.user.id);
 
-    // 7. Adaptive Next-Item Selection
+    // 5. Transactionally commit session and competency profile updates
+    session.currentTheta = eapResult.theta;
+    session.standardError = eapResult.standardError;
+    session.itemsAnswered += 1;
+    session.administeredItemIds.push(item.id);
+    session.history.push({
+      itemId: item.id,
+      selectedOptionId,
+      isCorrect: evalResult.isCorrect,
+      timeSpentSeconds: boundedTimeSpent,
+      misconceptionCode: evalResult.misconceptionCode,
+      thetaAfter: eapResult.theta,
+      standardErrorAfter: eapResult.standardError,
+      timestamp: new Date().toISOString()
+    });
+
+    coreRepository.updateLearnerCompetency(
+      session.learnerId,
+      item.competency,
+      eapResult.theta,
+      eapResult.standardError
+    );
+
+    // 6. Adaptive Next-Item Selection
     const pool = coreRepository.getItemsByDomain(session.domain);
     const isBenchmark = session.mode === 'benchmark';
     const isRapid = session.mode === 'rapid';
@@ -197,6 +216,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     if (selection.isTestComplete || !selection.selectedItem) {
       session.status = 'completed';
       session.completedAt = new Date().toISOString();
+      (session as any).currentItemId = undefined;
       coreRepository.saveAssessmentSession(session);
 
       const domainKey: BenchmarkDomain =
@@ -249,6 +269,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
       });
     }
 
+    (session as any).currentItemId = selection.selectedItem.id;
     coreRepository.saveAssessmentSession(session);
 
     const isStaff = ['teacher', 'counselor', 'studio', 'admin'].includes(userRole);

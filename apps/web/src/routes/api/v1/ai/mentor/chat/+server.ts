@@ -38,7 +38,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     }
 
     // 3. Statutory DPDP Act Section 9 Consent Check before invoking AI inference
-    if (!coreRepository.hasActiveConsent(effectiveLearnerId)) {
+    const hasConsent = await coreRepository.hasActiveConsentAsync(effectiveLearnerId);
+    if (!hasConsent) {
       return json({
         error: 'Statutory parental consent under DPDP Act 2023 Section 9 missing or not active for this learner.'
       }, { status: 403 });
