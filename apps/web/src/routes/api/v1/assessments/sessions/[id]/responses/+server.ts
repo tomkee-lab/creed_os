@@ -16,6 +16,8 @@ import {
   deepSanitizePsychometrics
 } from '$lib/server/psychometricDto';
 
+const inFlightSubmissions = new Set<string>();
+
 export const POST: RequestHandler = async ({ params, request, locals }) => {
   // 1. Enforce active authentication
   if (!locals.session || !locals.user) {
@@ -38,7 +40,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     const userRole = (user as any).role || (user as any).metadata?.role || 'student';
     const boundLearnerId = resolveLearnerId(user);
 
-    const allowedRoles = ['student', 'teacher', 'counselor', 'studio', 'admin', 'parent'];
+    const allowedRoles = ['student', 'teacher', 'counselor', 'admin', 'parent'];
     if (!allowedRoles.includes(userRole)) {
       return json({ error: 'Forbidden: Unauthorized role for assessment responses.' }, { status: 403 });
     }
@@ -56,6 +58,16 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     if (userRole === 'parent' || userRole === 'parent_pending') {
       if (!isDemoSession && (!boundLearnerId || session.learnerId !== boundLearnerId)) {
         return json({ error: 'Forbidden: You cannot submit responses to an assessment session belonging to an unrelated learner.' }, { status: 403 });
+      }
+    }
+
+    // Educators can only proctor/submit for students in their authorized cohort
+    if (userRole === 'teacher' || userRole === 'counselor') {
+      const isCohort = await coreRepository.isLearnerInEducatorCohortAsync(user.id, session.learnerId);
+      if (!isCohort && !isDemoSession) {
+        return json({
+          error: 'Forbidden: Educators can only interact with assessment sessions for learners in their authorized cohort.'
+        }, { status: 403 });
       }
     }
 
@@ -88,15 +100,17 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
       }, { status: 409 });
     }
 
-    // F04: Prevent item replay attacks / duplicate answers
-    if (session.history.some((h) => h.itemId === itemId)) {
+    // F04: Prevent item replay attacks / duplicate answers / concurrent submissions
+    const submissionKey = `${session.id}:${itemId}`;
+    if (inFlightSubmissions.has(submissionKey) || session.history.some((h) => h.itemId === itemId)) {
       return json({
-        error: 'Conflict: This item has already been submitted for this session.',
+        error: 'Conflict: This item has already been submitted or is currently being processed.',
         code: 'ITEM_ALREADY_ANSWERED',
         sessionId: session.id,
         itemsAnswered: session.itemsAnswered
       }, { status: 409 });
     }
+    inFlightSubmissions.add(submissionKey);
 
     const item = coreRepository.getItemById(itemId);
     if (!item) {
@@ -166,7 +180,20 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     };
 
     // Commit evidence first; if persistence fails due to consent or DB error, session state remains intact
-    await coreRepository.addEvidenceAsync(newEvidence, locals.user.id);
+    try {
+      await coreRepository.addEvidenceAsync(newEvidence, locals.user.id);
+
+      if (session.history.some((h) => h.itemId === itemId)) {
+        return json({
+          error: 'Conflict: This item has already been submitted for this session.',
+          code: 'ITEM_ALREADY_ANSWERED',
+          sessionId: session.id,
+          itemsAnswered: session.itemsAnswered
+        }, { status: 409 });
+      }
+    } finally {
+      inFlightSubmissions.delete(submissionKey);
+    }
 
     // 5. Transactionally commit session and competency profile updates
     session.currentTheta = eapResult.theta;

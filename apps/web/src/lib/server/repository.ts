@@ -24,6 +24,19 @@ import {
   type BenchmarkDomain
 } from '@core-os/assessment';
 
+export function toValidUuid(id: string | null | undefined, fallbackSeed: string = 'creed'): string {
+  if (!id) {
+    const hash = crypto.createHash('sha256').update(`${fallbackSeed}:empty`).digest('hex');
+    return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-4${hash.slice(13, 16)}-8${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
+  }
+  const trimmed = String(id).trim();
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(trimmed)) {
+    return trimmed.toLowerCase();
+  }
+  const hash = crypto.createHash('sha256').update(`${fallbackSeed}:${trimmed}`).digest('hex');
+  return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-4${hash.slice(13, 16)}-8${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
+}
+
 export interface DifferentiatedLessonPlan {
   id: string;
   authorId?: string;
@@ -1570,7 +1583,7 @@ class LocalCoreRepository {
   isLearnerInEducatorCohort(educatorId: string, learnerId: string): boolean {
     if (!educatorId || !learnerId) return false;
     if (educatorId === 'teacher_1' || educatorId === 'counselor_1' || educatorId === 'admin_1') {
-      if (learnerId === DEFAULT_DEMO_LEARNER_ID || this.learnerProfiles.has(learnerId)) {
+      if (learnerId === DEFAULT_DEMO_LEARNER_ID || (this.classCohort?.students && this.classCohort.students.some((s) => s.id === learnerId))) {
         return true;
       }
     }
@@ -1582,9 +1595,20 @@ class LocalCoreRepository {
     return Promise.resolve(this.isLearnerInEducatorCohort(educatorId, learnerId));
   }
 
+  private pendingGuardianInvites = new Map<string, Set<string>>();
+
+  registerPendingGuardianChallenge(guardianOrContact: string, learnerId: string): void {
+    if (!guardianOrContact || !learnerId) return;
+    if (!this.pendingGuardianInvites.has(guardianOrContact)) {
+      this.pendingGuardianInvites.set(guardianOrContact, new Set());
+    }
+    this.pendingGuardianInvites.get(guardianOrContact)!.add(learnerId);
+  }
+
   hasPendingGuardianInvite(guardianId: string, learnerId: string): boolean {
     if (!guardianId || !learnerId) return false;
     if (this.isGuardianLinkedToLearner(guardianId, learnerId)) return true;
+    if (this.pendingGuardianInvites.get(guardianId)?.has(learnerId)) return true;
     const record = this.consentRecords.get(learnerId);
     return record ? record.guardianId === guardianId : false;
   }
@@ -1902,9 +1926,18 @@ class LocalCoreRepository {
 
     const learner = this.getLearnerProfile(learnerId);
     const evidence = this.getEvidence(learnerId);
+    const isDemo = learnerId === DEFAULT_DEMO_LEARNER_ID || learnerId === 'demo_learner_1';
     const generated = generateParakhHpc(
       learner || { id: learnerId, fullName: 'Student Learner', grade: 8 },
-      evidence
+      evidence,
+      isDemo
+        ? {}
+        : {
+            selfReflections: [],
+            peerEvaluations: [],
+            teacherObservations: [],
+            parentFeedback: []
+          }
     );
     this.parakhHpcStore.set(learnerId, generated);
     return generated;
@@ -1972,19 +2005,20 @@ export class PostgresCoreRepository extends LocalCoreRepository {
       await client.query("SELECT set_config('request.jwt.claim.sub', $1, true)", [actorSub]);
 
       // 2. Check public.consents status (VERIFIED_ACTIVE / verified)
+      const validLearnerUuid = toValidUuid(learnerId);
       const consentCheck = await client.query(
         `SELECT 1 FROM consents 
          WHERE learner_id = $1 
            AND status IN ('verified', 'VERIFIED_ACTIVE')
            AND withdrawn_at IS NULL
          LIMIT 1`,
-        [learnerId]
+        [validLearnerUuid]
       );
 
       if (consentCheck.rowCount === 0) {
         const profileCheck = await client.query(
           `SELECT age FROM profiles WHERE id = $1`,
-          [learnerId]
+          [validLearnerUuid]
         );
         const age = profileCheck.rows[0]?.age;
         if (age === undefined || age === null || age < 18) {
@@ -2014,7 +2048,7 @@ export class PostgresCoreRepository extends LocalCoreRepository {
     try {
       const res = await pool.query(
         `SELECT id, full_name, role, age, grade_band, avatar_url FROM profiles WHERE id = $1 LIMIT 1`,
-        [id]
+        [toValidUuid(id)]
       );
       const row = res.rows[0];
       if (!row) return undefined;
@@ -2048,10 +2082,11 @@ export class PostgresCoreRepository extends LocalCoreRepository {
 
     await this.withVerifiedConsentTransaction(evidence.learnerId, actorSub, async (client) => {
       if (!client) return;
+      const learnerUuid = toValidUuid(evidence.learnerId);
       let prevHash = 'GENESIS_EVIDENCE_HASH_0000000000000000';
       const lastRow = await client.query(
         `SELECT observed_value->>'chainHash' as chain_hash FROM learner_evidence WHERE learner_id = $1 ORDER BY observed_at DESC LIMIT 1`,
-        [evidence.learnerId]
+        [learnerUuid]
       );
       if (lastRow.rows[0]?.chain_hash) {
         prevHash = lastRow.rows[0].chain_hash;
@@ -2075,9 +2110,9 @@ export class PostgresCoreRepository extends LocalCoreRepository {
         const codeStr = 'COMP-' + domainStr.slice(0, 10).toUpperCase();
         const titleStr = domainStr.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
         const upsertRes = await client.query(
-          `INSERT INTO competencies (code, title, domain, description, is_active)
-           VALUES ($1, $2, $3, $4, true)
-           ON CONFLICT (code) DO UPDATE SET title = EXCLUDED.title
+          `INSERT INTO competencies (code, name, domain, description)
+           VALUES ($1, $2, $3, $4)
+           ON CONFLICT (code) DO UPDATE SET name = EXCLUDED.name
            RETURNING id`,
           [codeStr, titleStr, domainStr, `Dynamic competency for ${titleStr}`]
         );
@@ -2093,7 +2128,7 @@ export class PostgresCoreRepository extends LocalCoreRepository {
           $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW()
         )`,
         [
-          ev.learnerId,
+          learnerUuid,
           competencyId,
           ev.evidenceType || ev.type || 'applied_simulation',
           ev.sourceType || 'project_mission',
@@ -2148,12 +2183,13 @@ export class PostgresCoreRepository extends LocalCoreRepository {
     const pool = getDbPool();
     if (!pool) return this.hasActiveConsent(learnerId);
     try {
+      const validLearnerUuid = toValidUuid(learnerId);
       const res = await pool.query(
         `SELECT id, guardian_id, status, expires_at, withdrawn_at, verified_at, policy_version, verification_method
          FROM consents
          WHERE learner_id = $1
          ORDER BY created_at DESC LIMIT 1`,
-        [learnerId]
+        [validLearnerUuid]
       );
       const row = res.rows[0];
       if (!row) {
@@ -2180,7 +2216,7 @@ export class PostgresCoreRepository extends LocalCoreRepository {
       };
       this.consentRecords.set(learnerId, mappedRecord);
       if (row.guardian_id) {
-        this.bindGuardianToLearner(row.guardian_id, learnerId);
+        super.bindGuardianToLearner(row.guardian_id, learnerId);
       }
       return isActive;
     } catch (err) {
@@ -2190,48 +2226,52 @@ export class PostgresCoreRepository extends LocalCoreRepository {
   }
 
   override async setConsentRecordAsync(record: ConsentRecord): Promise<void> {
+    if (isCloudDatabaseEnabled()) {
+      const pool = getDbPool();
+      if (pool) {
+        const dbStatus = record.status === 'VERIFIED_ACTIVE'
+          ? 'verified'
+          : record.status === 'WITHDRAWN'
+          ? 'withdrawn'
+          : record.status === 'EXPIRED'
+          ? 'expired'
+          : 'pending';
+
+        const consentId = (record.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(record.id))
+          ? record.id
+          : this.getDeterministicConsentId(record.learnerId, 'assessment_participation');
+
+        const learnerUuid = toValidUuid(record.learnerId);
+        const guardianUuid = toValidUuid(record.guardianId);
+
+        await pool.query(
+          `INSERT INTO consents (
+            id, learner_id, guardian_id, consent_type, status, verification_method,
+            policy_version, verified_at, withdrawn_at, expires_at, created_at
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()
+          ) ON CONFLICT (id) DO UPDATE SET
+            status = EXCLUDED.status,
+            guardian_id = COALESCE(EXCLUDED.guardian_id, consents.guardian_id),
+            verified_at = EXCLUDED.verified_at,
+            withdrawn_at = EXCLUDED.withdrawn_at,
+            expires_at = EXCLUDED.expires_at`,
+          [
+            consentId,
+            learnerUuid,
+            guardianUuid,
+            'assessment_participation',
+            dbStatus,
+            record.verificationChannel || 'digilocker',
+            record.consentVersion || 'v1.2-dpdp-2023',
+            record.verifiedAt || (dbStatus === 'verified' ? new Date().toISOString() : null),
+            record.withdrawnAt || null,
+            record.expiresAt || null
+          ]
+        );
+      }
+    }
     super.setConsentRecord(record);
-    if (!isCloudDatabaseEnabled()) return;
-    const pool = getDbPool();
-    if (!pool) return;
-
-    const dbStatus = record.status === 'VERIFIED_ACTIVE'
-      ? 'verified'
-      : record.status === 'WITHDRAWN'
-      ? 'withdrawn'
-      : record.status === 'EXPIRED'
-      ? 'expired'
-      : 'pending';
-
-    const consentId = (record.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(record.id))
-      ? record.id
-      : this.getDeterministicConsentId(record.learnerId, 'assessment_participation');
-
-    await pool.query(
-      `INSERT INTO consents (
-        id, learner_id, guardian_id, consent_type, status, verification_method,
-        policy_version, verified_at, withdrawn_at, expires_at, created_at
-      ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()
-      ) ON CONFLICT (id) DO UPDATE SET
-        status = EXCLUDED.status,
-        guardian_id = COALESCE(EXCLUDED.guardian_id, consents.guardian_id),
-        verified_at = EXCLUDED.verified_at,
-        withdrawn_at = EXCLUDED.withdrawn_at,
-        expires_at = EXCLUDED.expires_at`,
-      [
-        consentId,
-        record.learnerId,
-        record.guardianId || null,
-        'assessment_participation',
-        dbStatus,
-        record.verificationChannel || 'digilocker',
-        record.consentVersion || 'v1.2-dpdp-2023',
-        record.verifiedAt || (dbStatus === 'verified' ? new Date().toISOString() : null),
-        record.withdrawnAt || null,
-        record.expiresAt || null
-      ]
-    );
   }
 
   override setConsentRecord(record: ConsentRecord): void {
@@ -2373,7 +2413,7 @@ export class PostgresCoreRepository extends LocalCoreRepository {
         overallHolisticSummary: typeof row.overall_summary === 'string' ? JSON.parse(row.overall_summary) : row.overall_summary || {},
         generatedAt: row.created_at ? new Date(row.created_at).toISOString() : new Date().toISOString()
       };
-      this.saveParakhHpc(hpc);
+      super.saveParakhHpc(hpc);
       return hpc;
     } catch (err) {
       console.warn('[PostgresCoreRepository] getParakhHpcAsync query error:', err);
@@ -2626,25 +2666,55 @@ export class PostgresCoreRepository extends LocalCoreRepository {
         // Also persist the latest response into assessment_responses table
         const latestHistory = session.history[session.history.length - 1];
         if (latestHistory) {
-          pool.query(
-            `INSERT INTO assessment_responses (
-              session_id, item_id, selected_option_id, is_correct, time_spent_seconds,
-              misconception_code, theta_after, standard_error_after, created_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-            ON CONFLICT DO NOTHING`,
-            [
-              session.id,
-              latestHistory.itemId,
-              latestHistory.selectedOptionId,
-              latestHistory.isCorrect,
-              latestHistory.timeSpentSeconds || 15,
-              latestHistory.misconceptionCode || null,
-              latestHistory.thetaAfter,
-              latestHistory.standardErrorAfter
-            ]
-          ).catch((err: any) => {
-            console.error('[PostgresCoreRepository] Async response insert write error:', err);
-          });
+          const itemObj = this.getItemById(latestHistory.itemId);
+          if (itemObj) {
+            const compCode = 'COMP-' + String(itemObj.competency).slice(0, 10).toUpperCase();
+            pool.query(
+              `INSERT INTO competencies (code, name, domain, description)
+               VALUES ($1, $2, $3, $4)
+               ON CONFLICT (code) DO UPDATE SET name = EXCLUDED.name
+               RETURNING id`,
+              [compCode, String(itemObj.competency), String(itemObj.competency), `Competency for ${itemObj.competency}`]
+            ).then((compRes) => {
+              const compId = compRes.rows[0]?.id || '00000000-0000-0000-0001-000000000001';
+              return pool.query(
+                `INSERT INTO assessment_items (
+                  id, competency_id, code, title, domain, difficulty, discrimination, guessing
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                ON CONFLICT (id) DO NOTHING`,
+                [
+                  itemObj.id,
+                  compId,
+                  itemObj.code || itemObj.id,
+                  (itemObj as any).title || itemObj.prompt || 'Assessment Item',
+                  session.domain,
+                  itemObj.irt?.b ?? 0.0,
+                  itemObj.irt?.a ?? 1.0,
+                  itemObj.irt?.c ?? 0.20
+                ]
+              );
+            }).then(() => {
+              return pool.query(
+                `INSERT INTO assessment_responses (
+                  session_id, item_id, selected_option_id, is_correct, time_spent_seconds,
+                  misconception_code, theta_after, standard_error_after, created_at
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+                ON CONFLICT DO NOTHING`,
+                [
+                  toValidUuid(session.id),
+                  latestHistory.itemId,
+                  latestHistory.selectedOptionId,
+                  latestHistory.isCorrect,
+                  latestHistory.timeSpentSeconds || 15,
+                  latestHistory.misconceptionCode || null,
+                  latestHistory.thetaAfter,
+                  latestHistory.standardErrorAfter
+                ]
+              );
+            }).catch((err: any) => {
+              console.error('[PostgresCoreRepository] Async response insert write error:', err);
+            });
+          }
         }
       }
     }

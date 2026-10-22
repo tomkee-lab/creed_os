@@ -7,6 +7,7 @@ import {
   hashChallengeKey
 } from '$lib/server/consent-otp';
 import { verifyAltchaPayload } from '$lib/server/security/altcha';
+import { coreRepository } from '$lib/server/repository';
 
 // Per-contact rate limiting store: contact -> { count, resetAt }
 const contactRateLimits = new Map<string, { count: number; resetAt: number }>();
@@ -94,7 +95,7 @@ async function dispatchOtpToProvider(opts: {
   }
 }
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals }) => {
   try {
     let body: unknown;
     try {
@@ -192,6 +193,11 @@ export const POST: RequestHandler = async ({ request }) => {
       learnerId: sanitizedLearnerId,
       parentContact: sanitizedContact
     });
+
+    coreRepository.registerPendingGuardianChallenge(sanitizedContact, sanitizedLearnerId);
+    if (locals.user?.id) {
+      coreRepository.registerPendingGuardianChallenge(locals.user.id, sanitizedLearnerId);
+    }
 
     if (!isDev) {
       const activeGateway = channelStr === 'SMS_OTP' ? smsGatewayKey! : digilockerClientId!;

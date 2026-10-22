@@ -31,18 +31,29 @@ export async function runBatchRecalibrationJob(
   if (pool) {
     try {
       const sinceDate = new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000).toISOString();
+      const orgId = payload.organizationId || null;
       const res = await pool.query(
-        `SELECT
-           item_id,
-           is_correct,
-           COALESCE(
-             LAG(theta_after) OVER (PARTITION BY session_id ORDER BY created_at ASC),
-             0.0
-           ) as theta_before
-         FROM assessment_responses
+        `WITH session_responses AS (
+           SELECT
+             r.id,
+             r.session_id,
+             r.item_id,
+             r.is_correct,
+             r.created_at,
+             COALESCE(
+               LAG(r.theta_after) OVER (PARTITION BY r.session_id ORDER BY r.created_at ASC),
+               s.current_theta,
+               0.0
+             ) as theta_before
+           FROM assessment_responses r
+           JOIN assessment_sessions s ON s.id = r.session_id
+           WHERE ($2::text IS NULL OR s.organization_id = $2::uuid)
+         )
+         SELECT item_id, is_correct, theta_before
+         FROM session_responses
          WHERE created_at >= $1
          ORDER BY created_at ASC`,
-        [sinceDate]
+        [sinceDate, orgId]
       );
 
       const samplesByItem = new Map<string, CalibrationSample[]>();

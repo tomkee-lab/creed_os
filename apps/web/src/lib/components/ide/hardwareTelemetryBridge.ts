@@ -122,6 +122,7 @@ export class HardwareTelemetryBridge {
         await port.open({ baudRate: 115200 });
         this.serialPort = port;
         this.isRealHardware = true;
+        this.stopSimulationStream();
         this.notifyState();
         this.startSerialReader();
         return;
@@ -218,12 +219,25 @@ export class HardwareTelemetryBridge {
     return () => this.planetaryListeners.delete(listener);
   }
 
-  public sendChoreographyCue(_cue: string): void {
-    // Simulated robotic choreography cue
+  private async writeSerialCommand(payload: Record<string, any>): Promise<void> {
+    if (!this.isRealHardware || !this.serialPort?.writable) return;
+    try {
+      const encoder = new TextEncoder();
+      const writer = this.serialPort.writable.getWriter();
+      const line = JSON.stringify(payload) + '\n';
+      await writer.write(encoder.encode(line));
+      writer.releaseLock();
+    } catch (err) {
+      console.warn('[HardwareTelemetryBridge] Failed to write serial command:', err);
+    }
   }
 
-  public sendSpeech(_text: string, _voice?: string): void {
-    // Simulated robotic TTS speech
+  public sendChoreographyCue(cue: string): void {
+    this.writeSerialCommand({ cmd: 'cue', val: cue });
+  }
+
+  public sendSpeech(text: string, voice?: string): void {
+    this.writeSerialCommand({ cmd: 'speech', val: text, voice });
   }
 
   public bindPlanetarySource(sourceId: string): { sourceName: string; azimuthDeg: number; elevationDeg: number } {
@@ -262,16 +276,16 @@ export class HardwareTelemetryBridge {
     return { sourceName: cleanSource, azimuthDeg: 142, elevationDeg: 35 };
   }
 
-  public sendEmotion(_emotion: string): void {
-    // Simulated OLED expression
+  public sendEmotion(emotion: string): void {
+    this.writeSerialCommand({ cmd: 'emotion', val: emotion });
   }
 
-  public sendMotion(_motion: string, _params?: Record<string, any>): void {
-    // Simulated robotic actuator motion
+  public sendMotion(motion: string, params?: Record<string, any>): void {
+    this.writeSerialCommand({ cmd: 'motion', val: motion, ...(params || {}) });
   }
 
-  public sendMatrix(_pattern: any): void {
-    // Simulated 5x5 LED matrix
+  public sendMatrix(pattern: any): void {
+    this.writeSerialCommand({ cmd: 'matrix', val: pattern });
   }
 
   public stopSimulationStream() {

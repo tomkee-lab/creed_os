@@ -23,6 +23,15 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     return json({ error: 'Forbidden: No authorized learner relationship associated with account' }, { status: 403 });
   }
 
+  // Statutory DPDP Act Section 9 Active Consent Verification
+  const hasConsent = await coreRepository.hasActiveConsentAsync(learnerId);
+  const isDevDemo = import.meta.env.DEV && learnerId === '3fa85f64-5717-4562-b3fc-2c963f66afa6';
+  if (!hasConsent && !isDevDemo) {
+    return json({
+      error: 'Forbidden: Statutory parental consent under DPDP Act 2023 Section 9 missing or not active for this minor learner profile.'
+    }, { status: 403 });
+  }
+
   const { id: missionId } = params;
   const mission = coreRepository.getMissionById(missionId);
   if (!mission) {

@@ -89,7 +89,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
       title: p.title,
       developmentalBand: band,
       foundationalCompetenciesDemonstrated: `${demonstratedCount} / ${totalRequired}`,
-      mismatchStatus: avgScore >= 3.0 ? 'aligned' : 'foundation_gap'
+      mismatchStatus: assessedCount === 0 ? 'exploratory' : avgScore >= 3.0 ? 'aligned' : 'foundation_gap'
     };
   });
 

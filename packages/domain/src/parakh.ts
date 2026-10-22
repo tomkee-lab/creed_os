@@ -184,7 +184,7 @@ export function generateParakhHpc(
     academicSession: options.academicSession || '2026–2027',
     generatedAt: new Date().toISOString(),
 
-    selfReflections: options.selfReflections || [
+    selfReflections: options.selfReflections !== undefined ? options.selfReflections : [
       {
         missionOrAssessmentId: 'robobridge',
         confidenceLevel: 4,
@@ -195,7 +195,7 @@ export function generateParakhHpc(
       }
     ],
 
-    peerEvaluations: options.peerEvaluations || [
+    peerEvaluations: options.peerEvaluations !== undefined ? options.peerEvaluations : [
       {
         peerDisplayName: 'Peer S-0803',
         projectTitle: 'RoboBridge Proving Ground',
@@ -206,7 +206,7 @@ export function generateParakhHpc(
       }
     ],
 
-    teacherObservations: options.teacherObservations || [
+    teacherObservations: options.teacherObservations !== undefined ? options.teacherObservations : [
       {
         teacherId: 'tch-01',
         teacherName: 'Faculty Lead · Mathematics',
@@ -220,7 +220,7 @@ export function generateParakhHpc(
       }
     ],
 
-    parentFeedback: options.parentFeedback || [
+    parentFeedback: options.parentFeedback !== undefined ? options.parentFeedback : [
       {
         parentId: 'parent-01',
         homeInquiryObservation: 'Demonstrated high concentration when explaining the gear ratio mechanical advantage.',

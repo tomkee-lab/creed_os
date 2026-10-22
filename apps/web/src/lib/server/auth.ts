@@ -76,7 +76,6 @@ process.env.BETTER_AUTH_URL = cleanBaseUrl;
 export const auth = betterAuth({
   appName: 'CREED OS',
   baseURL: cleanBaseUrl,
-  secret: secret || 'creed-os-local-dev-secret-32-chars-entropy-key',
   user: {
     additionalFields: {
       role: {
@@ -108,9 +107,13 @@ export const auth = betterAuth({
               ? 'student'
             : 'student';
 
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          const userId = user.id && uuidRegex.test(user.id) ? user.id : crypto.randomUUID();
+
           return {
             data: {
               ...user,
+              id: userId,
               role: assignedRole
             }
           };
@@ -159,7 +162,7 @@ export const auth = betterAuth({
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({
-                from: process.env.EMAIL_FROM || 'CREED OS <onboarding@resend.dev>',
+                from: process.env.EMAIL_FROM || (isProduction ? 'CREED OS <notifications@creed-os.org>' : 'CREED OS <onboarding@resend.dev>'),
                 to: email,
                 subject: 'Your CREED OS Verification Code',
                 html: `<p>Your verification code for CREED OS is: <strong>${otp}</strong>.</p><p>This code will expire in 10 minutes. If you did not request this, please ignore this email.</p>`
