@@ -194,5 +194,27 @@ describe('OECD PISA 2025 Process Telemetry & SRL Metrics Engine', () => {
         expect(report.evidenceAtom.status).toBe('validated');
       }
     });
+
+    it('demotes single-trial runs with incomplete phases to candidate status and below Level 6', () => {
+      const now = 1700000000000;
+      const singleRunEvents: PisaTelemetryEvent[] = [
+        { timestamp: now, phase: 'apply', action: 'run_simulation', parameters: { loadMw: 120 }, outcome: { success: true } },
+        { timestamp: now + 2000, phase: 'apply', action: 'submit_solution', parameters: { verified: true }, outcome: { success: true } }
+      ];
+
+      const report = compilePisaProcessReport('learner-xyz', 'smart-grid-balancing', singleRunEvents, {
+        missionTitle: 'Smart Grid Load Balancing',
+        optimalSteps: 3
+      });
+
+      // Single-trial run cannot be Level 6
+      expect(report.inferredPisaLevel).toBeLessThan(6);
+      expect(report.srlMetrics.resilienceIndex).toBe('Developing');
+      // Incomplete phases (only 'apply') and 1 trial means evidence is candidate, not validated Level 4
+      if (report.evidenceAtom) {
+        expect(report.evidenceAtom.status).toBe('candidate');
+        expect(report.evidenceAtom.evidenceStrength).toBe(2);
+      }
+    });
   });
 });

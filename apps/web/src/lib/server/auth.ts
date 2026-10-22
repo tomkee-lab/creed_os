@@ -76,7 +76,6 @@ process.env.BETTER_AUTH_URL = cleanBaseUrl;
 export const auth = betterAuth({
   appName: 'CREED OS',
   baseURL: cleanBaseUrl,
-  secret: secret || 'creed-os-local-dev-secret-32-chars-entropy-key',
   user: {
     additionalFields: {
       role: {
@@ -108,9 +107,13 @@ export const auth = betterAuth({
               ? 'student'
             : 'student';
 
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          const userId = user.id && uuidRegex.test(user.id) ? user.id : crypto.randomUUID();
+
           return {
             data: {
               ...user,
+              id: userId,
               role: assignedRole
             }
           };
@@ -150,7 +153,38 @@ export const auth = betterAuth({
 
         const resendKey = process.env.RESEND_API_KEY;
         const smtpHost = process.env.SMTP_HOST;
-        if (!import.meta.env.DEV && !resendKey && !smtpHost) {
+        if (resendKey) {
+          try {
+            const res = await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${resendKey}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                from: process.env.EMAIL_FROM || (isProduction ? 'CREED OS <notifications@creed-os.org>' : 'CREED OS <onboarding@resend.dev>'),
+                to: email,
+                subject: 'Your CREED OS Verification Code',
+                html: `<p>Your verification code for CREED OS is: <strong>${otp}</strong>.</p><p>This code will expire in 10 minutes. If you did not request this, please ignore this email.</p>`
+              })
+            });
+            if (!res.ok) {
+              const errBody = await res.text();
+              console.error(`[BetterAuth:emailOTP] Resend API error (${res.status}):`, errBody);
+              if (process.env.NODE_ENV === 'production') {
+                throw new Error(`Failed to deliver OTP verification email: Resend returned HTTP ${res.status}`);
+              }
+            }
+          } catch (err) {
+            console.error('[BetterAuth:emailOTP] Failed to dispatch email via Resend:', err);
+            if (process.env.NODE_ENV === 'production') {
+              throw err;
+            }
+          }
+        } else if (!import.meta.env.DEV && process.env.NODE_ENV === 'production' && !smtpHost) {
+          console.error('[BetterAuth:emailOTP] Transactional email provider unconfigured in production.');
+          throw new Error('Email delivery unavailable: RESEND_API_KEY or SMTP_HOST required in production.');
+        } else if (!import.meta.env.DEV && !smtpHost) {
           console.warn('[BetterAuth:emailOTP] Transactional email provider unconfigured outside DEV.');
         }
       }

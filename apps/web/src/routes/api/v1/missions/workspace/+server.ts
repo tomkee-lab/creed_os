@@ -65,7 +65,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       learnerId,
       missionId,
       savedAt: saved.updatedAt,
-      message: 'Workspace autosaved to cloud ledger successfully.'
+      message: 'Workspace progress saved successfully.'
     });
   } catch (err: any) {
     return json({ error: err?.message || 'Failed to save workspace' }, { status: 500 });

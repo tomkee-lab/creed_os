@@ -6,13 +6,13 @@ export interface LearnerProfile {
   id: string;
   userId: string;
   fullName: string;
-  age: number;
-  gradeBand: string;
+  age?: number;
+  gradeBand?: string;
   schoolName?: string;
   avatarUrl?: string;
   
-  // Dynamic Competency Graph
-  competencies: Record<CompetencyDomain, CompetencyScore>;
+  // Dynamic Competency Graph (Partially populated as evidence is observed)
+  competencies: Partial<Record<CompetencyDomain, CompetencyScore>>;
   
   // Longitudinal Evidence Graph
   recentEvidence: LearnerEvidence[];

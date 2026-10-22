@@ -19,7 +19,7 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
     }
 
     const {
-      learnerId = '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      learnerId,
       channel = 'SMS_OTP',
       parentName,
       parentContact,
@@ -42,6 +42,37 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
     const sanitizedLearnerId = learnerId.trim();
     const sanitizedParentName = parentName.trim();
     const token = (otp ?? auditToken ?? '').toString().trim();
+
+    // Verify learner exists in system
+    let learner = coreRepository.getLearnerProfile(sanitizedLearnerId);
+    if (!learner && typeof (coreRepository as any).getLearnerProfileFromDb === 'function') {
+      learner = await (coreRepository as any).getLearnerProfileFromDb(sanitizedLearnerId);
+    }
+    if (!learner) {
+      return json({ error: `Learner '${sanitizedLearnerId}' not found.` }, { status: 404 });
+    }
+
+    // Verify guardian authorization/relationship for this learner
+    const guardianId = locals.user?.id;
+    const isDevDemo = import.meta.env.DEV && sanitizedLearnerId === '3fa85f64-5717-4562-b3fc-2c963f66afa6';
+    if (!guardianId && !isDevDemo) {
+      return json({
+        error: 'Unauthorized: Guardian must be authenticated with an active session to establish statutory DPDP consent.'
+      }, { status: 401 });
+    }
+
+    const resolvedGuardianId = guardianId || 'parent_1';
+    const isAuthorizedGuardian =
+      coreRepository.isGuardianLinkedToLearner(resolvedGuardianId, sanitizedLearnerId) ||
+      coreRepository.hasPendingGuardianInvite(resolvedGuardianId, sanitizedLearnerId) ||
+      coreRepository.hasPendingGuardianInvite(sanitizedContact, sanitizedLearnerId) ||
+      isDevDemo;
+
+    if (!isAuthorizedGuardian) {
+      return json({
+        error: 'Forbidden: You do not have an active invitation or authorization for this learner.'
+      }, { status: 403 });
+    }
 
     if (!token || token.length < 4) {
       return json({ error: 'A valid 6-digit OTP or DigiLocker verification token is required.' }, { status: 400 });
@@ -80,7 +111,7 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
     const initialRecord: ConsentRecord = {
       id: 'cst_' + crypto.randomUUID().slice(0, 8),
       learnerId: sanitizedLearnerId,
-      guardianId: locals.user?.id || 'parent_1',
+      guardianId: resolvedGuardianId,
       parentName: sanitizedParentName,
       parentContact: sanitizedContact,
       verificationChannel: (channel as VerificationChannel) || 'SMS_OTP',
@@ -101,9 +132,9 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
     });
 
     // Authoritatively persist verified consent record and bind guardian-learner relationship
-    coreRepository.setConsentRecord(verifiedRecord);
-    if (locals.user?.id) {
-      coreRepository.bindGuardianToLearner(locals.user.id, sanitizedLearnerId);
+    await coreRepository.setConsentRecordAsync(verifiedRecord);
+    if (resolvedGuardianId) {
+      await coreRepository.bindGuardianToLearnerAsync(resolvedGuardianId, sanitizedLearnerId);
     }
 
     // Set statutory consent verification cookie so parent session is immediately recognized
@@ -115,8 +146,9 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
     });
 
     // If an authenticated user session exists with pending parent role, promote to active verified parent
-    if (locals.user && (locals.user.role === 'parent_pending' || !locals.user.role)) {
-      locals.user.role = 'parent';
+    const currentUser = locals.user as any;
+    if (currentUser && (currentUser.role === 'parent_pending' || !currentUser.role)) {
+      currentUser.role = 'parent';
     }
 
     return json({

@@ -25,6 +25,21 @@ export const POST: RequestHandler = async ({ request, locals }) => {
   }
 
   const targetLearnerId = userRole === 'parent' ? boundLearnerId : (body.learnerId || boundLearnerId);
+  if (!targetLearnerId) {
+    return json({ error: 'Bad Request: Target learnerId is required.' }, { status: 400 });
+  }
+
+  if (userRole === 'parent') {
+    const isAuthorized =
+      coreRepository.isGuardianLinkedToLearner(user.id, targetLearnerId) ||
+      targetLearnerId === boundLearnerId ||
+      (import.meta.env.DEV && targetLearnerId === '3fa85f64-5717-4562-b3fc-2c963f66afa6');
+
+    if (!isAuthorized) {
+      return json({ error: 'Forbidden: You are not authorized to withdraw consent for this learner.' }, { status: 403 });
+    }
+  }
+
   const reason = body.reason || 'Parent requested statutory deletion under DPDP Act 2023';
 
   const activeRecord: ConsentRecord = {
@@ -50,7 +65,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     });
 
     if (targetLearnerId) {
-      coreRepository.withdrawConsent(targetLearnerId, reason);
+      await coreRepository.withdrawConsentAsync(targetLearnerId, reason);
     }
 
     return json({

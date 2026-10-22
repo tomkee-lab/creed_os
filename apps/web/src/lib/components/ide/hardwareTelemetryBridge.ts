@@ -56,11 +56,16 @@ export function exportMicroPythonArtifact(
 
 export class HardwareTelemetryBridge {
   private isStreaming: boolean = false;
+  private isRealHardware: boolean = false;
+  private serialPort: any = null;
+  private serialReader: any = null;
+  private readableClosed: Promise<void> | null = null;
   private stateListeners: Set<StateListener> = new Set();
   private telemetryListeners: Set<TelemetryListener> = new Set();
   private planetaryListeners: Set<(vec: any) => void> = new Set();
   private simulatedInterval: any = null;
   private activePlanetarySource: string = 'iss';
+  private writeQueue: Promise<void> = Promise.resolve();
 
   public subscribeState(listener: StateListener): () => void {
     this.stateListeners.add(listener);
@@ -75,16 +80,19 @@ export class HardwareTelemetryBridge {
 
   public getState(): BridgeState {
     return {
-      isConnected: this.isStreaming,
-      portName: this.isStreaming ? 'Simulated Hardware Bus' : 'Disconnected',
+      isConnected: this.isStreaming || this.isRealHardware,
+      portName: this.isRealHardware
+        ? 'USB Serial Microcontroller'
+        : (this.isStreaming ? 'Simulated Hardware Bus' : 'Disconnected'),
       baudRate: 115200,
-      fps: this.isStreaming ? 20 : 0
+      fps: (this.isStreaming || this.isRealHardware) ? 20 : 0
     };
   }
 
   public startSimulationStream() {
     if (this.simulatedInterval) return;
     this.isStreaming = true;
+    this.isRealHardware = false;
     this.notifyState();
 
     this.simulatedInterval = setInterval(() => {
@@ -107,10 +115,105 @@ export class HardwareTelemetryBridge {
   }
 
   public async connect(): Promise<void> {
+    // Attempt standard W3C Web Serial connection if supported by the browser
+    if (typeof navigator !== 'undefined' && 'serial' in navigator) {
+      try {
+        const serial = (navigator as any).serial;
+        const port = await serial.requestPort();
+        await port.open({ baudRate: 115200 });
+        this.serialPort = port;
+        this.isRealHardware = true;
+        this.stopSimulationStream();
+        this.notifyState();
+        this.startSerialReader();
+        return;
+      } catch (err: any) {
+        // User dismissed the hardware picker or device is unavailable; fall back to simulation
+        console.info('[HardwareTelemetryBridge] Web Serial not selected, falling back to simulated stream:', err?.message);
+      }
+    }
     this.startSimulationStream();
   }
 
+  private async startSerialReader(): Promise<void> {
+    if (!this.serialPort?.readable) return;
+    const textDecoder = new TextDecoderStream();
+    this.readableClosed = this.serialPort.readable.pipeTo(textDecoder.writable).catch(() => {});
+    this.serialReader = textDecoder.readable.getReader();
+
+    let buffer = '';
+    try {
+      while (this.isRealHardware) {
+        const { value, done } = await this.serialReader.read();
+        if (done) break;
+        buffer += value;
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) continue;
+          try {
+            const parsed = JSON.parse(trimmed);
+            const parseNum = (val: any): number => {
+              const num = Number(val);
+              return !isNaN(num) && isFinite(num) ? num : 0;
+            };
+
+            const hasDist = parsed.dist !== undefined || parsed.distance !== undefined;
+            const hasHeading = parsed.heading !== undefined;
+            const hasAx = parsed.ax !== undefined;
+            const hasAy = parsed.ay !== undefined;
+            const hasAz = parsed.az !== undefined;
+            const hasLight = parsed.light !== undefined;
+
+            const telemetry: HardwareTelemetry = {
+              distanceCm: hasDist ? parseNum(parsed.dist ?? parsed.distance) : 0,
+              headingDeg: hasHeading ? parseNum(parsed.heading) : 0,
+              accelX: hasAx ? parseNum(parsed.ax) : 0,
+              accelY: hasAy ? parseNum(parsed.ay) : 0,
+              accelZ: hasAz ? parseNum(parsed.az) : 0,
+              lightLevel: hasLight ? parseNum(parsed.light) : 0,
+              buttonA: Boolean(parsed.btnA),
+              buttonB: Boolean(parsed.btnB),
+              planetaryVector: this.getPlanetaryVector(),
+              timestamp: Date.now()
+            };
+            this.notifyTelemetry(telemetry);
+          } catch {
+            // Non-JSON raw telemetry frame
+          }
+        }
+      }
+    } catch {
+      // Stream disconnected
+    } finally {
+      this.disconnect();
+    }
+  }
+
   public async disconnect(): Promise<void> {
+    this.isRealHardware = false;
+    try {
+      await this.writeQueue;
+    } catch {}
+    if (this.serialReader) {
+      try {
+        await this.serialReader.cancel();
+      } catch {}
+      this.serialReader = null;
+    }
+    if (this.readableClosed) {
+      try {
+        await this.readableClosed;
+      } catch {}
+      this.readableClosed = null;
+    }
+    if (this.serialPort) {
+      try {
+        await this.serialPort.close();
+      } catch {}
+      this.serialPort = null;
+    }
     this.stopSimulationStream();
   }
 
@@ -128,12 +231,33 @@ export class HardwareTelemetryBridge {
     return () => this.planetaryListeners.delete(listener);
   }
 
-  public sendChoreographyCue(_cue: string): void {
-    // Simulated robotic choreography cue
+  private writeSerialCommand(payload: Record<string, any>): void {
+    if (!this.isRealHardware || !this.serialPort?.writable) return;
+    this.writeQueue = this.writeQueue
+      .then(async () => {
+        if (!this.isRealHardware || !this.serialPort?.writable) return;
+        const writer = this.serialPort.writable.getWriter();
+        try {
+          const encoder = new TextEncoder();
+          const line = JSON.stringify(payload) + '\n';
+          await writer.write(encoder.encode(line));
+        } finally {
+          try {
+            writer.releaseLock();
+          } catch {}
+        }
+      })
+      .catch((err) => {
+        console.warn('[HardwareTelemetryBridge] Failed to write serial command:', err);
+      });
   }
 
-  public sendSpeech(_text: string, _voice?: string): void {
-    // Simulated robotic TTS speech
+  public sendChoreographyCue(cue: string): void {
+    this.writeSerialCommand({ cmd: 'cue', val: cue });
+  }
+
+  public sendSpeech(text: string, voice?: string): void {
+    this.writeSerialCommand({ cmd: 'speech', val: text, voice });
   }
 
   public bindPlanetarySource(sourceId: string): { sourceName: string; azimuthDeg: number; elevationDeg: number } {
@@ -172,16 +296,16 @@ export class HardwareTelemetryBridge {
     return { sourceName: cleanSource, azimuthDeg: 142, elevationDeg: 35 };
   }
 
-  public sendEmotion(_emotion: string): void {
-    // Simulated OLED expression
+  public sendEmotion(emotion: string): void {
+    this.writeSerialCommand({ cmd: 'emotion', val: emotion });
   }
 
-  public sendMotion(_motion: string, _params?: Record<string, any>): void {
-    // Simulated robotic actuator motion
+  public sendMotion(motion: string, params?: Record<string, any>): void {
+    this.writeSerialCommand({ cmd: 'motion', val: motion, ...(params || {}) });
   }
 
-  public sendMatrix(_pattern: any): void {
-    // Simulated 5x5 LED matrix
+  public sendMatrix(pattern: any): void {
+    this.writeSerialCommand({ cmd: 'matrix', val: pattern });
   }
 
   public stopSimulationStream() {

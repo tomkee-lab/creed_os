@@ -267,7 +267,7 @@ DROP POLICY IF EXISTS "assessment_sessions_learner_update" ON public.assessment_
 CREATE POLICY "assessment_sessions_learner_update" ON public.assessment_sessions
   FOR UPDATE TO authenticated
   USING (learner_id = auth.uid() AND status IN ('initialized', 'in_progress', 'paused'))
-  WITH CHECK (learner_id = auth.uid());
+  WITH CHECK (learner_id = auth.uid() AND status IN ('in_progress', 'paused'));
 
 DROP POLICY IF EXISTS "assessment_sessions_service_role" ON public.assessment_sessions;
 CREATE POLICY "assessment_sessions_service_role" ON public.assessment_sessions
@@ -348,7 +348,7 @@ CREATE POLICY "learner_evidence_educator_select" ON public.learner_evidence
 DROP POLICY IF EXISTS "learner_evidence_learner_insert" ON public.learner_evidence;
 CREATE POLICY "learner_evidence_learner_insert" ON public.learner_evidence
   FOR INSERT TO authenticated
-  WITH CHECK (learner_id = auth.uid());
+  WITH CHECK (learner_id = auth.uid() AND status = 'candidate' AND evidence_strength <= 2);
 
 DROP POLICY IF EXISTS "learner_evidence_service_role" ON public.learner_evidence;
 CREATE POLICY "learner_evidence_service_role" ON public.learner_evidence

@@ -185,12 +185,13 @@ export interface EquatingResult {
   formattedScore: string;
   percentileRank: number;
   confidenceBand: [number, number];
+  isEmpiricallyLinked?: boolean;
 }
 
 /**
- * Equipercentile Equating Engine
- * Projects standardized latent ability theta (N(0, 1)) onto international normative scales
- * using equipercentile distribution matching.
+ * Linear Normative Projection Engine (Prototype)
+ * Projects standardized latent ability theta (N(0, 1)) onto international normative reference scales.
+ * Note: Uses linear transformation; pending empirical equipercentile linking distributions.
  */
 export function equipercentileEquate(
   theta: number,
@@ -247,7 +248,8 @@ export function equipercentileEquate(
     scaleScore,
     formattedScore: scale === 'LEXILE' ? `${scaleScore}L` : `${scaleScore} ${unit}`,
     percentileRank,
-    confidenceBand: [lowerBound, upperBound]
+    confidenceBand: [lowerBound, upperBound],
+    isEmpiricallyLinked: false
   };
 }
 
@@ -257,8 +259,9 @@ export interface CalibrationSample {
 }
 
 /**
- * Marginal Maximum Likelihood (MML) item calibration for cohort response samples.
- * Estimates item discrimination 'a' and difficulty 'b' given empirical responses.
+ * Heuristic Item Parameter Calibration (Prototype)
+ * Estimates initial item discrimination 'a' and difficulty 'b' given empirical responses.
+ * Rejects degenerate sample distributions (all correct, all incorrect, or N < 5).
  */
 export function calibrateItemParameters(
   samples: CalibrationSample[],
@@ -269,12 +272,16 @@ export function calibrateItemParameters(
   }
 
   const correctCount = samples.filter((s) => s.isCorrect).length;
+  // Degenerate samples: non-identifiable parameters when all correct or all wrong
+  if (correctCount === 0 || correctCount === samples.length) {
+    return { a: 1.0, b: correctCount === 0 ? 3.0 : -3.0, c: fixedC, sampleSize: samples.length, converged: false };
+  }
+
   const pVal = correctCount / samples.length;
 
   const meanThetaAll = samples.reduce((sum, s) => sum + s.learnerTheta, 0) / samples.length;
-  const meanThetaCorrect = correctCount > 0
-    ? samples.filter((s) => s.isCorrect).reduce((sum, s) => sum + s.learnerTheta, 0) / correctCount
-    : meanThetaAll;
+  const meanThetaCorrect =
+    samples.filter((s) => s.isCorrect).reduce((sum, s) => sum + s.learnerTheta, 0) / correctCount;
   const diff = meanThetaCorrect - meanThetaAll;
   const estimatedA = Math.max(0.5, Math.min(2.2, 1.0 + diff * 1.2));
 

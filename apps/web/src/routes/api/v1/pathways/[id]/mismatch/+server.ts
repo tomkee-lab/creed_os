@@ -49,10 +49,15 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
 
   let totalDemonstrated = 0;
   let totalRequired = 0;
+  let assessedCount = 0;
 
   for (const req of pathway.requirements) {
     const scoreObj = learner.competencies[req.competency];
-    const demonstrated = scoreObj ? scoreObj.score : 3.0;
+    const isAssessed = scoreObj !== undefined && scoreObj !== null && typeof scoreObj.score === 'number';
+    const demonstrated = isAssessed ? scoreObj.score : 0;
+    if (isAssessed) {
+      assessedCount++;
+    }
     const required = req.minimumLevel;
     const deltaVal = demonstrated - required;
     const deltaStr = (deltaVal >= 0 ? '+' : '') + deltaVal.toFixed(1);
@@ -60,7 +65,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     totalDemonstrated += demonstrated;
     totalRequired += required;
 
-    if (demonstrated >= required) {
+    if (isAssessed && demonstrated >= required) {
       strengthsMeetingRequirements.push({
         competency: req.competency.replace('_', ' '),
         required,
@@ -83,11 +88,13 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
   );
 
   const status =
-    foundationGaps.length === 0
-      ? overallReadiness >= 0.85
-        ? 'strongly_aligned'
-        : 'aligned'
-      : 'constructive_mismatch';
+    assessedCount === 0
+      ? 'exploratory'
+      : foundationGaps.length === 0
+        ? overallReadiness >= 0.85
+          ? 'strongly_aligned'
+          : 'aligned'
+        : 'constructive_mismatch';
 
   const recommendedIntervention = {
     title: `6-Week ${pathway.title} Foundations Sprint`,

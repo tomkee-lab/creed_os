@@ -72,9 +72,12 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
 
   const scopedLearnerId = resolveLearnerId(user);
 
-  const rawLearner = isStudentOrParentRoute && isVerifiedAccess && scopedLearnerId
+  let rawLearner = isStudentOrParentRoute && isVerifiedAccess && scopedLearnerId
     ? coreRepository.getLearnerProfile(scopedLearnerId, user)
     : null;
+  if (!rawLearner && isStudentOrParentRoute && isVerifiedAccess && scopedLearnerId && 'getLearnerProfileFromDb' in coreRepository) {
+    rawLearner = await (coreRepository as any).getLearnerProfileFromDb(scopedLearnerId);
+  }
 
   // Bifurcated Paradigm Security: Construct role-specific allowlist DTO (zero psychometrics on student/parent wire)
   const learner = rawLearner
