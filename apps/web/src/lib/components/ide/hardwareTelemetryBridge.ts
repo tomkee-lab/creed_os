@@ -65,6 +65,7 @@ export class HardwareTelemetryBridge {
   private planetaryListeners: Set<(vec: any) => void> = new Set();
   private simulatedInterval: any = null;
   private activePlanetarySource: string = 'iss';
+  private writeQueue: Promise<void> = Promise.resolve();
 
   public subscribeState(listener: StateListener): () => void {
     this.stateListeners.add(listener);
@@ -153,17 +154,25 @@ export class HardwareTelemetryBridge {
           if (!trimmed) continue;
           try {
             const parsed = JSON.parse(trimmed);
+            const parseNum = (val: any): number => {
+              const num = Number(val);
+              return !isNaN(num) && isFinite(num) ? num : 0;
+            };
+
             const hasDist = parsed.dist !== undefined || parsed.distance !== undefined;
+            const hasHeading = parsed.heading !== undefined;
+            const hasAx = parsed.ax !== undefined;
+            const hasAy = parsed.ay !== undefined;
             const hasAz = parsed.az !== undefined;
             const hasLight = parsed.light !== undefined;
 
             const telemetry: HardwareTelemetry = {
-              distanceCm: hasDist ? Number(parsed.dist ?? parsed.distance) : 0,
-              headingDeg: Number(parsed.heading ?? 0),
-              accelX: Number(parsed.ax ?? 0),
-              accelY: Number(parsed.ay ?? 0),
-              accelZ: hasAz ? Number(parsed.az) : 0,
-              lightLevel: hasLight ? Number(parsed.light) : 0,
+              distanceCm: hasDist ? parseNum(parsed.dist ?? parsed.distance) : 0,
+              headingDeg: hasHeading ? parseNum(parsed.heading) : 0,
+              accelX: hasAx ? parseNum(parsed.ax) : 0,
+              accelY: hasAy ? parseNum(parsed.ay) : 0,
+              accelZ: hasAz ? parseNum(parsed.az) : 0,
+              lightLevel: hasLight ? parseNum(parsed.light) : 0,
               buttonA: Boolean(parsed.btnA),
               buttonB: Boolean(parsed.btnB),
               planetaryVector: this.getPlanetaryVector(),
@@ -184,6 +193,9 @@ export class HardwareTelemetryBridge {
 
   public async disconnect(): Promise<void> {
     this.isRealHardware = false;
+    try {
+      await this.writeQueue;
+    } catch {}
     if (this.serialReader) {
       try {
         await this.serialReader.cancel();
@@ -219,17 +231,25 @@ export class HardwareTelemetryBridge {
     return () => this.planetaryListeners.delete(listener);
   }
 
-  private async writeSerialCommand(payload: Record<string, any>): Promise<void> {
+  private writeSerialCommand(payload: Record<string, any>): void {
     if (!this.isRealHardware || !this.serialPort?.writable) return;
-    try {
-      const encoder = new TextEncoder();
-      const writer = this.serialPort.writable.getWriter();
-      const line = JSON.stringify(payload) + '\n';
-      await writer.write(encoder.encode(line));
-      writer.releaseLock();
-    } catch (err) {
-      console.warn('[HardwareTelemetryBridge] Failed to write serial command:', err);
-    }
+    this.writeQueue = this.writeQueue
+      .then(async () => {
+        if (!this.isRealHardware || !this.serialPort?.writable) return;
+        const writer = this.serialPort.writable.getWriter();
+        try {
+          const encoder = new TextEncoder();
+          const line = JSON.stringify(payload) + '\n';
+          await writer.write(encoder.encode(line));
+        } finally {
+          try {
+            writer.releaseLock();
+          } catch {}
+        }
+      })
+      .catch((err) => {
+        console.warn('[HardwareTelemetryBridge] Failed to write serial command:', err);
+      });
   }
 
   public sendChoreographyCue(cue: string): void {

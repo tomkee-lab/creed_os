@@ -195,7 +195,10 @@
     roverY = y;
     roverHeading = heading;
 
-    if (roverX === targetBase.x && roverY === targetBase.y) {
+    const isSuccess = roverX === targetBase.x && roverY === targetBase.y;
+    logPisaEvent('run_simulation', { commands: roverCommands, x: roverX, y: roverY }, { success: isSuccess });
+
+    if (isSuccess) {
       roverStatus = 'success';
     } else {
       roverStatus = 'idle';
@@ -1165,7 +1168,7 @@
                 <span>Solar Generation</span>
                 <span class="font-mono font-bold text-foreground">{solarGenMw} MW</span>
               </div>
-              <input type="range" min="60" max="180" step="5" bind:value={solarGenMw} oninput={() => logPisaEvent('parameter_change', { solarGenMw })} class="w-full accent-ai" />
+              <input type="range" min="60" max="180" step="5" bind:value={solarGenMw} oninput={() => logPisaEvent('parameter_change', { solarGenMw })} onchange={() => logPisaEvent('run_simulation', currentTelemetry, { success: isMissionPassed })} class="w-full accent-ai" />
             </div>
 
             <div class="space-y-1">
@@ -1173,7 +1176,7 @@
                 <span>Wind Generation</span>
                 <span class="font-mono font-bold text-foreground">{windGenMw} MW</span>
               </div>
-              <input type="range" min="10" max="80" step="5" bind:value={windGenMw} oninput={() => logPisaEvent('parameter_change', { windGenMw })} class="w-full accent-ai" />
+              <input type="range" min="10" max="80" step="5" bind:value={windGenMw} oninput={() => logPisaEvent('parameter_change', { windGenMw })} onchange={() => logPisaEvent('run_simulation', currentTelemetry, { success: isMissionPassed })} class="w-full accent-ai" />
             </div>
 
             <div class="space-y-1">
@@ -1181,7 +1184,7 @@
                 <span>Battery Dispatch (Charge/Discharge)</span>
                 <span class="font-mono font-bold {batteryDispatchMw >= 0 ? 'text-positive' : 'text-attention'}">{batteryDispatchMw > 0 ? `+${batteryDispatchMw}` : batteryDispatchMw} MW</span>
               </div>
-              <input type="range" min="-40" max="40" step="5" bind:value={batteryDispatchMw} oninput={() => logPisaEvent('parameter_change', { batteryDispatchMw })} class="w-full accent-ai" />
+              <input type="range" min="-40" max="40" step="5" bind:value={batteryDispatchMw} oninput={() => logPisaEvent('parameter_change', { batteryDispatchMw })} onchange={() => logPisaEvent('run_simulation', currentTelemetry, { success: isMissionPassed })} class="w-full accent-ai" />
             </div>
           </div>
 
@@ -1196,7 +1199,11 @@
                 {#each ([0.8, 1.0, 1.2, 1.5] as const) as pct}
                   <button
                     type="button"
-                    onclick={() => { agarosePercent = pct; logPisaEvent('parameter_change', { agarosePercent: pct }); }}
+                    onclick={() => {
+                      agarosePercent = pct;
+                      logPisaEvent('parameter_change', { agarosePercent: pct });
+                      logPisaEvent('run_simulation', currentTelemetry, { success: isMissionPassed });
+                    }}
                     class="p-1.5 border text-center rounded-sm font-mono text-[11px] transition-colors cursor-pointer {agarosePercent === pct ? 'border-ai bg-surface-raised font-bold text-foreground' : 'border-border text-muted hover:text-foreground'}"
                   >
                     {pct}%
@@ -1210,7 +1217,7 @@
                 <span>Electric Field Voltage</span>
                 <span class="font-mono font-bold {gelVoltageV > 110 ? 'text-critical' : 'text-foreground'}">{gelVoltageV} V</span>
               </div>
-              <input type="range" min="60" max="140" step="10" bind:value={gelVoltageV} oninput={() => logPisaEvent('parameter_change', { gelVoltageV })} class="w-full accent-ai" />
+              <input type="range" min="60" max="140" step="10" bind:value={gelVoltageV} oninput={() => logPisaEvent('parameter_change', { gelVoltageV })} onchange={() => logPisaEvent('run_simulation', currentTelemetry, { success: isMissionPassed })} class="w-full accent-ai" />
               {#if gelVoltageV > 110}
                 <span class="text-[10px] text-critical">Thermal risk: &gt;110V causes band smearing & denaturation.</span>
               {/if}
@@ -1221,7 +1228,7 @@
                 <span>Electrophoresis Run Time</span>
                 <span class="font-mono font-bold text-foreground">{gelRunTimeMin} min</span>
               </div>
-              <input type="range" min="15" max="60" step="5" bind:value={gelRunTimeMin} oninput={() => logPisaEvent('parameter_change', { gelRunTimeMin })} class="w-full accent-ai" />
+              <input type="range" min="15" max="60" step="5" bind:value={gelRunTimeMin} oninput={() => logPisaEvent('parameter_change', { gelRunTimeMin })} onchange={() => logPisaEvent('run_simulation', currentTelemetry, { success: isMissionPassed })} class="w-full accent-ai" />
             </div>
           </div>
         {/if}

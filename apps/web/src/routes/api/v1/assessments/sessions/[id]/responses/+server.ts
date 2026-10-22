@@ -61,12 +61,12 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
       }
     }
 
-    // Educators can only proctor/submit for students in their authorized cohort
-    if (userRole === 'teacher' || userRole === 'counselor') {
+    // Educators and staff can only proctor/submit for students in their authorized cohort
+    if (userRole === 'teacher' || userRole === 'counselor' || userRole === 'admin') {
       const isCohort = await coreRepository.isLearnerInEducatorCohortAsync(user.id, session.learnerId);
       if (!isCohort && !isDemoSession) {
         return json({
-          error: 'Forbidden: Educators can only interact with assessment sessions for learners in their authorized cohort.'
+          error: 'Forbidden: Staff and educators can only interact with assessment sessions for learners in their authorized cohort.'
         }, { status: 403 });
       }
     }
@@ -112,75 +112,75 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     }
     inFlightSubmissions.add(submissionKey);
 
-    const item = coreRepository.getItemById(itemId);
-    if (!item) {
-      return json({ error: 'Item not found in bank' }, { status: 404 });
-    }
-
-    // F04: Verify item domain membership matches session blueprint
-    const domainPool = coreRepository.getItemsByDomain(session.domain);
-    if (!domainPool.some((p) => p.id === item.id)) {
-      return json({ error: 'Forbidden: Item does not belong to this assessment domain blueprint.' }, { status: 400 });
-    }
-
-    // Validate selected option exists on item
-    const validOption = item.options.some((opt: any) => opt.id === selectedOptionId);
-    if (!validOption) {
-      return json({ error: 'Bad Request: selectedOptionId does not exist for this item' }, { status: 400 });
-    }
-
-    const boundedTimeSpent = Math.max(1, Math.min(600, Number(timeSpentSeconds) || 15));
-
-    // 1. Deterministic Scoring & Misconception Diagnosis
-    const evalResult = evaluateItemResponse(item, selectedOptionId);
-
-    // 2. Compute psychometric history for EAP
-    const historyItem = {
-      params: item.irt,
-      isCorrect: evalResult.isCorrect
-    };
-
-    const updatedHistory = [
-      ...session.history.map((h) => {
-        const itemObj = coreRepository.getItemById(h.itemId);
-        return {
-          params: itemObj ? itemObj.irt : { a: 1.0, b: 0.0, c: 0.25 },
-          isCorrect: h.isCorrect
-        };
-      }),
-      historyItem
-    ];
-
-    // 3. EAP Numerical Quadrature Ability Recalculation
-    const eapResult = estimateThetaEAP(updatedHistory);
-
-    // 4. Construct Traceable Evidence Record (Level 3 Diagnostic)
-    const newEvidence: LearnerEvidence = {
-      id: crypto.randomUUID(),
-      learnerId: session.learnerId,
-      competency: item.competency,
-      evidenceType: 'diagnostic_response',
-      sourceType: 'cat_assessment',
-      sourceId: session.id,
-      sourceTitle: `Adaptive CAT Diagnostic Session (${item.code})`,
-      summary: evalResult.isCorrect
-        ? `Correctly solved item on ${item.competency.replace('_', ' ')}: demonstrated valid analytical reasoning.`
-        : `Identified misconception [${evalResult.misconceptionCode}] on ${item.competency.replace('_', ' ')}.`,
-      observedValue: {
-        theta: eapResult.theta,
-        standardError: eapResult.standardError,
-        misconceptionsIdentified: evalResult.misconceptionCode ? [evalResult.misconceptionCode] : []
-      },
-      confidence: Math.round((1 - eapResult.standardError * 0.5) * 100) / 100,
-      evidenceStrength: 3,
-      status: 'accepted',
-      visibility: 'guardian',
-      observedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString()
-    };
-
-    // Commit evidence first; if persistence fails due to consent or DB error, session state remains intact
     try {
+      const item = coreRepository.getItemById(itemId);
+      if (!item) {
+        return json({ error: 'Item not found in bank' }, { status: 404 });
+      }
+
+      // F04: Verify item domain membership matches session blueprint
+      const domainPool = coreRepository.getItemsByDomain(session.domain);
+      if (!domainPool.some((p) => p.id === item.id)) {
+        return json({ error: 'Forbidden: Item does not belong to this assessment domain blueprint.' }, { status: 400 });
+      }
+
+      // Validate selected option exists on item
+      const validOption = item.options.some((opt: any) => opt.id === selectedOptionId);
+      if (!validOption) {
+        return json({ error: 'Bad Request: selectedOptionId does not exist for this item' }, { status: 400 });
+      }
+
+      const boundedTimeSpent = Math.max(1, Math.min(600, Number(timeSpentSeconds) || 15));
+
+      // 1. Deterministic Scoring & Misconception Diagnosis
+      const evalResult = evaluateItemResponse(item, selectedOptionId);
+
+      // 2. Compute psychometric history for EAP
+      const historyItem = {
+        params: item.irt,
+        isCorrect: evalResult.isCorrect
+      };
+
+      const updatedHistory = [
+        ...session.history.map((h) => {
+          const itemObj = coreRepository.getItemById(h.itemId);
+          return {
+            params: itemObj ? itemObj.irt : { a: 1.0, b: 0.0, c: 0.25 },
+            isCorrect: h.isCorrect
+          };
+        }),
+        historyItem
+      ];
+
+      // 3. EAP Numerical Quadrature Ability Recalculation
+      const eapResult = estimateThetaEAP(updatedHistory);
+
+      // 4. Construct Traceable Evidence Record (Level 3 Diagnostic)
+      const newEvidence: LearnerEvidence = {
+        id: crypto.randomUUID(),
+        learnerId: session.learnerId,
+        competency: item.competency,
+        evidenceType: 'diagnostic_response',
+        sourceType: 'cat_assessment',
+        sourceId: session.id,
+        sourceTitle: `Adaptive CAT Diagnostic Session (${item.code})`,
+        summary: evalResult.isCorrect
+          ? `Correctly solved item on ${item.competency.replace('_', ' ')}: demonstrated valid analytical reasoning.`
+          : `Identified misconception [${evalResult.misconceptionCode}] on ${item.competency.replace('_', ' ')}.`,
+        observedValue: {
+          theta: eapResult.theta,
+          standardError: eapResult.standardError,
+          misconceptionsIdentified: evalResult.misconceptionCode ? [evalResult.misconceptionCode] : []
+        },
+        confidence: Math.round((1 - eapResult.standardError * 0.5) * 100) / 100,
+        evidenceStrength: 3,
+        status: 'accepted',
+        visibility: 'guardian',
+        observedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString()
+      };
+
+      // Commit evidence first; if persistence fails due to consent or DB error, session state remains intact
       await coreRepository.addEvidenceAsync(newEvidence, locals.user.id);
 
       if (session.history.some((h) => h.itemId === itemId)) {
@@ -191,9 +191,6 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
           itemsAnswered: session.itemsAnswered
         }, { status: 409 });
       }
-    } finally {
-      inFlightSubmissions.delete(submissionKey);
-    }
 
     // 5. Transactionally commit session and competency profile updates
     session.currentTheta = eapResult.theta;
@@ -310,17 +307,20 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
       options: selection.selectedItem.options
     };
 
-    return json({
-      sessionId: session.id,
-      status: 'in_progress',
-      isCorrect: evalResult.isCorrect,
-      explanation: evalResult.explanation,
-      misconceptionCode: evalResult.misconceptionCode,
-      ...(isStaff ? { currentTheta: eapResult.theta, standardError: eapResult.standardError } : {}),
-      itemsAnswered: session.itemsAnswered,
-      isTestComplete: false,
-      nextItem: nextItemSafe
-    });
+      return json({
+        sessionId: session.id,
+        status: 'in_progress',
+        isCorrect: evalResult.isCorrect,
+        explanation: evalResult.explanation,
+        misconceptionCode: evalResult.misconceptionCode,
+        ...(isStaff ? { currentTheta: eapResult.theta, standardError: eapResult.standardError } : {}),
+        itemsAnswered: session.itemsAnswered,
+        isTestComplete: false,
+        nextItem: nextItemSafe
+      });
+    } finally {
+      inFlightSubmissions.delete(submissionKey);
+    }
   } catch (err: any) {
     return json({ error: err.message || 'Internal server error' }, { status: 500 });
   }

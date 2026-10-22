@@ -66,9 +66,7 @@ export function calculateSrlMetrics(
   events: readonly PisaTelemetryEvent[],
   optimalSteps: number = 3
 ): SelfRegulatedLearningMetrics {
-  const simulationRuns = events.filter(
-    (e) => e.action === 'run_simulation' || e.action === 'parameter_change' || e.action === 'submit_solution'
-  );
+  const simulationRuns = events.filter((e) => e.action === 'run_simulation');
   const totalTrials = simulationRuns.length;
 
   if (totalTrials === 0) {
