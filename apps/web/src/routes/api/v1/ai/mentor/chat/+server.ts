@@ -37,6 +37,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       return json({ error: 'Forbidden: Valid learner ID required' }, { status: 403 });
     }
 
+    // 3. Statutory DPDP Act Section 9 Consent Check before invoking AI inference
+    if (!coreRepository.hasActiveConsent(effectiveLearnerId)) {
+      return json({
+        error: 'Statutory parental consent under DPDP Act 2023 Section 9 missing or not active for this learner.'
+      }, { status: 403 });
+    }
+
     const mentorResponse = await chatWithSocraticMentor(message, history);
 
     // If an observation was extracted, log it as candidate evidence bound strictly to the verified learner
@@ -57,7 +64,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         observedAt: new Date().toISOString(),
         createdAt: new Date().toISOString()
       };
-      coreRepository.addEvidence(observationEvidence);
+      await coreRepository.addEvidenceAsync(observationEvidence, locals.user.id);
     }
 
     return json({

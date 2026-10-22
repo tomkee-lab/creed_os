@@ -57,6 +57,7 @@ create table if not exists consents (
   policy_version text not null,
   verified_at timestamptz,
   withdrawn_at timestamptz,
+  expires_at timestamptz,
   created_at timestamptz not null default now()
 );
 

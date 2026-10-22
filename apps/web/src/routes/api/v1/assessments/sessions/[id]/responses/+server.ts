@@ -33,7 +33,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
       return json({ error: 'Assessment session not found' }, { status: 404 });
     }
 
-    // 2. Authorize session ownership (Prevent student response injection into other learners)
+    // 2. Authorize session ownership and relationship (Prevent unrelated actors or cross-learner injection)
     const user = locals.user;
     const userRole = (user as any).role || (user as any).metadata?.role || 'student';
     const boundLearnerId = resolveLearnerId(user);
@@ -43,11 +43,19 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
       return json({ error: 'Forbidden: Unauthorized role for assessment responses.' }, { status: 403 });
     }
 
-    // Statutory child privacy: A student cannot inject responses into another learner's session
+    const isDemoSession = import.meta.env.DEV && session.learnerId === DEFAULT_DEMO_LEARNER_ID;
+
+    // Statutory child privacy: Students can only submit to their own sessions
     if (userRole === 'student') {
-      const isDemoSession = import.meta.env.DEV && session.learnerId === DEFAULT_DEMO_LEARNER_ID;
       if (!isDemoSession && (!boundLearnerId || session.learnerId !== boundLearnerId)) {
         return json({ error: 'Forbidden: You cannot submit responses to an assessment session belonging to another learner.' }, { status: 403 });
+      }
+    }
+
+    // Parents can only submit for their verified linked child
+    if (userRole === 'parent' || userRole === 'parent_pending') {
+      if (!isDemoSession && (!boundLearnerId || session.learnerId !== boundLearnerId)) {
+        return json({ error: 'Forbidden: You cannot submit responses to an assessment session belonging to an unrelated learner.' }, { status: 403 });
       }
     }
 
@@ -58,10 +66,38 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
     const body = await request.json();
     const { itemId, selectedOptionId, timeSpentSeconds = 15 } = body;
 
+    if (!itemId || !selectedOptionId) {
+      return json({ error: 'Bad Request: itemId and selectedOptionId are required' }, { status: 400 });
+    }
+
+    // F04: Prevent item replay attacks / duplicate answers
+    if (session.history.some((h) => h.itemId === itemId)) {
+      return json({
+        error: 'Conflict: This item has already been submitted for this session.',
+        code: 'ITEM_ALREADY_ANSWERED',
+        sessionId: session.id,
+        itemsAnswered: session.itemsAnswered
+      }, { status: 409 });
+    }
+
     const item = coreRepository.getItemById(itemId);
     if (!item) {
       return json({ error: 'Item not found in bank' }, { status: 404 });
     }
+
+    // F04: Verify item domain membership matches session blueprint
+    const domainPool = coreRepository.getItemsByDomain(session.domain);
+    if (!domainPool.some((p) => p.id === item.id)) {
+      return json({ error: 'Forbidden: Item does not belong to this assessment domain blueprint.' }, { status: 400 });
+    }
+
+    // Validate selected option exists on item
+    const validOption = item.options.some((opt: any) => opt.id === selectedOptionId);
+    if (!validOption) {
+      return json({ error: 'Bad Request: selectedOptionId does not exist for this item' }, { status: 400 });
+    }
+
+    const boundedTimeSpent = Math.max(1, Math.min(600, Number(timeSpentSeconds) || 15));
 
     // 1. Deterministic Scoring & Misconception Diagnosis
     const evalResult = evaluateItemResponse(item, selectedOptionId);
@@ -95,7 +131,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
       itemId: item.id,
       selectedOptionId,
       isCorrect: evalResult.isCorrect,
-      timeSpentSeconds,
+      timeSpentSeconds: boundedTimeSpent,
       misconceptionCode: evalResult.misconceptionCode,
       thetaAfter: eapResult.theta,
       standardErrorAfter: eapResult.standardError,
@@ -134,7 +170,7 @@ export const POST: RequestHandler = async ({ params, request, locals }) => {
       observedAt: new Date().toISOString(),
       createdAt: new Date().toISOString()
     };
-    coreRepository.addEvidence(newEvidence);
+    await coreRepository.addEvidenceAsync(newEvidence, locals.user.id);
 
     // 7. Adaptive Next-Item Selection
     const pool = coreRepository.getItemsByDomain(session.domain);

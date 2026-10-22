@@ -56,6 +56,9 @@ export function exportMicroPythonArtifact(
 
 export class HardwareTelemetryBridge {
   private isStreaming: boolean = false;
+  private isRealHardware: boolean = false;
+  private serialPort: any = null;
+  private serialReader: any = null;
   private stateListeners: Set<StateListener> = new Set();
   private telemetryListeners: Set<TelemetryListener> = new Set();
   private planetaryListeners: Set<(vec: any) => void> = new Set();
@@ -75,16 +78,19 @@ export class HardwareTelemetryBridge {
 
   public getState(): BridgeState {
     return {
-      isConnected: this.isStreaming,
-      portName: this.isStreaming ? 'Simulated Hardware Bus' : 'Disconnected',
+      isConnected: this.isStreaming || this.isRealHardware,
+      portName: this.isRealHardware
+        ? 'USB Serial Microcontroller'
+        : (this.isStreaming ? 'Simulated Hardware Bus' : 'Disconnected'),
       baudRate: 115200,
-      fps: this.isStreaming ? 20 : 0
+      fps: (this.isStreaming || this.isRealHardware) ? 20 : 0
     };
   }
 
   public startSimulationStream() {
     if (this.simulatedInterval) return;
     this.isStreaming = true;
+    this.isRealHardware = false;
     this.notifyState();
 
     this.simulatedInterval = setInterval(() => {
@@ -107,10 +113,83 @@ export class HardwareTelemetryBridge {
   }
 
   public async connect(): Promise<void> {
+    // Attempt standard W3C Web Serial connection if supported by the browser
+    if (typeof navigator !== 'undefined' && 'serial' in navigator) {
+      try {
+        const serial = (navigator as any).serial;
+        const port = await serial.requestPort();
+        await port.open({ baudRate: 115200 });
+        this.serialPort = port;
+        this.isRealHardware = true;
+        this.notifyState();
+        this.startSerialReader();
+        return;
+      } catch (err: any) {
+        // User dismissed the hardware picker or device is unavailable; fall back to simulation
+        console.info('[HardwareTelemetryBridge] Web Serial not selected, falling back to simulated stream:', err?.message);
+      }
+    }
     this.startSimulationStream();
   }
 
+  private async startSerialReader(): Promise<void> {
+    if (!this.serialPort?.readable) return;
+    const textDecoder = new TextDecoderStream();
+    this.serialPort.readable.pipeTo(textDecoder.writable).catch(() => {});
+    this.serialReader = textDecoder.readable.getReader();
+
+    let buffer = '';
+    try {
+      while (this.isRealHardware) {
+        const { value, done } = await this.serialReader.read();
+        if (done) break;
+        buffer += value;
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) continue;
+          try {
+            const parsed = JSON.parse(trimmed);
+            const telemetry: HardwareTelemetry = {
+              distanceCm: Number(parsed.dist ?? parsed.distance ?? 50),
+              headingDeg: Number(parsed.heading ?? 0),
+              accelX: Number(parsed.ax ?? 0),
+              accelY: Number(parsed.ay ?? 0),
+              accelZ: Number(parsed.az ?? 9.8),
+              lightLevel: Number(parsed.light ?? 200),
+              buttonA: Boolean(parsed.btnA),
+              buttonB: Boolean(parsed.btnB),
+              planetaryVector: this.getPlanetaryVector(),
+              timestamp: Date.now()
+            };
+            this.notifyTelemetry(telemetry);
+          } catch {
+            // Non-JSON raw telemetry frame
+          }
+        }
+      }
+    } catch {
+      // Stream disconnected
+    } finally {
+      this.disconnect();
+    }
+  }
+
   public async disconnect(): Promise<void> {
+    if (this.serialReader) {
+      try {
+        await this.serialReader.cancel();
+      } catch {}
+      this.serialReader = null;
+    }
+    if (this.serialPort) {
+      try {
+        await this.serialPort.close();
+      } catch {}
+      this.serialPort = null;
+    }
+    this.isRealHardware = false;
     this.stopSimulationStream();
   }
 

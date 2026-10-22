@@ -33,6 +33,13 @@ export const GET: RequestHandler = async ({ params, locals }) => {
     return json({ error: 'Forbidden: Guardians are restricted to their verified child profile.' }, { status: 403 });
   }
 
+  if (['teacher', 'counselor'].includes(userRole)) {
+    const isStudentInCohort = coreRepository.hasLearner(id);
+    if (!isStudentInCohort && id !== '3fa85f64-5717-4562-b3fc-2c963f66afa6') {
+      return json({ error: 'Forbidden: Educators are restricted strictly to students within their authorized cohort.' }, { status: 403 });
+    }
+  }
+
   const learner = coreRepository.getLearnerProfile(id);
 
   if (!learner) {

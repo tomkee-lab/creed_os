@@ -70,7 +70,13 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     }
   }
 
-  const profile = coreRepository.getLearnerProfile(learnerId) || (userRole !== 'student' ? coreRepository.getLearnerProfile(DEFAULT_DEMO_LEARNER_ID) : null);
+  let profile = coreRepository.getLearnerProfile(learnerId);
+  if (!profile && 'getLearnerProfileFromDb' in coreRepository) {
+    profile = await (coreRepository as any).getLearnerProfileFromDb(learnerId);
+  }
+  if (!profile && userRole !== 'student') {
+    profile = coreRepository.getLearnerProfile(DEFAULT_DEMO_LEARNER_ID);
+  }
   const rawReports = coreRepository.getBenchmarkReports(learnerId);
   const rawEvidence = coreRepository.getEvidence(learnerId);
   const pathways = coreRepository.getPathways();

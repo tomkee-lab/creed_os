@@ -99,7 +99,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       createdAt: now
     };
 
-    coreRepository.addEvidence(evidenceRecord);
+    await coreRepository.addEvidenceAsync(evidenceRecord, (user as any).id);
 
     return json({
       success: true,

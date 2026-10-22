@@ -152,4 +152,21 @@ describe('Gate 4 — Psychometric CAT Item Calibration & Convergence Testing', (
     expect(calibration.b).toBeGreaterThan(-1.5);
     expect(calibration.b).toBeLessThan(1.5);
   });
+
+  it('rejects degenerate all-correct and all-wrong datasets with converged: false', () => {
+    // Degenerate all-correct sample
+    const allCorrect = Array.from({ length: 10 }, (_, i) => ({ learnerTheta: i * 0.2, isCorrect: true }));
+    const resultAllCorrect = calibrateItemParameters(allCorrect);
+    expect(resultAllCorrect.converged).toBe(false);
+
+    // Degenerate all-wrong sample
+    const allWrong = Array.from({ length: 10 }, (_, i) => ({ learnerTheta: i * 0.2, isCorrect: false }));
+    const resultAllWrong = calibrateItemParameters(allWrong);
+    expect(resultAllWrong.converged).toBe(false);
+  });
+
+  it('marks equipercentile equating results as prototype without empirical linking', () => {
+    const res = equipercentileEquate(0.0, 'LEXILE');
+    expect(res.isEmpiricallyLinked).toBe(false);
+  });
 });

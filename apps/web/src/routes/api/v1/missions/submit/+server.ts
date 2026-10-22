@@ -49,7 +49,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         notes: body.learnerNotes || body.notes
       });
 
-      coreRepository.addEvidence(evidenceRecord);
+      await coreRepository.addEvidenceAsync(evidenceRecord, locals.user.id);
 
       return json({
         success: true,
@@ -103,7 +103,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         createdAt: now
       };
 
-      coreRepository.addEvidence(evidenceRecord);
+      await coreRepository.addEvidenceAsync(evidenceRecord, locals.user.id);
 
       return json({
         success: true,
@@ -117,6 +117,11 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
     // Support Generalized STEM Simulation Submissions (Grid Rover, Gear Train, Telemetry, Winch, Vision, PID)
     if (body.missionType === 'stem_simulation' || body.solution) {
+      const missionId = String(body.missionId || '').trim();
+      if (!missionId) {
+        return json({ error: 'Bad Request: A valid missionId is required for mission submission' }, { status: 400 });
+      }
+
       const evidenceId = crypto.randomUUID();
       const now = new Date().toISOString();
       const solution = body.solution || {};
@@ -124,16 +129,20 @@ export const POST: RequestHandler = async ({ request, locals }) => {
       const requestedCompetency = String(body.competency || 'computational_thinking');
       const competency = ALLOWED_COMPETENCIES.has(requestedCompetency) ? requestedCompetency : 'computational_thinking';
 
-      // Verify solution pass status server-side
-      const isVerified = Boolean(
+      const userRole = (locals.user as any).role || (locals.user as any).metadata?.role || 'student';
+      const isStaffEvaluator = ['teacher', 'admin', 'counselor'].includes(userRole);
+
+      // F05 Remediation: Untrusted browser telemetry cannot self-declare authoritative 'validated' status.
+      // Candidate submissions from students remain 'candidate' until verified by an educator or deterministic server verifier.
+      const clientReportedPass = Boolean(
         solution.rubricResults?.verified ||
         solution.rubricResults?.passed ||
         solution.verified ||
-        solution.passed ||
-        (solution.summary && solution.summary.includes('Passed'))
+        solution.passed
       );
 
-      const passRate = Number(solution.rubricResults?.passRate) || (isVerified ? 1.0 : 0.5);
+      const isVerified = isStaffEvaluator && clientReportedPass;
+      const passRate = Number(solution.rubricResults?.passRate) || (clientReportedPass ? 0.8 : 0.4);
 
       const evidenceRecord: LearnerEvidence = {
         id: evidenceId,
@@ -142,24 +151,26 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         evidenceType: 'mission_artifact',
         sourceType: 'project_mission',
         sourceTitle: missionTitle,
-        summary: `Validated engineering solution for ${missionTitle}. Performance: ${solution.summary || '100% specification verified'}.`,
+        summary: isVerified
+          ? `Educator-verified engineering solution for ${missionTitle}. Performance: ${solution.summary || 'Specification verified'}.`
+          : `Candidate engineering attempt for ${missionTitle}. Self-reported: ${clientReportedPass ? 'Pass criteria met' : 'Incomplete'}.`,
         observedValue: {
-          scoreFraction: isVerified ? Math.min(1.0, Math.max(0.5, passRate)) : 0.4,
+          scoreFraction: isVerified ? Math.min(1.0, Math.max(0.5, passRate)) : (clientReportedPass ? 0.6 : 0.3),
           rubricCriteria: {
-            passRate: isVerified ? passRate : 0,
+            passRate: isVerified ? passRate : (clientReportedPass ? passRate : 0),
             verified: isVerified ? 1 : 0
           },
-          qualitativeNotes: body.learnerNotes || 'Verified deterministic simulator output.'
+          qualitativeNotes: body.learnerNotes || (isVerified ? 'Verified by educator review.' : 'Client simulator telemetry; recorded as candidate evidence.')
         },
-        confidence: isVerified ? 0.95 : 0.70,
-        evidenceStrength: isVerified ? 4 : 2, // Level 4 when verified
+        confidence: isVerified ? 0.95 : 0.65,
+        evidenceStrength: isVerified ? 4 : 2, // Level 4 requires verified review; Level 2 for candidate client submissions
         status: isVerified ? 'validated' : 'candidate',
         visibility: 'learner_only',
         observedAt: now,
         createdAt: now
       };
 
-      coreRepository.addEvidence(evidenceRecord);
+      await coreRepository.addEvidenceAsync(evidenceRecord, locals.user.id);
 
       return json({
         success: true,
@@ -167,7 +178,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         evidence: evidenceRecord,
         message: isVerified
           ? 'Engineering mission verified! Level 4 applied competency evidence recorded in your growth profile.'
-          : 'Engineering mission recorded as pending verification.'
+          : 'Engineering mission solution recorded as candidate evidence pending educator verification.'
       });
     }
 
@@ -261,7 +272,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     };
 
     // 5. Persist into learner's evidence ledger
-    coreRepository.addEvidence(evidenceRecord);
+    await coreRepository.addEvidenceAsync(evidenceRecord, locals.user.id);
 
     return json({
       success: true,

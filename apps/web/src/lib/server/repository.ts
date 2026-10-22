@@ -455,18 +455,18 @@ export const STEM_MISSIONS: StemMission[] = [
  * Provides rich deterministic data out-of-the-box with zero setup required.
  */
 class LocalCoreRepository {
-  private learnerProfiles: Map<string, LearnerProfile> = new Map();
-  private assessmentSessions: Map<string, AssessmentSession> = new Map();
-  private evidenceStore: Map<string, LearnerEvidence[]> = new Map();
-  private itemBank: AssessmentItem[] = [...CALIBRATED_ITEM_BANK];
-  private pathways: Pathway[] = [];
-  private classCohort: ClassCohort;
-  private benchmarkReports: Map<string, GlobalBenchmarkReport[]> = new Map();
-  private lessonPlans: DifferentiatedLessonPlan[] = [];
-  private playbooks: PedagogicalPlaybook[] = [];
-  private missions: StemMission[] = [...STEM_MISSIONS];
-  private consentRecords: Map<string, ConsentRecord> = new Map();
-  private guardianLearnerMap: Map<string, Set<string>> = new Map();
+  protected learnerProfiles: Map<string, LearnerProfile> = new Map();
+  protected assessmentSessions: Map<string, AssessmentSession> = new Map();
+  protected evidenceStore: Map<string, LearnerEvidence[]> = new Map();
+  protected itemBank: AssessmentItem[] = [...CALIBRATED_ITEM_BANK];
+  protected pathways: Pathway[] = [];
+  protected classCohort: ClassCohort;
+  protected benchmarkReports: Map<string, GlobalBenchmarkReport[]> = new Map();
+  protected lessonPlans: DifferentiatedLessonPlan[] = [];
+  protected playbooks: PedagogicalPlaybook[] = [];
+  protected missions: StemMission[] = [...STEM_MISSIONS];
+  protected consentRecords: Map<string, ConsentRecord> = new Map();
+  protected guardianLearnerMap: Map<string, Set<string>> = new Map();
 
   constructor() {
     // 1. Initialize Baseline Learner Profile
@@ -1330,7 +1330,7 @@ class LocalCoreRepository {
     return this.learnerProfiles.has(cleanId) || this.classCohort.students.some(s => s.id === cleanId);
   }
 
-  getLearnerProfile(id: string, authUser?: any): LearnerProfile {
+  getLearnerProfile(id: string, authUser?: any): LearnerProfile | undefined {
     const existing = this.learnerProfiles.get(id);
     if (existing) {
       if (authUser?.name && authUser.id === existing.userId && existing.fullName === 'Student Learner') {
@@ -1345,112 +1345,11 @@ class LocalCoreRepository {
         id: authUser.id,
         userId: authUser.id,
         fullName: authUser.name || authUser.email?.split('@')[0] || 'Student Learner',
-        age: 13,
-        gradeBand: 'Class 8 (Middle Stage)',
-        schoolName: 'Affiliated Educational Institution',
+        age: typeof authUser.age === 'number' ? authUser.age : undefined,
+        gradeBand: typeof authUser.gradeBand === 'string' ? authUser.gradeBand : undefined,
+        schoolName: authUser.schoolName || 'Affiliated Educational Institution',
         activeFocusCompetency: 'quantitative_reasoning',
-        competencies: {
-          spatial_reasoning: {
-            competency: 'spatial_reasoning',
-            title: 'Spatial Reasoning',
-            score: 3.5,
-            theta: 0.6,
-            standardError: 0.35,
-            descriptor: 'Proficient',
-            confidence: 0.85,
-            lastAssessedAt: now
-          },
-          computational_thinking: {
-            competency: 'computational_thinking',
-            title: 'Computational Thinking',
-            score: 3.2,
-            theta: 0.3,
-            standardError: 0.4,
-            descriptor: 'Expected',
-            confidence: 0.8,
-            lastAssessedAt: now
-          },
-          logical_deduction: {
-            competency: 'logical_deduction',
-            title: 'Logical Deduction',
-            score: 3.4,
-            theta: 0.5,
-            standardError: 0.38,
-            descriptor: 'Expected',
-            confidence: 0.82,
-            lastAssessedAt: now
-          },
-          scientific_inquiry: {
-            competency: 'scientific_inquiry',
-            title: 'Scientific Inquiry',
-            score: 3.0,
-            theta: 0.0,
-            standardError: 0.45,
-            descriptor: 'Expected',
-            confidence: 0.75,
-            lastAssessedAt: now
-          },
-          quantitative_reasoning: {
-            competency: 'quantitative_reasoning',
-            title: 'Quantitative Reasoning',
-            score: 2.8,
-            theta: -0.2,
-            standardError: 0.42,
-            descriptor: 'Developing',
-            confidence: 0.85,
-            lastAssessedAt: now
-          },
-          systems_thinking: {
-            competency: 'systems_thinking',
-            title: 'Systems Thinking',
-            score: 3.0,
-            theta: 0.0,
-            standardError: 0.45,
-            descriptor: 'Expected',
-            confidence: 0.75,
-            lastAssessedAt: now
-          },
-          creative_problem_solving: {
-            competency: 'creative_problem_solving',
-            title: 'Creative Problem Solving',
-            score: 3.5,
-            theta: 0.6,
-            standardError: 0.35,
-            descriptor: 'Proficient',
-            confidence: 0.85,
-            lastAssessedAt: now
-          },
-          metacognition: {
-            competency: 'metacognition',
-            title: 'Metacognition',
-            score: 3.0,
-            theta: 0.0,
-            standardError: 0.45,
-            descriptor: 'Expected',
-            confidence: 0.75,
-            lastAssessedAt: now
-          },
-          verbal_reasoning: {
-            competency: 'verbal_reasoning',
-            title: 'Verbal Reasoning',
-            score: 3.2,
-            theta: 0.2,
-            standardError: 0.42,
-            descriptor: 'Expected',
-            confidence: 0.78,
-            lastAssessedAt: now
-          },
-          language_literacy: {
-            competency: 'language_literacy',
-            title: 'Language & Literacy',
-            score: 3.3,
-            theta: 0.3,
-            standardError: 0.40,
-            descriptor: 'Expected',
-            confidence: 0.80,
-            lastAssessedAt: now
-          }
-        },
+        competencies: {},
         recentEvidence: [],
         savedPathways: ['PATH-ROBOTICS', 'PATH-AI-DATA'],
         mismatchAnalyses: {},
@@ -1461,7 +1360,11 @@ class LocalCoreRepository {
       return profile;
     }
 
-    return this.learnerProfiles.get('3fa85f64-5717-4562-b3fc-2c963f66afa6')!;
+    if (id === '3fa85f64-5717-4562-b3fc-2c963f66afa6') {
+      return this.learnerProfiles.get('3fa85f64-5717-4562-b3fc-2c963f66afa6');
+    }
+
+    return undefined;
   }
 
   updateLearnerCompetency(learnerId: string, competency: CompetencyDomain, theta: number, standardError: number) {
@@ -1527,6 +1430,10 @@ class LocalCoreRepository {
       profile.recentEvidence = existing;
     }
     return chainedEvidence;
+  }
+
+  async addEvidenceAsync(evidence: LearnerEvidence, _actorSub?: string): Promise<LearnerEvidence> {
+    return Promise.resolve(this.addEvidence(evidence));
   }
 
   // --- Assessment Operations ---
@@ -2033,7 +1940,47 @@ export class PostgresCoreRepository extends LocalCoreRepository {
     }
   }
 
-  override addEvidence(evidence: LearnerEvidence, actorSub: string = evidence.learnerId): any {
+  async getLearnerProfileFromDb(id: string): Promise<LearnerProfile | undefined> {
+    const memory = super.getLearnerProfile(id);
+    if (memory) return memory;
+    const pool = getDbPool();
+    if (!pool) return undefined;
+    try {
+      const res = await pool.query(
+        `SELECT id, full_name, role, age, grade_band, avatar_url FROM profiles WHERE id = $1 LIMIT 1`,
+        [id]
+      );
+      const row = res.rows[0];
+      if (!row) return undefined;
+      const now = new Date().toISOString();
+      const profile: LearnerProfile = {
+        id: row.id,
+        userId: row.id,
+        fullName: row.full_name || 'Student Learner',
+        age: row.age ?? undefined,
+        gradeBand: row.grade_band ?? undefined,
+        schoolName: 'Affiliated Educational Institution',
+        activeFocusCompetency: 'quantitative_reasoning',
+        competencies: {},
+        recentEvidence: [],
+        savedPathways: ['PATH-ROBOTICS', 'PATH-AI-DATA'],
+        mismatchAnalyses: {},
+        completedMissions: [],
+        avatarUrl: row.avatar_url ?? undefined,
+        updatedAt: now
+      };
+      this.learnerProfiles.set(id, profile);
+      return profile;
+    } catch (err) {
+      console.error('[PostgresCoreRepository] getLearnerProfileFromDb error:', err);
+      return undefined;
+    }
+  }
+
+  override async addEvidenceAsync(
+    evidence: LearnerEvidence,
+    actorSub: string = evidence.learnerId
+  ): Promise<LearnerEvidence> {
     if (!this.hasActiveConsent(evidence.learnerId)) {
       throw new StatutoryConsentError(
         `Statutory parental consent under DPDP Act 2023 Section 9 missing or not active for minor learner ${evidence.learnerId}`
@@ -2043,7 +1990,7 @@ export class PostgresCoreRepository extends LocalCoreRepository {
     const chained = super.addEvidence(evidence);
 
     if (isCloudDatabaseEnabled()) {
-      this.withVerifiedConsentTransaction(evidence.learnerId, actorSub, async (client) => {
+      await this.withVerifiedConsentTransaction(evidence.learnerId, actorSub, async (client) => {
         if (!client) return;
         let prevHash = 'GENESIS_EVIDENCE_HASH_0000000000000000';
         const lastRow = await client.query(
@@ -2087,18 +2034,197 @@ export class PostgresCoreRepository extends LocalCoreRepository {
             ev.sourceTitle || ev.title || 'Maker Simulator Artifact',
             ev.summary || ev.claim || 'Competency demonstration',
             JSON.stringify({ ...evidence, chainHash }),
-            ev.confidence || 0.9,
-            ev.evidenceStrength || ev.level || 4,
-            ev.status || 'validated',
-            ev.visibility || 'learner_only'
+            ev.confidence ?? 0.7,
+            ev.evidenceStrength ?? ev.level ?? 2,
+            ev.status ?? 'candidate',
+            ev.visibility ?? 'learner_only'
           ]
         );
-      }).catch((err) => {
+      });
+    }
+
+    return chained;
+  }
+
+  override addEvidence(evidence: LearnerEvidence, actorSub: string = evidence.learnerId): any {
+    const chained = super.addEvidence(evidence);
+
+    if (isCloudDatabaseEnabled()) {
+      this.addEvidenceAsync(evidence, actorSub).catch((err) => {
         console.error('[PostgresCoreRepository] Async evidence write error:', err);
       });
     }
 
     return chained;
+  }
+
+  override setConsentRecord(record: ConsentRecord): void {
+    super.setConsentRecord(record);
+    if (isCloudDatabaseEnabled()) {
+      const pool = getDbPool();
+      if (pool) {
+        const dbStatus = record.status === 'VERIFIED_ACTIVE'
+          ? 'verified'
+          : record.status === 'WITHDRAWN'
+          ? 'withdrawn'
+          : record.status === 'EXPIRED'
+          ? 'expired'
+          : 'pending';
+
+        const consentId = (record.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(record.id))
+          ? record.id
+          : crypto.randomUUID();
+
+        pool.query(
+          `INSERT INTO consents (
+            id, learner_id, guardian_id, consent_type, status, verification_method,
+            policy_version, verified_at, withdrawn_at, expires_at, created_at
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()
+          ) ON CONFLICT (id) DO UPDATE SET
+            status = EXCLUDED.status,
+            verified_at = EXCLUDED.verified_at,
+            withdrawn_at = EXCLUDED.withdrawn_at,
+            expires_at = EXCLUDED.expires_at`,
+          [
+            consentId,
+            record.learnerId,
+            record.guardianId || null,
+            'assessment_participation',
+            dbStatus,
+            record.verificationChannel || 'digilocker',
+            record.consentVersion || 'v1.2-dpdp-2023',
+            record.verifiedAt || (dbStatus === 'verified' ? new Date().toISOString() : null),
+            record.withdrawnAt || null,
+            record.expiresAt || null
+          ]
+        ).catch((err) => {
+          console.error('[PostgresCoreRepository] Async consent write error:', err);
+        });
+      }
+    }
+  }
+
+  override withdrawConsent(learnerId: string, reason: string = 'Statutory withdrawal'): ConsentRecord | null {
+    const updated = super.withdrawConsent(learnerId, reason);
+    if (isCloudDatabaseEnabled()) {
+      const pool = getDbPool();
+      if (pool) {
+        pool.query(
+          `UPDATE consents SET status = 'withdrawn', withdrawn_at = NOW() WHERE learner_id = $1`,
+          [learnerId]
+        ).catch((err) => {
+          console.error('[PostgresCoreRepository] Async consent withdraw error:', err);
+        });
+      }
+    }
+    return updated;
+  }
+
+  override bindGuardianToLearner(guardianId: string, learnerId: string): void {
+    super.bindGuardianToLearner(guardianId, learnerId);
+    if (isCloudDatabaseEnabled()) {
+      const pool = getDbPool();
+      if (pool) {
+        pool.query(
+          `INSERT INTO parent_learner_links (parent_id, learner_id, relationship)
+           VALUES ($1, $2, 'legal_guardian')
+           ON CONFLICT (parent_id, learner_id) DO NOTHING`,
+          [guardianId, learnerId]
+        ).catch((err) => {
+          console.error('[PostgresCoreRepository] Async guardian link error:', err);
+        });
+      }
+    }
+  }
+
+  override saveParakhHpc(hpc: ParakhHpcRecord): void {
+    super.saveParakhHpc(hpc);
+    if (isCloudDatabaseEnabled()) {
+      const pool = getDbPool();
+      if (pool) {
+        pool.query(
+          `INSERT INTO parakh_hpc_records (
+            id, learner_id, stage, academic_session, apaar_id,
+            self_reflections, peer_evaluations, teacher_observations, parent_feedback,
+            cognitive_development, socio_emotional_development, aesthetic_applied_development,
+            overall_summary, updated_at
+          ) VALUES (
+            $1, $2, $3, $4, $5,
+            $6, $7, $8, $9,
+            $10, $11, $12,
+            $13, NOW()
+          ) ON CONFLICT (id) DO UPDATE SET
+            self_reflections = EXCLUDED.self_reflections,
+            peer_evaluations = EXCLUDED.peer_evaluations,
+            teacher_observations = EXCLUDED.teacher_observations,
+            parent_feedback = EXCLUDED.parent_feedback,
+            cognitive_development = EXCLUDED.cognitive_development,
+            socio_emotional_development = EXCLUDED.socio_emotional_development,
+            aesthetic_applied_development = EXCLUDED.aesthetic_applied_development,
+            overall_summary = EXCLUDED.overall_summary,
+            updated_at = NOW()`,
+          [
+            hpc.id,
+            hpc.learnerId,
+            hpc.stage,
+            hpc.academicSession,
+            hpc.apaarId || null,
+            JSON.stringify(hpc.selfReflections || []),
+            JSON.stringify(hpc.peerEvaluations || []),
+            JSON.stringify(hpc.teacherObservations || []),
+            JSON.stringify(hpc.parentFeedback || []),
+            JSON.stringify(hpc.cognitiveDevelopment || {}),
+            JSON.stringify(hpc.socioEmotionalDevelopment || {}),
+            JSON.stringify(hpc.aestheticAndAppliedDevelopment || {}),
+            JSON.stringify(hpc.overallHolisticSummary || {})
+          ]
+        ).catch((err) => {
+          console.error('[PostgresCoreRepository] Async saveParakhHpc error:', err);
+        });
+      }
+    }
+  }
+
+  override savePisaProcessTelemetry(report: PisaProcessTelemetryReport): void {
+    super.savePisaProcessTelemetry(report);
+    if (isCloudDatabaseEnabled()) {
+      const pool = getDbPool();
+      if (pool) {
+        const reportId = crypto.randomUUID();
+        pool.query(
+          `INSERT INTO mission_process_telemetry (
+            id, learner_id, mission_id, completed_phases, total_duration_ms, total_trials,
+            systematic_votat_ratio, avg_hypothesis_latency_ms, strategy_shift_detected,
+            efficiency_ratio, resilience_index, inferred_pisa_level, level_rationale,
+            raw_events, created_at
+          ) VALUES (
+            $1, $2, $3, $4, $5, $6,
+            $7, $8, $9,
+            $10, $11, $12, $13,
+            $14, NOW()
+          )`,
+          [
+            reportId,
+            report.learnerId,
+            report.missionId,
+            report.completedPhases || [],
+            report.totalDurationMs || 0,
+            report.srlMetrics?.totalTrials || 0,
+            report.srlMetrics?.systematicParameterExplorationRatio || 0,
+            report.srlMetrics?.averageHypothesisRevisionLatencyMs || 0,
+            Boolean(report.srlMetrics?.strategyShiftDetected),
+            report.srlMetrics?.efficiencyRatio || 0,
+            report.srlMetrics?.resilienceIndex || 'Developing',
+            report.inferredPisaLevel || 1,
+            report.levelRationale || 'Diagnostic observation',
+            JSON.stringify(report.evidenceAtom?.observedValue || [])
+          ]
+        ).catch((err) => {
+          console.error('[PostgresCoreRepository] Async savePisaProcessTelemetry error:', err);
+        });
+      }
+    }
   }
 
   /**
