@@ -14,6 +14,10 @@ const isBuilding = Boolean(building || process.env.BUILDING === 'true' || proces
 const isProduction = process.env.NODE_ENV === 'production';
 const secret = env.BETTER_AUTH_SECRET || process.env.BETTER_AUTH_SECRET;
 
+// Deterministic fallback secret used only during Vite SSR bundle generation; never in runtime production.
+const BUILD_TIME_AUTH_SECRET = 'ci-build-synthetic-better-auth-secret-32-chars';
+const effectiveSecret = secret || (isBuilding || !isProduction ? BUILD_TIME_AUTH_SECRET : undefined);
+
 const databaseUrl = env.DATABASE_URL || process.env.DATABASE_URL;
 let dbPool: pg.Pool | undefined = undefined;
 
@@ -40,8 +44,8 @@ const betterAuthApiKey = rawApiKey.replace(/^BETTER_AUTH_API_KEY=+/i, '').trim()
 if (betterAuthApiKey) {
   process.env.BETTER_AUTH_API_KEY = betterAuthApiKey;
 }
-if (!process.env.BETTER_AUTH_SECRET && secret) {
-  process.env.BETTER_AUTH_SECRET = secret;
+if (!process.env.BETTER_AUTH_SECRET && effectiveSecret) {
+  process.env.BETTER_AUTH_SECRET = effectiveSecret;
 }
 
 if (!isBuilding) {
