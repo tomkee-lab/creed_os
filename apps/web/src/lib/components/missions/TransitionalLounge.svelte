@@ -4,7 +4,6 @@
     Code2,
     Eye,
     Shield,
-    Sparkles,
     Sliders,
     Layers,
     Coffee,

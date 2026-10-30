@@ -238,14 +238,14 @@
 
   <!-- Parental verification gate tab. Contains elements and test selectors required by E2E suites. -->
   {#if activeTab === 'verify'}
-    <div class="rounded-none bg-surface-raised border border-border p-6 sm:p-8 shadow-sm space-y-6">
+    <div class="rounded-sm bg-surface-raised border border-border p-6 sm:p-8 shadow-sm space-y-6">
       <!-- Header -->
       <div class="flex items-start gap-3">
-        <div class="w-9 h-9 rounded-none bg-brand-subtle border border-brand/20 flex items-center justify-center shrink-0">
+        <div class="w-9 h-9 rounded-sm bg-brand-subtle border border-brand/20 flex items-center justify-center shrink-0">
           <Icon icon="carbon:shield-check" class="w-5 h-5 text-brand" />
         </div>
         <div>
-          <h1 class="text-base font-heading font-semibold text-ink tracking-tight">
+          <h1 class="text-base font-heading font-medium text-ink tracking-tight">
             Verified Parental Consent Notice
           </h1>
           <p class="text-xs text-ink-muted">
@@ -255,7 +255,7 @@
       </div>
 
       <!-- Student Scope Summary -->
-      <div class="p-3 rounded-none bg-surface border border-border space-y-2">
+      <div class="p-3.5 rounded-sm bg-surface border border-border space-y-2">
         <div class="flex items-center justify-between text-xs">
           <span class="text-ink-muted">Minor Learner:</span>
           <span class="font-medium text-ink">Enrolled Student (Class 8)</span>
@@ -271,7 +271,7 @@
       </div>
 
       {#if errorMessage}
-        <div class="p-3 bg-critical-subtle border border-critical/20 rounded-none text-xs text-critical flex items-center gap-2">
+        <div class="p-3 bg-critical-subtle border border-critical/20 rounded-sm text-xs text-critical flex items-center gap-2">
           <AlertCircle class="w-4 h-4 shrink-0" />
           <span>{errorMessage}</span>
         </div>
@@ -287,7 +287,7 @@
             bind:value={parentName}
             placeholder="Full name matching government ID"
             disabled={verified || otpRequested}
-            class="w-full px-3 py-1.5 text-xs rounded-none bg-surface-subtle border border-border text-ink focus:outline-none focus:ring-1 focus:ring-brand disabled:opacity-60"
+            class="w-full px-3 py-1.5 text-xs rounded-sm bg-surface-subtle border border-border text-ink focus:outline-none focus:ring-1 focus:ring-brand disabled:opacity-60"
           />
         </div>
 
@@ -300,7 +300,7 @@
               bind:value={parentContact}
               placeholder="+91 98765 43210"
               disabled={verified || otpRequested}
-              class="w-full px-3 py-1.5 text-xs rounded-none bg-surface-subtle border border-border text-ink focus:outline-none focus:ring-1 focus:ring-brand disabled:opacity-60"
+              class="w-full px-3 py-1.5 text-xs rounded-sm bg-surface-subtle border border-border text-ink focus:outline-none focus:ring-1 focus:ring-brand disabled:opacity-60"
             />
           </div>
 
@@ -312,7 +312,7 @@
               bind:value={relationship}
               placeholder="Mother / Father / Guardian"
               disabled={verified || otpRequested}
-              class="w-full px-3 py-1.5 text-xs rounded-none bg-surface-subtle border border-border text-ink focus:outline-none focus:ring-1 focus:ring-brand disabled:opacity-60"
+              class="w-full px-3 py-1.5 text-xs rounded-sm bg-surface-subtle border border-border text-ink focus:outline-none focus:ring-1 focus:ring-brand disabled:opacity-60"
             />
           </div>
         </div>
@@ -326,7 +326,7 @@
             type="button"
             onclick={() => (channel = 'sms')}
             disabled={verified || otpRequested}
-            class="p-2 rounded-none border text-left transition-colors cursor-pointer hover:border-border-strong active:scale-95 focus-visible:outline-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-60 {channel === 'sms'
+            class="p-2 rounded-sm border text-left transition-colors cursor-pointer hover:border-border-strong active:scale-95 focus-visible:outline-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-60 {channel === 'sms'
               ? 'border-brand bg-brand-subtle/30 font-medium'
               : 'border-border bg-surface'}"
           >
@@ -338,7 +338,7 @@
             type="button"
             onclick={() => (channel = 'digilocker')}
             disabled={verified || otpRequested}
-            class="p-2 rounded-none border text-left transition-colors cursor-pointer hover:border-border-strong active:scale-95 focus-visible:outline-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-60 {channel === 'digilocker'
+            class="p-2 rounded-sm border text-left transition-colors cursor-pointer hover:border-border-strong active:scale-95 focus-visible:outline-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-60 {channel === 'digilocker'
               ? 'border-brand bg-brand-subtle/30 font-medium'
               : 'border-border bg-surface'}"
           >
@@ -400,7 +400,7 @@
         <button
           onclick={handleConsentSubmit}
           disabled={verified || loading}
-          class="w-full h-8 rounded-none bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 active:scale-95 focus-visible:outline-2 focus-visible:outline-focus shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
+          class="w-full h-9 rounded-sm bg-brand text-brand-foreground text-xs font-semibold hover:bg-brand/90 active:scale-95 focus-visible:outline-2 focus-visible:outline-focus shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
         >
           {#if verified}
             <CheckCircle2 class="w-3.5 h-3.5 text-brand-foreground" />
@@ -419,21 +419,21 @@
 
   <!-- DPDP Act 2023 statutory compliance tab. -->
   {#if activeTab === 'dpdp'}
-    <div class="space-y-6">
-      <div class="p-6 rounded-none bg-surface-raised border border-border space-y-4">
-        <div class="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-brand">
-          <Shield class="w-4 h-4" />
+    <div id="dpdp" class="space-y-6 scroll-mt-20">
+      <div class="p-6 sm:p-8 rounded-sm bg-surface-raised border border-border space-y-4">
+        <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-surface border border-border text-[11px] font-mono uppercase tracking-wider text-brand">
+          <Shield class="w-3.5 h-3.5" />
           <span>Statutory Alignment</span>
         </div>
-        <h2 class="text-xl sm:text-2xl font-heading font-semibold text-ink">
+        <h2 class="text-xl sm:text-2xl font-heading font-medium text-ink tracking-tight">
           India Digital Personal Data Protection Act (DPDP Act 2023)
         </h2>
-        <p class="text-xs text-ink-secondary leading-relaxed max-w-3xl">
+        <p class="text-xs sm:text-sm text-ink-secondary leading-relaxed max-w-3xl">
           CREED OS is engineered specifically around Chapter II, Section 9 of the DPDP Act 2023, establishing statutory guarantees for all minor learners under 18 years of age.
         </p>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 text-xs">
-          <div class="p-4 rounded-none bg-surface border border-border space-y-2">
+          <div class="p-4 rounded-sm bg-surface border border-border space-y-2">
             <div class="font-semibold text-ink flex items-center gap-2">
               <span class="w-1.5 h-1.5 bg-brand rounded-none"></span>
               <span>Section 9(1) · Verifiable Parental Consent</span>
@@ -443,7 +443,7 @@
             </p>
           </div>
 
-          <div class="p-4 rounded-none bg-surface border border-border space-y-2">
+          <div class="p-4 rounded-sm bg-surface border border-border space-y-2">
             <div class="font-semibold text-ink flex items-center gap-2">
               <span class="w-1.5 h-1.5 bg-brand rounded-none"></span>
               <span>Section 9(2) · Harmful Processing Ban</span>
@@ -453,7 +453,7 @@
             </p>
           </div>
 
-          <div class="p-4 rounded-none bg-surface border border-border space-y-2">
+          <div class="p-4 rounded-sm bg-surface border border-border space-y-2">
             <div class="font-semibold text-ink flex items-center gap-2">
               <span class="w-1.5 h-1.5 bg-brand rounded-none"></span>
               <span>Section 9(3) · Prohibition of Behavioral Tracking</span>
@@ -463,7 +463,7 @@
             </p>
           </div>
 
-          <div class="p-4 rounded-none bg-surface border border-border space-y-2">
+          <div class="p-4 rounded-sm bg-surface border border-border space-y-2">
             <div class="font-semibold text-ink flex items-center gap-2">
               <span class="w-1.5 h-1.5 bg-brand rounded-none"></span>
               <span>Section 6 · Plain Notice & Transparency</span>
@@ -476,7 +476,7 @@
       </div>
 
       <!-- Institutional Fiduciary Contacts -->
-      <div class="p-4 rounded-none bg-surface border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
+      <div class="p-4 rounded-sm bg-surface border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
         <div>
           <span class="font-semibold text-ink">Designated Data Protection Officer (DPO):</span>
           <span class="text-ink-secondary font-mono ml-2">dpo@creed-os.app · Statutory Grievance Redressal (7 Days)</span>
@@ -484,7 +484,7 @@
         <button
           type="button"
           onclick={() => setTab('verify')}
-          class="px-3 py-1.5 rounded-sm bg-brand text-brand-foreground font-medium shrink-0 hover:bg-brand/90 transition-colors"
+          class="px-3 py-1.5 rounded-sm bg-brand text-brand-foreground font-semibold shrink-0 hover:bg-brand/90 transition-colors cursor-pointer"
         >
           Verify Guardian Consent
         </button>
@@ -494,46 +494,46 @@
 
   <!-- Immutable consent ledger tab. -->
   {#if activeTab === 'ledger'}
-    <div class="space-y-6">
-      <div class="p-6 rounded-none bg-surface-raised border border-border space-y-4">
-        <div class="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-brand">
-          <Activity class="w-4 h-4" />
+    <div id="ledger" class="space-y-6 scroll-mt-20">
+      <div class="p-6 sm:p-8 rounded-sm bg-surface-raised border border-border space-y-4">
+        <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-surface border border-border text-[11px] font-mono uppercase tracking-wider text-brand">
+          <Activity class="w-3.5 h-3.5" />
           <span>Cryptographic State Machine</span>
         </div>
-        <h2 class="text-xl sm:text-2xl font-heading font-semibold text-ink">
+        <h2 class="text-xl sm:text-2xl font-heading font-medium text-ink tracking-tight">
           Consent Lifecycle & Immutable Audit Ledger
         </h2>
-        <p class="text-xs text-ink-secondary leading-relaxed max-w-3xl">
+        <p class="text-xs sm:text-sm text-ink-secondary leading-relaxed max-w-3xl">
           Consent is not a checkbox; it is a tamper-evident finite state machine enforced at the database Row Level Security layer.
         </p>
 
         <!-- 5-Stage State Machine Display -->
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center pt-2">
-          <div class="p-3 rounded-none bg-surface border border-border space-y-1">
+          <div class="p-3 rounded-sm bg-surface border border-border space-y-1">
             <span class="text-[10px] font-mono text-ink-muted">STATE 01</span>
             <div class="font-mono text-xs font-semibold text-ink">DRAFT</div>
             <p class="text-[11px] text-ink-muted">Profile initiated by school. Processing locked.</p>
           </div>
 
-          <div class="p-3 rounded-none bg-surface border border-border space-y-1">
+          <div class="p-3 rounded-sm bg-surface border border-border space-y-1">
             <span class="text-[10px] font-mono text-ink-muted">STATE 02</span>
             <div class="font-mono text-xs font-semibold text-attention">INVITED</div>
             <p class="text-[11px] text-ink-muted">Guardian token dispatched via SMS/DigiLocker.</p>
           </div>
 
-          <div class="p-3 rounded-none bg-surface border border-border space-y-1">
+          <div class="p-3 rounded-sm bg-surface border border-border space-y-1">
             <span class="text-[10px] font-mono text-ink-muted">STATE 03</span>
             <div class="font-mono text-xs font-semibold text-brand">CONSENTED</div>
             <p class="text-[11px] text-ink-muted">Government-backed OTP verification verified.</p>
           </div>
 
-          <div class="p-3 rounded-none bg-surface border border-border space-y-1">
+          <div class="p-3 rounded-sm bg-surface border border-border space-y-1">
             <span class="text-[10px] font-mono text-ink-muted">STATE 04</span>
             <div class="font-mono text-xs font-semibold text-positive">ACTIVE</div>
             <p class="text-[11px] text-ink-muted">Diagnostic missions authorized under RLS policies.</p>
           </div>
 
-          <div class="p-3 rounded-none bg-surface border border-border space-y-1">
+          <div class="p-3 rounded-sm bg-surface border border-border space-y-1">
             <span class="text-[10px] font-mono text-ink-muted">STATE 05</span>
             <div class="font-mono text-xs font-semibold text-critical">WITHDRAWN</div>
             <p class="text-[11px] text-ink-muted">Consent revoked. Immediate data processing freeze.</p>
@@ -542,31 +542,31 @@
       </div>
 
       <!-- Active Demonstrable Ledger Record -->
-      <div class="p-6 rounded-none bg-surface-raised border border-border space-y-4">
+      <div class="p-6 rounded-sm bg-surface-raised border border-border space-y-4">
         <div class="flex items-center justify-between border-b border-border pb-3">
           <div class="flex items-center gap-2">
             <FileCheck class="w-4 h-4 text-mint" />
             <h3 class="text-sm font-semibold text-ink">Active Minor Consent Receipt</h3>
           </div>
-          <span class="px-2 py-0.5 rounded-none bg-positive/10 text-positive border border-positive/20 font-mono text-[11px]">
+          <span class="px-2 py-0.5 rounded-sm bg-positive/10 text-positive border border-positive/20 font-mono text-[11px]">
             ACTIVE · SHA-256 SEALED
           </span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
-          <div class="p-3 bg-surface border border-border space-y-1">
+          <div class="p-3 rounded-sm bg-surface border border-border space-y-1">
             <span class="text-ink-muted block text-[10px]">CONSENT RECORD ID</span>
             <span class="text-ink font-semibold">CON-2026-IND-984210</span>
           </div>
-          <div class="p-3 bg-surface border border-border space-y-1">
+          <div class="p-3 rounded-sm bg-surface border border-border space-y-1">
             <span class="text-ink-muted block text-[10px]">LEARNER IDENTITY HASH</span>
             <span class="text-ink truncate block">3fa85f64-5717-4562-b3fc-2c963f66afa6</span>
           </div>
-          <div class="p-3 bg-surface border border-border space-y-1">
+          <div class="p-3 rounded-sm bg-surface border border-border space-y-1">
             <span class="text-ink-muted block text-[10px]">VERIFICATION PROTOCOL</span>
             <span class="text-ink">UIDAI SMS OTP Handshake (Govt. of India)</span>
           </div>
-          <div class="p-3 bg-surface border border-border space-y-1">
+          <div class="p-3 rounded-sm bg-surface border border-border space-y-1">
             <span class="text-ink-muted block text-[10px]">CRYPTOGRAPHIC PROVENANCE SEAL</span>
             <span class="text-ink truncate block">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</span>
           </div>
@@ -594,7 +594,7 @@
         </div>
 
         {#if withdrawResult}
-          <div class="p-3 bg-surface border border-border rounded-none text-xs text-ink space-y-1">
+          <div class="p-3 bg-surface border border-border rounded-sm text-xs text-ink space-y-1">
             <div class="font-semibold text-positive flex items-center gap-1.5">
               <CheckCircle2 class="w-4 h-4" />
               <span>Ledger Transaction Result:</span>
@@ -608,22 +608,22 @@
 
   <!-- Consent and privacy policy tab. -->
   {#if activeTab === 'privacy'}
-    <div class="space-y-6">
-      <div class="p-6 rounded-none bg-surface-raised border border-border space-y-4">
-        <div class="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-brand">
-          <Lock class="w-4 h-4" />
+    <div id="privacy" class="space-y-6 scroll-mt-20">
+      <div class="p-6 sm:p-8 rounded-sm bg-surface-raised border border-border space-y-4">
+        <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-surface border border-border text-[11px] font-mono uppercase tracking-wider text-brand">
+          <Lock class="w-3.5 h-3.5" />
           <span>Child Privacy Sovereignty</span>
         </div>
-        <h2 class="text-xl sm:text-2xl font-heading font-semibold text-ink">
+        <h2 class="text-xl sm:text-2xl font-heading font-medium text-ink tracking-tight">
           Data Minimization & Child Safety Policy
         </h2>
-        <p class="text-xs text-ink-secondary leading-relaxed max-w-3xl">
+        <p class="text-xs sm:text-sm text-ink-secondary leading-relaxed max-w-3xl">
           We operate under strict data minimization. Children are not advertising targets or training fuel.
         </p>
 
         <!-- What We Process vs Never Touch -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 text-xs">
-          <div class="p-4 rounded-none bg-surface border border-border space-y-2">
+          <div class="p-4 rounded-sm bg-surface border border-border space-y-2">
             <h3 class="font-semibold text-ink flex items-center gap-2">
               <CheckCircle2 class="w-4 h-4 text-positive" />
               <span>What CREED OS Collects & Processes</span>
@@ -636,7 +636,7 @@
             </ul>
           </div>
 
-          <div class="p-4 rounded-none bg-surface border border-border space-y-2">
+          <div class="p-4 rounded-sm bg-surface border border-border space-y-2">
             <h3 class="font-semibold text-ink flex items-center gap-2">
               <ShieldAlert class="w-4 h-4 text-critical" />
               <span>What We Strictly NEVER Collect</span>
@@ -651,7 +651,7 @@
         </div>
 
         <!-- Relationship Scoped RLS -->
-        <div class="p-4 rounded-none bg-surface border border-border space-y-2 text-xs">
+        <div class="p-4 rounded-sm bg-surface border border-border space-y-2 text-xs">
           <h3 class="font-semibold text-ink">Relationship-Scoped Row Level Security (RLS)</h3>
           <p class="text-ink-secondary leading-relaxed">
             Data is strictly isolated at the PostgreSQL kernel level. Student records can only be queried by the verified student themselves, their consented legal guardian, and their accredited classroom teacher. Cross-tenant queries are blocked unconditionally by database policies.

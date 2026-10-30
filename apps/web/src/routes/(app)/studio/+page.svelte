@@ -200,7 +200,7 @@
       <h1 class="text-xl font-mono font-semibold tracking-tight text-ink">
         ITEM_STUDIO // PSYCHOMETRICS
       </h1>
-      <span class="text-xs font-mono px-2 py-0.5 rounded-none bg-surface-subtle text-ink-secondary border border-border">
+      <span class="text-xs font-mono px-2 py-0.5 rounded-sm bg-surface-subtle text-ink-secondary border border-border">
         CAT-IRT Engine v2.1
       </span>
     </div>
@@ -215,7 +215,7 @@
       <button
         type="button"
         onclick={handleSaveItem}
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground text-xs font-mono font-medium transition-colors cursor-pointer"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-brand hover:bg-brand/90 text-brand-foreground text-xs font-mono font-medium transition-colors cursor-pointer"
       >
         <Icon icon="carbon:save" class="w-3.5 h-3.5" />
         <span>PUBLISH ITEM</span>
@@ -312,7 +312,7 @@
             type="text"
             bind:value={searchQuery}
             placeholder="Filter items..."
-            class="w-full pl-7 pr-2 py-1 rounded-none bg-surface-subtle border border-border text-xs font-mono text-ink placeholder-ink-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-focus focus-visible:border-focus transition-colors"
+            class="w-full pl-7 pr-2 py-1 rounded-sm bg-surface-subtle border border-border text-xs font-mono text-ink placeholder-ink-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-focus focus-visible:border-focus transition-colors"
           />
         </div>
       </div>
@@ -354,7 +354,7 @@
           id="prompt-input"
           bind:value={$form.prompt}
           rows={4}
-          class="w-full p-2 rounded-none bg-surface-subtle border {$errors.prompt ? 'border-negative ring-1 ring-negative/30' : 'border-border'} text-xs font-sans text-ink leading-relaxed focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-focus focus-visible:border-focus transition-colors"
+          class="w-full p-2 rounded-sm bg-surface-subtle border {$errors.prompt ? 'border-negative ring-1 ring-negative/30' : 'border-border'} text-xs font-sans text-ink leading-relaxed focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-focus focus-visible:border-focus transition-colors"
         ></textarea>
         {#if $errors.prompt}
           <span class="text-[11px] font-mono text-negative flex items-center gap-1 mt-0.5">
@@ -370,7 +370,7 @@
           <select
             id="comp-select"
             bind:value={$form.competency}
-            class="w-full p-1.5 rounded-none bg-surface-subtle border border-border text-xs text-ink hover:border-border-strong active:bg-surface focus-visible:outline-2 focus-visible:outline-focus focus-visible:border-focus disabled:opacity-50 disabled:pointer-events-none transition-colors cursor-pointer"
+            class="w-full p-1.5 rounded-sm bg-surface-subtle border border-border text-xs text-ink hover:border-border-strong active:bg-surface focus-visible:outline-2 focus-visible:outline-focus focus-visible:border-focus disabled:opacity-50 disabled:pointer-events-none transition-colors cursor-pointer"
           >
             <option value="spatial_reasoning">Spatial Reasoning</option>
             <option value="computational_thinking">Computational Thinking</option>
@@ -384,7 +384,7 @@
           <select
             id="grade-select"
             bind:value={$form.gradeBand}
-            class="w-full p-1.5 rounded-none bg-surface-subtle border border-border text-xs text-ink hover:border-border-strong active:bg-surface focus-visible:outline-2 focus-visible:outline-focus focus-visible:border-focus disabled:opacity-50 disabled:pointer-events-none transition-colors cursor-pointer"
+            class="w-full p-1.5 rounded-sm bg-surface-subtle border border-border text-xs text-ink hover:border-border-strong active:bg-surface focus-visible:outline-2 focus-visible:outline-focus focus-visible:border-focus disabled:opacity-50 disabled:pointer-events-none transition-colors cursor-pointer"
           >
             <option>Middle Stage (Classes 6–8)</option>
             <option>Secondary Stage (Classes 9–10)</option>
@@ -397,7 +397,7 @@
         <span class="text-xs font-mono font-semibold text-ink block">Distractors & Diagnostic Misconceptions</span>
         <div class="space-y-2">
           {#each options as opt, idx}
-            <div class="p-2 rounded-none bg-surface-subtle border border-border space-y-1.5 text-xs font-mono">
+            <div class="p-2 rounded-sm bg-surface-subtle border border-border space-y-1.5 text-xs font-mono">
               <div class="flex items-center gap-2">
                 <input
                   type="radio"
@@ -410,14 +410,14 @@
                 <input
                   type="text"
                   bind:value={opt.text}
-                  class="flex-1 px-2 py-0.5 rounded-none bg-surface border border-border text-xs text-ink focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-focus focus-visible:border-focus transition-colors"
+                  class="flex-1 px-2 py-0.5 rounded-sm bg-surface border border-border text-xs text-ink focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-focus focus-visible:border-focus transition-colors"
                 />
               </div>
               <input
                 type="text"
                 bind:value={opt.misconception}
                 placeholder="Misconception rationale (or leave empty if key)..."
-                class="w-full px-2 py-0.5 rounded-none bg-surface border border-border text-[11px] text-ink-secondary placeholder-ink-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-focus focus-visible:border-focus transition-colors"
+                class="w-full px-2 py-0.5 rounded-sm bg-surface border border-border text-[11px] text-ink-secondary placeholder-ink-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-focus focus-visible:border-focus transition-colors"
               />
             </div>
           {/each}
@@ -439,7 +439,7 @@
       <div class="space-y-1">
         <span class="text-ink-muted text-[10px] uppercase tracking-wider">Calibration Presets</span>
         <div class="flex">
-          <ButtonGroup class="w-full border border-border">
+          <ButtonGroup class="w-full border border-border rounded-sm overflow-hidden">
             <button
               type="button"
               onclick={() => applyPreset('foundation')}
@@ -524,7 +524,7 @@
       </div>
 
       <!-- Item Metrics Readout -->
-      <div class="p-3 rounded-none bg-surface-subtle border border-border space-y-1.5 text-[11px]">
+      <div class="p-3 rounded-sm bg-surface-subtle border border-border space-y-1.5 text-[11px]">
         <div class="flex justify-between">
           <span class="text-ink-secondary">Expected SE(&theta;=0):</span>
           <span class="font-semibold text-ink">0.28</span>

@@ -65,12 +65,23 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
 
   // Scope data based on authenticated role and relationship
   // Minor learner details and evidence are strictly isolated to verified student and authorized guardian views
-  const isStudentOrParentRoute = ['student', 'parent'].includes(requestedRole);
+  const isStudentOrParentRoute = !isUtilityRoute && ['student', 'parent'].includes(requestedRole);
   const isVerifiedAccess =
-    (requestedRole === 'student' && ['student', 'parent', 'teacher', 'counselor', 'admin'].includes(effectiveRole)) ||
-    (requestedRole === 'parent' && ['parent', 'admin'].includes(effectiveRole));
+    !isUtilityRoute &&
+    ((requestedRole === 'student' && ['student', 'parent', 'teacher', 'counselor', 'admin'].includes(effectiveRole)) ||
+    (requestedRole === 'parent' && ['parent', 'admin'].includes(effectiveRole)));
 
-  const scopedLearnerId = resolveLearnerId(user);
+  const requestedLearnerId = url.searchParams.get('learnerId') || cookies.get('creed_active_learner');
+  if (url.searchParams.has('learnerId') && requestedRole === 'parent') {
+    cookies.set('creed_active_learner', url.searchParams.get('learnerId')!, {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 30
+    });
+  }
+
+  const scopedLearnerId = resolveLearnerId(user, requestedLearnerId);
 
   let rawLearner = isStudentOrParentRoute && isVerifiedAccess && scopedLearnerId
     ? coreRepository.getLearnerProfile(scopedLearnerId, user)
@@ -83,6 +94,13 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
   const learner = rawLearner
     ? deepSanitizePsychometrics(toSafeLearnerProfileDTO(rawLearner))
     : null;
+
+  // Resolve all authorized linked children for verified guardian workspace
+  const guardianId = (user as any)?.id || 'parent_1';
+  const rawLinked = requestedRole === 'parent' && isVerifiedAccess && 'getLinkedLearners' in coreRepository
+    ? (coreRepository as any).getLinkedLearners(guardianId)
+    : [];
+  const linkedLearners = rawLinked.map(toSafeLearnerProfileDTO).map(deepSanitizePsychometrics);
 
   const rawEvidence = isStudentOrParentRoute && isVerifiedAccess && learner
     ? coreRepository.getLearnerEvidence(learner.id)
@@ -112,6 +130,7 @@ export const load: LayoutServerLoad = async ({ locals, url, cookies }) => {
     learner,
     evidence,
     pathways,
-    cohort
+    cohort,
+    linkedLearners
   };
 };

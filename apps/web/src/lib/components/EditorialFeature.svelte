@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ArrowRight, Sparkles } from 'lucide-svelte';
+  import { ArrowRight } from 'lucide-svelte';
 
   interface Props {
     src: string;

@@ -7,7 +7,6 @@
     ArrowRight,
     RotateCcw,
     Clock,
-    Sparkles,
     Brain,
     HelpCircle,
     TrendingUp,
@@ -398,7 +397,7 @@
       <div class="flex items-center justify-between pb-4 border-b border-border">
         <div>
           <h4 class="text-base font-bold uppercase tracking-wider text-ink font-mono flex items-center gap-2">
-            <Sparkles class="size-4 text-mint" />
+            <CheckCircle2 class="size-4 text-mint" />
             Adaptive Assessment Completed
           </h4>
           <p class="text-xs text-ink-secondary">

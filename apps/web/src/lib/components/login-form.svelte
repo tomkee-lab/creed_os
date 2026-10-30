@@ -12,9 +12,9 @@
   import { Input } from '$lib/components/ui/input/index.js';
   import { Icon } from '$lib/components/icons';
   import { ChevronDown, Eye, EyeOff, ArrowRight } from 'lucide-svelte';
-  import { magneticHover } from '$lib/motion/interaction.js';
   import { cn, type WithElementRef } from '$lib/utils.js';
   import type { HTMLFormAttributes } from 'svelte/elements';
+  import ParticleButton from '$lib/components/kokonutui/ParticleButton.svelte';
 
   let {
     ref = $bindable(null),
@@ -53,7 +53,6 @@
   let email = $state(ROLES.find((r) => r.value === initialRole)?.email || ROLES[0].email);
   let password = $state('••••••••••••');
   let showPassword = $state(false);
-  let loading = $state(false);
   let errorMsg = $state('');
 
   function handleRoleChange(e: Event) {
@@ -65,72 +64,68 @@
     }
   }
 
-  async function handleFormSubmit(e: SubmitEvent) {
-    e.preventDefault();
-    loading = true;
+  async function doSignIn(): Promise<void> {
     errorMsg = '';
 
-    const currentRoleObj = ROLES.find((r) => r.value === selectedRole) || ROLES[0];
-
-    try {
-      if (import.meta.env.DEV) {
-        // In local development, activate the requested persona session
-        const res = await fetch('/api/auth/dev-switch', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ role: selectedRole })
-        });
-
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || 'Failed to switch persona.');
-        }
-
-        const destination = nextUrl && nextUrl !== '/student' ? nextUrl : currentRoleObj.path;
-        goto(destination);
-      } else {
-        // Production Better Auth sign-in
-        const { authClient } = await import('$lib/auth-client');
-        const res = await authClient.signIn.email({
-          email,
-          password
-        });
-        if (res?.error) {
-          throw new Error(res.error.message || 'Authentication failed. Please verify credentials.');
-        }
-        goto(nextUrl || currentRoleObj.path);
+    if (import.meta.env.DEV) {
+      const res = await fetch('/api/auth/dev-switch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: selectedRole })
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to switch persona.');
       }
-    } catch (err: any) {
-      errorMsg = err.message || 'Authentication failed. Please verify credentials.';
-    } finally {
-      loading = false;
+    } else {
+      const { authClient } = await import('$lib/auth-client');
+      const res = await authClient.signIn.email({ email, password });
+      if (res?.error) {
+        throw new Error(res.error.message || 'Authentication failed. Please verify credentials.');
+      }
     }
+  }
+
+  function handleSuccessRedirect() {
+    const currentRoleObj = ROLES.find((r) => r.value === selectedRole) || ROLES[0];
+    setTimeout(() => {
+      goto(nextUrl && nextUrl !== '/student' ? nextUrl : currentRoleObj.path);
+    }, 700);
+  }
+
+  function handleFormSubmit(e: SubmitEvent) {
+    e.preventDefault();
+    doSignIn()
+      .then(handleSuccessRedirect)
+      .catch((err: any) => {
+        errorMsg = err.message || 'Authentication failed. Please verify credentials.';
+      });
   }
 </script>
 
 <form
-  class={cn('flex flex-col gap-3.5', className)}
+  class={cn('flex flex-col gap-3', className)}
   bind:this={ref}
   onsubmit={handleFormSubmit}
   {...restProps}
 >
-  <FieldGroup class="gap-3">
+  <FieldGroup class="gap-2">
     <!-- Header -->
     <div class="flex flex-col items-center gap-1 text-center mb-0.5">
-      <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-none bg-brand-subtle border border-brand/20 text-[10px] font-mono text-brand font-semibold uppercase tracking-wider mb-1">
+      <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-brand-subtle border border-brand/20 text-[9px] font-mono text-brand font-semibold uppercase tracking-wider mb-0.5">
         <span class="w-1.5 h-1.5 bg-brand rounded-none"></span>
         Observatory Handshake
       </div>
       <h1 class="text-lg sm:text-xl font-heading font-semibold tracking-tight text-ink">
         Welcome back
       </h1>
-      <p class="text-xs text-balance text-ink-secondary leading-relaxed">
+      <p class="text-xs text-balance text-ink-secondary leading-normal">
         Sign in to access your learner workspace
       </p>
     </div>
 
     {#if isPendingApproval}
-      <div class="p-2 rounded-none bg-brand-subtle border border-brand/20 text-xs text-brand space-y-1 text-left">
+      <div class="p-2 rounded-sm bg-brand-subtle border border-brand/20 text-xs text-brand space-y-1 text-left">
         <div class="font-medium flex items-center gap-1.5">
           <Icon icon="carbon:information" class="w-3.5 h-3.5" />
           <span>Registration Under Institutional Review</span>
@@ -140,14 +135,14 @@
         </p>
       </div>
     {:else if isAuthRequired}
-      <div class="p-2 rounded-none bg-surface-subtle border border-border text-xs text-ink-secondary flex items-center gap-2 text-left">
+      <div class="p-2 rounded-sm bg-surface-subtle border border-border text-xs text-ink-secondary flex items-center gap-2 text-left">
         <Icon icon="carbon:locked" class="w-3.5 h-3.5 text-ink-muted shrink-0" />
         <span>Active session required to access the requested workspace.</span>
       </div>
     {/if}
 
     {#if errorMsg}
-      <div class="p-2 rounded-none bg-critical-subtle border border-critical/20 text-xs text-critical text-left">
+      <div class="p-2 rounded-sm bg-critical-subtle border border-critical/20 text-xs text-critical text-left">
         {errorMsg}
       </div>
     {/if}
@@ -160,7 +155,7 @@
           id="role-select-{id}"
           value={selectedRole}
           onchange={handleRoleChange}
-          class="w-full h-8 pl-2 pr-8 rounded-none bg-surface border border-border text-xs text-ink hover:border-border-strong focus:border-focus outline-none transition-colors appearance-none cursor-pointer"
+          class="w-full h-8.5 pl-3 pr-8 rounded-sm bg-surface border border-border text-xs sm:text-sm text-ink hover:border-border-strong focus:border-focus outline-none transition-colors appearance-none cursor-pointer"
         >
           {#each ROLES as r}
             <option value={r.value}>{r.label}</option>
@@ -179,7 +174,7 @@
         bind:value={email}
         placeholder="user@core-os.app"
         required
-        class="h-8 text-xs bg-surface focus:border-focus transition-colors"
+        class="h-8.5 text-xs sm:text-sm bg-surface focus:border-focus transition-colors rounded-sm"
       />
     </Field>
 
@@ -197,7 +192,7 @@
           type={showPassword ? 'text' : 'password'}
           bind:value={password}
           required
-          class="h-8 pr-8 text-xs bg-surface focus:border-focus transition-colors"
+          class="h-8.5 pr-8 text-xs sm:text-sm bg-surface focus:border-focus transition-colors rounded-sm"
         />
         <button
           type="button"
@@ -214,27 +209,32 @@
       </div>
     </Field>
 
-    <!-- Primary Action Button with Magnetic Hover -->
+    <!-- Primary Action: ParticleButton drives its own status via returned Promise -->
     <Field class="pt-0.5">
-      <button
-        use:magneticHover
-        type="submit"
-        disabled={loading}
-        class="group w-full cursor-pointer h-8.5 rounded-none text-xs font-semibold bg-brand text-brand-foreground hover:bg-brand-hover shadow-xs active:scale-[0.99] transition-all duration-140 flex items-center justify-center gap-1.5 disabled:opacity-50"
+      <ParticleButton
+        class="w-full h-9 rounded-sm text-xs sm:text-sm font-semibold bg-brand text-brand-foreground hover:bg-brand-hover shadow-xs cursor-pointer"
+        pendingLabel="Authenticating..."
+        successLabel="Access granted"
+        errorLabel="Authentication failed"
+        onclick={() => doSignIn().catch((err: any) => { errorMsg = err.message || 'Authentication failed.'; throw err; })}
+        onsuccess={handleSuccessRedirect}
       >
-        <span>{loading ? 'Authenticating...' : `Login as ${ROLES.find(r => r.value === selectedRole)?.title}`}</span>
-        <ArrowRight class="w-3.5 h-3.5 transition-transform duration-140 group-hover:translate-x-0.5" />
-      </button>
+        {#snippet children()}
+          <span class="inline-flex items-center gap-2">
+            <span>Sign in as {ROLES.find(r => r.value === selectedRole)?.title}</span>
+            <ArrowRight class="w-3.5 h-3.5 transition-transform duration-140" />
+          </span>
+        {/snippet}
+      </ParticleButton>
     </Field>
 
-    <FieldSeparator class="my-1 text-ink-muted">Or continue with</FieldSeparator>
+    <FieldSeparator class="my-0.5 text-ink-muted text-[11px]">Or continue with</FieldSeparator>
 
     <!-- Secondary / OAuth Action -->
     <Field>
       <button
         type="button"
         onclick={async () => {
-          // Fast-track demo login with active role
           if (import.meta.env.DEV) {
             await fetch('/api/auth/dev-switch', {
               method: 'POST',
@@ -245,13 +245,13 @@
           const found = ROLES.find(r => r.value === selectedRole) || ROLES[0];
           window.location.href = nextUrl || found.path;
         }}
-        class="w-full cursor-pointer h-8 rounded-none text-xs font-medium gap-2 border border-border bg-surface hover:bg-surface-subtle hover:border-border-strong text-ink active:scale-[0.99] transition-all duration-140 flex items-center justify-center"
+        class="w-full cursor-pointer h-8.5 rounded-sm text-xs sm:text-sm font-medium gap-2 border border-border bg-surface hover:bg-surface-subtle hover:border-border-strong text-ink active:scale-[0.99] transition-all duration-140 flex items-center justify-center"
       >
         <Icon icon="carbon:badge" class="w-3.5 h-3.5 text-brand" />
         <span>One-Click Institutional Handshake</span>
       </button>
 
-      <FieldDescription class="text-center pt-2 text-xs text-ink-muted">
+      <FieldDescription class="text-center pt-1 text-xs text-ink-muted">
         Don't have an account?
         <a href="/signup" class="text-brand font-medium hover:underline underline-offset-4 ml-1 transition-colors">
           Sign up

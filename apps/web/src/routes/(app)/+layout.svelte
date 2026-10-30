@@ -11,7 +11,7 @@
     Sun,
     Moon,
     FileText,
-    Sparkles,
+    Search,
     TrendingUp,
     GraduationCap,
     BookOpen,
@@ -212,8 +212,8 @@
       onRoleChange={handleRoleChange}
     />
 
-    <!-- Primary Workspace Container (max-width 1360px) -->
-    <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-340 w-full mx-auto pb-20 md:pb-8">
+    <!-- Primary Workspace Container (Calibrated to max-w-5xl platform layout) -->
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-5xl w-full mx-auto pb-20 md:pb-8">
       {@render children?.()}
     </main>
 
@@ -236,7 +236,7 @@
         class="flex flex-col items-center justify-center min-h-11 min-w-12 py-1 px-3 text-[10px] text-ink-muted cursor-pointer rounded-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand"
         aria-label="Open search"
       >
-        <Sparkles class="w-4 h-4 mb-0.5" />
+        <Search class="w-4 h-4 mb-0.5" />
         <span>Search</span>
       </button>
     </div>

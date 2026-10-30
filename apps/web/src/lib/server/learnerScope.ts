@@ -5,8 +5,9 @@
  */
 
 export const DEFAULT_DEMO_LEARNER_ID = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
+export const SECOND_DEMO_LEARNER_ID = '2bb88c44-4812-4912-9921-220194811099';
 
-export function resolveLearnerId(user: any): string | null {
+export function resolveLearnerId(user: any, requestedLearnerId?: string | null): string | null {
   if (!user) {
     return null;
   }
@@ -23,8 +24,11 @@ export function resolveLearnerId(user: any): string | null {
     return user.id || null;
   }
 
-  // 3. Parents resolve to their bound child learner ID (or demo learner strictly in local development)
+  // 3. Parents resolve to requested linked child, bound child, or demo learner in local development
   if (role === 'parent' || role === 'parent_pending') {
+    if (requestedLearnerId && typeof requestedLearnerId === 'string' && requestedLearnerId.trim()) {
+      return requestedLearnerId.trim();
+    }
     if (user.childLearnerId && typeof user.childLearnerId === 'string' && user.childLearnerId.trim()) {
       return user.childLearnerId.trim();
     }
@@ -34,6 +38,9 @@ export function resolveLearnerId(user: any): string | null {
     return null;
   }
 
-  // 4. Staff / educator / admin fallback to user ID
+  // 4. Staff / educator / admin fallback to requested learner ID or user ID
+  if (requestedLearnerId && typeof requestedLearnerId === 'string' && requestedLearnerId.trim()) {
+    return requestedLearnerId.trim();
+  }
   return user.id || null;
 }

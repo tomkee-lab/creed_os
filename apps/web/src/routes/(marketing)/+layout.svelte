@@ -39,7 +39,7 @@
   /** Nav link config for DRY iteration */
   const navLinks = [
     { href: '/platform', label: 'Platform' },
-    { href: '/#moments', label: 'How It Works' },
+    { href: '/#how-it-works', label: 'How It Works' },
     { href: '/schools', label: 'For Schools' },
     { href: '/families', label: 'For Families' },
     { href: '/about', label: 'About' },
@@ -47,7 +47,7 @@
   ];
 
   function isActive(href: string): boolean {
-    if (href === '/#moments') return currentPath === '/' && typeof window !== 'undefined' && window.location.hash === '#moments';
+    if (href === '/#how-it-works') return currentPath === '/' && typeof window !== 'undefined' && window.location.hash === '#how-it-works';
     return currentPath === href || currentPath.startsWith(href + '/');
   }
 
@@ -89,13 +89,13 @@
   <!-- Public marketing shell with editorial top navigation and micro-interactions. -->
   <header
     class="marketing-header sticky top-0 z-30 w-full border-b transition-[background-color,border-color,backdrop-filter,box-shadow] duration-200 {isScrolled || mobileMenuOpen
-      ? 'border-border bg-surface-raised/85 backdrop-blur-md shadow-xs'
+      ? 'border-border/60 bg-surface-raised/80 backdrop-blur-md shadow-2xs'
       : 'border-transparent bg-transparent backdrop-blur-none'}"
   >
-    <div class="max-w-7xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+    <div class="max-w-5xl mx-auto h-16 px-4 sm:px-6 flex items-center justify-between">
       <!-- Logo: Hover brand accent glow and spring scale -->
       <a href="/" class="flex items-center gap-2 group">
-        <div class="logo-mark w-8 h-8 rounded-none bg-brand/10 text-brand border border-brand/20 flex items-center justify-center shadow-xs">
+        <div class="logo-mark w-8 h-8 rounded-sm bg-brand/10 text-brand border border-brand/20 flex items-center justify-center shadow-xs">
           <CreedLogo size={20} class="transition-transform group-hover:scale-105" />
         </div>
         <div class="flex flex-col">
@@ -112,12 +112,12 @@
       <nav
         bind:this={navContainer}
         onmouseleave={() => syncIndicator(null)}
-        class="nav-island hidden md:flex items-center relative p-1 rounded-none border border-border/50 bg-surface-subtle/50 backdrop-blur-xs"
+        class="nav-island hidden md:flex items-center relative p-1 rounded-sm border border-border/50 bg-surface-subtle/50 backdrop-blur-xs"
         aria-label="Main Navigation"
       >
         <!-- Compositor-accelerated Floating Indicator Pill -->
         <div
-          class="nav-indicator pointer-events-none absolute top-1 bottom-1 rounded-none bg-surface-raised border border-border/80 shadow-2xs"
+          class="nav-indicator pointer-events-none absolute top-1 bottom-1 rounded-sm bg-surface-raised border border-border/80 shadow-2xs"
           style="transform: translate3d({indicatorLeft}px, 0, 0); width: {indicatorWidth}px; opacity: {indicatorOpacity};"
           aria-hidden="true"
         >
@@ -143,7 +143,7 @@
         <!-- Theme Toggle: Celestial Rotation -->
         <button
           onclick={toggleTheme}
-          class="theme-toggle min-h-11 min-w-11 inline-flex items-center justify-center rounded-none text-ink-muted hover:text-ink hover:bg-surface-subtle cursor-pointer overflow-hidden border border-transparent hover:border-border transition-all"
+          class="theme-toggle min-h-11 min-w-11 inline-flex items-center justify-center rounded-sm text-ink-muted hover:text-ink hover:bg-surface-subtle cursor-pointer overflow-hidden border border-transparent hover:border-border transition-all"
           title={isDarkMode ? 'Switch to Mineral White (Light)' : 'Switch to Deep Slate (Dark)'}
           aria-label="Toggle theme"
         >
@@ -159,7 +159,7 @@
         <!-- Primary CTA: Access Workspace (Shown on tablet/desktop, available in drawer on phone) -->
         <a
           href="/login"
-          class="cta-button hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-none bg-brand text-brand-foreground text-xs font-semibold shadow-xs"
+          class="cta-button hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-sm bg-brand text-brand-foreground text-xs font-semibold shadow-xs"
         >
           <span>Access Workspace</span>
           <ArrowRight class="cta-arrow w-3.5 h-3.5" />
@@ -168,7 +168,7 @@
         <!-- Mobile Hamburger Toggle (44x44px minimum tap target) -->
         <button
           onclick={() => mobileMenuOpen = !mobileMenuOpen}
-          class="mobile-toggle md:hidden min-h-11 min-w-11 inline-flex items-center justify-center rounded-none text-ink-muted hover:text-ink hover:bg-surface-subtle cursor-pointer border border-transparent hover:border-border"
+          class="mobile-toggle md:hidden min-h-11 min-w-11 inline-flex items-center justify-center rounded-sm text-ink-muted hover:text-ink hover:bg-surface-subtle cursor-pointer border border-transparent hover:border-border"
           aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
           aria-expanded={mobileMenuOpen}
         >
@@ -189,7 +189,7 @@
             <a
               {href}
               onclick={() => mobileMenuOpen = false}
-              class="mobile-nav-link min-h-11 px-3 py-2 rounded-none text-sm font-medium text-ink-secondary flex items-center justify-between"
+              class="mobile-nav-link min-h-11 px-3 py-2 rounded-sm text-sm font-medium text-ink-secondary flex items-center justify-between"
               class:is-active={isActive(href)}
               aria-current={isActive(href) ? 'page' : undefined}
             >
@@ -203,7 +203,7 @@
             <a
               href="/login"
               onclick={() => mobileMenuOpen = false}
-              class="mobile-cta-link min-h-11 flex items-center justify-between px-3.5 py-2 rounded-none bg-brand text-brand-foreground text-sm font-semibold shadow-xs"
+              class="mobile-cta-link min-h-11 flex items-center justify-between px-3.5 py-2 rounded-sm bg-brand text-brand-foreground text-sm font-semibold shadow-xs"
             >
               <span>Access Workspace</span>
               <ArrowRight class="w-4 h-4" />
@@ -220,27 +220,27 @@
   </main>
 
   <!-- Editorial master footer under WAY 2.1 Quiet Editorial Intelligence. -->
-  <footer class="border-t border-border bg-surface py-12 px-4 sm:px-6 lg:px-8 mt-20 text-xs">
-    <div class="max-w-7xl mx-auto space-y-12">
+  <footer class="border-t border-border bg-surface py-12 px-4 sm:px-6 mt-20 text-xs">
+    <div class="max-w-5xl mx-auto space-y-12">
       <!-- 5-Column Navigation Matrix -->
       <div class="grid grid-cols-2 md:grid-cols-5 gap-8 text-ink-secondary">
         <!-- Col 1: Identity & Statutory -->
         <div class="col-span-2 space-y-4">
           <div class="flex items-center gap-2 group">
-            <div class="logo-mark w-7 h-7 rounded-none bg-brand/10 text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
+            <div class="logo-mark w-7 h-7 rounded-sm bg-brand/10 text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs">
               <CreedLogo size={18} />
             </div>
             <div class="flex items-center gap-2">
               <span class="font-heading font-semibold text-sm text-ink tracking-tight">CREED OS</span>
               <span class="text-border">•</span>
-              <span class="text-[10px] font-mono text-mint uppercase tracking-wider">WAY 3.0</span>
+              <span class="text-[10px] font-mono text-brand uppercase tracking-wider">WAY 2.1</span>
             </div>
           </div>
           <p class="text-xs text-ink-secondary leading-relaxed max-w-sm">
-            AI-Native Learner Intelligence & Pathway Navigation Platform. Built on deterministic item response theory, authentic artifact evidence, and verified parental consent state machines.
+            AI-Native Learner Intelligence & Pathway Navigation Platform. Built on adaptive item scaling, authentic artifact evidence, and verified parental consent state machines.
           </p>
           <div class="flex items-center gap-2 text-[11px] text-ink-muted font-mono">
-            <ShieldCheck class="w-3.5 h-3.5 text-mint" />
+            <ShieldCheck class="w-3.5 h-3.5 text-brand" />
             <span>India DPDP Act 2023 · Relationship-Scoped RLS</span>
           </div>
         </div>
@@ -262,8 +262,8 @@
         <div class="space-y-3 font-sans">
           <h4 class="text-xs font-semibold text-ink uppercase tracking-wider">Science</h4>
           <ul class="space-y-2 text-xs">
-            <li><a href="/platform#irt" class="footer-link">Deterministic IRT</a></li>
-            <li><a href="/platform#cat" class="footer-link">Adaptive CAT Bounds</a></li>
+            <li><a href="/platform#methodology" class="footer-link">Adaptive Item Scaling</a></li>
+            <li><a href="/platform#calibration" class="footer-link">Calibration Bounds</a></li>
             <li><a href="/platform#evidence" class="footer-link">Evidence Provenance</a></li>
             <li><a href="/about#safety" class="footer-link">Pedagogical Safety</a></li>
             <li><a href="/about#mentorship" class="footer-link">Quiet Mentorship</a></li>

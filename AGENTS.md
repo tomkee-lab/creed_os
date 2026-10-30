@@ -97,3 +97,53 @@ Only an explicit choice of antislop during or after selects a session mode. A re
 If the mode is unresolved, ask during/after and end the response; wait for the answer before any UI review, planning, or concept. For read-only tasks, put the active-mode notice only at the start of the final answer, never in progress messages. For editing tasks, announce before the first edit and omit it from the final answer.
 <!-- antislop:end -->
 
+## Kokonut UI & Interaction Design Standards
+
+This project leverages component patterns and animations from Kokonut UI (https://kokonutui.com).
+
+- **Architecture Boundary:** Kokonut UI is designed for React/Next.js. CREED OS is strictly **Svelte 5 + SvelteKit 2**. We do NOT introduce React or Framer Motion runtime dependencies into the production bundle.
+- **Reference Catalog:** Before building custom animated or kinetic UI from scratch, consult Kokonut UI: https://kokonutui.com/llms.txt lists every component with a one-line description. Full docs and source are available at `https://kokonutui.com/docs/<path>.md` and raw registry JSON at `https://kokonutui.com/r/<name>.json`.
+- **Installation / Fetching:**
+  To pull a component spec and its dependencies into `apps/web`:
+  ```bash
+  pnpm dlx shadcn@latest add https://kokonutui.com/r/<name>.json -c ./apps/web
+  ```
+  *(Note: direct URL is used because `apps/web/components.json` adheres to `shadcn-svelte.com/schema.json` which forbids the React shadcn `registries` key).*
+- **Svelte 5 Runes Adaptation Standard:**
+  All components in `apps/web/src/lib/components/kokonutui/` MUST be pure Svelte 5:
+  - React JSX → Svelte 5 template syntax (`{@render ...}`)
+  - `useState` / `useRef` → `$state(...)` and `bind:this`
+  - `useEffect` / `useLayoutEffect` → `$effect(...)`
+  - Framer Motion (`motion.div`, `AnimatePresence`) → Native Svelte transitions (`transition:`, `animate:`), CSS keyframes, or project GSAP (`gsap` is already installed).
+  - Canvas mechanics (particles, trails, fluid simulations) → Clean native Canvas 2D / WebGL RAF loops with DPR scaling and unmount cleanup.
+- **WAY 2.1 Governance:** Enforce the 0/4/8px radius system (`rounded-sm` 4px for interactive controls, `rounded-none` for structural frames) and semantic OKLCH tokens (`--surface-canvas`, `--accent-primary`). Avoid bubbly consumer radii and arbitrary hexes.
+- **Reference Implementation:** See [ParticleButton.svelte](file:///c:/learning/apps/web/src/lib/components/kokonutui/ParticleButton.svelte) as the gold standard for porting Kokonut UI components to Svelte 5.
+
+## beUI Motion Registry & Interaction Design Standards
+
+This project integrates patterns, motion primitives, and AI interface blocks from beUI (https://beui.dev).
+
+- **Architecture Boundary:** beUI components are authored in React using `motion` (Framer Motion). CREED OS is strictly **Svelte 5 + SvelteKit 2 + Tailwind CSS 4**. We do NOT introduce React or Framer Motion runtime dependencies into the production web bundle.
+- **MCP Server & Discovery:**
+  - Hosted MCP Server: `https://mcp.beui.dev/mcp` (connected via stdio proxy `beui-mcp.js` and registered in `mcp_config.json`).
+  - Available MCP Tools: `list_components`, `search_components`, `get_component`, `get_install_command`, `list_native_components`, `get_native_component`.
+  - Discovery Index: `https://beui.dev/llms.txt` and registry catalogue `https://beui.dev/registry.json`.
+- **Registry & CLI Discovery:**
+  - Search components: `pnpm beui:search <query>`
+  - Fetch metadata & files: `pnpm beui:fetch <slug>`
+  - Fetch raw plain-text source: `pnpm beui:fetch <slug> --raw`
+  - List all components: `pnpm beui:list [category]`
+  - Direct registry URL: `https://beui.dev/r/<slug>.json`
+- **Svelte 5 Runes Adaptation Standard:**
+  All components in `apps/web/src/lib/components/beui/` MUST be pure Svelte 5:
+  - React JSX → Svelte 5 template syntax (`{@render children?.()}`)
+  - `useState` / `useRef` → `$state(...)` and `bind:this`
+  - `useEffect` / `useLayoutEffect` → `$effect(...)`
+  - Motion / Framer Motion → Hardware-accelerated CSS keyframes, native Svelte transitions, or project GSAP.
+  - Spring configs → Lagom Motion Contract (140ms–280ms duration strictly).
+- **WAY 2.1 Governance:** Enforce the 0/4/8px architectural radius system (`rounded-none` structural, `rounded-sm` controls, `rounded-md` media) and semantic OKLCH tokens (`--surface-canvas`, `--surface-raised`, `--brand`, `--ink`).
+- **Reference Implementations:** See [Marquee.svelte](file:///c:/learning/apps/web/src/lib/components/beui/Marquee.svelte), [TextScramble.svelte](file:///c:/learning/apps/web/src/lib/components/beui/TextScramble.svelte), and [AgentActivity.svelte](file:///c:/learning/apps/web/src/lib/components/beui/AgentActivity.svelte).
+
+
+
+

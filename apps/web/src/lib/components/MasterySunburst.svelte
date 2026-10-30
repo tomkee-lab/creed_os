@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Sparkles, CheckCircle2, Compass, Layers, ShieldCheck } from 'lucide-svelte';
+  import { CheckCircle2, Compass, Layers, ShieldCheck } from 'lucide-svelte';
 
   export interface SunburstDomain {
     id: string;
@@ -301,7 +301,7 @@
       </div>
 
       <div class="flex items-center gap-1.5 px-3 py-1 rounded-none bg-brand-subtle text-brand border border-brand/20 text-xs font-semibold shrink-0">
-        <Sparkles class="w-3.5 h-3.5 text-brand" />
+        <Compass class="w-3.5 h-3.5 text-brand" />
         <span>Growth Horizon</span>
       </div>
     </div>

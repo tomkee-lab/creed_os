@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Sparkles, Info, X, Shield } from 'lucide-svelte';
+  import { BrainCircuit, Info, X, Shield } from 'lucide-svelte';
 
   interface Props {
     label?: string;
@@ -43,7 +43,7 @@
     class="inline-flex items-center gap-1 px-2 py-0.5 rounded-none bg-ai-subtle text-ai border border-ai/20 text-[10px] font-medium hover:border-ai/40 active:scale-95 focus-visible:outline-2 focus-visible:outline-focus disabled:opacity-50 disabled:pointer-events-none transition-all cursor-pointer"
     title="Click to view AI explainability & provenance"
   >
-    <Sparkles class="w-3 h-3 text-ai" />
+    <BrainCircuit class="w-3 h-3 text-ai" />
     <span>{label}</span>
     <Info class="w-2.5 h-2.5 opacity-60 ml-0.5" />
   </button>
@@ -53,7 +53,7 @@
       <div class="surface-card rounded-none border border-border max-w-sm w-full p-5 space-y-3 shadow-xl">
         <div class="flex items-center justify-between border-b border-border pb-2">
           <div class="flex items-center gap-1.5 text-xs font-bold text-ink">
-            <Sparkles class="w-3.5 h-3.5 text-ai" />
+            <BrainCircuit class="w-3.5 h-3.5 text-ai" />
             <span>AI Reasoning & Provenance</span>
           </div>
           <button

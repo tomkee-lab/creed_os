@@ -5,7 +5,14 @@
   "private": true,
   "description": "CREED OS: AI-Native Learner Intelligence & Navigation Platform",
   "packageManager": "pnpm@11.25.0",
+  "registries": {
+    "@kokonutui": "https://kokonutui.com/r/{name}.json",
+    "@beui": "https://beui.dev/r/{name}.json"
+  },
   "scripts": {
+    "beui:search": "node --experimental-strip-types scripts/beui.ts search",
+    "beui:fetch": "node --experimental-strip-types scripts/beui.ts fetch",
+    "beui:list": "node --experimental-strip-types scripts/beui.ts list",
     "dev": "pnpm --filter web dev",
     "dev:all": "pnpm -r --parallel --if-present run dev",
     "build": "pnpm -r run build",

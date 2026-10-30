@@ -18,3 +18,7 @@ chromatic-diagnostics.json
 chromatic-build-*.xml
 storybook-build.log
 chromatic.log
+.cache/
+.beui/
+.kokonut/
+.impeccable/

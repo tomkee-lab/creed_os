@@ -10,7 +10,6 @@
     Layers,
     CheckCircle2,
     BookOpen,
-    Sparkles,
     Calendar,
     Award
   } from 'lucide-svelte';

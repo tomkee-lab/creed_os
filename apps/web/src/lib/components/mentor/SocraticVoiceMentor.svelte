@@ -6,8 +6,10 @@
     Send,
     Volume2,
     VolumeX,
-    Sparkles,
-    AlertCircle
+    BrainCircuit,
+    Activity,
+    Radio,
+    ShieldCheck
   } from 'lucide-svelte';
 
   interface Message {
@@ -23,11 +25,19 @@
   } = $props();
 
   let messages = $state<Message[]>([]);
-
   let inputText = $state('');
   let isSending = $state(false);
   let isListening = $state(false);
   let ttsEnabled = $state(true);
+  let liveSessionActive = $state(false);
+  let liveModeAvailable = $state<boolean | null>(null);
+  let liveConnectionStatus = $state<'idle' | 'connecting' | 'connected' | 'fallback'>('idle');
+
+  // Audio stream state for Live API
+  let audioContext: AudioContext | null = null;
+  let micStream: MediaStream | null = null;
+  let audioProcessor: ScriptProcessorNode | null = null;
+  let liveSocket: WebSocket | null = null;
   let recognition: any = null;
 
   // Thinking moves / scaffolding prompts
@@ -47,7 +57,10 @@
       }
     ];
 
-    // Check Web Speech Recognition support
+    // Proactively check ephemeral token availability for Gemini Live API
+    checkLiveApiAvailability();
+
+    // Setup standard Web Speech Recognition as baseline fallback
     if (typeof window !== 'undefined') {
       const SpeechRecognition =
         (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -58,7 +71,7 @@
         recognition.lang = 'en-US';
 
         recognition.onresult = (event: any) => {
-          const transcript = event.results[0][0].transcript;
+          const transcript = event.results?.[0]?.[0]?.transcript;
           if (transcript) {
             inputText = transcript;
             isListening = false;
@@ -78,6 +91,7 @@
   });
 
   onDestroy(() => {
+    stopLiveAudio();
     if (recognition) {
       try {
         recognition.abort();
@@ -88,7 +102,216 @@
     }
   });
 
-  function toggleSpeechRecognition() {
+  async function checkLiveApiAvailability() {
+    try {
+      const res = await fetch('/api/v1/ai/mentor/token', { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.available && data.token) {
+          liveModeAvailable = true;
+          liveConnectionStatus = 'idle';
+          return;
+        }
+      }
+      liveModeAvailable = false;
+      liveConnectionStatus = 'fallback';
+    } catch {
+      liveModeAvailable = false;
+      liveConnectionStatus = 'fallback';
+    }
+  }
+
+  async function startLiveSession() {
+    liveConnectionStatus = 'connecting';
+    try {
+      const res = await fetch('/api/v1/ai/mentor/token', { method: 'POST' });
+      if (!res.ok) throw new Error('Live token generation unavailable');
+      const data = await res.json();
+
+      if (!data.available || !data.token || !data.wsUrl) {
+        throw new Error(data.message || 'Live API mode not available');
+      }
+
+      // Connect to Gemini Live WebSocket endpoint
+      const wsUrlWithToken = `${data.wsUrl}?access_token=${encodeURIComponent(data.token)}`;
+      liveSocket = new WebSocket(wsUrlWithToken);
+
+      liveSocket.onopen = async () => {
+        liveSessionActive = true;
+        liveConnectionStatus = 'connected';
+        await initMicrophoneStream();
+      };
+
+      liveSocket.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          handleLiveServerEvent(payload);
+        } catch (err) {
+          console.error('Error parsing Live API WebSocket frame:', err);
+        }
+      };
+
+      liveSocket.onerror = (err) => {
+        console.warn('Live WebSocket error, falling back to REST mentor:', err);
+        liveConnectionStatus = 'fallback';
+        stopLiveAudio();
+      };
+
+      liveSocket.onclose = () => {
+        liveSessionActive = false;
+        if (liveConnectionStatus === 'connected') {
+          liveConnectionStatus = 'idle';
+        }
+        stopLiveAudio();
+      };
+    } catch (err) {
+      console.warn('Live session initialization error, falling back:', err);
+      liveConnectionStatus = 'fallback';
+      liveModeAvailable = false;
+    }
+  }
+
+  function handleLiveServerEvent(payload: any) {
+    const serverContent = payload.serverContent;
+    if (!serverContent) return;
+
+    // Handle incoming audio from model turn
+    if (serverContent.modelTurn?.parts) {
+      for (const part of serverContent.modelTurn.parts) {
+        if (part.text) {
+          messages.push({
+            id: `ai-live-${Date.now()}`,
+            role: 'guide',
+            text: part.text,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          });
+        }
+        if (part.inlineData && ttsEnabled && audioContext) {
+          playPcm24kAudio(part.inlineData.data);
+        }
+      }
+    }
+
+    if (serverContent.interrupted) {
+      // User started speaking; clear audio queue immediately
+      if (audioContext && audioContext.state === 'running') {
+        audioContext.suspend().then(() => audioContext?.resume());
+      }
+    }
+  }
+
+  function playPcm24kAudio(base64Data: string) {
+    try {
+      const binaryString = atob(base64Data);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const pcm16 = new Int16Array(bytes.buffer);
+      if (!audioContext) audioContext = new AudioContext({ sampleRate: 24000 });
+      const buffer = audioContext.createBuffer(1, pcm16.length, 24000);
+      const channel = buffer.getChannelData(0);
+      for (let i = 0; i < pcm16.length; i++) {
+        channel[i] = pcm16[i] / 32768.0;
+      }
+      const source = audioContext.createBufferSource();
+      source.buffer = buffer;
+      source.connect(audioContext.destination);
+      source.start();
+    } catch (err) {
+      console.error('Audio playback error:', err);
+    }
+  }
+
+  async function initMicrophoneStream() {
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          channelCount: 1,
+          sampleRate: 16000,
+          echoCancellation: true,
+          noiseSuppression: true
+        }
+      });
+
+      audioContext = new AudioContext({ sampleRate: 16000 });
+      const source = audioContext.createMediaStreamSource(micStream);
+      audioProcessor = audioContext.createScriptProcessor(4096, 1, 1);
+
+      audioProcessor.onaudioprocess = (e) => {
+        if (!liveSocket || liveSocket.readyState !== WebSocket.OPEN) return;
+        const inputData = e.inputBuffer.getChannelData(0);
+        // Convert Float32 to 16-bit PCM Little Endian
+        const pcm16 = new Int16Array(inputData.length);
+        for (let i = 0; i < inputData.length; i++) {
+          const s = Math.max(-1, Math.min(1, inputData[i]));
+          pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+        }
+        const bytes = new Uint8Array(pcm16.buffer);
+        let binary = '';
+        for (let i = 0; i < bytes.byteLength; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        const base64Chunk = btoa(binary);
+
+        liveSocket.send(
+          JSON.stringify({
+            realtimeInput: {
+              mediaChunks: [
+                {
+                  mimeType: 'audio/pcm;rate=16000',
+                  data: base64Chunk
+                }
+              ]
+            }
+          })
+        );
+      };
+
+      source.connect(audioProcessor);
+      audioProcessor.connect(audioContext.destination);
+      isListening = true;
+    } catch (err) {
+      console.error('Microphone capture error:', err);
+      liveConnectionStatus = 'fallback';
+      stopLiveAudio();
+    }
+  }
+
+  function stopLiveAudio() {
+    if (audioProcessor) {
+      try {
+        audioProcessor.disconnect();
+      } catch {}
+      audioProcessor = null;
+    }
+    if (micStream) {
+      micStream.getTracks().forEach((t) => t.stop());
+      micStream = null;
+    }
+    if (liveSocket) {
+      try {
+        liveSocket.close();
+      } catch {}
+      liveSocket = null;
+    }
+    liveSessionActive = false;
+    isListening = false;
+  }
+
+  function toggleSpeech() {
+    if (liveModeAvailable && !liveSessionActive) {
+      startLiveSession();
+      return;
+    }
+
+    if (liveSessionActive) {
+      stopLiveAudio();
+      return;
+    }
+
+    // Fallback: Web Speech API
     if (!recognition) {
       alert('Speech Recognition is not supported in this browser. You can type your question.');
       return;
@@ -108,7 +331,7 @@
     window.speechSynthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.95; // Gentle, measured cadence
+    utterance.rate = 0.95;
     utterance.pitch = 1.0;
     window.speechSynthesis.speak(utterance);
   }
@@ -125,6 +348,25 @@
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     });
 
+    // If live WebSocket is connected, send via realtime text input
+    if (liveSocket && liveSocket.readyState === WebSocket.OPEN) {
+      liveSocket.send(
+        JSON.stringify({
+          clientContent: {
+            turns: [
+              {
+                role: 'user',
+                parts: [{ text: userText }]
+              }
+            ],
+            turnComplete: true
+          }
+        })
+      );
+      return;
+    }
+
+    // Otherwise use the authenticated Socratic mentor HTTP route
     isSending = true;
 
     try {
@@ -180,17 +422,29 @@
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 border-b border-border bg-surface-raised">
     <div class="flex items-center gap-3">
       <div class="p-1.5 bg-ai-subtle border border-ai/20 rounded-sm">
-        <Sparkles class="size-4 text-ai" />
+        <BrainCircuit class="size-4 text-ai" />
       </div>
       <div>
         <h3 class="text-sm font-semibold tracking-tight text-foreground flex items-center gap-2">
           Socratic Mentor
-          <span class="text-[10px] font-mono font-normal px-1.5 py-0.5 bg-surface border border-border text-foreground-secondary rounded-sm">
-            Voice • Ephemeral
-          </span>
+          {#if liveSessionActive}
+            <span class="text-[10px] font-mono font-medium px-1.5 py-0.5 bg-positive/10 border border-positive/30 text-positive rounded-sm inline-flex items-center gap-1">
+              <Radio class="size-2.5 animate-pulse" />
+              Live WebSocket Stream
+            </span>
+          {:else if liveModeAvailable}
+            <span class="text-[10px] font-mono font-normal px-1.5 py-0.5 bg-surface border border-border text-foreground-secondary rounded-sm">
+              Gemini Live Ready
+            </span>
+          {:else}
+            <span class="text-[10px] font-mono font-normal px-1.5 py-0.5 bg-surface border border-border text-foreground-secondary rounded-sm">
+              Socratic Engine • Local
+            </span>
+          {/if}
         </h3>
-        <p class="text-xs text-foreground-secondary">
-          Pedagogical policy: Guided inquiry & clarifying questions
+        <p class="text-xs text-foreground-secondary flex items-center gap-1.5">
+          <ShieldCheck class="size-3 text-positive" />
+          <span>DPDP Act Section 9 Protected • Psychometrics strictly decoupled</span>
         </p>
       </div>
     </div>
@@ -241,9 +495,16 @@
         <span>Formulating Socratic decomposition question...</span>
       </div>
     {/if}
+
+    {#if liveSessionActive}
+      <div class="flex items-center gap-2 px-3 py-2 bg-surface-raised border border-positive/30 text-xs text-positive font-mono rounded-sm">
+        <Activity class="size-3.5 animate-pulse text-positive" />
+        <span>Live voice bidirectional stream active (Speak freely to the mentor)</span>
+      </div>
+    {/if}
   </div>
 
-  <!-- 4. Scaffolding Thinking Moves (Wrapping Chips, No Overflow Scrollbar) -->
+  <!-- 4. Scaffolding Thinking Moves -->
   <div class="flex flex-wrap items-center gap-2 px-4 py-2 border-t border-border bg-surface-raised">
     <span class="text-[10px] font-mono text-foreground-secondary uppercase tracking-wider mr-1">
       Scaffold Prompts:
@@ -267,7 +528,7 @@
   <div class="flex items-center gap-2 p-3 border-t border-border bg-surface">
     <button
       type="button"
-      onclick={toggleSpeechRecognition}
+      onclick={toggleSpeech}
       class="p-2 border rounded-sm transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-medium {isListening
         ? 'bg-critical text-critical-foreground border-critical animate-pulse'
         : 'border-border hover:bg-surface-raised text-foreground'}"
@@ -278,7 +539,9 @@
         <span class="hidden sm:inline text-[11px]">Listening...</span>
       {:else}
         <Mic class="size-4" />
-        <span class="hidden sm:inline text-[11px] text-foreground-secondary">Voice</span>
+        <span class="hidden sm:inline text-[11px] text-foreground-secondary">
+          {liveModeAvailable ? 'Live Voice' : 'Voice'}
+        </span>
       {/if}
     </button>
 

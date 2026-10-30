@@ -52,7 +52,7 @@
   <title>Settings · CREED OS</title>
 </svelte:head>
 
-<div class="max-w-4xl mx-auto space-y-8 pb-16">
+<div class="max-w-5xl mx-auto space-y-8 pb-16">
   <WorkspaceHeader
     title="Workspace Settings"
     description="Manage interface density, notification preferences, and privacy compliance parameters."

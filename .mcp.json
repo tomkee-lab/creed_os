@@ -23,6 +23,10 @@
       "headers": {
         "Authorization": "Bearer ${QODO_API_KEY}"
       }
+    },
+    "kokonutui": {
+      "command": "pnpm",
+      "args": ["--silent", "dlx", "shadcn@latest", "mcp"]
     }
   }
 }
