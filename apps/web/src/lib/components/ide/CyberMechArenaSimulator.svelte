@@ -707,31 +707,31 @@
         <div class="grid grid-cols-5 gap-0.5 bg-surface-subtle border border-border p-0.5 rounded-xs text-[9px] font-mono text-center">
           <button
             onclick={() => (activeCustomizerTab = 'chassis')}
-            class="py-1 rounded-2xs transition-micro {activeCustomizerTab === 'chassis' ? 'bg-brand text-brand-foreground font-bold' : 'text-ink-muted hover:text-ink'}"
+            class="py-1 rounded-xs transition-micro {activeCustomizerTab === 'chassis' ? 'bg-brand text-brand-foreground font-bold' : 'text-ink-muted hover:text-ink'}"
           >
             Chassis
           </button>
           <button
             onclick={() => (activeCustomizerTab = 'visor')}
-            class="py-1 rounded-2xs transition-micro {activeCustomizerTab === 'visor' ? 'bg-brand text-brand-foreground font-bold' : 'text-ink-muted hover:text-ink'}"
+            class="py-1 rounded-xs transition-micro {activeCustomizerTab === 'visor' ? 'bg-brand text-brand-foreground font-bold' : 'text-ink-muted hover:text-ink'}"
           >
             Visor
           </button>
           <button
             onclick={() => (activeCustomizerTab = 'weapon')}
-            class="py-1 rounded-2xs transition-micro {activeCustomizerTab === 'weapon' ? 'bg-brand text-brand-foreground font-bold' : 'text-ink-muted hover:text-ink'}"
+            class="py-1 rounded-xs transition-micro {activeCustomizerTab === 'weapon' ? 'bg-brand text-brand-foreground font-bold' : 'text-ink-muted hover:text-ink'}"
           >
             Weapon
           </button>
           <button
             onclick={() => (activeCustomizerTab = 'drones')}
-            class="py-1 rounded-2xs transition-micro {activeCustomizerTab === 'drones' ? 'bg-brand text-brand-foreground font-bold' : 'text-ink-muted hover:text-ink'}"
+            class="py-1 rounded-xs transition-micro {activeCustomizerTab === 'drones' ? 'bg-brand text-brand-foreground font-bold' : 'text-ink-muted hover:text-ink'}"
           >
             Drones
           </button>
           <button
             onclick={() => (activeCustomizerTab = 'palette')}
-            class="py-1 rounded-2xs transition-micro {activeCustomizerTab === 'palette' ? 'bg-brand text-brand-foreground font-bold' : 'text-ink-muted hover:text-ink'}"
+            class="py-1 rounded-xs transition-micro {activeCustomizerTab === 'palette' ? 'bg-brand text-brand-foreground font-bold' : 'text-ink-muted hover:text-ink'}"
           >
             Color
           </button>

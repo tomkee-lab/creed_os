@@ -1,6 +1,31 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Compass, Bot, Cpu, Radio, Zap, Activity, CheckCircle2, Layers, RotateCcw, ChevronDown, X, Info, Volume2, VolumeX, Sparkles } from 'lucide-svelte';
+  import {
+    Compass,
+    Bot,
+    Cpu,
+    Radio,
+    Zap,
+    Activity,
+    CheckCircle2,
+    Layers,
+    RotateCcw,
+    ChevronDown,
+    X,
+    Info,
+    Volume2,
+    VolumeX,
+    Map,
+    Search,
+    MapPin,
+    ShieldAlert,
+    Grid3x3,
+    Cog,
+    PenTool,
+    Radar,
+    Trash2,
+    Play
+  } from 'lucide-svelte';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
   import { webAudioSynth } from './webAudioSynth';
 
@@ -464,25 +489,27 @@
 <div class="relative w-full h-full flex flex-col bg-surface-subtle dark:bg-canvas overflow-hidden select-none transition-colors duration-200">
   <!-- 1. Technical Proving Ground Fixed Toolbar Strip (0% Canvas Occlusion) -->
   {#if !hideHeader}
-    <div class="shrink-0 px-2 py-1 bg-surface border-b border-border text-[9.5px] font-mono flex items-center justify-between text-ink-muted select-none gap-2 flex-wrap">
+    <div class="shrink-0 px-3 py-1 bg-surface border-b border-border text-[10px] font-mono flex items-center justify-between text-ink-muted select-none gap-2 flex-nowrap overflow-x-auto no-scrollbar h-8">
       <!-- Left: Perspective Switcher & Mission Context -->
-      <div class="flex items-center gap-1.5 shrink-0">
+      <div class="flex items-center gap-1.5 shrink-0 min-w-0">
         <div class="inline-flex p-0.5 bg-surface-subtle border border-border rounded-xs gap-0.5 shrink-0">
           <button
             type="button"
             onclick={() => (arenaViewMode = 'field')}
-            class="px-2 py-0.5 rounded-2xs transition-micro font-bold flex items-center gap-1 {arenaViewMode === 'field' ? 'bg-surface text-cyan shadow-2xs' : 'text-ink-muted hover:text-ink'}"
+            class="px-2 py-0.5 rounded-xs transition-micro font-medium flex items-center gap-1 {arenaViewMode === 'field' ? 'bg-surface text-foreground font-semibold shadow-2xs border border-border/50' : 'text-ink-muted hover:text-foreground'}"
             title="Top-Down Autonomous Proving Ground Field"
           >
-            <span>🗺️ Field</span>
+            <Map class="size-3 text-foreground-secondary" />
+            <span>Field</span>
           </button>
           <button
             type="button"
             onclick={() => (arenaViewMode = 'inspection')}
-            class="px-2 py-0.5 rounded-2xs transition-micro font-bold flex items-center gap-1 {arenaViewMode === 'inspection' ? 'bg-surface text-brand shadow-2xs' : 'text-ink-muted hover:text-ink'}"
-            title="ARES-Prime Vehicle Detail Inspection"
+            class="px-2 py-0.5 rounded-xs transition-micro font-medium flex items-center gap-1 {arenaViewMode === 'inspection' ? 'bg-surface text-foreground font-semibold shadow-2xs border border-border/50' : 'text-ink-muted hover:text-foreground'}"
+            title="ARES-Prime Vehicle Detail Inspection Blueprint"
           >
-            <span>🔍 Inspection</span>
+            <Search class="size-3 text-foreground-secondary" />
+            <span>Blueprint</span>
           </button>
         </div>
 
@@ -490,66 +517,104 @@
           <button
             type="button"
             onclick={onOpenMissionBrief}
-            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-xs bg-surface-subtle hover:bg-surface border border-border hover:border-cyan/40 text-[10px] font-mono transition-micro shrink-0 cursor-pointer group"
+            class="h-6 inline-flex items-center gap-1.5 px-2 rounded-xs bg-surface-subtle hover:bg-surface border border-border hover:border-brand/40 text-[10px] font-mono transition-micro shrink-0 cursor-pointer group shadow-2xs"
             title="Open Mission Objective & PRIMM Checklist Dialog"
           >
-            <span class="shrink-0">{activeMissionIcon || '🚀'}</span>
-            <span class="font-bold text-ink truncate max-w-32 sm:max-w-44 group-hover:text-cyan transition-colors">{activeMissionTitle}</span>
-            <span class="text-[9px] px-1 py-0.5 bg-surface border border-border rounded-xs text-ink-muted">
+            <span class="shrink-0 text-xs">{activeMissionIcon || '🚀'}</span>
+            <span class="font-bold text-ink truncate max-w-28 sm:max-w-40 group-hover:text-brand transition-colors">{activeMissionTitle}</span>
+            <span class="text-[9px] px-1 py-0.2 bg-surface border border-border rounded-xs text-ink-muted">
               L{activeMissionLevel || 1}
             </span>
-            <span class="text-[9px] text-amber-500 font-bold group-hover:translate-x-0.5 transition-transform">ℹ️</span>
+            <Info class="size-2.5 text-ink-muted group-hover:text-brand transition-colors shrink-0" />
           </button>
         {/if}
       </div>
 
       <!-- Right Controls for Field Proving Ground -->
       {#if arenaViewMode === 'field'}
-        <div class="flex items-center gap-1.5 shrink-0 flex-wrap">
-          <!-- Interaction Modes -->
-          <div class="inline-flex p-0.5 bg-surface-subtle border border-border rounded-xs gap-0.5 shrink-0">
-            <button
-              type="button"
-              onclick={() => (gridInteractionMode = 'navigate')}
-              class="px-2 py-0.5 rounded-2xs transition-micro font-bold flex items-center gap-1 {gridInteractionMode === 'navigate' ? 'bg-cyan text-white shadow-2xs' : 'text-ink-muted hover:text-ink'}"
-              title="Click grid to drop navigation target waypoint"
-            >
-              <span>📍 Waypoint</span>
-            </button>
-            <button
-              type="button"
-              onclick={() => (gridInteractionMode = 'obstacle')}
-              class="px-2 py-0.5 rounded-2xs transition-micro font-bold flex items-center gap-1 {gridInteractionMode === 'obstacle' ? 'bg-rose-500 text-white shadow-2xs' : 'text-ink-muted hover:text-ink'}"
-              title="Click grid to add or remove obstacle pylons"
-            >
-              <span>🛑 Obstacle ({dynamicObstacles.length})</span>
-            </button>
-          </div>
-
-          <!-- Drive to Waypoint (Inline) -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <!-- Drive to Waypoint (Compact inline action when active) -->
           {#if targetWaypoint?.active}
             <button
               type="button"
               onclick={driveToWaypoint}
-              class="px-2 py-0.5 rounded-xs bg-mint text-black font-bold transition-micro hover:bg-mint/90 flex items-center gap-1 shadow-2xs shrink-0 animate-pulse"
-              title="Drive bot directly to target waypoint"
+              class="h-6 px-2 rounded-xs bg-mint/15 text-mint border border-mint/40 font-bold text-[10px] transition-micro hover:bg-mint/25 flex items-center gap-1 shadow-2xs shrink-0"
+              title="Drive bot directly to target waypoint ({waypointDistance}cm)"
             >
-              <span>▶ Drive ({waypointDistance}cm)</span>
+              <Play class="size-2.5 fill-current" />
+              <span>Drive</span>
             </button>
           {/if}
 
-          <!-- Display Layers Dropdown Menu -->
+          <!-- Interaction Tools Dropdown Menu -->
           <DropdownMenu.Root>
             <DropdownMenu.Trigger
-              class="h-6 px-2 border border-border bg-surface-subtle hover:bg-surface text-[9.5px] font-mono font-bold text-ink rounded-xs transition-micro flex items-center gap-1 cursor-pointer shrink-0"
+              class="h-6 px-2 border border-border bg-surface-subtle hover:bg-surface text-[10px] font-mono font-medium text-ink rounded-xs transition-micro flex items-center gap-1 cursor-pointer shrink-0"
+              title="Select Grid Interaction Tool"
+            >
+              {#if gridInteractionMode === 'navigate'}
+                <MapPin class="size-3 text-brand" />
+                <span>Waypoint</span>
+              {:else}
+                <ShieldAlert class="size-3 text-attention" />
+                <span>Obstacles ({dynamicObstacles.length})</span>
+              {/if}
+              <ChevronDown class="size-2.5 text-ink-muted opacity-70" />
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content align="end" class="w-48 p-1 bg-surface-overlay border border-border shadow-md rounded-xs font-sans text-xs">
+              <div class="px-2 py-1 border-b border-border mb-1">
+                <p class="text-[10px] font-mono uppercase tracking-wider text-ink-muted">Interaction Tool</p>
+              </div>
+              <DropdownMenu.Item
+                onclick={() => (gridInteractionMode = 'navigate')}
+                class="flex items-center gap-2 px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer {gridInteractionMode === 'navigate' ? 'text-brand font-bold' : 'text-ink'}"
+              >
+                <MapPin class="size-3.5 text-brand" />
+                <span>Drop Waypoint Target</span>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
+                onclick={() => (gridInteractionMode = 'obstacle')}
+                class="flex items-center gap-2 px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer {gridInteractionMode === 'obstacle' ? 'text-attention font-bold' : 'text-ink'}"
+              >
+                <ShieldAlert class="size-3.5 text-attention" />
+                <span>Place Obstacle Pylons ({dynamicObstacles.length})</span>
+              </DropdownMenu.Item>
+              {#if dynamicObstacles.length > 0 || targetWaypoint?.active}
+                <DropdownMenu.Separator class="my-1 border-t border-border" />
+              {/if}
+              {#if targetWaypoint?.active}
+                <DropdownMenu.Item
+                  onclick={() => { targetWaypoint = null; }}
+                  class="flex items-center gap-2 px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer text-ink-muted hover:text-ink"
+                >
+                  <X class="size-3" />
+                  <span>Clear Waypoint</span>
+                </DropdownMenu.Item>
+              {/if}
+              {#if dynamicObstacles.length > 0}
+                <DropdownMenu.Item
+                  onclick={() => { dynamicObstacles = []; }}
+                  class="flex items-center gap-2 px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer text-destructive font-medium"
+                >
+                  <Trash2 class="size-3" />
+                  <span>Clear All Obstacles ({dynamicObstacles.length})</span>
+                </DropdownMenu.Item>
+              {/if}
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+
+          <!-- Display Overlays & Layers Dropdown Menu -->
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger
+              class="h-6 px-2 border border-border bg-surface-subtle hover:bg-surface text-[10px] font-mono font-medium text-ink-muted hover:text-foreground rounded-xs transition-micro flex items-center gap-1 cursor-pointer shrink-0"
               title="Toggle Field Display Layers & Overlays"
             >
-              <Layers class="size-3 text-cyan" />
+              <Layers class="size-3 text-foreground-secondary" />
               <span>Layers</span>
               <ChevronDown class="size-2.5 text-ink-muted opacity-70" />
             </DropdownMenu.Trigger>
             <DropdownMenu.Content align="end" class="w-48 p-1 bg-surface-overlay border border-border shadow-md rounded-xs font-sans text-xs">
-              <div class="px-2 py-1.5 border-b border-border mb-1">
+              <div class="px-2 py-1 border-b border-border mb-1">
                 <p class="text-[10px] font-mono uppercase tracking-wider text-ink-muted">Display Overlays</p>
               </div>
               <DropdownMenu.CheckboxItem
@@ -570,55 +635,37 @@
               >
                 <span>Motion & Pen Trails</span>
               </DropdownMenu.CheckboxItem>
-              {#if dynamicObstacles.length > 0 || targetWaypoint?.active}
-                <DropdownMenu.Separator class="my-1 border-t border-border" />
-              {/if}
-              {#if dynamicObstacles.length > 0}
-                <DropdownMenu.Item
-                  onclick={() => { dynamicObstacles = []; }}
-                  class="px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer text-rose-500 font-medium"
-                >
-                  Clear Obstacles ({dynamicObstacles.length})
-                </DropdownMenu.Item>
-              {/if}
-              {#if targetWaypoint?.active}
-                <DropdownMenu.Item
-                  onclick={() => { targetWaypoint = null; }}
-                  class="px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer text-ink-muted hover:text-ink"
-                >
-                  Clear Target Waypoint
-                </DropdownMenu.Item>
-              {/if}
+              <DropdownMenu.Separator class="my-1 border-t border-border" />
+              <DropdownMenu.Item
+                onclick={toggleSound}
+                class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer text-ink"
+              >
+                <span class="flex items-center gap-1.5">
+                  {#if isSoundMuted}
+                    <VolumeX class="size-3 text-ink-muted" />
+                    <span>Audio Muted</span>
+                  {:else}
+                    <Volume2 class="size-3 text-mint" />
+                    <span>Audio Active</span>
+                  {/if}
+                </span>
+                <span class="text-[10px] font-mono text-ink-muted">{isSoundMuted ? 'Off' : 'On'}</span>
+              </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
-
-          <!-- Audio Micro-interactions Toggle -->
-          <button
-            type="button"
-            onclick={toggleSound}
-            class="h-6 px-2 border rounded-xs text-[9.5px] font-mono font-bold transition-micro flex items-center gap-1 cursor-pointer shrink-0 {isSoundMuted ? 'border-border bg-surface-subtle text-ink-muted hover:text-ink' : 'border-cyan/40 bg-cyan/10 text-cyan hover:bg-cyan/20'}"
-            title={isSoundMuted ? 'Unmute Audio Micro-interactions' : 'Mute Audio Micro-interactions'}
-          >
-            {#if isSoundMuted}
-              <VolumeX class="size-3 text-ink-muted" />
-              <span>Muted</span>
-            {:else}
-              <Volume2 class="size-3 text-cyan" />
-              <span>Audio</span>
-            {/if}
-          </button>
         </div>
       {:else}
         <!-- Clean Subheader in Inspection Mode -->
-        <div class="flex items-center gap-2 text-[9px] font-mono text-ink-muted">
-          <span class="text-ink font-bold">CAD Blueprint</span>
+        <div class="flex items-center gap-2 text-[10px] font-mono text-ink-muted">
+          <span class="text-ink font-semibold">CAD Blueprint View</span>
           <span class="text-border">·</span>
           <button
             type="button"
             onclick={onReset}
-            class="text-mint hover:underline font-bold"
+            class="text-mint hover:underline font-medium inline-flex items-center gap-1 cursor-pointer"
           >
-            Reset Telemetry
+            <RotateCcw class="size-2.5" />
+            <span>Reset Telemetry</span>
           </button>
         </div>
       {/if}
@@ -640,11 +687,11 @@
         </div>
       {/if}
 
-      <!-- Celebratory Sample Collection Delight Banner (Lagom 140ms in / 200ms out) -->
+      <!-- Sample Collection Verified Toast (Lagom 140ms in / 200ms out) -->
       {#if showCelebrationToast}
-        <div class="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-1 bg-surface-raised/95 backdrop-blur-xs border border-amber-500/50 text-amber-500 rounded-sm shadow-md flex items-center gap-1.5 text-[10px] font-mono font-bold select-none pointer-events-none animate-in fade-in zoom-in-95 duration-150">
-          <Sparkles class="size-3 text-amber-500 animate-spin" />
-          <span>SAMPLE SECURED · +10 KINEMATIC XP</span>
+        <div class="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-1 bg-surface-raised/95 backdrop-blur-xs border border-mint/40 text-mint rounded-sm shadow-md flex items-center gap-1.5 text-[10px] font-mono font-bold select-none pointer-events-none animate-in fade-in zoom-in-95 duration-150">
+          <CheckCircle2 class="size-3 text-mint shrink-0" />
+          <span>SAMPLE SECURED · TELEMETRY LOGGED</span>
         </div>
       {/if}
 
@@ -968,28 +1015,30 @@
           </g>
         {/if}
 
-        <!-- Rhythmic Musical Notes (floating joyfully during dance moves) -->
+        <!-- Acoustic Frequency Telemetry Display -->
         {#if effectiveIsDancing}
           <g transform="translate({roverX}, {roverY - 28})" class="dance-notes pointer-events-none select-none">
-            <text x="-14" y="-2" font-size="9" fill="#38bdf8" class="animate-bounce">♪</text>
-            <text x="12" y="-6" font-size="10" fill="#a855f7" class="animate-bounce" style="animation-delay: 80ms;">♫</text>
-            <text x="-2" y="-14" font-size="8" fill="#10b981" class="animate-bounce" style="animation-delay: 160ms;">♪</text>
+            <rect x="-10" y="-6" width="2" height="8" rx="0.5" fill="var(--color-cyan, #06b6d4)" opacity="0.85" />
+            <rect x="-5" y="-11" width="2" height="13" rx="0.5" fill="var(--color-brand, #0d9488)" opacity="0.9" />
+            <rect x="0" y="-8" width="2" height="10" rx="0.5" fill="var(--color-mint, #10b981)" opacity="0.85" />
+            <rect x="5" y="-13" width="2" height="15" rx="0.5" fill="var(--color-cyan, #06b6d4)" opacity="0.9" />
+            <rect x="10" y="-7" width="2" height="9" rx="0.5" fill="var(--color-brand, #0d9488)" opacity="0.85" />
           </g>
         {/if}
 
-        <!-- Celebratory Sample Burst (Micro-diamond geometric stars) -->
+        <!-- Verified Sample Telemetry Marker -->
         {#if showCelebrationToast && celebrationCoords}
           <g transform="translate({celebrationCoords.x}, {celebrationCoords.y})" class="pointer-events-none select-none">
-            <circle cx="0" cy="0" r="18" fill="none" stroke="#eab308" stroke-width="1.2" class="animate-ping" opacity="0.75" />
-            <circle cx="0" cy="0" r="28" fill="none" stroke="#fbbf24" stroke-width="0.7" stroke-dasharray="3,2" opacity="0.5" />
+            <circle cx="0" cy="0" r="14" fill="none" stroke="var(--color-mint, #10b981)" stroke-width="1.2" opacity="0.8" />
+            <circle cx="0" cy="0" r="22" fill="none" stroke="var(--color-brand, #0d9488)" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.5" />
             {#each [0, 60, 120, 180, 240, 300] as angle}
               {@const rad = (angle * Math.PI) / 180}
-              {@const px = Math.cos(rad) * 16}
-              {@const py = Math.sin(rad) * 16}
+              {@const px = Math.cos(rad) * 14}
+              {@const py = Math.sin(rad) * 14}
               <polygon
-                points="{px},{py - 3} {px + 2.5},{py} {px},{py + 3} {px - 2.5},{py}"
-                fill="#fbbf24"
-                stroke="#d97706"
+                points="{px},{py - 2} {px + 2},{py} {px},{py + 2} {px - 2},{py}"
+                fill="var(--color-mint, #10b981)"
+                stroke="var(--color-brand, #0d9488)"
                 stroke-width="0.5"
                 class="celebration-particle"
               />
@@ -1010,7 +1059,7 @@
         <div class="flex items-center gap-1.5 min-w-0">
           <span class="size-1.5 rounded-none bg-cyan shadow-xs shrink-0"></span>
           <span class="font-bold text-ink truncate">ARES-Prime Mk-III Blueprint</span>
-          <span class="px-1 py-0.5 bg-cyan/10 border border-cyan/30 text-cyan text-[8px] font-bold uppercase rounded-2xs shrink-0">
+          <span class="px-1 py-0.5 bg-cyan/10 border border-cyan/30 text-cyan text-[8px] font-bold uppercase rounded-xs shrink-0">
             v3.4
           </span>
         </div>
@@ -1297,7 +1346,7 @@
           </span>
         </div>
 
-        <!-- 5 Compact Interactive Action Chips -->
+        <!-- 5 Compact Interactive Action Chips with Lucide Icons -->
         <div class="grid grid-cols-5 gap-1">
           <button
             type="button"
@@ -1305,7 +1354,8 @@
             class="px-1 py-1 bg-surface hover:bg-surface-subtle active:scale-95 border rounded-xs text-[8.5px] font-mono font-bold transition-micro flex items-center justify-center gap-1 truncate {activeDiagnosticSubsystem === 'sonar' ? 'border-cyan text-cyan bg-cyan/10' : 'border-border text-ink'}"
             title="Ping ultrasonic sonar / LiDAR distance array"
           >
-            <span>📡 LiDAR</span>
+            <Radar class="size-3 text-cyan shrink-0" />
+            <span>LiDAR</span>
           </button>
           <button
             type="button"
@@ -1313,7 +1363,8 @@
             class="px-1 py-1 bg-surface hover:bg-surface-subtle active:scale-95 border rounded-xs text-[8.5px] font-mono font-bold transition-micro flex items-center justify-center gap-1 truncate {activeDiagnosticSubsystem === 'led' ? 'border-amber-500 text-amber-500 bg-amber-500/10' : 'border-border text-ink'}"
             title="Cycle 5x5 micro:bit LED matrix diagnostic patterns"
           >
-            <span>💡 Matrix</span>
+            <Grid3x3 class="size-3 text-amber-500 shrink-0" />
+            <span>Matrix</span>
           </button>
           <button
             type="button"
@@ -1321,7 +1372,8 @@
             class="px-1 py-1 bg-surface hover:bg-surface-subtle active:scale-95 border rounded-xs text-[8.5px] font-mono font-bold transition-micro flex items-center justify-center gap-1 truncate {activeDiagnosticSubsystem === 'motor' ? 'border-mint text-mint bg-mint/10' : 'border-border text-ink'}"
             title="Perform brief dual-motor drive pulse"
           >
-            <span>⚙️ Motors</span>
+            <Cog class="size-3 text-mint shrink-0" />
+            <span>Motors</span>
           </button>
           <button
             type="button"
@@ -1329,7 +1381,8 @@
             class="px-1 py-1 bg-surface hover:bg-surface-subtle active:scale-95 border rounded-xs text-[8.5px] font-mono font-bold transition-micro flex items-center justify-center gap-1 truncate {activeDiagnosticSubsystem === 'pen' ? 'border-brand text-brand bg-brand/10' : 'border-border text-ink'}"
             title="Test solenoid pen actuator up/down stroke"
           >
-            <span>🖋️ Pen</span>
+            <PenTool class="size-3 text-brand shrink-0" />
+            <span>Pen</span>
           </button>
           <button
             type="button"
@@ -1337,7 +1390,8 @@
             class="px-1 py-1 bg-surface hover:bg-surface-subtle active:scale-95 border rounded-xs text-[8.5px] font-mono font-bold transition-micro flex items-center justify-center gap-1 truncate {activeDiagnosticSubsystem === 'radio' ? 'border-positive text-positive bg-positive-subtle' : 'border-border text-ink'}"
             title="Broadcast test packet over 2.4GHz micro:bit radio"
           >
-            <span>📻 Radio</span>
+            <Radio class="size-3 text-positive shrink-0" />
+            <span>Radio</span>
           </button>
         </div>
       </div>

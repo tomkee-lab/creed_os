@@ -1,5 +1,5 @@
 <script lang="ts">
-  import BaseWorkbenchShell from '../../../../../../packages/ui/src/components/workbench/WorkbenchShell.svelte';
+  import BaseWorkbenchShell from '@core-os/ui/components/workbench/WorkbenchShell.svelte';
 
   interface Props {
     title: string;

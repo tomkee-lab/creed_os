@@ -8,7 +8,6 @@
     Award,
     Clock,
     Loader2,
-    Sparkles,
     BookOpen,
     Cpu,
     Compass,
@@ -222,7 +221,7 @@
       <div class="p-5 sm:p-6 bg-surface border border-border rounded-sm space-y-3">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2 text-ai text-xs font-semibold uppercase tracking-wider">
-            <Sparkles class="w-4 h-4" />
+            <Compass class="w-4 h-4" />
             <span>Global Standards Calibration</span>
           </div>
           <button
@@ -257,74 +256,72 @@
         {/if}
       </div>
 
-      <!-- Domain Selection Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {#each (['stem', 'english', 'robotics'] as const) as domain}
-          {@const cfg = domainConfigs[domain]}
-          {@const Icon = cfg.icon}
-          {@const isSelected = selectedDomain === domain}
-          <div
-            role="button"
-            tabindex="0"
-            onclick={() => (selectedDomain = domain)}
-            onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') selectedDomain = domain; }}
-            class="p-5 bg-surface border transition-all rounded-sm flex flex-col justify-between cursor-pointer {isSelected ? 'border-brand ring-1 ring-brand bg-surface-raised shadow-xs' : 'border-border hover:border-border-strong'}"
-          >
-            <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <div class="w-9 h-9 rounded-sm bg-surface-raised border border-border flex items-center justify-center text-foreground">
-                  <Icon class="w-5 h-5 text-brand" />
-                </div>
-                {#if isSelected}
-                  <span class="text-[10px] font-mono font-bold px-2 py-0.5 bg-brand-subtle text-brand border border-brand/20 rounded-xs">
-                    Selected Track ✓
-                  </span>
-                {/if}
+      <!-- Compact Domain Selector Tabs -->
+      <div class="space-y-4">
+        <div
+          role="tablist"
+          aria-label="Assessment Domain"
+          class="grid grid-cols-1 sm:grid-cols-3 gap-2"
+        >
+          {#each (['stem', 'english', 'robotics'] as const) as domain}
+            {@const cfg = domainConfigs[domain]}
+            {@const Icon = cfg.icon}
+            {@const isSelected = selectedDomain === domain}
+            <button
+              type="button"
+              role="tab"
+              aria-selected={isSelected}
+              onclick={() => (selectedDomain = domain)}
+              class="flex items-center gap-3 p-3.5 rounded-sm border text-left transition-colors duration-140 outline-none focus-visible:ring-2 focus-visible:ring-brand cursor-pointer {isSelected
+                ? 'border-brand bg-surface-raised text-foreground shadow-2xs font-semibold'
+                : 'border-border bg-surface text-foreground-secondary hover:border-border-strong hover:text-foreground'}"
+            >
+              <div class="size-8 rounded-sm bg-surface-raised border border-border flex items-center justify-center shrink-0">
+                <Icon class="size-4 text-brand" />
               </div>
+              <div class="min-w-0 flex-1">
+                <p class="text-xs font-semibold truncate text-foreground">{cfg.title}</p>
+                <p class="font-mono text-[10px] text-foreground-secondary truncate">{cfg.scaleName}</p>
+              </div>
+            </button>
+          {/each}
+        </div>
 
-              <div>
-                <h3 class="text-sm font-bold text-foreground">{cfg.title}</h3>
-                <span class="text-[11px] text-foreground-secondary block mt-0.5 font-medium">{cfg.subtitle}</span>
-              </div>
-              <p class="text-xs text-foreground-secondary leading-relaxed line-clamp-3">
-                {cfg.description}
-              </p>
+        <!-- Selected Domain Context & Unified Primary Action -->
+        <div class="p-5 bg-surface-raised border border-border rounded-sm space-y-4 shadow-2xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-3">
+            <div>
+              <span class="font-mono text-[11px] font-semibold text-brand uppercase tracking-wider">{currentConfig.subtitle}</span>
+              <h3 class="text-base font-semibold text-foreground mt-0.5">{currentConfig.title}</h3>
             </div>
-
-            <div class="pt-4 mt-4 border-t border-border space-y-3">
-              <div class="flex items-center justify-between text-[11px] text-foreground-secondary font-medium font-mono">
-                <span>{cfg.scaleName}</span>
-                <span>{cfg.targetCount} Questions</span>
-              </div>
-              <button
-                type="button"
-                onclick={(e) => {
-                  e.stopPropagation();
-                  startBenchmarkSession(domain, 'benchmark');
-                }}
-                class="w-full min-h-11 py-2 px-3 rounded-sm text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-2xs {isSelected ? 'bg-brand text-brand-foreground hover:bg-brand/90' : 'bg-surface-raised border border-border text-foreground hover:bg-surface-subtle'}"
-              >
-                <span>Start 30Q Benchmark</span>
-                <ArrowRight class="w-3.5 h-3.5" />
-              </button>
+            <div class="flex items-center gap-3 font-mono text-xs text-foreground-secondary shrink-0">
+              <span class="px-2 py-0.5 rounded-xs bg-surface border border-border">{currentConfig.scaleName}</span>
+              <span>{currentConfig.estimatedMinutes} min</span>
             </div>
           </div>
-        {/each}
-      </div>
 
-      <!-- Secondary Rapid Diagnostic Alternative -->
-      <div class="p-4 bg-surface-raised border border-border rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-foreground-secondary">
-        <div class="space-y-0.5">
-          <span class="font-semibold text-foreground">Need a quick checkpoint instead?</span>
-          <p class="text-[11px] text-foreground-secondary">The 8-question rapid diagnostic provides an immediate adaptive pulse check in 5 minutes.</p>
-        </div>
-        <div class="flex items-center gap-2 shrink-0">
-          <button
-            onclick={() => startBenchmarkSession(selectedDomain, 'rapid')}
-            class="min-h-11 px-4 py-2 border border-border hover:bg-surface hover:text-foreground text-foreground-secondary font-medium text-xs rounded-sm transition-colors cursor-pointer shadow-2xs inline-flex items-center justify-center"
-          >
-            Launch 8-Question Rapid Diagnostic ↗
-          </button>
+          <p class="text-xs text-foreground-secondary leading-relaxed">
+            {currentConfig.description}
+          </p>
+
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
+            <button
+              type="button"
+              onclick={() => startBenchmarkSession(selectedDomain, 'benchmark')}
+              class="w-full sm:w-auto min-h-11 px-6 py-2 rounded-sm bg-brand text-brand-foreground text-xs font-semibold hover:bg-brand/90 transition-colors cursor-pointer shadow-xs inline-flex items-center justify-center gap-2"
+            >
+              <span>Start 30-Question Benchmark</span>
+              <ArrowRight class="size-4" />
+            </button>
+
+            <button
+              type="button"
+              onclick={() => startBenchmarkSession(selectedDomain, 'rapid')}
+              class="w-full sm:w-auto min-h-11 px-4 py-2 border border-border hover:bg-surface text-foreground-secondary hover:text-foreground font-medium text-xs rounded-sm transition-colors cursor-pointer shadow-2xs inline-flex items-center justify-center gap-1.5"
+            >
+              <span>8-Question Rapid Diagnostic (5m)</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -348,9 +345,10 @@
         <div class="flex items-center justify-center gap-3 pt-2">
           <a
             href="/consent"
-            class="px-4 py-2 bg-brand text-brand-foreground text-xs font-semibold rounded-sm hover:bg-brand/90 transition-colors cursor-pointer shadow-xs"
+            class="inline-flex items-center gap-1.5 px-4 py-2 bg-brand text-brand-foreground text-xs font-semibold rounded-sm hover:bg-brand/90 transition-colors cursor-pointer shadow-xs"
           >
-            Obtain Parental Consent ↗
+            <span>Obtain Parental Consent</span>
+            <ArrowRight class="w-3.5 h-3.5" />
           </a>
           <button
             onclick={() => startBenchmarkSession(selectedDomain, assessmentMode)}

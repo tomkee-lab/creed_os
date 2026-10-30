@@ -1,10 +1,10 @@
 <script lang="ts">
   import {
     ArrowRight,
-    Sparkles,
+    BrainCircuit,
     CheckCircle2,
     Compass,
-    Bot,
+    MessageSquareQuote,
     ExternalLink,
     ShieldCheck,
     Clock
@@ -55,35 +55,32 @@
   <title>Today · CREED OS</title>
 </svelte:head>
 
-<div class="max-w-3xl mx-auto space-y-12 py-4">
+<div class="max-w-5xl mx-auto space-y-12 py-4">
   <!-- 1. ORIENT: Student Greeting & Immediate Direction -->
-  <header class="space-y-1.5">
-    <h1 class="text-3xl font-semibold tracking-tight text-ink">
+  <header class="space-y-1">
+    <h1 class="text-2xl sm:text-3xl font-heading font-medium tracking-tight text-ink">
       Good morning, {firstName}.
     </h1>
-    <p class="text-base text-ink-secondary">
+    <p class="text-xs sm:text-sm text-ink-secondary">
       Your next step is ready.
     </p>
   </header>
 
   <!-- 2. ACT: DOMINANT TODAY FOCUS (<= 80 words before action) -->
-  <section id="missions" class="p-6 sm:p-8 rounded-none bg-surface border border-border space-y-6 scroll-mt-16">
-    <div class="flex items-center justify-between text-xs font-semibold tracking-wider uppercase text-brand">
-      <div class="flex items-center gap-2">
-        <span class="px-2 py-0.5 rounded-none bg-brand-subtle text-brand font-mono text-[11px]">Mission Active</span>
-        <span>Today</span>
-      </div>
-      <span class="flex items-center gap-1.5 text-ink-muted">
-        <Clock class="w-3.5 h-3.5" />
-        <span>20 min total</span>
+  <section id="missions" class="p-6 sm:p-8 rounded-sm bg-surface border border-border space-y-6 scroll-mt-16">
+    <div class="flex items-center justify-between">
+      <span class="inline-flex items-center gap-1.5 rounded-sm bg-brand-subtle px-2 py-1 font-mono text-[11px] font-semibold text-brand">
+        <Clock class="size-3 text-brand" />
+        <span>Today's Mission · 20 min</span>
       </span>
+      <span class="font-mono text-xs text-ink-muted">Step {currentMissionStep} of {missionSteps.length}</span>
     </div>
 
     <div class="space-y-2">
-      <h2 class="text-xl sm:text-2xl font-semibold text-ink tracking-tight">
+      <h2 class="text-xl sm:text-2xl font-heading font-medium text-ink tracking-tight">
         Strengthen proportional reasoning
       </h2>
-      <p class="text-sm text-ink-secondary leading-relaxed">
+      <p class="text-xs sm:text-sm text-ink-secondary leading-relaxed">
         Connect rate equations with mechanical gear ratios to access robotics challenges.
       </p>
     </div>
@@ -98,24 +95,45 @@
     </div>
 
     <div class="flex flex-wrap items-center justify-between gap-4 pt-1">
-      <a
-        href="/student/assessment"
-        class="inline-flex items-center justify-center gap-2 px-5 py-2 min-h-11 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-sm transition-colors duration-140 shadow-xs cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand"
-      >
-        <span>Start practice</span>
-        <ArrowRight class="w-4 h-4" />
-      </a>
-      <span class="text-xs text-ink-muted">
-        Based on your recent kinematics demonstration
-      </span>
+      {#if data.hasActiveConsent === false}
+        <div class="w-full p-3.5 rounded-sm bg-surface-raised border border-border space-y-2">
+          <div class="flex items-center gap-2 text-xs font-medium text-attention">
+            <ShieldCheck class="w-4 h-4 shrink-0 text-attention" />
+            <span>Parental Verification Pending under DPDP Act 2023</span>
+          </div>
+          <p class="text-xs text-ink-secondary leading-relaxed">
+            Computerized adaptive diagnostic sessions require active guardian consent before calibration. You can explore simulations and preview missions while consent is being completed.
+          </p>
+          <div class="pt-1 flex items-center gap-3">
+            <a
+              href="/consent"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-brand text-brand-foreground font-medium text-xs hover:bg-brand/90 transition-colors shadow-xs"
+            >
+              <span>View Consent Status</span>
+              <ArrowRight class="w-3.5 h-3.5" />
+            </a>
+          </div>
+        </div>
+      {:else}
+        <a
+          href="/student/assessment"
+          class="inline-flex items-center justify-center gap-2 px-5 py-2 min-h-11 rounded-sm bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-sm transition-colors duration-140 shadow-xs cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand"
+        >
+          <span>Start practice mission</span>
+          <ArrowRight class="w-4 h-4" />
+        </a>
+        <span class="text-xs text-ink-muted">
+          Based on your recent kinematics demonstration
+        </span>
+      {/if}
     </div>
   </section>
 
   <!-- 3. SOCRATIC AI MENTOR DIRECT LAUNCHER (Restrained Iris, Carbon for AI) -->
-  <section class="p-5 rounded-none bg-surface-subtle border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <section class="p-5 rounded-sm bg-surface-subtle border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div class="space-y-1">
       <div class="flex items-center gap-1.5 text-xs font-medium text-ai">
-        <Sparkles class="w-3.5 h-3.5" />
+        <BrainCircuit class="w-3.5 h-3.5" />
         <span>Socratic Mentor • Non-judgmental Guidance</span>
       </div>
       <h3 class="text-sm font-semibold text-ink">
@@ -128,9 +146,9 @@
 
     <a
       href="/student/missions/mission-gear-train"
-      class="inline-flex items-center gap-2 px-4 py-2 min-h-11 rounded-none bg-surface hover:bg-surface-raised border border-border text-xs font-semibold text-ink shrink-0 transition-colors shadow-2xs hover:border-border-strong cursor-pointer"
+      class="inline-flex items-center gap-2 px-4 py-2 min-h-11 rounded-sm bg-surface hover:bg-surface-raised border border-border text-xs font-semibold text-ink shrink-0 transition-colors shadow-2xs hover:border-border-strong cursor-pointer"
     >
-      <Bot class="w-3.5 h-3.5 text-ai" />
+      <MessageSquareQuote class="w-3.5 h-3.5 text-ai" />
       <span>Open thinking session</span>
       <ArrowRight class="w-3.5 h-3.5 text-ink-muted" />
     </a>
@@ -211,7 +229,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
       <a
         href="/student/growth?tab=pathways"
-        class="p-4 rounded-none bg-surface hover:bg-surface-subtle border border-border transition-colors duration-140 group space-y-2 block"
+        class="p-4 rounded-sm bg-surface hover:bg-surface-subtle border border-border transition-colors duration-140 group space-y-2 block"
       >
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
@@ -228,7 +246,7 @@
 
       <a
         href="/student/growth?tab=pathways"
-        class="p-4 rounded-none bg-surface hover:bg-surface-subtle border border-border transition-colors duration-140 group space-y-2 block"
+        class="p-4 rounded-sm bg-surface hover:bg-surface-subtle border border-border transition-colors duration-140 group space-y-2 block"
       >
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
@@ -245,7 +263,7 @@
 
       <a
         href="/student/growth?tab=pathways"
-        class="p-4 rounded-none bg-surface hover:bg-surface-subtle border border-border transition-colors duration-140 group space-y-2 block"
+        class="p-4 rounded-sm bg-surface hover:bg-surface-subtle border border-border transition-colors duration-140 group space-y-2 block"
       >
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
@@ -281,10 +299,10 @@
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div class="p-5 rounded-none bg-surface border border-border flex flex-col justify-between space-y-4">
+      <div class="p-5 rounded-sm bg-surface border border-border flex flex-col justify-between space-y-4">
         <div class="space-y-2">
           <div class="flex items-center justify-between text-xs">
-            <span class="px-2 py-0.5 rounded-none bg-brand-subtle text-brand font-semibold text-[11px]">
+            <span class="px-2 py-0.5 rounded-sm bg-brand-subtle text-brand font-semibold text-[11px]">
               Robotics & Mechanics
             </span>
             <span class="text-[11px] text-ink-muted">45 mins • L4 Task</span>
@@ -298,17 +316,17 @@
         </div>
         <a
           href="/student/missions/robobridge"
-          class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs transition-colors shadow-xs cursor-pointer"
+          class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-sm bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs transition-colors shadow-xs cursor-pointer"
         >
           <span>Launch Mission Simulator</span>
           <ArrowRight class="w-3.5 h-3.5" />
         </a>
       </div>
 
-      <div class="p-5 rounded-none bg-surface border border-border flex flex-col justify-between space-y-4">
+      <div class="p-5 rounded-sm bg-surface border border-border flex flex-col justify-between space-y-4">
         <div class="space-y-2">
           <div class="flex items-center justify-between text-xs">
-            <span class="px-2 py-0.5 rounded-none bg-ai-subtle text-ai font-semibold text-[11px]">
+            <span class="px-2 py-0.5 rounded-sm bg-ai-subtle text-ai font-semibold text-[11px]">
               Data & Sensing
             </span>
             <span class="text-[11px] text-ink-muted">30 mins • L4 Task</span>
@@ -322,7 +340,7 @@
         </div>
         <a
           href="/student/missions/mission-telemetry-filter"
-          class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-none bg-surface hover:bg-surface-subtle border border-border hover:border-ai/40 text-ink hover:text-ai font-medium text-xs transition-colors cursor-pointer group shadow-xs active-press"
+          class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-sm bg-surface hover:bg-surface-subtle border border-border hover:border-ai/40 text-ink hover:text-ai font-medium text-xs transition-colors cursor-pointer group shadow-xs active-press"
         >
           <span>Launch Socratic Workbench</span>
           <ArrowRight class="w-3.5 h-3.5 text-ink-muted group-hover:text-ai transition-transform group-hover:translate-x-0.5" />
@@ -353,7 +371,7 @@
 
     <div class="space-y-2">
       {#each (evidence || []).slice(0, 3) as item}
-        <div class="p-3.5 rounded-none bg-surface border border-border flex items-center justify-between gap-4">
+        <div class="p-3.5 rounded-sm bg-surface border border-border flex items-center justify-between gap-4">
           <div class="space-y-0.5 min-w-0">
             <div class="flex items-center gap-2">
               <span class="text-xs font-medium text-ink truncate">

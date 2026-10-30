@@ -2,7 +2,6 @@
   import { page } from '$app/state';
   import {
     Compass,
-    Sparkles,
     Activity,
     BookOpen,
     BrainCircuit,
@@ -61,7 +60,7 @@
       case 'student':
         return [
           { label: 'Today', href: '/student', icon: Compass },
-          { label: 'Assessment', href: '/student/assessment', icon: Sparkles, badge: 'CAT' },
+          { label: 'Assessment', href: '/student/assessment', icon: BrainCircuit, badge: 'CAT' },
           { label: 'Missions', href: '/student/missions', icon: Target, badge: 'Labs' },
           { label: 'Growth Ledger', href: '/student/growth', icon: Activity }
         ];

@@ -4,7 +4,7 @@
     CheckCircle2,
     AlertTriangle,
     Shield,
-    Sparkles,
+    BrainCircuit,
     Sliders,
     Layers,
     Activity,
@@ -28,6 +28,7 @@
   import InspectorPanel from '$lib/components/shell/InspectorPanel.svelte';
   import TransitionalLounge from '$lib/components/missions/TransitionalLounge.svelte';
   import WorkbenchShell from '$lib/components/workbench/WorkbenchShell.svelte';
+  import RoboticsIdeDialog from '$lib/components/ide/RoboticsIdeDialog.svelte';
   import type { PisaTelemetryEvent, PisaPhase, PisaActionType } from '@core-os/domain';
 
   let { data } = $props();
@@ -36,6 +37,7 @@
   // Socratic guidance toggle & evidence submission
   let socraticDrawerOpen = $state(false);
   let theoryDrawerOpen = $state(false);
+  let ideDialogOpen = $state(false);
   let workbenchStage = $state<1 | 2 | 3>(1);
   let isSubmitting = $state(false);
   let submissionResult = $state<{
@@ -568,10 +570,18 @@
         </span>
         <button
           type="button"
+          onclick={() => (ideDialogOpen = true)}
+          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm bg-foreground text-background hover:bg-foreground/90 text-xs font-medium cursor-pointer shadow-xs transition-micro"
+        >
+          <TerminalSquare class="w-3.5 h-3.5" />
+          <span>Robotics IDE</span>
+        </button>
+        <button
+          type="button"
           onclick={() => (socraticDrawerOpen = true)}
           class="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm bg-surface-raised border border-border text-foreground text-xs font-medium hover:border-border-strong cursor-pointer"
         >
-          <Sparkles class="w-3.5 h-3.5 text-ai" />
+          <BrainCircuit class="w-3.5 h-3.5 text-ai" />
           <span>Socratic Guide</span>
         </button>
       </div>
@@ -1260,7 +1270,7 @@
       <div class="space-y-4 text-xs">
         <div class="p-3 bg-ai-subtle border border-ai/20 text-ai rounded-sm space-y-1">
           <div class="flex items-center gap-1.5 font-semibold">
-            <Sparkles class="w-3.5 h-3.5" />
+            <BrainCircuit class="w-3.5 h-3.5" />
             <span>Inquiry Heuristic</span>
           </div>
           <p class="text-xs text-muted leading-relaxed">
@@ -1376,3 +1386,6 @@
     </div>
   {/if}
 </InspectorPanel>
+
+<!-- Fullscreen Robotics IDE Dialog UI Modal -->
+<RoboticsIdeDialog bind:open={ideDialogOpen} initialMission={mission.id} />

@@ -35,6 +35,10 @@ if (databaseUrl) {
     dbPool.on('error', (err) => {
       console.warn('[supabase:db] Idle pool client notification:', err.message);
     });
+    // Ensure audit remediation schema alignments exist idempotently
+    dbPool.query('ALTER TABLE IF EXISTS public.consents ADD COLUMN IF NOT EXISTS expires_at timestamptz;').catch((err) => {
+      console.warn('[supabase:db] Idempotent schema alignment notice:', err.message);
+    });
   } catch (err: any) {
     console.warn('[supabase:db] Failed to initialize Postgres connection pool:', err.message);
   }

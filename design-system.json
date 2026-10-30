@@ -61,7 +61,19 @@
     "secondarySurfaces": "15%",
     "brandAccent": "8%",
     "semanticStates": "5%",
-    "expressiveAccent": "2%"
+    "expressiveAccent": "2%",
+    "accentRestraint": "Brand accent is strictly rationed (<8% page area, <2% at rest in active assessment) to protect focus and prevent visual fatigue"
+  },
+  "contrastGovernance": {
+    "wcagAA": {
+      "bodyText": "4.5:1 minimum contrast against canvas or parent surface",
+      "largeTextAndUI": "3.0:1 minimum contrast for 18pt+/14pt+ bold text and interactive boundaries"
+    },
+    "wcagAAA": {
+      "bodyText": "7.0:1 enhanced contrast for primary reading ink",
+      "largeText": "4.5:1 enhanced contrast for display headings"
+    },
+    "complianceNotes": "Primary deep slate ink achieves >15:1 AAA on mineral canvas. Secondary slate ink achieves >5.4:1 (AA for normal text, AAA for large/bold text). Electric Indigo achieves 5.8:1 on pure white (AA normal, AAA large)."
   },
   "motion": {
     "micro": "140ms",

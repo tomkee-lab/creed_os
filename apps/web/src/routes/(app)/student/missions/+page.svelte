@@ -12,7 +12,6 @@
     Cpu,
     Activity,
     Award,
-    Sparkles,
     ShieldCheck,
     FlaskConical,
     Globe,
@@ -21,11 +20,31 @@
     X,
     GraduationCap
   } from 'lucide-svelte';
+  import { onMount } from 'svelte';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+  import RoboticsIdeDialog from '$lib/components/ide/RoboticsIdeDialog.svelte';
   import type { PageData } from './$types';
   import type { StemMission } from '$lib/server/repository';
 
   let { data }: { data: PageData } = $props();
+
+  // Dialog state for full screen Robotics IDE
+  let ideDialogOpen = $state(false);
+  let selectedIdeMission = $state('starter');
+
+  function openIdeDialog(missionId: string = 'starter') {
+    selectedIdeMission = missionId;
+    ideDialogOpen = true;
+  }
+
+  onMount(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('ide') === 'open' || window.location.hash === '#ide') {
+        openIdeDialog(params.get('mission') || 'starter');
+      }
+    }
+  });
 
   // State runes
   let stageFilterState = $state<string | null>(null);
@@ -117,13 +136,15 @@
     <!-- Quick Actions -->
     <div class="flex flex-wrap items-center gap-2 shrink-0">
 
-      <a
-        href="/ide"
-        class="px-3.5 py-2 bg-foreground text-background hover:bg-foreground/90 text-xs font-medium rounded-none transition-micro flex items-center gap-1.5 cursor-pointer shadow-xs"
+      <button
+        type="button"
+        id="robotics-ide-trigger"
+        onclick={() => openIdeDialog()}
+        class="px-3.5 py-2 bg-foreground text-background hover:bg-foreground/90 text-xs font-medium rounded-sm transition-micro flex items-center gap-1.5 cursor-pointer shadow-xs"
       >
         <TerminalSquare class="w-3.5 h-3.5" />
         <span>Robotics IDE</span>
-      </a>
+      </button>
       <a
         href="/student/assessment"
         class="px-3.5 py-2 border border-border hover:bg-surface-raised text-xs font-medium text-foreground rounded-none transition-micro cursor-pointer"
@@ -394,13 +415,14 @@
                   <ArrowRight class="w-3.5 h-3.5" />
                 </a>
 
-                <a
-                  href="/ide"
+                <button
+                  type="button"
+                  onclick={() => openIdeDialog(mission.id)}
                   class="px-3 py-2 border border-border hover:bg-surface-raised text-xs font-medium text-foreground-secondary hover:text-foreground rounded-sm transition-colors cursor-pointer"
                   title="Open Mission in Robotics WebAssembly IDE"
                 >
                   <TerminalSquare class="w-3.5 h-3.5" />
-                </a>
+                </button>
               </div>
             </div>
           </div>
@@ -409,3 +431,6 @@
     {/if}
   </div>
 </div>
+
+<!-- Fullscreen Robotics IDE Dialog UI Modal -->
+<RoboticsIdeDialog bind:open={ideDialogOpen} initialMission={selectedIdeMission} />

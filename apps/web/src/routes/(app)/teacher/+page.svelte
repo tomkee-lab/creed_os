@@ -188,7 +188,7 @@
   <!-- 1. ORIENT: Single Purpose Workspace Header -->
   <header id="classes" class="space-y-3 pb-3 border-b border-border scroll-mt-16">
     <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
-      <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight text-ink">
+      <h1 class="font-heading font-medium text-2xl sm:text-3xl text-ink tracking-tight">
         Today
       </h1>
       <span class="text-xs font-medium text-ink-muted">
@@ -201,7 +201,7 @@
       </p>
 
       <!-- View Switcher -->
-      <ButtonGroup class="border border-border">
+      <ButtonGroup class="border border-border rounded-sm overflow-hidden">
         <button
           type="button"
           onclick={() => (viewMode = 'all')}
@@ -229,7 +229,7 @@
 
   <!-- Feedback Banner -->
   {#if activeAssignmentToast}
-    <div class="p-3.5 rounded-none bg-positive-subtle text-positive text-xs flex items-center justify-between border border-border">
+    <div class="p-3.5 rounded-sm bg-positive-subtle text-positive text-xs flex items-center justify-between border border-border">
       <div class="flex items-center gap-2">
         <CheckCircle2 class="w-4 h-4 shrink-0" />
         <span>Assigned <strong>{activeAssignmentToast.title}</strong> to {activeAssignmentToast.count} learners' practice queue.</span>
@@ -248,7 +248,7 @@
           <button
             type="button"
             onclick={() => (logObservationOpen = true)}
-            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground text-xs font-medium transition-colors cursor-pointer"
+            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm bg-brand hover:bg-brand/90 text-brand-foreground text-xs font-medium transition-colors cursor-pointer"
           >
             <Plus class="w-3.5 h-3.5" />
             <span>Log observation</span>
@@ -257,34 +257,35 @@
         </div>
       </div>
 
-      <!-- Intervention Queue Cards (Quiet, 4px radius, clear actions) -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- High-Density Triage Table (WAY Console - IBM Carbon Discipline) -->
+      <div class="border border-border rounded-sm overflow-hidden bg-surface divide-y divide-border shadow-2xs">
         {#each interventions as item}
-          <div class="p-5 rounded-none bg-surface border border-border flex flex-col justify-between space-y-4">
-            <div class="space-y-2">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-semibold text-ink">{item.learnerCount} learners</span>
-                <span class="text-[11px] font-medium px-2 py-0.5 rounded-none bg-surface-subtle text-ink-secondary">
-                  {item.status}
-                </span>
+          <div class="p-3.5 sm:px-4 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-surface-raised/40 transition-colors">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="px-2 py-0.5 rounded-sm bg-surface-subtle font-mono text-[11px] font-semibold text-ink shrink-0">
+                {item.learnerCount} learners
+              </span>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <h3 class="text-xs font-semibold text-ink truncate">{item.title}</h3>
+                  <span class="text-[10px] font-mono px-1.5 py-0.5 rounded-xs bg-surface border border-border text-ink-muted">
+                    {item.status}
+                  </span>
+                </div>
+                <p class="text-[11px] text-ink-secondary truncate">
+                  Suggested: {item.suggestedActivity}
+                </p>
               </div>
-
-              <h3 class="text-base font-semibold text-ink">
-                {item.title}
-              </h3>
-
-              <p class="text-xs text-ink-secondary">
-                <span class="text-ink-muted">Suggested:</span> {item.suggestedActivity}
-              </p>
             </div>
 
-            <div class="pt-3 border-t border-border">
+            <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
               <button
                 type="button"
                 onclick={() => handleAssign(item)}
-                class="w-full py-2 px-3 rounded-none bg-surface-subtle hover:bg-surface-raised border border-border text-xs font-medium text-ink transition-colors cursor-pointer"
+                class="min-h-8 px-3.5 py-1 rounded-sm bg-brand text-brand-foreground text-xs font-medium hover:bg-brand/90 transition-colors cursor-pointer shadow-2xs inline-flex items-center gap-1"
               >
-                Assign
+                <span>Assign Scaffold</span>
+                <ArrowRight class="size-3" />
               </button>
             </div>
           </div>
@@ -325,7 +326,7 @@
               type="text"
               bind:value={searchQuery}
               placeholder="Filter learners..."
-              class="w-full pl-8 pr-8 py-1.5 rounded-none bg-surface border border-border text-xs text-ink placeholder-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:border-brand transition-colors"
+              class="w-full pl-8 pr-8 py-1.5 rounded-sm bg-surface border border-border text-xs text-ink placeholder-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1 focus-visible:border-brand transition-colors"
             />
             <div class="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:block">
               <Kbd class="text-[9px] px-1 py-0.5">/</Kbd>
@@ -359,7 +360,7 @@
                     {student.weakestCompetency.replace('_', ' ')}
                   </td>
                   <td class="p-3.5">
-                    <span class="px-2 py-0.5 rounded-none text-[11px] font-medium bg-positive-subtle text-positive">
+                    <span class="px-2 py-0.5 rounded-sm text-[11px] font-medium bg-positive-subtle text-positive">
                       {student.overallReadiness}
                     </span>
                   </td>
@@ -391,17 +392,17 @@
         <span class="text-xs text-ink-muted">Applied project work</span>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="p-4 rounded-none bg-surface border border-border space-y-2">
+        <div class="p-4 rounded-sm bg-surface border border-border space-y-2">
           <div class="flex justify-between items-center text-xs">
             <span class="font-medium text-ink">Mechanical Linkage & Gear Ratios</span>
-            <span class="px-2 py-0.5 rounded-none bg-positive-subtle text-positive text-[11px] font-medium">18 Submitted</span>
+            <span class="px-2 py-0.5 rounded-sm bg-positive-subtle text-positive text-[11px] font-medium">18 Submitted</span>
           </div>
           <p class="text-xs text-ink-secondary">Hands-on spatial mechanism lab building physical linkages.</p>
         </div>
-        <div class="p-4 rounded-none bg-surface border border-border space-y-2">
+        <div class="p-4 rounded-sm bg-surface border border-border space-y-2">
           <div class="flex justify-between items-center text-xs">
             <span class="font-medium text-ink">Algorithmic Maze Traversal</span>
-            <span class="px-2 py-0.5 rounded-none bg-brand-subtle text-brand text-[11px] font-medium">In Progress</span>
+            <span class="px-2 py-0.5 rounded-sm bg-brand-subtle text-brand text-[11px] font-medium">In Progress</span>
           </div>
           <p class="text-xs text-ink-secondary">Decomposition and state exploration sprint.</p>
         </div>
@@ -427,7 +428,7 @@
       </div>
 
       {#if recentObservations.length === 0}
-        <div class="p-6 text-center border border-dashed border-border bg-surface/50 space-y-2">
+        <div class="p-6 text-center border border-dashed border-border bg-surface/50 rounded-sm space-y-2">
           <p class="text-xs text-ink-secondary">No direct classroom demonstrations logged for Class 8-A today.</p>
           <button
             type="button"
@@ -441,11 +442,11 @@
       {:else}
         <div class="space-y-2">
           {#each recentObservations as obs (obs.id)}
-            <div class="p-3.5 rounded-none bg-surface border border-border flex items-start justify-between gap-4 text-xs">
+            <div class="p-3.5 rounded-sm bg-surface border border-border flex items-start justify-between gap-4 text-xs">
               <div class="space-y-1 min-w-0">
                 <div class="flex items-center gap-2">
                   <span class="font-semibold text-ink">{obs.studentName}</span>
-                  <span class="text-[10px] px-1.5 py-0.5 rounded-none bg-surface-subtle border border-border text-ink-muted uppercase tracking-wider">
+                  <span class="text-[10px] px-1.5 py-0.5 rounded-sm bg-surface-subtle border border-border text-ink-muted uppercase tracking-wider">
                     {obs.competency}
                   </span>
                   <span class="text-[11px] text-ink-muted">• {obs.time}</span>
@@ -472,7 +473,7 @@
 >
   <form onsubmit={handleSaveObservation} class="space-y-4 text-xs">
     {#if observationSuccess}
-      <div class="p-3 rounded-none bg-positive-subtle text-positive flex items-center gap-2">
+      <div class="p-3 rounded-sm bg-positive-subtle text-positive flex items-center gap-2">
         <CheckCircle2 class="w-4 h-4 shrink-0" />
         <span>Observation recorded successfully into verified profile.</span>
       </div>
@@ -483,7 +484,7 @@
       <select
         id="obs-learner"
         bind:value={observationStudentId}
-        class="w-full p-2 rounded-none bg-surface border border-border text-xs text-ink"
+        class="w-full p-2 rounded-sm bg-surface border border-border text-xs text-ink"
       >
         {#each (cohort?.students || []) as s}
           <option value={s.id}>{s.name}</option>
@@ -496,7 +497,7 @@
       <select
         id="obs-comp"
         bind:value={observationCompetency}
-        class="w-full p-2 rounded-none bg-surface border border-border text-xs text-ink"
+        class="w-full p-2 rounded-sm bg-surface border border-border text-xs text-ink"
       >
         <option value="spatial_reasoning">Spatial Reasoning</option>
         <option value="computational_thinking">Computational Thinking</option>
@@ -512,14 +513,14 @@
         bind:value={observationText}
         rows={4}
         placeholder="Student demonstrated inverse rate calculation during gear linkage trial..."
-        class="w-full p-2 rounded-none bg-surface border border-border text-xs text-ink placeholder-ink-muted"
+        class="w-full p-2 rounded-sm bg-surface border border-border text-xs text-ink placeholder-ink-muted"
       ></textarea>
     </div>
 
     <button
       type="submit"
       disabled={!observationText.trim()}
-      class="w-full py-2 px-4 rounded-none bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs transition-colors disabled:opacity-40 cursor-pointer"
+      class="w-full py-2 px-4 rounded-sm bg-brand hover:bg-brand/90 text-brand-foreground font-medium text-xs transition-colors disabled:opacity-40 cursor-pointer"
     >
       Save Observation
     </button>
@@ -536,7 +537,7 @@
     <div class="space-y-6 text-xs">
       <div class="space-y-2">
         <span class="text-[11px] font-medium text-ink-muted uppercase tracking-wider">Demonstrated Profile</span>
-        <div class="p-3 rounded-none bg-surface-subtle border border-border space-y-2">
+        <div class="p-3 rounded-sm bg-surface-subtle border border-border space-y-2">
           <div class="flex justify-between items-center">
             <span class="text-ink-secondary">Strongest Competency:</span>
             <span class="font-medium text-positive">{selectedStudent.strongestCompetency.replace('_', ' ')}</span>
@@ -566,7 +567,7 @@
       <div class="pt-4 border-t border-border flex gap-2">
         <a
           href="/student"
-          class="flex-1 text-center py-2 px-3 rounded-none bg-surface-subtle hover:bg-surface-raised border border-border font-medium text-ink cursor-pointer"
+          class="flex-1 text-center py-2 px-3 rounded-sm bg-surface-subtle hover:bg-surface-raised border border-border font-medium text-ink cursor-pointer"
         >
           View Full Profile
         </a>

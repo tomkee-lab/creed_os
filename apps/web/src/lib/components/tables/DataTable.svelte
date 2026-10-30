@@ -192,8 +192,16 @@
           {:else}
             {#each rows as row}
               <tr
+                tabindex={onRowClick ? 0 : undefined}
+                role={onRowClick ? 'button' : undefined}
                 onclick={() => onRowClick?.(row.original)}
-                class="hover:bg-surface-subtle transition-colors {onRowClick ? 'cursor-pointer' : ''}"
+                onkeydown={(e) => {
+                  if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault();
+                    onRowClick(row.original);
+                  }
+                }}
+                class="hover:bg-surface-subtle transition-colors focus-visible:outline-none focus-visible:bg-surface-subtle focus-visible:ring-1 focus-visible:ring-brand {onRowClick ? 'cursor-pointer' : ''}"
               >
                 {#each row.getVisibleCells() as cell}
                   <td class="p-3 text-ink">

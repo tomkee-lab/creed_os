@@ -27,13 +27,16 @@
     Users,
     FileCode,
     Cpu,
-    Sparkles,
     FileCheck,
     CheckCircle2,
-    Sigma
+    Sigma,
+    ThumbsUp,
+    ThumbsDown,
+    Sparkles
   } from 'lucide-svelte';
   import CreedLogo from '$lib/components/brand/CreedLogo.svelte';
   import { toggleTheme as toggleGlobalTheme } from '$lib/theme.js';
+  import { Marquee, TextScramble, NumberTicker } from '$lib/components/beui';
 
   let { data } = $props();
 
@@ -460,9 +463,12 @@ Content-Type: application/json
     return () => window.removeEventListener('hashchange', syncDocFromHash);
   });
 
+  let feedbackGiven = $state<'helpful' | 'unhelpful' | null>(null);
+
   function selectDoc(docId: string) {
     activeDocId = docId;
     mobileSidebarOpen = false;
+    feedbackGiven = null;
     if (browser) {
       window.location.hash = docId;
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -505,7 +511,7 @@ Content-Type: application/json
 <div class="min-h-screen flex flex-col bg-canvas text-ink selection:bg-brand/20">
   <!-- Top documentation navigation bar. -->
   <header class="sticky top-0 z-40 w-full border-b border-border bg-canvas/95 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto h-14 px-4 sm:px-6 flex items-center justify-between gap-4">
+    <div class="w-full max-w-[90rem] mx-auto h-14 px-4 lg:px-8 flex items-center gap-0">
       <!-- Left Brand & Breadcrumb -->
       <div class="flex items-center gap-3 shrink-0">
         <button
@@ -522,90 +528,98 @@ Content-Type: application/json
         </button>
 
         <a href="/" class="flex items-center gap-2 group">
-          <div class="w-7 h-7 rounded-none bg-brand/10 text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs group-hover:bg-brand group-hover:text-brand-foreground transition-all">
+          <div class="w-7 h-7 rounded-none bg-brand/10 text-brand border border-brand/20 flex items-center justify-center shrink-0 shadow-xs group-hover:bg-brand group-hover:text-brand-foreground transition-all" style="transition-duration: var(--duration-standard, 200ms);">
             <CreedLogo size={16} />
           </div>
-          <span class="font-heading font-semibold text-xs tracking-tight text-ink group-hover:text-brand transition-colors">
+          <span class="font-heading font-semibold text-xs tracking-tight text-ink group-hover:text-brand" style="transition: color var(--duration-standard, 200ms);">
             CREED OS
           </span>
         </a>
 
-        <span class="text-border">/</span>
+        <span class="text-border px-1">/</span>
         <span class="text-xs font-mono text-ink-muted font-medium">Docs</span>
       </div>
 
-      <!-- Center Top Categories (Desktop) -->
-      <nav class="hidden lg:flex items-center gap-5 text-xs text-ink-secondary" aria-label="Documentation Navigation">
+      <!-- Center Top Categories (Desktop) — flex-1 so it takes remaining space, centered -->
+      <nav class="hidden lg:flex flex-1 items-center justify-center gap-4 xl:gap-6 text-xs text-ink-secondary" aria-label="Documentation Navigation">
         <button
           type="button"
           onclick={() => selectDoc('introduction')}
-          class="hover:text-ink transition-colors cursor-pointer {activeDoc.category === 'Sections' ? 'text-ink font-semibold' : ''}"
+          class="whitespace-nowrap hover:text-ink cursor-pointer {activeDoc.category === 'Sections' ? 'text-ink font-semibold' : ''}"
+          style="transition: color var(--duration-micro, 140ms);"
         >
           Overview
         </button>
         <button
           type="button"
           onclick={() => selectDoc('workspace-student')}
-          class="hover:text-ink transition-colors cursor-pointer {activeDoc.category === 'Workspaces' ? 'text-ink font-semibold' : ''}"
+          class="whitespace-nowrap hover:text-ink cursor-pointer {activeDoc.category === 'Workspaces' ? 'text-ink font-semibold' : ''}"
+          style="transition: color var(--duration-micro, 140ms);"
         >
           Workspaces
         </button>
         <button
           type="button"
           onclick={() => selectDoc('science-irt')}
-          class="hover:text-ink transition-colors cursor-pointer {activeDoc.category === 'Science & Psychometrics' ? 'text-ink font-semibold' : ''}"
+          class="whitespace-nowrap hover:text-ink cursor-pointer {activeDoc.category === 'Science & Psychometrics' ? 'text-ink font-semibold' : ''}"
+          style="transition: color var(--duration-micro, 140ms);"
         >
           Science
         </button>
         <button
           type="button"
-          onclick={() => selectDoc('pedagogy-safety')}
-          class="hover:text-ink transition-colors cursor-pointer {activeDoc.category === 'Pedagogical Framework' ? 'text-ink font-semibold' : ''}"
-        >
-          Pedagogy
-        </button>
-        <button
-          type="button"
           onclick={() => selectDoc('governance-dpdp')}
-          class="hover:text-ink transition-colors cursor-pointer {activeDoc.category === 'Governance & Compliance' ? 'text-ink font-semibold' : ''}"
+          class="whitespace-nowrap hover:text-ink cursor-pointer {activeDoc.category === 'Governance & Compliance' ? 'text-ink font-semibold' : ''}"
+          style="transition: color var(--duration-micro, 140ms);"
         >
           Governance
         </button>
         <button
           type="button"
           onclick={() => selectDoc('design-system')}
-          class="hover:text-ink transition-colors cursor-pointer {activeDoc.category === 'WAY 2.1 Design System' ? 'text-ink font-semibold' : ''}"
+          class="whitespace-nowrap hover:text-ink cursor-pointer {activeDoc.category === 'WAY 2.1 Design System' ? 'text-ink font-semibold' : ''}"
+          style="transition: color var(--duration-micro, 140ms);"
         >
-          Design System
+          Design
+        </button>
+        <button
+          type="button"
+          onclick={() => selectDoc('api-reference')}
+          class="whitespace-nowrap hover:text-ink cursor-pointer {activeDoc.category === 'API Reference' ? 'text-ink font-semibold' : ''}"
+          style="transition: color var(--duration-micro, 140ms);"
+        >
+          API
         </button>
       </nav>
 
       <!-- Right Actions: Search + GitHub 126k + Theme + Access Workspace -->
-      <div class="flex items-center gap-2 sm:gap-3">
+      <div class="flex items-center gap-1.5 ml-auto shrink-0">
         <!-- Search Trigger Input -->
-        <div class="relative w-36 sm:w-56">
+        <div class="relative w-28 md:w-36 xl:w-48">
           <Search class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-muted pointer-events-none" />
           <input
             id="docs-search-input"
             type="search"
             bind:value={searchQuery}
             placeholder="Search docs..."
-            class="w-full h-8 pl-8 pr-8 text-xs rounded-sm bg-surface-subtle border border-border text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand transition-colors"
+            class="w-full h-8 pl-8 pr-8 text-xs rounded-sm bg-surface-subtle border border-border text-ink placeholder:text-ink-muted focus:outline-none focus:border-brand"
+            style="transition: border-color var(--duration-micro, 140ms);"
           />
-          <kbd class="hidden sm:inline-block absolute right-2 top-1/2 -translate-y-1/2 px-1 rounded-none bg-surface border border-border text-[10px] font-mono text-ink-muted">
+          <kbd class="hidden xl:inline-block absolute right-2 top-1/2 -translate-y-1/2 px-1 rounded-none bg-surface border border-border text-[10px] font-mono text-ink-muted">
             ⌘K
           </kbd>
         </div>
 
-        <!-- GitHub with star counter badge (Matching Screenshot 2) -->
+        <!-- GitHub with star counter badge — visible only at lg+ to avoid crowding -->
         <a
           href="https://github.com/tomkee-lab/creed_os"
           target="_blank"
           rel="noopener noreferrer"
-          class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-border bg-surface-subtle hover:bg-surface text-ink text-xs transition-colors"
+          class="hidden lg:inline-flex items-center gap-1.5 px-2 py-1.5 rounded-sm border border-border bg-surface-subtle hover:bg-surface text-ink text-xs"
+          style="transition: background-color var(--duration-micro, 140ms);"
           title="GitHub Repository"
         >
-          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+          <svg class="w-3.5 h-3.5 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
           </svg>
           <span class="font-mono text-[11px] text-ink-muted">126k</span>
@@ -615,7 +629,8 @@ Content-Type: application/json
         <button
           type="button"
           onclick={toggleTheme}
-          class="p-1.5 rounded-sm text-ink-muted hover:text-ink hover:bg-surface-subtle border border-transparent hover:border-border transition-colors cursor-pointer"
+          class="p-1.5 rounded-sm text-ink-muted hover:text-ink hover:bg-surface-subtle border border-transparent hover:border-border cursor-pointer"
+          style="transition: color var(--duration-micro, 140ms), background-color var(--duration-micro, 140ms);"
           aria-label="Toggle theme"
         >
           {#if isDarkMode}
@@ -625,23 +640,25 @@ Content-Type: application/json
           {/if}
         </button>
 
-        <!-- Access Workspace CTA -->
+        <!-- Access Workspace CTA — icon-only on md, full label on lg+ -->
         <a
           href="/student"
-          class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-brand text-brand-foreground text-xs font-semibold hover:bg-brand/90 transition-colors shadow-xs"
+          class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-brand text-brand-foreground text-xs font-semibold hover:bg-brand/90 shadow-xs"
+          style="transition: background-color var(--duration-micro, 140ms);"
         >
-          <span>Open Workspace</span>
+          <span class="hidden lg:inline">Open Workspace</span>
+          <span class="lg:hidden">Workspace</span>
           <ArrowRight class="w-3.5 h-3.5" />
         </a>
       </div>
     </div>
   </header>
 
-  <!-- Main documentation content wrapper. -->
-  <div class="flex-1 max-w-7xl mx-auto w-full flex">
+  <!-- Main documentation content wrapper — full width, no max-w constraint so sidebar + content fill 90rem. -->
+  <div class="flex-1 w-full max-w-[90rem] mx-auto flex">
     <!-- Left documentation sidebar. -->
     <aside
-      class="docs-sidebar-scroll fixed inset-y-14 left-0 z-30 w-64 lg:w-72 bg-canvas border-r border-border p-4 overflow-y-auto space-y-6 md:sticky md:top-14 md:h-[calc(100vh-3.5rem)] md:shrink-0 {mobileSidebarOpen ? 'block' : 'hidden md:block'}"
+      class="docs-sidebar-scroll fixed inset-y-14 left-0 z-30 w-64 bg-canvas border-r border-border p-4 overflow-y-auto space-y-6 md:sticky md:top-14 md:h-[calc(100vh-3.5rem)] md:shrink-0 {mobileSidebarOpen ? 'block' : 'hidden md:block'}"
     >
       <div class="space-y-6 text-xs">
         {#each groupedCategories as [category, docs]}
@@ -669,6 +686,30 @@ Content-Type: application/json
             </div>
           </div>
         {/each}
+
+        <!-- Sidebar Footer Status & Calm Ticker (beUI Marquee) -->
+        <div class="pt-4 border-t border-border space-y-3">
+          <div class="flex items-center justify-between text-[11px] font-mono text-ink-muted">
+            <span class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-none bg-mint shrink-0"></span>
+              <span>All Systems Verified</span>
+            </span>
+            <span class="text-brand font-semibold">v2.1</span>
+          </div>
+          <div class="p-2 rounded-none bg-surface-subtle border border-border overflow-hidden">
+            <Marquee speed={18} pauseOnHover={true} gap="1.5rem" class="text-[10px] font-mono text-ink-muted uppercase">
+              <span class="flex items-center gap-3">
+                <span>Deterministic 3PL IRT</span>
+                <span class="text-border">·</span>
+                <span>DPDP 2023 Statutory Protection</span>
+                <span class="text-border">·</span>
+                <span>41-Node Gauss-Hermite</span>
+                <span class="text-border">·</span>
+                <span>Zero Psychometric Leaks</span>
+              </span>
+            </Marquee>
+          </div>
+        </div>
       </div>
     </aside>
 
@@ -677,12 +718,12 @@ Content-Type: application/json
       <!-- Breadcrumb & Top Actions Row (Matching Screenshot 2) -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
         <!-- Breadcrumb -->
-        <nav class="flex items-center gap-1.5 text-xs text-ink-muted font-mono" aria-label="Breadcrumb">
-          <a href="/help" class="hover:text-ink">Docs</a>
-          <span>/</span>
-          <span>{activeDoc.category}</span>
-          <span>/</span>
-          <span class="text-ink font-semibold">{activeDoc.title.replace(' · Documentation', '')}</span>
+        <nav class="flex items-center gap-1 text-xs text-ink-muted font-mono overflow-hidden min-w-0" aria-label="Breadcrumb">
+          <a href="/help" class="hover:text-ink shrink-0" style="transition: color var(--duration-micro, 140ms);">Docs</a>
+          <span class="shrink-0 px-0.5">/</span>
+          <span class="hidden sm:inline shrink-0 truncate max-w-[100px]">{activeDoc.category}</span>
+          <span class="hidden sm:inline shrink-0 px-0.5">/</span>
+          <span class="text-ink font-semibold truncate min-w-0">{activeDoc.title.replace(' · Documentation', '')}</span>
         </nav>
 
         <!-- Top Right Action Controls: Copy Page + Prev/Next (Matching Screenshot 2) -->
@@ -732,7 +773,7 @@ Content-Type: application/json
       <!-- Article Header -->
       <div class="space-y-3">
         <h1 class="text-3xl sm:text-4xl font-heading font-bold text-ink tracking-tight">
-          {activeDoc.title}
+          <TextScramble text={activeDoc.title} duration={300} />
         </h1>
         <p class="text-base sm:text-lg text-ink-secondary leading-relaxed">
           {activeDoc.lead}
@@ -875,6 +916,46 @@ Content-Type: application/json
           </div>
         </div>
       {/if}
+
+      <!-- Was this page helpful? (WAY 2.1 Micro-Interaction Feedback) -->
+      <div class="p-4 rounded-sm bg-surface border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="space-y-0.5">
+          <div class="text-xs font-semibold text-ink flex items-center gap-1.5">
+            <Sparkles class="w-3.5 h-3.5 text-brand" />
+            <span>Was this documentation page helpful?</span>
+          </div>
+          <p class="text-[11px] text-ink-muted">
+            Help us continuously calibrate our pedagogical and architectural guidance.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          {#if feedbackGiven}
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm bg-mint/10 border border-mint/20 text-xs text-mint font-medium">
+              <Check class="w-3.5 h-3.5" />
+              <span>Thank you for your feedback!</span>
+            </div>
+          {:else}
+            <button
+              type="button"
+              onclick={() => (feedbackGiven = 'helpful')}
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm bg-surface-subtle hover:bg-surface border border-border text-xs text-ink cursor-pointer"
+              style="transition: background-color var(--duration-micro, 140ms);"
+            >
+              <ThumbsUp class="w-3.5 h-3.5 text-ink-muted" />
+              <span>Yes</span>
+            </button>
+            <button
+              type="button"
+              onclick={() => (feedbackGiven = 'unhelpful')}
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-sm bg-surface-subtle hover:bg-surface border border-border text-xs text-ink cursor-pointer"
+              style="transition: background-color var(--duration-micro, 140ms);"
+            >
+              <ThumbsDown class="w-3.5 h-3.5 text-ink-muted" />
+              <span>No</span>
+            </button>
+          {/if}
+        </div>
+      </div>
 
       <!-- Bottom Article Pagination (Previous & Next Page Cards) -->
       <div class="pt-8 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-4">

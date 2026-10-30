@@ -196,14 +196,15 @@ test.describe('Landing Page (/)', () => {
   test('renders editorial product headline', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.getByText(/Deterministic psychometrics, longitudinal evidence/i)).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(/Room to grow/i);
+    await expect(page.getByText(/Hands-on maker builds, adaptive checks/i)).toBeVisible();
   });
 
   test('has working navigation cards to all portals', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('link', { name: /Enter student space/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Enter family space/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Enter teacher space/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Preview learner view/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Preview family view/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Preview school view/i })).toBeVisible();
   });
 });
 

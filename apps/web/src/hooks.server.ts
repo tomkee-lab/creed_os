@@ -30,12 +30,15 @@ const PUBLIC_PREFIXES: string[] = [
   '/dash',
   // Marketing pages
   '/about',
+  '/agenta',
+  '/archive',
   '/families',
   '/platform',
   '/pricing',
   '/schools',
-  // Educational Sandboxes & Workbenches
-  '/ide'
+  // Educational Sandboxes, Workbenches & Documentation
+  '/ide',
+  '/help'
 ];
 
 function isPublicRoute(pathname: string): boolean {

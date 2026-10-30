@@ -17,6 +17,8 @@
     Compass,
     Zap,
     X,
+    Check,
+    BatteryMedium,
     ShieldCheck,
     Download,
     Upload,
@@ -24,7 +26,7 @@
     ChevronDown,
     ChevronRight,
     FolderDown,
-    Sparkles,
+    LayoutGrid,
     RotateCcw,
     Rocket,
     Undo2,
@@ -48,17 +50,24 @@
   import RoverArenaSimulator from './RoverArenaSimulator.svelte';
   import MissionGuidanceDrawer from './MissionGuidanceDrawer.svelte';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+  import { Dialog } from 'bits-ui';
   import { STEM_MISSIONS, evaluateMissionRubric } from './missionCurriculum';
 
   interface Props {
     stage?: 'primary' | 'middle' | 'secondary';
     isFullscreen?: boolean;
+    inDialog?: boolean;
+    initialMissionId?: string;
+    onClose?: () => void;
   }
 
   // Props & Mode State
   let {
     stage = $bindable('primary'),
-    isFullscreen = $bindable(false)
+    isFullscreen = $bindable(false),
+    inDialog = false,
+    initialMissionId,
+    onClose
   }: Props = $props();
   let activeCode = $state(
     `# CREED OS Robotics Controller\nimport time\n\nprint("Robotics controller ready.")\nfor step in range(3):\n    print(f"Executing motion step {step + 1}...")\n    time.sleep(0.5)\nprint("Autonomous mission complete!")\n`
@@ -70,6 +79,12 @@
   let activeMissionId = $state<
     'starter' | 'patrol' | 'polygon_patrol' | 'obstacle' | 'pen_patrol' | 'sample_retriever' | 'line_follower' | 'dance_party' | 'sync_choreography' | 'mars_expedition'
   >('starter');
+
+  $effect(() => {
+    if (initialMissionId && initialMissionId !== activeMissionId) {
+      activeMissionId = initialMissionId as any;
+    }
+  });
   let currentMicrobitIcon = $state<string>('HAPPY');
   let robotEmotion = $state<string>('HAPPY');
   let isJumping = $state<boolean>(false);
@@ -222,7 +237,7 @@
 
   function closeStudio() {
     isFullscreen = false;
-    stage = 'primary';
+    onClose?.();
     setTimeout(() => {
       if (blocklyWorkspace && blocklyLib?.svgResize) {
         blocklyLib.svgResize(blocklyWorkspace);
@@ -442,9 +457,11 @@
   let showProjectDropdown = $state(false);
   let showHardwareDropdown = $state(false);
   let showTemplateDropdown = $state(false);
-  let activeTemplateLabel = $state('Wall-Follower 📡');
+  let activeTemplateLabel = $state('Wall-Follower');
   let showMentorModal = $state(false);
   let showMissionDialog = $state(false);
+  let showHardwareFlashDialog = $state(false);
+  let showBridgeConfigDialog = $state(false);
   let lastDropdownTrigger: HTMLElement | null = null;
 
   function dismissDropdowns(restoreFocus = true) {
@@ -465,70 +482,70 @@
       id: 'starter' as const,
       icon: '🚀',
       title: 'Starter Mission',
-      label: 'Starter 🚀',
+      label: 'Starter',
       desc: 'Drive forward at speed & stop motors'
     },
     {
       id: 'patrol' as const,
       icon: '🔄',
       title: 'Square Patrol',
-      label: 'Patrol 🔄',
+      label: 'Patrol',
       desc: '4-turn perimeter navigation loop'
     },
     {
       id: 'polygon_patrol' as const,
       icon: '🔄',
       title: 'Square Patrol Loop',
-      label: 'Patrol 🔄',
+      label: 'Patrol',
       desc: 'Autonomous 4-sided perimeter patrol with nested sensor survey'
     },
     {
       id: 'obstacle' as const,
       icon: '🛑',
       title: 'Obstacle Avoidance',
-      label: 'Avoid 🛑',
+      label: 'Avoid',
       desc: 'Ultrasonic sonar detection & evasive turn'
     },
     {
       id: 'pen_patrol' as const,
       icon: '🎨',
       title: 'Turtle Pen',
-      label: 'Pen 🎨',
+      label: 'Pen',
       desc: 'Kinematic geometry drawing trails'
     },
     {
       id: 'sample_retriever' as const,
       icon: '🧪',
       title: 'Planetary Science',
-      label: 'Science 🧪',
+      label: 'Science',
       desc: 'Drill sample, deploy solar & survey radiation'
     },
     {
       id: 'line_follower' as const,
       icon: '🏁',
       title: 'Surface Line Track',
-      label: 'Line 🏁',
+      label: 'Line',
       desc: 'Reflectance sensor route navigation'
     },
     {
       id: 'dance_party' as const,
       icon: '🕺',
       title: 'Dance & Speak Party',
-      label: 'Dance 🕺',
+      label: 'Dance',
       desc: 'Express emotions, voice greetings, rhythmic dances & party jumps'
     },
     {
       id: 'sync_choreography' as const,
       icon: '👯',
       title: 'Multi-Bot Sync Choreography',
-      label: 'Choreo 👯',
+      label: 'Choreo',
       desc: 'Synchronized team routine: cues, funk beats, formation steps & jumps'
     },
     {
       id: 'mars_expedition' as const,
       icon: '🪐',
       title: 'Autonomous Mars Expedition',
-      label: 'Mars 🪐',
+      label: 'Mars',
       desc: 'Deploy solar arrays, survey geological craters, core drill samples & transmit telemetry'
     }
   ];
@@ -547,21 +564,21 @@
   const templates = [
     {
       id: 'ultrasonic',
-      label: 'Wall-Follower 📡',
+      label: 'Wall-Follower',
       title: 'Ultrasonic Wall-Follower',
       desc: 'Sonar reactive obstacle evasive navigation',
       code: `# Ultrasonic Wall-Follower Rover\nimport time\n\ndef loop():\n    distance = robot.get_distance_cm()\n    if distance < 20:\n        print("Obstacle detected! Evading right.")\n        robot.turn(direction="RIGHT", angle=90)\n    else:\n        print("Path clear. Cruising forward at 70%.")\n        robot.drive(direction="FORWARD", speed=70, duration=1.0)\n\nloop()\n`
     },
     {
       id: 'telemetry',
-      label: 'Telemetry 💓',
+      label: 'Telemetry',
       title: 'micro:bit Sensor Telemetry',
       desc: 'BBC micro:bit ambient sensor broadcasting',
       code: `# BBC micro:bit Sensor Broadcast\nimport time\n\ndisplay.show(Image.HEART)\nlight = robot.get_light_level()\ndistance = robot.get_distance_cm()\nprint(f"Ambient Light: {light}% | Distance: {distance}cm")\nrobot.tone(freq=659, duration_ms=200)\ndisplay.show(Image.HAPPY)\n`
     },
     {
       id: 'pid',
-      label: 'Line PID 🏁',
+      label: 'Line PID',
       title: 'Dual-Line Sensor PID',
       desc: 'Differential line following steering logic',
       code: `# Line Following Navigation\nimport time\n\nleft = robot.check_line(sensor="LEFT", color="BLACK")\ncenter = robot.check_line(sensor="CENTER", color="BLACK")\nright = robot.check_line(sensor="RIGHT", color="BLACK")\n\nif center:\n    robot.drive(direction="FORWARD", speed=75, duration=1.0)\nelif left:\n    robot.turn(direction="LEFT", angle=30)\nelse:\n    robot.turn(direction="RIGHT", angle=30)\n`
@@ -871,6 +888,24 @@
         (blocklyWorkspace.getToolbox() as any)?.clearSelection?.();
       } catch {}
     }
+    if (editor) {
+      editor.updateOptions({ readOnly: newStage === 'middle' });
+    }
+    if ((newStage === 'middle' || newStage === 'secondary') && blocklyWorkspace) {
+      import('blockly/python').then(({ pythonGenerator }) => {
+        try {
+          const code = pythonGenerator.workspaceToCode(blocklyWorkspace);
+          if (code && code.trim().length > 0) {
+            activeCode = `# Auto-generated from Visual Blocks\nimport time\n\n${code}`;
+            if (editor) {
+              editor.setValue(activeCode);
+            }
+          }
+        } catch (e) {
+          console.warn('Blockly to Python generation error on stage switch:', e);
+        }
+      });
+    }
     setTimeout(() => {
       if (blocklyWorkspace && blocklyLib?.svgResize) {
         blocklyLib.svgResize(blocklyWorkspace);
@@ -879,6 +914,14 @@
         editor.layout();
       }
     }, 60);
+    setTimeout(() => {
+      if (blocklyWorkspace && blocklyLib?.svgResize) {
+        blocklyLib.svgResize(blocklyWorkspace);
+      }
+      if (editor) {
+        editor.layout();
+      }
+    }, 220);
   }
 
   function zoomToFit() {
@@ -1141,7 +1184,7 @@
           await new Promise((r) => setTimeout(r, 260 * speedMultiplier));
         }
       } else if (step.type === 'formation') {
-        addMissionLog(`[FORMATION] ${step.move} x${step.steps} synchronized 👯`, 'action');
+        addMissionLog(`[FORMATION] ${step.move} x${step.steps} synchronized`, 'action');
         if (hardwareStreamState.isConnected) {
           hardwareBridge.sendMotion('drive', { move: step.move, steps: step.steps });
         }
@@ -1187,7 +1230,7 @@
     isAnimating = false;
     isExecuting = false;
     webAudioSynth.playEffect('SUCCESS');
-    addMissionLog('Kinematic mission sequence completed successfully! ✅', 'success');
+    addMissionLog('Kinematic mission sequence completed successfully.', 'success');
   }
 
   // Fallback single-step simulation
@@ -1808,7 +1851,7 @@
 </script>
 
 <!-- If in full-screen dialog mode, render inline placeholder so page layout remains stable -->
-{#if isFullscreen}
+{#if isFullscreen && !inDialog}
   <div class="w-full h-160 border border-dashed border-border/80 bg-surface-subtle/50 flex flex-col items-center justify-center p-8 text-center space-y-4">
     <div class="size-12 bg-brand/10 border border-brand/20 flex items-center justify-center text-brand">
       <Layers class="size-6" />
@@ -1851,8 +1894,8 @@
         dismissDropdowns(true);
         return;
       }
-      // 3. Lowest priority: exit fullscreen studio mode if no overlays or menus are open
-      if (isFullscreen) {
+      // 3. Lowest priority: exit fullscreen studio or dialog mode if no overlays or menus are open
+      if (isFullscreen || inDialog) {
         closeStudio();
       }
     }
@@ -1865,22 +1908,24 @@
 />
 
 <div
-  class={isFullscreen
-    ? 'fixed inset-0 z-50 w-screen h-screen bg-canvas flex flex-col font-sans select-none overflow-hidden animate-in fade-in-0 duration-150'
-    : 'flex flex-col w-full h-[clamp(460px,calc(100vh-10rem),920px)] min-h-115 max-h-230 border border-border bg-surface shadow-xs rounded-none font-sans overflow-hidden transition-all duration-200'}
+  class={inDialog
+    ? 'flex flex-col w-full h-full bg-canvas font-sans select-none overflow-hidden'
+    : isFullscreen
+      ? 'fixed inset-0 z-50 w-screen h-screen bg-canvas flex flex-col font-sans select-none overflow-hidden animate-in fade-in-0 duration-150'
+      : 'flex flex-col w-full h-[clamp(460px,calc(100vh-10rem),920px)] min-h-115 max-h-230 border border-border bg-surface shadow-xs rounded-none font-sans overflow-hidden transition-all duration-200'}
 >
-  <!-- IDE Toolbar (WAY 2.1 Unified Engineering Header - Responsive Clusters) -->
-  <header class="min-h-12 px-3 py-1.5 border-b border-border bg-surface flex flex-wrap items-center justify-between gap-2 shrink-0 relative z-40 select-none">
-    <!-- ZONE 1 (Left): Workbench / Studio Title, Mission Selector, Mode Pill -->
-    <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
-      {#if isFullscreen}
+  <!-- IDE Toolbar (WAY 2.1 Unified Engineering Header - Strictly Single-Row, Non-wrapping) -->
+  <header class="h-11 px-3 border-b border-border bg-surface flex items-center justify-between gap-2 shrink-0 relative z-40 select-none overflow-x-auto no-scrollbar">
+    <!-- ZONE 1 (Left): Missions return, Mission Selector, Status & Autosave -->
+    <div class="flex items-center gap-2 shrink-0">
+      {#if isFullscreen || inDialog}
         <button
           onclick={closeStudio}
-          class="flex items-center gap-1.5 px-3 py-1 bg-surface-subtle hover:bg-surface border border-border text-ink text-xs font-mono rounded-sm transition-micro shadow-2xs group"
-          title="Return to workbench (Esc)"
+          class="flex items-center gap-1.5 px-3 py-1 bg-surface-subtle hover:bg-surface border border-border text-ink text-xs font-mono rounded-sm transition-micro shadow-2xs group cursor-pointer"
+          title="Return to missions (Esc)"
         >
           <ArrowLeft class="size-3.5 text-ink-muted group-hover:text-ink transition-colors" />
-          <span class="font-bold hidden sm:inline">Workbench</span>
+          <span class="font-semibold hidden sm:inline">Missions</span>
           <kbd class="px-1 py-0.5 text-[9px] bg-canvas border border-border text-ink-muted font-mono">Esc</kbd>
         </button>
       {:else}
@@ -1905,14 +1950,14 @@
             showHardwareDropdown = false;
             showTemplateDropdown = false;
           }}
-          class="px-3 py-1 text-xs font-mono border border-border bg-surface hover:bg-surface-subtle text-ink flex items-center gap-1.5 rounded-sm transition-micro shadow-2xs"
+          class="px-3 py-1 text-xs font-mono border border-border bg-surface hover:bg-surface-subtle text-ink flex items-center gap-1.5 rounded-sm transition-micro shadow-2xs cursor-pointer"
           aria-expanded={showMissionDropdown}
           aria-label="Select Robotics Mission"
           title="Select guided robotics mission"
         >
           <span class="text-sm">{activeMissionMeta.icon}</span>
-          <span class="font-bold text-ink max-w-28 sm:max-w-44 md:max-w-56 lg:max-w-64 truncate">{activeMissionMeta.title}</span>
-          <span class="text-[9px] font-mono px-1 py-0.5 bg-surface-subtle border border-border rounded-xs text-ink-muted hidden md:inline">
+          <span class="font-bold text-ink max-w-28 sm:max-w-40 md:max-w-52 truncate">{activeMissionMeta.title}</span>
+          <span class="text-[9px] font-mono px-1 py-0.5 bg-surface-subtle border border-border rounded-xs text-ink-muted">
             L{STEM_MISSIONS[activeMissionId]?.level || 1}
           </span>
           <ChevronDown class="size-3 text-ink-muted transition-transform duration-150 {showMissionDropdown ? 'rotate-180' : ''}" />
@@ -1944,7 +1989,7 @@
                     </div>
                   </div>
                   {#if activeMissionId === m.id}
-                    <span class="text-brand text-xs font-bold shrink-0 ml-1">✓</span>
+                    <Check class="size-3 text-brand shrink-0 ml-1" />
                   {/if}
                 </button>
               {/each}
@@ -1953,57 +1998,88 @@
         {/if}
       </div>
 
-      <div class="h-4 w-px bg-border hidden sm:block"></div>
+      <!-- Execution Status Pill (Quiet, Non-distracting) -->
+      {#if executionState === 'completed'}
+        <span class="hidden lg:inline-flex items-center gap-1 px-2 py-0.5 bg-mint/10 text-mint border border-mint/30 rounded-xs text-[10px] font-mono font-medium">
+          <CheckCircle2 class="size-3 text-mint" />
+          <span>Completed</span>
+        </span>
+      {:else if executionState === 'running'}
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-mint/10 text-mint border border-mint/30 rounded-xs text-[10px] font-mono font-medium">
+          <span class="size-1.5 rounded-none bg-mint animate-pulse"></span>
+          <span>Running</span>
+        </span>
+      {:else if executionState === 'flashing'}
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-brand/10 text-brand border border-brand/30 rounded-xs text-[10px] font-mono font-medium">
+          <span class="size-1.5 rounded-none bg-brand animate-pulse"></span>
+          <span>Flashing</span>
+        </span>
+      {/if}
 
-      <!-- Segmented Mode Selector (Blocks | Split | Code) -->
-      <div class="inline-flex border border-border bg-surface-subtle p-0.5 rounded-sm shadow-2xs">
-        <button
-          onclick={() => switchStage('primary')}
-          class="px-3 py-0.5 text-xs font-mono rounded-xs transition-micro {stage === 'primary'
-            ? 'bg-surface text-brand font-bold shadow-2xs'
-            : 'text-ink-secondary hover:text-ink'}"
-          title="Visual Blockly programming workspace"
-        >
-          Blocks
-        </button>
-        <button
-          onclick={() => switchStage('middle')}
-          class="px-3 py-0.5 text-xs font-mono rounded-xs transition-micro flex items-center gap-1 {stage === 'middle'
-            ? 'bg-surface text-brand font-bold shadow-2xs'
-            : 'text-ink-secondary hover:text-ink'}"
-          title="Split mode: Visual Blocks with real-time Python AST sync"
-        >
-          <span>Split</span>
-        </button>
-        <button
-          onclick={() => switchStage('secondary')}
-          class="px-3 py-0.5 text-xs font-mono rounded-xs transition-micro flex items-center gap-1 {stage === 'secondary'
-            ? 'bg-surface text-brand font-bold shadow-2xs'
-            : 'text-ink-secondary hover:text-ink'}"
-          title="Full Monaco Python code editor with Pyodide runtime"
-        >
-          <span>Code</span>
-        </button>
-      </div>
+      <!-- Autosave Dot -->
+      <span class="hidden 2xl:inline-flex items-center gap-1 text-[10px] font-mono text-ink-muted" title="Autosave: {cloudSyncStatus}">
+        <span class="size-1.5 rounded-none {cloudSyncStatus === 'saved' ? 'bg-mint' : cloudSyncStatus === 'saving' ? 'bg-brand animate-pulse' : 'bg-amber-500'}"></span>
+        <span>{cloudSyncStatus === 'saved' ? 'Saved' : 'Saving...'}</span>
+      </span>
     </div>
 
-    <!-- ZONE 2 (Center): Primary Execution CTA, Flash Button, Canonical Verify, Template (Code mode) -->
+    <!-- ZONE 2 (Center): Segmented Mode Switcher (Blocks | Split | Code) -->
+    <div class="inline-flex border border-border bg-surface-subtle p-0.5 rounded-sm shadow-2xs shrink-0" role="tablist" aria-label="IDE Development Mode">
+      <button
+        type="button"
+        role="tab"
+        aria-selected={stage === 'primary'}
+        onclick={() => switchStage('primary')}
+        class="px-3 py-0.5 text-xs font-mono rounded-xs transition-micro cursor-pointer {stage === 'primary'
+          ? 'bg-surface text-foreground font-bold shadow-2xs'
+          : 'text-ink-secondary hover:text-ink'}"
+        title="Visual Blockly programming workspace"
+      >
+        Blocks
+      </button>
+      <button
+        type="button"
+        role="tab"
+        aria-selected={stage === 'middle'}
+        onclick={() => switchStage('middle')}
+        class="px-3 py-0.5 text-xs font-mono rounded-xs transition-micro flex items-center gap-1 cursor-pointer {stage === 'middle'
+          ? 'bg-surface text-foreground font-bold shadow-2xs'
+          : 'text-ink-secondary hover:text-ink'}"
+        title="Split mode: Visual Blocks with real-time Python AST sync"
+      >
+        Split
+      </button>
+      <button
+        type="button"
+        role="tab"
+        aria-selected={stage === 'secondary'}
+        onclick={() => switchStage('secondary')}
+        class="px-3 py-0.5 text-xs font-mono rounded-xs transition-micro flex items-center gap-1 cursor-pointer {stage === 'secondary'
+          ? 'bg-surface text-foreground font-bold shadow-2xs'
+          : 'text-ink-secondary hover:text-ink'}"
+        title="Full Monaco Python code editor with Pyodide runtime"
+      >
+        Code
+      </button>
+    </div>
+
+    <!-- ZONE 3 (Right): Primary Execution CTA, Verify, Hardware Menu, Project Menu, Extensions, Close -->
     <div class="flex items-center gap-1.5 shrink-0">
-      <!-- Single Contextual Primary Action Button -->
+      <!-- Contextual Primary Action Button -->
       {#if isAnimating || isExecuting}
         <button
           onclick={stopExecution}
-          class="flex items-center gap-1.5 px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-sm transition-micro shadow-xs active:scale-98"
+          class="flex items-center gap-1.5 px-3 py-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground font-bold text-xs rounded-sm transition-micro shadow-xs active:scale-98 cursor-pointer"
           title="Stop running mission execution"
         >
           <Square class="size-3.5 fill-current" />
-          <span>Stop Mission</span>
+          <span>Stop</span>
         </button>
       {:else}
         <button
           onclick={executeCode}
           disabled={isFlashing}
-          class="flex items-center gap-1.5 px-3.5 py-1 bg-mint hover:bg-mint-hover text-mint-foreground font-bold text-xs rounded-sm transition-micro disabled:opacity-50 shadow-xs active:scale-98"
+          class="flex items-center gap-1.5 px-3.5 py-1 bg-mint hover:bg-mint-hover text-mint-foreground font-bold text-xs rounded-sm transition-micro disabled:opacity-50 shadow-xs active:scale-98 cursor-pointer"
           title="Execute robotics mission"
         >
           <Play class="size-3.5 fill-current" />
@@ -2011,25 +2087,13 @@
         </button>
       {/if}
 
-      <!-- Secondary Flash Action -->
-      <button
-        onclick={flashToDevice}
-        disabled={isExecuting || isAnimating || isFlashing}
-        class="flex items-center gap-1.5 px-3 py-1 border border-border bg-surface hover:bg-surface-subtle text-ink text-xs font-mono rounded-sm transition-micro disabled:opacity-50 shadow-2xs"
-        title="Flash firmware payload to physical hardware device"
-      >
-        <Cpu class="size-3.5 text-brand" />
-        <span class="hidden md:inline">{isFlashing ? `Flashing ${flashProgress}%` : `Flash ${targetHardware === 'esp32' ? 'ESP32' : 'micro:bit'}`}</span>
-        <span class="md:hidden">Flash</span>
-      </button>
-
-      <!-- Canonical Verification Button (Single Central Authoritative Instance) -->
+      <!-- Canonical Verification Button -->
       <button
         onclick={submitMissionForVerification}
         disabled={isSubmittingEvidence || isExecuting}
         class="flex items-center gap-1.5 px-3 py-1 text-xs font-mono border rounded-sm transition-micro {evidenceSubmitted
           ? 'border-mint text-mint bg-mint/10 font-bold'
-          : 'border-border text-ink bg-surface hover:bg-surface-subtle hover:border-brand/50'} disabled:opacity-50 shadow-2xs"
+          : 'border-border text-ink bg-surface hover:bg-surface-subtle hover:border-brand/50'} disabled:opacity-50 shadow-2xs cursor-pointer"
         title="Submit mission for applied competency verification against deterministic rubric"
       >
         <CheckCircle2 class="size-3.5 text-mint" />
@@ -2038,7 +2102,7 @@
 
       {#if stage === 'secondary'}
         <!-- Starter Template Selector Dropdown in Code Mode -->
-        <div class="relative inline-block ml-0.5">
+        <div class="relative inline-block">
           <button
             onclick={(e) => {
               e.stopPropagation();
@@ -2048,14 +2112,13 @@
               showProjectDropdown = false;
               showHardwareDropdown = false;
             }}
-            class="px-2 py-0.5 text-xs font-mono border border-border bg-surface hover:border-ink-muted text-ink flex items-center gap-1.5 rounded-sm shadow-2xs transition-micro"
+            class="px-2 py-1 text-xs font-mono border border-border bg-surface hover:border-ink-muted text-ink flex items-center gap-1.5 rounded-sm shadow-2xs transition-micro cursor-pointer"
             aria-expanded={showTemplateDropdown}
             aria-label="Select starter template for textual Python development"
-            title="Select starter template for textual Python development"
+            title="Select starter template"
           >
             <Code2 class="size-3 text-brand" />
-            <span class="text-ink-muted text-[10px] uppercase hidden lg:inline">Template:</span>
-            <span class="font-bold">{activeTemplateLabel}</span>
+            <span class="font-bold max-w-24 truncate">{activeTemplateLabel}</span>
             <ChevronDown class="size-3 text-ink-muted transition-transform duration-150 {showTemplateDropdown ? 'rotate-180' : ''}" />
           </button>
           {#if showTemplateDropdown}
@@ -2063,7 +2126,7 @@
               onclick={(e) => e.stopPropagation()}
               onkeydown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); dismissDropdowns(true); } }}
               tabindex="-1"
-              class="absolute left-0 top-full mt-1 w-64 bg-surface border border-border shadow-xl rounded-sm z-50 divide-y divide-border font-mono text-xs animate-in fade-in-0 zoom-in-95 duration-100"
+              class="absolute right-0 top-full mt-1 w-64 bg-surface border border-border shadow-xl rounded-sm z-50 divide-y divide-border font-mono text-xs animate-in fade-in-0 zoom-in-95 duration-100"
               role="menu"
             >
               {#each templates as t}
@@ -2083,47 +2146,8 @@
           {/if}
         </div>
       {/if}
-    </div>
 
-    <!-- ZONE 3 (Right): Execution State, Hardware Target, Autosave, Project, HW Bridge, Extensions, Fullscreen -->
-    <div class="flex items-center gap-1.5 shrink-0">
-      <!-- Unmistakable Execution State Indicator (Non-color-only) -->
-      <div class="flex items-center mr-1">
-        {#if executionState === 'running'}
-          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-mint/15 text-mint border border-mint/40 rounded-xs text-[10px] font-mono font-bold">
-            <span class="size-1.5 rounded-none bg-mint animate-pulse"></span>
-            <span>RUNNING</span>
-          </span>
-        {:else if executionState === 'flashing'}
-          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-brand/15 text-brand border border-brand/40 rounded-xs text-[10px] font-mono font-bold">
-            <span class="size-1.5 rounded-none bg-brand animate-pulse"></span>
-            <span>FLASHING</span>
-          </span>
-        {:else if executionState === 'error'}
-          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-red-500/15 text-red-500 border border-red-500/40 rounded-xs text-[10px] font-mono font-bold">
-            <span class="size-1.5 rounded-none bg-red-500"></span>
-            <span>ERROR</span>
-          </span>
-        {:else if executionState === 'completed'}
-          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-mint/15 text-mint border border-mint/40 rounded-xs text-[10px] font-mono font-bold">
-            <CheckCircle2 class="size-3 text-mint" />
-            <span>COMPLETED</span>
-          </span>
-        {:else}
-          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-surface-subtle text-ink-muted border border-border rounded-xs text-[10px] font-mono">
-            <span class="size-1.5 rounded-none bg-border-strong"></span>
-            <span>IDLE</span>
-          </span>
-        {/if}
-      </div>
-
-      <!-- Autosave Status Indicator -->
-      <div class="hidden xl:flex items-center gap-1 text-[11px] font-mono text-ink-muted mr-1" title="Autosave status">
-        <span class="size-1.5 rounded-none {cloudSyncStatus === 'saved' ? 'bg-mint' : cloudSyncStatus === 'saving' ? 'bg-brand animate-pulse' : 'bg-amber-500'}"></span>
-        <span>{cloudSyncStatus === 'saved' ? 'Saved' : cloudSyncStatus === 'saving' ? 'Saving...' : 'Offline'}</span>
-      </div>
-
-      <!-- Hardware Target Selector -->
+      <!-- Consolidated Hardware Menu (Target Controller + Flash Firmware + Hardware Bridge) -->
       <div class="relative inline-block">
         <button
           onclick={(e) => {
@@ -2134,13 +2158,16 @@
             showProjectDropdown = false;
             showTemplateDropdown = false;
           }}
-          class="px-2 py-1 text-xs font-mono border border-border bg-surface hover:bg-surface-subtle text-ink flex items-center gap-1.5 rounded-sm transition-micro shadow-2xs"
+          class="px-3 py-1 text-xs font-mono border border-border bg-surface hover:bg-surface-subtle text-ink flex items-center gap-1.5 rounded-sm transition-micro shadow-2xs cursor-pointer"
           aria-expanded={showHardwareDropdown}
-          aria-label="Select Target Hardware"
-          title="Target hardware controller"
+          aria-label="Hardware & Telemetry Options"
+          title="Target hardware & flash options"
         >
-          <Cpu class="size-3.5 {targetHardware === 'esp32' ? 'text-brand' : 'text-mint'}" />
-          <span class="font-bold hidden md:inline">{targetHardware === 'esp32' ? 'ESP32 MCU' : 'micro:bit v2'}</span>
+          <Cpu class="size-3.5 {hardwareStreamState.isConnected ? 'text-mint animate-pulse' : 'text-brand'}" />
+          <span class="font-bold hidden md:inline">{targetHardware === 'esp32' ? 'ESP32' : 'micro:bit'}</span>
+          {#if isFlashing}
+            <span class="text-[10px] text-brand font-bold">{flashProgress}%</span>
+          {/if}
           <ChevronDown class="size-3 text-ink-muted transition-transform duration-150 {showHardwareDropdown ? 'rotate-180' : ''}" />
         </button>
         {#if showHardwareDropdown}
@@ -2148,7 +2175,7 @@
             onclick={(e) => e.stopPropagation()}
             onkeydown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); dismissDropdowns(true); } }}
             tabindex="-1"
-            class="absolute left-0 top-full mt-1 w-56 bg-surface border border-border shadow-lg rounded-sm z-50 py-1 text-xs font-mono animate-in fade-in-0 zoom-in-95 duration-100"
+            class="absolute right-0 top-full mt-1 w-64 bg-surface border border-border shadow-lg rounded-sm z-50 py-1 text-xs font-mono animate-in fade-in-0 zoom-in-95 duration-100"
             role="menu"
           >
             <div class="px-3 py-1.5 border-b border-border text-[10px] uppercase tracking-wider text-ink-muted font-bold">
@@ -2167,7 +2194,7 @@
                 </div>
               </div>
               {#if targetHardware === 'esp32'}
-                <span class="text-brand text-xs font-bold">✓</span>
+                <Check class="size-3 text-brand shrink-0" />
               {/if}
             </button>
             <button
@@ -2183,7 +2210,34 @@
                 </div>
               </div>
               {#if targetHardware === 'microbit'}
-                <span class="text-mint text-xs font-bold">✓</span>
+                <Check class="size-3 text-mint shrink-0" />
+              {/if}
+            </button>
+
+            <div class="h-px bg-border my-1"></div>
+            <div class="px-3 py-1 text-[10px] uppercase tracking-wider text-ink-muted font-bold">
+              Hardware Actions
+            </div>
+            <button
+              onclick={() => { flashToDevice(); showHardwareDropdown = false; }}
+              disabled={isExecuting || isAnimating || isFlashing}
+              class="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-surface-subtle text-ink transition-micro disabled:opacity-50"
+              role="menuitem"
+            >
+              <Cpu class="size-3.5 text-brand" />
+              <span>Flash to {targetHardware === 'esp32' ? 'ESP32' : 'micro:bit'}</span>
+            </button>
+            <button
+              onclick={() => { toggleHardwareStream(); showHardwareDropdown = false; }}
+              class="w-full text-left px-3 py-2 flex items-center justify-between hover:bg-surface-subtle text-ink transition-micro"
+              role="menuitem"
+            >
+              <div class="flex items-center gap-2">
+                <Zap class="size-3.5 {hardwareStreamState.isConnected ? 'text-mint animate-pulse' : 'text-ink-muted'}" />
+                <span>{hardwareStreamState.isConnected ? 'Disconnect Bridge' : 'Connect HW Bridge'}</span>
+              </div>
+              {#if hardwareStreamState.isConnected}
+                <span class="text-mint text-[10px] font-bold">{hardwareStreamState.fps}Hz</span>
               {/if}
             </button>
           </div>
@@ -2208,13 +2262,13 @@
             showHardwareDropdown = false;
             showTemplateDropdown = false;
           }}
-          class="px-2 py-1 text-xs font-mono border border-border bg-surface hover:bg-surface-subtle text-ink-secondary hover:text-ink flex items-center gap-1.5 rounded-sm transition-micro shadow-2xs"
+          class="px-2 py-1 text-xs font-mono border border-border bg-surface hover:bg-surface-subtle text-ink-secondary hover:text-ink flex items-center gap-1.5 rounded-sm transition-micro shadow-2xs cursor-pointer"
           aria-expanded={showProjectDropdown}
           aria-label="Project Actions"
           title="Project file operations"
         >
           <FolderDown class="size-3.5 text-ink-muted" />
-          <span class="hidden lg:inline">Project</span>
+          <span class="hidden xl:inline">Project</span>
           <ChevronDown class="size-3 text-ink-muted transition-transform duration-150 {showProjectDropdown ? 'rotate-180' : ''}" />
         </button>
         {#if showProjectDropdown}
@@ -2222,7 +2276,7 @@
             onclick={(e) => e.stopPropagation()}
             onkeydown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); dismissDropdowns(true); } }}
             tabindex="-1"
-            class="absolute left-0 top-full mt-1 w-56 bg-surface border border-border shadow-lg rounded-sm z-50 py-1 text-xs font-mono animate-in fade-in-0 zoom-in-95 duration-100"
+            class="absolute right-0 top-full mt-1 w-56 bg-surface border border-border shadow-lg rounded-sm z-50 py-1 text-xs font-mono animate-in fade-in-0 zoom-in-95 duration-100"
             role="menu"
           >
             <div class="px-3 py-1 border-b border-border text-[10px] uppercase tracking-wider text-ink-muted font-bold">
@@ -2230,65 +2284,52 @@
             </div>
             <button
               onclick={() => { scratchFileInput?.click(); showProjectDropdown = false; }}
-              class="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-surface-subtle text-ink transition-micro"
+              class="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-surface-subtle text-ink transition-micro cursor-pointer"
               role="menuitem"
             >
-              <Upload class="size-3.5 text-cyan" />
+              <Upload class="size-3.5 text-brand" />
               <span>Import (.sb3 / .json)</span>
             </button>
             <button
               onclick={() => { exportProjectFile(); showProjectDropdown = false; }}
-              class="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-surface-subtle text-ink transition-micro"
+              class="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-surface-subtle text-ink transition-micro cursor-pointer"
               role="menuitem"
             >
               <Download class="size-3.5 text-mint" />
               <span>Export Project (.json)</span>
             </button>
             <div class="h-px bg-border my-1"></div>
-            <div class="h-px bg-border my-1"></div>
             <button
               onclick={() => { resetMissionWorkspace(); showProjectDropdown = false; }}
-              class="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-surface-subtle text-red-500 hover:text-red-400 transition-micro"
+              class="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-surface-subtle text-destructive transition-micro cursor-pointer"
               role="menuitem"
             >
-              <RotateCcw class="size-3.5 text-red-400" />
+              <RotateCcw class="size-3.5 text-destructive" />
               <span>Reset Workspace</span>
             </button>
           </div>
         {/if}
       </div>
 
-      <!-- Live Hardware Streaming Bridge Button -->
-      <button
-        onclick={toggleHardwareStream}
-        class="flex items-center gap-1 px-2 py-1 text-xs font-mono border rounded-sm transition-micro {hardwareStreamState.isConnected
-          ? 'border-mint text-mint bg-mint/10 font-bold'
-          : 'border-border text-ink-secondary hover:text-ink bg-surface'} shadow-2xs"
-        title={hardwareStreamState.isConnected ? 'Streaming live hardware telemetry at 20Hz' : 'Connect hardware bridge'}
-      >
-        <Zap class="size-3.5 {hardwareStreamState.isConnected ? 'text-mint animate-pulse' : 'text-ink-muted'}" />
-        <span class="hidden md:inline">{hardwareStreamState.isConnected ? `${hardwareStreamState.fps}Hz` : 'Connect HW'}</span>
-      </button>
-
       <!-- Extension Studio Sheet Trigger Button -->
       <button
         onclick={() => (showExtensionDrawer = !showExtensionDrawer)}
         class="flex items-center gap-1 px-2 py-1 text-xs font-mono border rounded-sm transition-micro {showExtensionDrawer
           ? 'border-brand text-brand bg-brand/10 font-bold'
-          : 'border-border text-ink-secondary hover:text-ink bg-surface'} shadow-2xs"
+          : 'border-border text-ink-secondary hover:text-ink bg-surface'} shadow-2xs cursor-pointer"
         title="Browse and toggle modular robotics extension packs"
       >
         <Layers class="size-3.5 text-brand" />
-        <span class="hidden md:inline">Ext ({activeExtensionIds.length})</span>
+        <span class="hidden xl:inline">Ext ({activeExtensionIds.length})</span>
       </button>
 
       <!-- Competency Mastery Pill (if evaluated) -->
       {#if currentEvaluation}
         <button
           onclick={() => (showCompetencyDrawer = !showCompetencyDrawer)}
-          class="hidden xl:flex items-center gap-1 px-2 py-1 text-xs font-mono border rounded-sm transition-micro {showCompetencyDrawer
+          class="hidden 2xl:flex items-center gap-1 px-2 py-1 text-xs font-mono border rounded-sm transition-micro {showCompetencyDrawer
             ? 'border-mint text-mint bg-mint/10 font-bold'
-            : 'border-border text-ink-secondary hover:text-ink bg-surface-subtle'}"
+            : 'border-border text-ink-secondary hover:text-ink bg-surface-subtle'} cursor-pointer"
           title="Inspect competency evidence: {currentEvaluation.developmentalBand}"
         >
           <ShieldCheck class="size-3.5 text-mint" />
@@ -2296,11 +2337,19 @@
         </button>
       {/if}
 
-      <!-- Fullscreen / Window Toggle -->
-      {#if isFullscreen}
+      <!-- Fullscreen / Window Toggle / Dialog Close -->
+      {#if inDialog}
         <button
           onclick={closeStudio}
-          class="p-1.5 border border-border bg-surface hover:bg-surface-subtle text-ink-secondary hover:text-ink rounded-sm transition-micro shadow-2xs"
+          class="p-1.5 border border-border bg-surface hover:bg-surface-subtle text-ink-secondary hover:text-ink rounded-sm transition-micro shadow-2xs cursor-pointer"
+          title="Close studio dialog (Esc)"
+        >
+          <X class="size-3.5" />
+        </button>
+      {:else if isFullscreen}
+        <button
+          onclick={closeStudio}
+          class="p-1.5 border border-border bg-surface hover:bg-surface-subtle text-ink-secondary hover:text-ink rounded-sm transition-micro shadow-2xs cursor-pointer"
           title="Minimize fullscreen (Esc)"
         >
           <Minimize2 class="size-3.5" />
@@ -2308,7 +2357,7 @@
       {:else}
         <button
           onclick={toggleFullscreen}
-          class="p-1.5 border border-border bg-surface hover:bg-surface-subtle text-ink-secondary hover:text-ink rounded-sm transition-micro shadow-2xs"
+          class="p-1.5 border border-border bg-surface hover:bg-surface-subtle text-ink-secondary hover:text-ink rounded-sm transition-micro shadow-2xs cursor-pointer"
           title="Fullscreen studio"
         >
           <Maximize2 class="size-3.5" />
@@ -2323,9 +2372,9 @@
     <!-- PANEL 1: Visual Blockly Workspace (Unconditionally Mounted in DOM) -->
     <div
       class={stage === 'primary'
-        ? (isFullscreen ? (dockStageSize === 'expanded' ? 'w-[46%]' : 'w-[64%]') + ' h-full relative transition-all duration-200' : (dockStageSize === 'expanded' ? 'w-full lg:w-[46%]' : 'w-full lg:w-[62%]') + ' h-full relative transition-all duration-200')
+        ? ((isFullscreen || inDialog) ? (dockStageSize === 'expanded' ? 'w-[46%]' : 'w-[64%]') + ' h-full relative transition-all duration-200' : (dockStageSize === 'expanded' ? 'w-full lg:w-[46%]' : 'w-full lg:w-[62%]') + ' h-full relative transition-all duration-200')
         : stage === 'middle'
-        ? (isFullscreen ? (dockStageSize === 'expanded' ? 'w-full md:w-1/2 lg:w-[28%]' : 'w-full md:w-1/2 lg:w-[35%]') + ' min-w-0 h-full relative border-r border-border transition-all duration-200' : (dockStageSize === 'expanded' ? 'w-full sm:w-1/2 xl:w-[28%]' : 'w-full sm:w-1/2 xl:w-[35%]') + ' min-w-0 h-full relative border-r border-border transition-all duration-200')
+        ? ((isFullscreen || inDialog) ? (dockStageSize === 'expanded' ? 'w-full md:w-1/2 lg:w-[28%]' : 'w-full md:w-1/2 lg:w-[35%]') + ' min-w-0 h-full relative border-r border-border transition-all duration-200' : (dockStageSize === 'expanded' ? 'w-full sm:w-1/2 xl:w-[28%]' : 'w-full sm:w-1/2 xl:w-[35%]') + ' min-w-0 h-full relative border-r border-border transition-all duration-200')
         : 'hidden'}
     >
       <div bind:this={blocklyContainer} class="absolute inset-0"></div>
@@ -2367,7 +2416,7 @@
           title="Clean Up Blocks (Arrange Vertically)"
           class="p-1.5 hover:bg-surface-subtle text-ink-secondary hover:text-ink transition-micro rounded-xs"
         >
-          <Sparkles class="size-3.5 text-attention" />
+          <LayoutGrid class="size-3.5 text-attention" />
         </button>
         <div class="h-3.5 w-px bg-border my-auto mx-0.5"></div>
         <button
@@ -2390,35 +2439,65 @@
     <!-- PANEL 2: Monaco Python Code Editor (Unconditionally Mounted in DOM) -->
     <div
       class={stage === 'middle'
-        ? (isFullscreen ? 'hidden md:flex md:w-1/2 lg:w-[33%] min-w-0 h-full flex-col bg-surface-subtle border-r border-border transition-all duration-200' : 'hidden sm:flex sm:w-1/2 xl:w-[33%] min-w-0 h-full flex-col bg-surface-subtle border-r border-border transition-all duration-200')
+        ? ((isFullscreen || inDialog) ? 'hidden md:flex md:w-1/2 lg:w-[33%] min-w-0 h-full flex-col bg-surface-subtle border-r border-border transition-all duration-200' : 'hidden sm:flex sm:w-1/2 xl:w-[33%] min-w-0 h-full flex-col bg-surface-subtle border-r border-border transition-all duration-200')
         : stage === 'secondary'
         ? 'w-[62%] h-full flex flex-col bg-surface-subtle border-r border-border transition-all duration-200'
         : 'hidden'}
     >
       {#if stage === 'middle'}
-        <div class="px-3 py-1.5 border-b border-border bg-surface flex items-center justify-between text-[11px] font-mono text-ink-muted shrink-0">
-          <span class="flex items-center gap-1.5">
-            <Code2 class="size-3 text-mint" />
-            Live Python Output (Read-only AST)
-          </span>
+        <div class="h-8 px-3 border-b border-border bg-surface flex items-center justify-between text-xs font-mono text-ink-muted shrink-0">
           <div class="flex items-center gap-2">
-            <button
-              onclick={copyPythonCode}
-              class="px-2 py-0.5 text-[10px] font-mono border border-border bg-surface hover:bg-surface-subtle text-ink-secondary hover:text-ink transition-micro rounded-sm flex items-center gap-1"
-              title="Copy generated Python code to clipboard"
-            >
-              <span>{copiedCode ? 'Copied ✓' : 'Copy'}</span>
-            </button>
-            <span class="text-[10px] text-mint font-mono font-bold">AST Sync ✓</span>
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-surface-subtle border border-border rounded-xs text-foreground font-semibold text-[11px]">
+              <Code2 class="size-3 text-mint" />
+              <span>Python Preview</span>
+            </span>
+            <span class="text-[10px] text-mint font-mono font-bold hidden sm:inline-flex items-center gap-1">
+              <Check class="size-2.5 text-mint" />
+              <span>AST Sync</span>
+            </span>
           </div>
+          <button
+            onclick={copyPythonCode}
+            class="px-2 py-0.5 text-[10px] font-mono border border-border bg-surface hover:bg-surface-subtle text-ink-secondary hover:text-ink transition-micro rounded-xs flex items-center gap-1 cursor-pointer"
+            title="Copy generated Python code to clipboard"
+          >
+            {#if copiedCode}
+              <Check class="size-2.5 text-mint" />
+              <span>Copied</span>
+            {:else}
+              <span>Copy</span>
+            {/if}
+          </button>
         </div>
       {:else}
-        <div class="px-3 py-1.5 border-b border-border bg-surface flex items-center justify-between text-[11px] font-mono text-ink-muted shrink-0">
-          <span class="flex items-center gap-1.5">
-            <Code2 class="size-3 text-brand" />
-            Monaco Python Code Editor (Full Language Service)
-          </span>
-          <span class="text-[10px] text-ink-muted font-mono">Pyodide WASM Runtime</span>
+        <div class="h-8 px-3 border-b border-border bg-surface flex items-center justify-between text-xs font-mono text-ink-muted shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-surface-subtle border-r border-border text-foreground font-semibold text-xs">
+              <Code2 class="size-3.5 text-brand" />
+              <span>main.py</span>
+            </span>
+            <span class="px-1.5 py-0.5 text-[9px] font-mono text-ink-muted bg-surface-subtle border border-border rounded-xs">
+              Python 3.11
+            </span>
+          </div>
+          <div class="flex items-center gap-3">
+            <button
+              onclick={copyPythonCode}
+              class="px-2 py-0.5 text-[10px] font-mono border border-border bg-surface hover:bg-surface-subtle text-ink-secondary hover:text-ink transition-micro rounded-xs flex items-center gap-1 cursor-pointer"
+              title="Copy code"
+            >
+              {#if copiedCode}
+                <Check class="size-2.5 text-mint" />
+                <span>Copied</span>
+              {:else}
+                <span>Copy</span>
+              {/if}
+            </button>
+            <span class="flex items-center gap-1.5 text-[10px] font-mono text-ink-muted">
+              <span class="size-1.5 rounded-none bg-mint"></span>
+              Pyodide WASM
+            </span>
+          </div>
         </div>
       {/if}
 
@@ -2430,32 +2509,32 @@
     <!-- PANEL 3: Unified Resizable Auxiliary Dock (Single Authoritative Instance) -->
     <div
       class={stage === 'primary'
-        ? (isFullscreen ? (dockStageSize === 'expanded' ? 'w-[54%]' : 'w-[36%]') + ' min-w-75 h-full border-l border-border bg-surface flex flex-col transition-all duration-200' : 'hidden lg:flex lg:flex-col ' + (dockStageSize === 'expanded' ? 'lg:w-[54%]' : 'lg:w-[38%]') + ' min-w-75 h-full border-l border-border bg-surface transition-all duration-200')
+        ? ((isFullscreen || inDialog) ? (dockStageSize === 'expanded' ? 'w-[54%]' : 'w-[36%]') + ' min-w-75 h-full border-l border-border bg-surface flex flex-col transition-all duration-200' : 'hidden lg:flex lg:flex-col ' + (dockStageSize === 'expanded' ? 'lg:w-[54%]' : 'lg:w-[38%]') + ' min-w-75 h-full border-l border-border bg-surface transition-all duration-200')
         : stage === 'middle'
-        ? (isFullscreen ? 'hidden lg:flex lg:flex-col ' + (dockStageSize === 'expanded' ? 'lg:w-[42%]' : 'lg:w-[32%]') + ' min-w-70 h-full border-l border-border bg-surface transition-all duration-200' : 'hidden xl:flex xl:flex-col ' + (dockStageSize === 'expanded' ? 'xl:w-[42%]' : 'xl:w-[32%]') + ' min-w-70 h-full border-l border-border bg-surface transition-all duration-200')
+        ? ((isFullscreen || inDialog) ? 'hidden lg:flex lg:flex-col ' + (dockStageSize === 'expanded' ? 'lg:w-[42%]' : 'lg:w-[32%]') + ' min-w-70 h-full border-l border-border bg-surface transition-all duration-200' : 'hidden xl:flex xl:flex-col ' + (dockStageSize === 'expanded' ? 'xl:w-[42%]' : 'xl:w-[32%]') + ' min-w-70 h-full border-l border-border bg-surface transition-all duration-200')
         : (dockStageSize === 'expanded' ? 'w-[54%]' : 'w-[38%]') + ' min-w-75 h-full border-l border-border bg-surface flex flex-col transition-all duration-200'}
     >
       <!-- Level 1 Integrated Dock Tab Bar & Telemetry Strip (36px) -->
-      <div class="h-9 px-2 border-b border-border bg-surface flex items-center justify-between text-[10.5px] font-mono shrink-0 select-none gap-1">
+      <div class="h-9 px-2 border-b border-border bg-surface flex items-center justify-between text-[10.5px] font-mono shrink-0 select-none gap-1 overflow-x-auto no-scrollbar">
         <div class="inline-flex p-0.5 bg-surface-subtle border border-border rounded-sm gap-0.5 shrink-0">
           <button
             onclick={() => { auxiliaryTab = 'arena'; arenaSubView = 'field'; }}
-            class="px-1.5 py-0.5 rounded-xs transition-micro flex items-center gap-1 shrink-0 {auxiliaryTab === 'arena'
-              ? 'bg-surface text-cyan font-bold shadow-2xs'
+            class="px-2 py-0.5 rounded-xs transition-micro flex items-center gap-1.5 shrink-0 cursor-pointer {auxiliaryTab === 'arena'
+              ? 'bg-surface text-foreground font-bold shadow-2xs border border-border/50'
               : 'text-ink-muted hover:text-ink'}"
             title="ARES-Prime Autonomous Proving Ground Simulation"
           >
-            <span>🎯</span>
+            <Compass class="size-3 text-brand" />
             <span class="hidden sm:inline">Arena</span>
           </button>
           <button
             onclick={() => (auxiliaryTab = 'guidance')}
-            class="px-1.5 py-0.5 rounded-xs transition-micro flex items-center gap-1 shrink-0 {auxiliaryTab === 'guidance'
-              ? 'bg-surface text-amber-500 font-bold shadow-2xs'
+            class="px-2 py-0.5 rounded-xs transition-micro flex items-center gap-1.5 shrink-0 cursor-pointer {auxiliaryTab === 'guidance'
+              ? 'bg-surface text-foreground font-bold shadow-2xs border border-border/50'
               : 'text-ink-muted hover:text-ink'}"
             title="WAY 2.1 Mission Guidance, PRIMM Stepper & Rubric Criteria"
           >
-            <span>🧭</span>
+            <ShieldCheck class="size-3 text-attention" />
             <span class="hidden sm:inline">Guidance</span>
           </button>
           <button
@@ -2463,12 +2542,12 @@
               auxiliaryTab = 'console';
               setTimeout(() => { terminalFitAddon?.fit(); }, 40);
             }}
-            class="px-1.5 py-0.5 rounded-xs transition-micro flex items-center gap-1 shrink-0 {auxiliaryTab === 'console'
-              ? 'bg-surface text-mint font-bold shadow-2xs'
+            class="px-2 py-0.5 rounded-xs transition-micro flex items-center gap-1.5 shrink-0 cursor-pointer {auxiliaryTab === 'console'
+              ? 'bg-surface text-foreground font-bold shadow-2xs border border-border/50'
               : 'text-ink-muted hover:text-ink'}"
             title="Execution Events & Serial Terminal Console"
           >
-            <span>📋</span>
+            <TerminalSquare class="size-3 text-mint" />
             <span class="hidden sm:inline">Console</span>
             {#if missionLogs.length > 1}
               <span class="px-1 text-[8px] bg-surface-subtle border border-border text-ink-muted rounded-xs hidden md:inline">{missionLogs.length}</span>
@@ -2476,12 +2555,12 @@
           </button>
           <button
             onclick={() => (auxiliaryTab = 'hardware')}
-            class="px-1.5 py-0.5 rounded-xs transition-micro flex items-center gap-1 shrink-0 {auxiliaryTab === 'hardware'
-              ? 'bg-surface text-brand font-bold shadow-2xs'
+            class="px-2 py-0.5 rounded-xs transition-micro flex items-center gap-1.5 shrink-0 cursor-pointer {auxiliaryTab === 'hardware'
+              ? 'bg-surface text-foreground font-bold shadow-2xs border border-border/50'
               : 'text-ink-muted hover:text-ink'}"
             title="Hardware Telemetry Bridge (ESP32 / micro:bit / Arduino)"
           >
-            <span>🔌</span>
+            <Cpu class="size-3 text-brand" />
             <span class="hidden sm:inline">Hardware</span>
             {#if hardwareStreamState.isConnected}
               <span class="size-1.5 rounded-none bg-mint animate-pulse"></span>
@@ -2510,11 +2589,11 @@
           </div>
         {:else}
           <div class="flex items-center gap-1.5 shrink-0 text-[10px] text-ink-muted">
-            <!-- Dedicated Prominent Reset Button (Never truncated, high touch affordance) -->
+            <!-- Dedicated Reset Button -->
             <button
               type="button"
               onclick={resetRover}
-              class="shrink-0 px-2 py-0.5 text-[9.5px] font-mono font-bold rounded-xs border border-mint/40 bg-mint/10 text-mint hover:bg-mint/20 hover:border-mint transition-micro flex items-center gap-1 shadow-2xs cursor-pointer"
+              class="shrink-0 px-2 py-0.5 text-[9.5px] font-mono font-medium rounded-xs border border-border bg-surface hover:bg-surface-subtle text-foreground transition-micro flex items-center gap-1 shadow-2xs cursor-pointer"
               title="Reset simulated rover position and heading to origin"
               aria-label="Reset rover to origin"
             >
@@ -2525,13 +2604,15 @@
             <!-- Compact Sim Settings & Stage Layout Dropdown Menu -->
             <DropdownMenu.Root>
               <DropdownMenu.Trigger
-                class="h-6 px-1.5 border border-border bg-surface-subtle hover:bg-surface text-[9.5px] font-mono font-bold text-ink rounded-xs transition-micro flex items-center gap-1 cursor-pointer shrink-0"
-                title="Simulator Kinematics & Stage Settings"
+                class="h-6 px-1.5 border border-border bg-surface-subtle hover:bg-surface text-[9.5px] font-mono font-medium text-ink rounded-xs transition-micro flex items-center gap-1 cursor-pointer shrink-0"
+                title="Simulator Kinematics: {playbackSpeed} · Battery: {Math.round(batteryLevel)}%"
               >
-                <span>⚡ {playbackSpeed}</span>
+                <Zap class="size-2.5 text-brand shrink-0" />
+                <span>{playbackSpeed}</span>
                 <span class="text-border">·</span>
-                <span class={batteryLevel < 25 ? 'text-red-500 font-bold' : 'text-ink-muted'}>🔋{Math.round(batteryLevel)}%</span>
-                <ChevronDown class="size-2.5 text-ink-muted opacity-70" />
+                <BatteryMedium class="size-3 {batteryLevel < 25 ? 'text-destructive' : 'text-ink-muted'} shrink-0" />
+                <span class="{batteryLevel < 25 ? 'text-destructive font-bold' : 'text-ink-muted'}">{Math.round(batteryLevel)}%</span>
+                <ChevronDown class="size-2.5 text-ink-muted opacity-70 shrink-0" />
               </DropdownMenu.Trigger>
               <DropdownMenu.Content align="end" class="w-52 p-1 bg-surface-overlay border border-border shadow-md rounded-xs font-sans text-xs">
                 <div class="px-2 py-1.5 border-b border-border mb-1">
@@ -2539,24 +2620,24 @@
                 </div>
                 <DropdownMenu.Item
                   onclick={() => (playbackSpeed = '1x')}
-                  class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer {playbackSpeed === '1x' ? 'text-cyan font-bold bg-surface-raised' : 'text-ink'}"
+                  class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer {playbackSpeed === '1x' ? 'text-foreground font-bold bg-surface-raised' : 'text-ink'}"
                 >
                   <span>1x (Realtime)</span>
-                  {#if playbackSpeed === '1x'}<span class="text-cyan font-bold">✓</span>{/if}
+                  {#if playbackSpeed === '1x'}<Check class="size-3 text-brand" />{/if}
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
                   onclick={() => (playbackSpeed = '2x')}
-                  class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer {playbackSpeed === '2x' ? 'text-cyan font-bold bg-surface-raised' : 'text-ink'}"
+                  class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer {playbackSpeed === '2x' ? 'text-foreground font-bold bg-surface-raised' : 'text-ink'}"
                 >
                   <span>2x (High Speed)</span>
-                  {#if playbackSpeed === '2x'}<span class="text-cyan font-bold">✓</span>{/if}
+                  {#if playbackSpeed === '2x'}<Check class="size-3 text-brand" />{/if}
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
                   onclick={() => (playbackSpeed = 'instant')}
-                  class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer {playbackSpeed === 'instant' ? 'text-cyan font-bold bg-surface-raised' : 'text-ink'}"
+                  class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer {playbackSpeed === 'instant' ? 'text-foreground font-bold bg-surface-raised' : 'text-ink'}"
                 >
                   <span>Instant (Skip Anim)</span>
-                  {#if playbackSpeed === 'instant'}<span class="text-cyan font-bold">✓</span>{/if}
+                  {#if playbackSpeed === 'instant'}<Check class="size-3 text-brand" />{/if}
                 </DropdownMenu.Item>
 
                 <div class="px-2 py-1.5 border-b border-t border-border my-1">
@@ -2567,20 +2648,20 @@
                     dockStageSize = 'normal';
                     setTimeout(() => { if (blocklyWorkspace && blocklyLib?.svgResize) blocklyLib.svgResize(blocklyWorkspace); if (editor) editor.layout(); }, 60);
                   }}
-                  class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer {dockStageSize === 'normal' ? 'text-cyan font-bold bg-surface-raised' : 'text-ink'}"
+                  class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer {dockStageSize === 'normal' ? 'text-foreground font-bold bg-surface-raised' : 'text-ink'}"
                 >
                   <span>Standard Stage</span>
-                  {#if dockStageSize === 'normal'}<span class="text-cyan font-bold">✓</span>{/if}
+                  {#if dockStageSize === 'normal'}<Check class="size-3 text-brand" />{/if}
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
                   onclick={() => {
                     dockStageSize = 'expanded';
                     setTimeout(() => { if (blocklyWorkspace && blocklyLib?.svgResize) blocklyLib.svgResize(blocklyWorkspace); if (editor) editor.layout(); }, 60);
                   }}
-                  class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer {dockStageSize === 'expanded' ? 'text-cyan font-bold bg-surface-raised' : 'text-ink'}"
+                  class="flex items-center justify-between px-2 py-1 text-xs rounded-xs hover:bg-surface-raised cursor-pointer {dockStageSize === 'expanded' ? 'text-foreground font-bold bg-surface-raised' : 'text-ink'}"
                 >
                   <span>Expanded Stage</span>
-                  {#if dockStageSize === 'expanded'}<span class="text-cyan font-bold">✓</span>{/if}
+                  {#if dockStageSize === 'expanded'}<Check class="size-3 text-brand" />{/if}
                 </DropdownMenu.Item>
 
                 <DropdownMenu.Separator class="my-1 border-t border-border" />
@@ -2635,24 +2716,26 @@
           />
         </div>
 
-        <!-- Level 2 & 3 Telemetry Strip with Docked micro:bit Display Chip -->
-        <div class="px-3 py-1.5 border-t border-border bg-surface text-[10px] font-mono flex items-center justify-between text-ink-muted shrink-0 select-none">
+        <!-- Level 2 & 3 Telemetry Strip with Docked micro:bit Display Chip (Unclipped h-8 height) -->
+        <div class="h-8 px-3 border-t border-border bg-surface text-[10px] font-mono flex items-center justify-between text-ink-muted shrink-0 select-none">
           <div class="flex items-center gap-2 min-w-0">
-            <span class="text-ink font-bold">X: {Math.round(roverX)} <span class="text-ink-muted font-normal">Y:</span> {Math.round(roverY)}</span>
+            <span class="text-ink font-semibold">POS <span class="font-normal text-ink-muted">{Math.round(roverX)}, {Math.round(roverY)}</span></span>
             <span class="text-border">·</span>
-            <span>HDG: <strong class="text-ink">{roverHeading}°</strong></span>
-            <span class={roverDistance < 20 ? 'text-red-500 font-bold' : 'text-cyan font-bold'}>LiDAR: {roverDistance}cm</span>
+            <span>HDG <strong class="text-ink">{roverHeading}°</strong></span>
+            <span class="text-border">·</span>
+            <span class={roverDistance < 20 ? 'text-destructive font-bold' : 'text-foreground font-medium'}>LiDAR <strong class="text-ink">{roverDistance}cm</strong></span>
             {#if penTrails.length > 0 || motionPath.length > 0}
+              <span class="text-border">·</span>
               <span class="inline-flex items-center gap-1">
-                <span>TRAILS: <strong class="text-cyan">{penTrails.length + motionPath.length}</strong></span>
-                <button onclick={clearPenTrails} class="text-[9px] text-cyan hover:underline">Clear</button>
+                <span>TRAILS <strong class="text-ink">{penTrails.length + motionPath.length}</strong></span>
+                <button onclick={clearPenTrails} class="text-[9px] text-brand hover:underline cursor-pointer">Clear</button>
               </span>
             {/if}
           </div>
 
           <!-- Docked micro:bit v2 LED Display Status Chip (0% arena occlusion) -->
           <div
-            class="flex items-center gap-1.5 px-2 py-0.5 border border-border bg-surface-subtle text-[9px] font-mono rounded-none select-none shrink-0"
+            class="flex items-center gap-1.5 px-2 py-1 border border-border bg-surface-subtle text-[9px] font-mono rounded-none select-none shrink-0"
             title="Live BBC micro:bit v2 5x5 LED Display Matrix"
           >
             <span class="size-1.5 rounded-none bg-amber-500 shadow-xs shrink-0"></span>
@@ -2962,7 +3045,8 @@
                     : 'bg-surface border border-border text-ink-secondary hover:text-ink hover:bg-surface-subtle'}"
                 >
                   {#if activeExtensionIds.includes(pack.id)}
-                    <span>Enabled ✓</span>
+                    <Check class="size-3 text-mint shrink-0" />
+                    <span>Enabled</span>
                   {:else}
                     <span>+ Enable</span>
                   {/if}
@@ -3053,7 +3137,7 @@
       aria-label="Dismiss Socratic Mentor dialog"
     ></button>
 
-    <div class="w-full max-w-xl bg-surface border border-border shadow-2xl rounded-md flex flex-col max-h-[85vh] overflow-hidden animate-in zoom-in-95 duration-150 relative z-10">
+    <div class="w-full max-w-xl bg-surface border border-border shadow-2xl rounded-sm flex flex-col max-h-[85vh] overflow-hidden animate-in zoom-in-95 duration-150 relative z-10">
       <div class="flex items-center justify-between px-4 py-3 border-b border-border bg-surface shrink-0">
         <div class="flex items-center gap-2">
           <Bot class="size-4 text-accent-indigo" />
@@ -3066,7 +3150,7 @@
           class="p-1 rounded-xs text-ink-muted hover:text-ink hover:bg-surface-subtle transition-micro"
           aria-label="Close dialog"
         >
-          ✕
+          <X class="size-4" />
         </button>
       </div>
 
@@ -3099,7 +3183,7 @@
       aria-label="Dismiss mission dialog"
     ></button>
 
-    <div class="w-full max-w-2xl bg-surface border border-border shadow-2xl rounded-md flex flex-col max-h-[85vh] overflow-hidden animate-in zoom-in-95 duration-150 relative z-10">
+    <div class="w-full max-w-2xl bg-surface border border-border shadow-2xl rounded-sm flex flex-col max-h-[85vh] overflow-hidden animate-in zoom-in-95 duration-150 relative z-10">
       <!-- Dialog Header -->
       <div class="flex items-center justify-between px-4 py-3 border-b border-border bg-surface shrink-0">
         <div class="flex items-center gap-2 min-w-0">

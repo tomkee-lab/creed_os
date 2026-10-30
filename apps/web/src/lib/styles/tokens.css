@@ -22,8 +22,8 @@
   --foreground-muted: oklch(0.480 0.018 270);      /* Steel Muted #595D68 (6.3:1 AAA on Canvas) */
 
   /* Primary high-voltage accent: Electric Indigo (#5B50E6). */
-  /* Active · Success · Execute · Connected · Live · Selected · Primary CTA (<2% at rest) */
-  --mint: oklch(0.520 0.220 275);                  /* Electric Indigo #5B50E6 (5.8:1 AAA on White) */
+  /* Active · Execute · Connected · Live · Selected · Primary CTA (<2% at rest) */
+  --mint: oklch(0.520 0.220 275);                  /* Electric Indigo #5B50E6 (5.8:1 on White) */
   --mint-foreground: oklch(0.996 0.000 0);         /* Pure White #FEFEFE contrast (4.8:1 AA) */
   --mint-subtle: oklch(0.950 0.035 275);
   --mint-hover: oklch(0.480 0.230 275);
@@ -35,6 +35,12 @@
   --violet-foreground: oklch(0.996 0.000 0);
   --violet-subtle: oklch(0.950 0.035 275);
   --violet-hover: oklch(0.480 0.230 275);
+
+  /* Authentic Emerald Positive / Growth / Success state. */
+  --positive: oklch(0.600 0.160 150);              /* Emerald Green */
+  --positive-foreground: oklch(0.996 0.000 0);
+  --positive-subtle: oklch(0.955 0.035 150);
+  --positive-hover: oklch(0.550 0.170 150);
 
   /* Supporting technical and operational state accents. */
   /* Cyan: Network, infrastructure, telemetry, links */
@@ -76,8 +82,8 @@
   --ring: var(--mint);
 
   /* Semantic state system tokens. */
-  --success: var(--mint);
-  --success-foreground: var(--mint-foreground);
+  --success: var(--positive);
+  --success-foreground: var(--positive-foreground);
   --warning: var(--yellow);
   --warning-foreground: var(--yellow-foreground);
   --info: var(--cyan);
@@ -114,8 +120,8 @@
   --color-brand-hover: var(--mint-hover);
   --color-ai: var(--violet);
   --color-ai-subtle: var(--violet-subtle);
-  --color-positive: var(--mint);
-  --color-positive-subtle: var(--mint-subtle);
+  --color-positive: var(--positive);
+  --color-positive-subtle: var(--positive-subtle);
   --color-attention: var(--yellow);
   --color-attention-subtle: var(--yellow-subtle);
   --color-critical: var(--red);
@@ -140,8 +146,8 @@
   --accent-primary-subtle: var(--mint-subtle);
   --accent-indigo: var(--violet);
   --accent-indigo-subtle: var(--violet-subtle);
-  --accent-success: var(--mint);
-  --accent-success-subtle: var(--mint-subtle);
+  --accent-success: var(--positive);
+  --accent-success-subtle: var(--positive-subtle);
   --accent-warning: var(--yellow);
   --accent-warning-subtle: var(--yellow-subtle);
   --accent-danger: var(--red);
@@ -152,7 +158,7 @@
   --radius-2xs: 2px;
   --radius-xs: 3px;
   --radius-sm: 4px;
-  --radius-md: 6px;
+  --radius-md: 8px;
   --radius: 4px;
   --radius-lg: 8px;
   --radius-xl: 10px;
@@ -206,6 +212,11 @@
   --violet-foreground: oklch(0.160 0.015 265);
   --violet-subtle: oklch(0.290 0.050 275);
   --violet-hover: oklch(0.760 0.170 275);
+
+  --positive: oklch(0.720 0.160 150);
+  --positive-foreground: oklch(0.160 0.015 265);
+  --positive-subtle: oklch(0.280 0.040 150);
+  --positive-hover: oklch(0.760 0.160 150);
 
   --cyan: oklch(0.820 0.140 205);
   --cyan-foreground: oklch(0.160 0.015 265);
@@ -263,6 +274,11 @@
   --violet: oklch(0.520 0.220 275);
   --violet-foreground: oklch(0.996 0.000 0);
   --violet-subtle: oklch(0.950 0.035 275);
+
+  --positive: oklch(0.600 0.160 150);
+  --positive-foreground: oklch(0.996 0.000 0);
+  --positive-subtle: oklch(0.955 0.035 150);
+  --positive-hover: oklch(0.550 0.170 150);
 
   --cyan: oklch(0.540 0.140 205);
   --cyan-foreground: oklch(0.990 0.002 240);

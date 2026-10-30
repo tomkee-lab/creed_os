@@ -11,7 +11,6 @@
     CheckCircle2,
     Circle,
     AlertCircle,
-    Sparkles,
     ChevronRight,
     ChevronDown,
     Play,
@@ -23,8 +22,13 @@
     Cpu,
     ExternalLink,
     Check,
-    Bot
+    Bot,
+    X,
+    Filter,
+    Target,
+    Layers
   } from 'lucide-svelte';
+  import { Dialog } from 'bits-ui';
 
 
   interface Props {
@@ -79,6 +83,15 @@
     })
   );
 
+  // Curriculum Modal Dialog State
+  let showCurriculumDialog = $state(false);
+  let curriculumFilter = $state<'all' | 'preparatory' | 'middle' | 'secondary'>('all');
+  let filteredMissions = $derived(
+    Object.values(STEM_MISSIONS).filter(
+      (m) => curriculumFilter === 'all' || m.stage === curriculumFilter
+    )
+  );
+
   // Active PRIMM Step index (0 to 4: Predict, Run, Investigate, Modify, Make)
   let activePrimmIndex = $state(0);
   let completedPrimmSteps = $state<number[]>([]);
@@ -112,31 +125,46 @@
   <header class="p-3 border-b border-border bg-surface shrink-0 space-y-2">
     <!-- Row 1: Mission Identity & Criteria Progress in one cohesive line -->
     <div class="flex items-center justify-between gap-1.5">
-      <div class="flex items-center gap-1.5 min-w-0 flex-1">
-        <span class="text-base shrink-0" aria-hidden="true">{mission.icon}</span>
-        <h2 class="text-xs font-bold text-ink truncate">
-          {mission.title}
-        </h2>
+      <button
+        type="button"
+        onclick={() => (showCurriculumDialog = true)}
+        class="flex items-center gap-1.5 min-w-0 flex-1 hover:opacity-80 transition-micro text-left group cursor-pointer"
+        title="Click to browse 10-level STEM mission curriculum"
+      >
+        <div class="p-1 rounded-sm bg-brand/10 text-brand border border-brand/20 shrink-0">
+          <Compass class="size-3.5" />
+        </div>
+        <div class="flex items-center gap-1.5 min-w-0">
+          <h2 class="text-xs font-bold text-ink truncate group-hover:text-brand transition-colors">
+            {mission.title}
+          </h2>
+          <ChevronDown class="size-3 text-ink-muted shrink-0 opacity-60 group-hover:opacity-100" />
+        </div>
         <span class="text-[10px] font-mono text-ink-muted shrink-0">L{mission.level}/10</span>
-      </div>
+      </button>
 
       <!-- Live Rubric Progress Chip -->
-      <div class="px-1.5 py-0.5 border border-border rounded-xs bg-surface-subtle font-mono text-[9.5px] shrink-0 flex items-center gap-1 shadow-2xs">
+      <div class="px-2 py-0.5 border border-border rounded-xs bg-surface-subtle font-mono text-[9.5px] shrink-0 flex items-center gap-1 shadow-2xs">
         <strong class={rubricEval.passed ? 'text-positive font-bold' : 'text-attention font-bold'}>
           {rubricEval.completedItems.length}/{rubricEval.totalItems} criteria
         </strong>
       </div>
     </div>
 
-    <!-- Row 2: Level 1 Signal: Primary Mission Directive (Crisp signal, no card bloat) -->
-    <div class="flex items-start gap-1.5 text-xs text-ink bg-surface-subtle border border-border p-1.5 px-2 rounded-sm shadow-2xs">
-      <span class="text-[9px] font-mono uppercase tracking-wider px-1 py-0.5 border rounded-xs shrink-0 mt-0.5 {getStageBadge(mission.stage).color}">
-        {mission.gradeBracket}
-      </span>
-      <p class="text-[11px] leading-snug flex-1 min-w-0 line-clamp-2">
-        <strong class="font-bold text-ink mr-1">Directive:</strong>{mission.objective}
+    <!-- Row 2: Level 1 Signal: Primary Mission Directive (Clean, readable, zero truncation) -->
+    <div class="flex flex-col gap-1 text-xs text-ink bg-surface-subtle border border-border p-2 rounded-sm shadow-2xs">
+      <div class="flex items-center justify-between gap-1">
+        <div class="flex items-center gap-1.5">
+          <span class="text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.2 border rounded-xs font-semibold {getStageBadge(mission.stage).color}">
+            {mission.gradeBracket}
+          </span>
+          <span class="text-[9px] font-mono text-ink-muted uppercase">Mission Directive</span>
+        </div>
+        <span class="text-[9px] font-mono text-accent-indigo font-semibold">{mission.cstaStandard}</span>
+      </div>
+      <p class="text-[11px] leading-relaxed text-ink font-medium pt-0.5">
+        {mission.objective}
       </p>
-      <span class="text-[9px] font-mono text-accent-indigo shrink-0 hidden sm:inline">CSTA Aligned</span>
     </div>
 
     <!-- Row 3: Primary Action Bar (Action-First UX) -->
@@ -144,7 +172,7 @@
       <button
         onclick={() => onVerify?.()}
         disabled={isVerifying}
-        class="flex-1 px-3 py-1 bg-positive hover:bg-positive/90 active:bg-positive text-positive-foreground font-mono text-xs font-semibold rounded-sm transition-micro flex items-center justify-center gap-1.5 shadow-2xs disabled:opacity-50"
+        class="flex-1 px-3 py-1.5 bg-mint hover:bg-mint-hover active:bg-mint-active text-white font-mono text-xs font-bold rounded-sm transition-micro flex items-center justify-center gap-1.5 shadow-2xs disabled:opacity-50 cursor-pointer"
         title="Deterministically evaluate code and physical telemetry against mission rubric"
       >
         {#if isVerifying}
@@ -152,16 +180,16 @@
           <span>Verifying Rubric...</span>
         {:else if rubricEval.passed}
           <CheckCircle2 class="size-3.5" />
-          <span>Verify Solution & Record Evidence</span>
+          <span>Verify & Record Evidence</span>
         {:else}
-          <Play class="size-3.5" />
-          <span>Verify ({rubricEval.completedItems.length}/{rubricEval.totalItems} criteria)</span>
+          <Play class="size-3.5 fill-current" />
+          <span>Verify Solution ({rubricEval.completedItems.length}/{rubricEval.totalItems})</span>
         {/if}
       </button>
 
       <button
         onclick={() => (showMentorModal = true)}
-        class="px-2 py-1 border border-border hover:bg-surface-subtle text-accent-indigo font-mono text-xs rounded-sm transition-micro flex items-center gap-1 shrink-0 bg-surface"
+        class="px-3 py-1.5 border border-border hover:bg-surface text-accent-indigo font-mono text-xs font-medium rounded-sm transition-micro flex items-center gap-1 shrink-0 bg-surface shadow-2xs cursor-pointer"
         title="Open Socratic AI Mentor for guided questions without giving away answers"
       >
         <Bot class="size-3.5" />
@@ -170,7 +198,7 @@
 
       <button
         onclick={() => onResetWorkspace?.()}
-        class="p-1 border border-border hover:bg-surface-subtle text-ink-muted hover:text-ink rounded-sm transition-micro shrink-0 bg-surface"
+        class="p-1.5 border border-border hover:bg-surface text-ink-muted hover:text-ink rounded-sm transition-micro shrink-0 bg-surface shadow-2xs cursor-pointer"
         title="Reset workspace blocks to mission starter template"
         aria-label="Reset workspace to mission template"
       >
@@ -226,7 +254,7 @@
     <section class="space-y-1.5">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-ink-muted">
-          <Sparkles class="size-3 text-attention" />
+          <Compass class="size-3 text-brand" />
           <span>PRIMM Inquiry Progression</span>
         </div>
         <span class="text-[10px] font-mono text-ink-muted">
@@ -292,10 +320,10 @@
         </span>
       </div>
 
-      <div class="space-y-1">
+      <div class="space-y-1.5">
         {#each mission.rubric as item}
           {@const isPassed = rubricEval.completedItems.includes(item.id)}
-          <div class="p-1.5 px-2 border rounded-xs transition-micro flex items-start gap-2 {isPassed ? 'bg-positive-subtle/50 border-positive/20' : 'bg-surface-subtle border-border'}">
+          <div class="p-2 border rounded-xs transition-micro flex items-start gap-2 {isPassed ? 'bg-positive-subtle/50 border-positive/30' : 'bg-surface-subtle border-border'}">
             <div class="pt-0.5 shrink-0">
               {#if isPassed}
                 <CheckCircle2 class="size-3.5 text-positive" />
@@ -305,14 +333,20 @@
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between gap-1 text-xs">
-                <span class="font-medium {isPassed ? 'text-ink line-through opacity-80' : 'text-ink'}">
+                <span class="font-semibold text-ink">
                   {item.label}
                 </span>
-                <span class="font-mono text-[10px] text-ink-muted shrink-0">
-                  +{item.points} pts
-                </span>
+                {#if isPassed}
+                  <span class="px-1.5 py-0.2 rounded-xs bg-positive/10 text-positive border border-positive/30 font-mono text-[9px] font-bold shrink-0">
+                    Demonstrated
+                  </span>
+                {:else}
+                  <span class="px-1.5 py-0.2 rounded-xs bg-surface text-ink-muted border border-border font-mono text-[9px] shrink-0">
+                    Pending
+                  </span>
+                {/if}
               </div>
-              <p class="text-[11px] text-ink-muted leading-tight mt-0.5">
+              <p class="text-[11px] text-ink-muted leading-relaxed mt-0.5">
                 {item.description}
               </p>
             </div>
@@ -334,7 +368,7 @@
         <span class="text-[10px] font-mono text-ink-muted">Need a deeper hint without the answer?</span>
         <button
           onclick={() => (showMentorModal = true)}
-          class="text-[11px] font-mono text-accent-indigo hover:underline flex items-center gap-1 font-semibold"
+          class="text-[11px] font-mono text-accent-indigo hover:underline flex items-center gap-1 font-semibold cursor-pointer"
         >
           <span>Ask Socratic Mentor</span>
           <ChevronRight class="size-3" />
@@ -342,34 +376,126 @@
       </div>
     </section>
 
-    <!-- MISSION CATALOG BROWSER: Quick Switch Across All 10 Levels -->
-    <section class="space-y-1.5 pt-2 border-t border-border">
-      <div class="flex items-center justify-between text-xs font-mono uppercase tracking-wider text-ink-muted">
-        <span class="flex items-center gap-1.5">
-          <Cpu class="size-3 text-cyan" />
-          <span>10-Level STEM Curriculum Ladder</span>
+    <!-- LEVEL 3: STEM CURRICULUM LADDER ACTION CARD -->
+    <section class="p-3 border border-border bg-surface-subtle rounded-sm space-y-2">
+      <div class="flex items-center justify-between text-xs font-mono">
+        <span class="flex items-center gap-1.5 font-bold text-ink uppercase tracking-wider">
+          <BookOpen class="size-3.5 text-brand" />
+          <span>Curriculum Ladder</span>
         </span>
-        <span class="text-[10px]">Cl 3 to 12</span>
+        <span class="text-[10px] text-ink-muted font-mono">10 Levels</span>
       </div>
-
-      <div class="grid grid-cols-2 gap-1.5 pt-1">
-        {#each Object.values(STEM_MISSIONS) as m}
-          {@const isCurrent = m.id === activeMissionId}
-          <button
-            onclick={() => onSelectMission?.(m.id)}
-            class="p-2 text-left border rounded-xs transition-micro flex flex-col justify-between {isCurrent ? 'bg-surface border-cyan shadow-2xs' : 'bg-surface-subtle border-border hover:bg-surface'}"
-          >
-            <div class="flex items-center justify-between gap-1 w-full">
-              <span class="text-sm">{m.icon}</span>
-              <span class="text-[9px] font-mono text-ink-muted uppercase">{m.stage.slice(0, 4)}</span>
-            </div>
-            <div class="text-[11px] font-semibold text-ink truncate mt-1">{m.title}</div>
-            <div class="text-[9.5px] font-mono text-ink-muted truncate">Lvl {m.level} • {m.gradeBracket.split('•')[0]}</div>
-          </button>
-        {/each}
-      </div>
+      <p class="text-[11px] text-ink-muted leading-relaxed">
+        Current: <strong class="text-ink">{mission.title}</strong> (Lvl {mission.level} · {mission.gradeBracket})
+      </p>
+      <button
+        type="button"
+        onclick={() => (showCurriculumDialog = true)}
+        class="w-full py-1.5 px-3 bg-surface hover:bg-surface-subtle border border-border rounded-sm text-xs font-mono font-medium text-ink transition-micro flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+      >
+        <Compass class="size-3.5 text-brand" />
+        <span>Browse All 10 STEM Missions...</span>
+      </button>
     </section>
   </div>
 </aside>
+
+<!-- BITS UI DIALOG: 10-LEVEL STEM MISSION CURRICULUM CATALOG -->
+<Dialog.Root bind:open={showCurriculumDialog}>
+  <Dialog.Portal>
+    <Dialog.Overlay class="fixed inset-0 z-50 bg-black/60 backdrop-blur-2xs transition-opacity duration-150" />
+    <Dialog.Content class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl max-h-[85vh] bg-surface border border-border rounded-sm shadow-2xl z-50 flex flex-col font-sans select-none overflow-hidden focus-visible:outline-none animate-in fade-in-0 zoom-in-98 duration-150">
+      <!-- Modal Header -->
+      <div class="p-4 border-b border-border bg-surface-subtle flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-2">
+          <div class="p-1.5 rounded-sm bg-brand/10 text-brand border border-brand/20">
+            <Compass class="size-4" />
+          </div>
+          <div>
+            <Dialog.Title class="text-sm font-bold text-ink">10-Level STEM Robotics Curriculum</Dialog.Title>
+            <Dialog.Description class="text-[11px] text-ink-muted font-mono">
+              Progressive computational robotics & sensor feedback ladder from Classes 3 to 12
+            </Dialog.Description>
+          </div>
+        </div>
+        <button
+          onclick={() => (showCurriculumDialog = false)}
+          class="p-1.5 rounded-sm hover:bg-surface text-ink-muted hover:text-ink transition-micro cursor-pointer"
+          aria-label="Close Curriculum Catalog"
+        >
+          <X class="size-4" />
+        </button>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="px-4 py-2 border-b border-border bg-surface flex items-center gap-1.5 shrink-0 overflow-x-auto no-scrollbar">
+        <span class="text-[10px] font-mono text-ink-muted uppercase mr-1 flex items-center gap-1">
+          <Filter class="size-3" />
+          Stage:
+        </span>
+        <button
+          type="button"
+          onclick={() => (curriculumFilter = 'all')}
+          class="px-3 py-1 text-xs font-mono rounded-xs transition-micro cursor-pointer {curriculumFilter === 'all' ? 'bg-ink text-canvas font-bold' : 'bg-surface-subtle border border-border text-ink-muted hover:text-ink'}"
+        >
+          All (10)
+        </button>
+        <button
+          type="button"
+          onclick={() => (curriculumFilter = 'preparatory')}
+          class="px-3 py-1 text-xs font-mono rounded-xs transition-micro cursor-pointer {curriculumFilter === 'preparatory' ? 'bg-positive text-white font-bold' : 'bg-surface-subtle border border-border text-ink-muted hover:text-ink'}"
+        >
+          Preparatory (Cl 3–5)
+        </button>
+        <button
+          type="button"
+          onclick={() => (curriculumFilter = 'middle')}
+          class="px-3 py-1 text-xs font-mono rounded-xs transition-micro cursor-pointer {curriculumFilter === 'middle' ? 'bg-brand text-white font-bold' : 'bg-surface-subtle border border-border text-ink-muted hover:text-ink'}"
+        >
+          Middle (Cl 6–8)
+        </button>
+        <button
+          type="button"
+          onclick={() => (curriculumFilter = 'secondary')}
+          class="px-3 py-1 text-xs font-mono rounded-xs transition-micro cursor-pointer {curriculumFilter === 'secondary' ? 'bg-ai text-white font-bold' : 'bg-surface-subtle border border-border text-ink-muted hover:text-ink'}"
+        >
+          Secondary (Cl 9–12)
+        </button>
+      </div>
+
+      <!-- Mission List Grid -->
+      <div class="flex-1 overflow-y-auto p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-surface-subtle">
+        {#each filteredMissions as m}
+          {@const isCurrent = m.id === activeMissionId}
+          <div class="p-3 bg-surface border rounded-sm flex flex-col justify-between gap-2 shadow-2xs transition-micro {isCurrent ? 'ring-2 ring-brand border-brand' : 'border-border hover:border-brand/40'}">
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.2 border rounded-xs font-semibold {getStageBadge(m.stage).color}">
+                  {m.gradeBracket}
+                </span>
+                <span class="text-[10px] font-mono text-ink-muted font-bold">Level {m.level}/10</span>
+              </div>
+              <h3 class="text-xs font-bold text-ink leading-snug">{m.title}</h3>
+              <p class="text-[11px] text-ink-muted leading-relaxed line-clamp-2">{m.objective}</p>
+            </div>
+            <div class="pt-2 border-t border-border flex items-center justify-between gap-2">
+              <span class="text-[9.5px] font-mono text-ink-muted truncate max-w-36">{m.cstaStandard}</span>
+              <button
+                type="button"
+                onclick={() => {
+                  onSelectMission?.(m.id);
+                  showCurriculumDialog = false;
+                }}
+                class="px-3 py-1 text-xs font-mono rounded-xs transition-micro cursor-pointer {isCurrent ? 'bg-brand/10 text-brand border border-brand/30 font-bold' : 'bg-brand text-white font-semibold hover:bg-brand/90'}"
+              >
+                {isCurrent ? 'Active Mission' : 'Select Mission'}
+              </button>
+            </div>
+          </div>
+        {/each}
+      </div>
+    </Dialog.Content>
+  </Dialog.Portal>
+</Dialog.Root>
 
 

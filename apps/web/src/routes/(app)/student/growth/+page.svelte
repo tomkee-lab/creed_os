@@ -220,23 +220,25 @@
           </a>
         </div>
       {:else}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="border border-border rounded-sm overflow-hidden bg-surface divide-y divide-border shadow-2xs">
           {#each capabilities as cap}
-            <div class="p-5 bg-surface border border-border rounded-sm space-y-3 shadow-2xs">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-ink">{cap.name}</span>
-                <span class="px-2 py-0.5 rounded-sm text-[10px] font-mono font-semibold {cap.tier === 'positive'
-                  ? 'bg-mint/10 text-mint border border-mint/20'
-                  : 'bg-attention/10 text-attention border border-attention/20'}">
-                  {cap.band}
-                </span>
+            <div class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-surface-raised/40 transition-colors">
+              <div class="space-y-1 min-w-0 max-w-xl">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-ink">{cap.name}</span>
+                  <span class="px-2 py-0.5 rounded-sm text-[10px] font-mono font-semibold {cap.tier === 'positive'
+                    ? 'bg-mint/10 text-mint border border-mint/20'
+                    : 'bg-attention/10 text-attention border border-attention/20'}">
+                    {cap.band}
+                  </span>
+                </div>
+                <p class="text-xs text-ink-secondary leading-relaxed">
+                  {cap.summary}
+                </p>
               </div>
-              <p class="text-xs text-ink-secondary leading-relaxed">
-                {cap.summary}
-              </p>
-              <div class="pt-2 border-t border-border flex items-center justify-between text-[11px] font-mono text-ink-muted">
-                <span>Demonstration Depth</span>
-                <span class="font-bold text-ink">{cap.rating} / {cap.maxRating} Verified Criteria</span>
+
+              <div class="flex items-center gap-4 shrink-0 font-mono text-[11px] text-ink-muted self-start sm:self-center">
+                <span class="font-bold text-ink">{cap.rating} / {cap.maxRating} criteria met</span>
               </div>
             </div>
           {/each}
@@ -397,9 +399,9 @@
             <button
               type="button"
               onclick={() => (selectedPathwayId = p.id)}
-              class="px-3 py-1 text-xs font-mono rounded-sm transition-micro cursor-pointer border {selectedPathwayId === p.id
+              class="px-3 py-1 text-xs font-mono rounded-sm transition-micro cursor-pointer border focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand {selectedPathwayId === p.id
                 ? 'border-brand bg-brand-subtle text-brand font-bold shadow-2xs ring-1 ring-brand/30'
-                : 'border-border bg-surface hover:bg-surface-subtle text-ink-secondary'}"
+                : 'border-border-strong bg-surface hover:bg-surface-subtle text-ink-secondary'}"
             >
               {p.title}
             </button>

@@ -1,5 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { coreRepository } from '$lib/server/repository';
+import { resolveLearnerId } from '$lib/server/learnerScope';
 
 export const load: PageServerLoad = async ({ locals }) => {
   const user = locals.user;
@@ -13,5 +15,12 @@ export const load: PageServerLoad = async ({ locals }) => {
     throw redirect(303, '/consent');
   }
 
-  return {};
+  const learnerId = resolveLearnerId(user);
+  const hasActiveConsent = learnerId ? coreRepository.hasActiveConsent(learnerId) : false;
+  const consentRecord = learnerId ? coreRepository.getConsentRecord(learnerId) : undefined;
+
+  return {
+    hasActiveConsent,
+    consentStatus: consentRecord?.status || (hasActiveConsent ? 'VERIFIED_ACTIVE' : 'PENDING_PARENTAL_NOTICE')
+  };
 };

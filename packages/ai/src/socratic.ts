@@ -17,15 +17,15 @@ export interface SocraticPromptConfig {
 
 export const MISCONCEPTION_DE_INDIVIDUALIZATIONS: Record<string, string> = {
   MISC_SIGN_INVERSION:
-    'Over 40% of young engineers navigate this exact conceptual step when balancing equations—let\'s unravel it together.',
+    'Over 40% of young engineers navigate this exact conceptual step when balancing equations: let\'s unravel it together.',
   MISC_TURN_OMISSION:
-    'Over 40% of young engineers navigate this exact conceptual step when sequencing autonomous navigation turns—let\'s unravel it together.',
+    'Over 40% of young engineers navigate this exact conceptual step when sequencing autonomous navigation turns: let\'s unravel it together.',
   MISC_RATIO_INVERSION:
-    'Over 40% of young engineers navigate this exact conceptual step when calculating gear torque ratios—let\'s unravel it together.',
+    'Over 40% of young engineers navigate this exact conceptual step when calculating gear torque ratios: let\'s unravel it together.',
   MISC_HARDWARE_BLAME:
-    'Over 40% of young engineers navigate this exact conceptual step when isolating software feedback from sensor state—let\'s unravel it together.',
+    'Over 40% of young engineers navigate this exact conceptual step when isolating software feedback from sensor state: let\'s unravel it together.',
   MISC_OPERATOR_PRECEDENCE:
-    'Over 40% of young engineers navigate this exact conceptual step when determining operator precedence—let\'s unravel it together.'
+    'Over 40% of young engineers navigate this exact conceptual step when determining operator precedence: let\'s unravel it together.'
 };
 
 export const UNIVERSAL_TRUST_MESSAGE =
@@ -52,7 +52,7 @@ export function generateSocraticSystemPrompt(config: SocraticPromptConfig): stri
   if (config.misconceptionCode) {
     const specificMessage =
       MISCONCEPTION_DE_INDIVIDUALIZATIONS[config.misconceptionCode] ||
-      `Over 40% of young engineers navigate this exact conceptual step when balancing equations—let's unravel it together.`;
+      `Over 40% of young engineers navigate this exact conceptual step when balancing equations: let's unravel it together.`;
 
     prompt += `\n[DE-INDIVIDUALIZATION PROTOCOL]: The student triggered misconception ${config.misconceptionCode}. Do NOT frame this as a personal mistake. Say: "${specificMessage}"`;
   }

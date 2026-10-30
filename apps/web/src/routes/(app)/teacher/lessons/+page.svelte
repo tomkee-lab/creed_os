@@ -1,6 +1,5 @@
 <script lang="ts">
   import {
-    Sparkles,
     BookOpen,
     Layers,
     Compass,
@@ -434,7 +433,7 @@
       <div class="p-6 bg-surface border-2 border-brand/40 rounded-sm space-y-5 shadow-sm">
         <div class="flex items-center justify-between pb-3 border-b border-border">
           <div class="flex items-center gap-2">
-            <Sparkles class="size-4 text-brand" />
+            <Layers class="size-4 text-brand" />
             <h3 class="text-sm font-bold text-ink">Compose 3-Tier Differentiated CRA Lesson Plan</h3>
           </div>
           <span class="text-xs font-mono text-ink-muted">NEP 2020 & PISA Aligned</span>
